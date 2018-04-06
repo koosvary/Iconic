@@ -18,7 +18,7 @@ public class Debug {
      */
     public static void out(String output) {
         if (Boolean.getBoolean("debug")) {
-            System.err.println(out);
+            System.err.println(output);
         }
     }
 }
