@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-Path: lombok-1.16.16.jar
+Main-Class: org.aiconic.Main
+
