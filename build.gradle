@@ -6,7 +6,7 @@ allprojects {
   apply plugin: "jacoco"
 
   group = 'org.iconic'
-  description = """Gene Expression"""
+  description = """Aiconic Engine"""
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8
