@@ -12,10 +12,10 @@ buildscript {
 }
 
 dependencies {
-  compile project(':api')
+    compile project(':api')
 }
 
 jfx {
-  mainClass = 'org.aiconic.Bootstrapper'
-  vendor = 'Aiconic'
+    mainClass = 'org.aiconic.Bootstrapper'
+    vendor = 'Aiconic'
 }

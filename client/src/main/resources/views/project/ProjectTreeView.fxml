@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.StackPane?>
+
+<?import javafx.scene.control.TreeItem?>
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="org.aiconic.project.ProjectTreeController">
+    <TreeView fx:id="projectView" prefWidth="360"/>
+</StackPane>
