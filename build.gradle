@@ -4,9 +4,10 @@ import java.util.regex.Matcher;
 allprojects {
   apply plugin: 'java'
   apply plugin: "jacoco"
+  apply plugin: 'idea'
 
   group = 'org.iconic'
-  description = """Gene Expression"""
+  description = """Aiconic Engine"""
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8

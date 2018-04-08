@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.StackPane?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="org.aiconic.menu.MenuController"
+           fx:id="pane">
+    <MenuBar>
+        <Menu text="%menu.file">
+            <MenuItem text="%menu.import" accelerator="Shortcut+D" onAction="#importDataset"/>
+            <SeparatorMenuItem/>
+            <MenuItem text="%menu.exit" accelerator="Shortcut+X" onAction="#exit"/>
+        </Menu>
+        <Menu text="%menu.edit"/>
+        <Menu text="%menu.view"/>
+    </MenuBar>
+</StackPane>

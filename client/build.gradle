@@ -1,0 +1,21 @@
+apply plugin: 'javafx-gradle-plugin'
+
+buildscript {
+    dependencies {
+        classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.8.2'
+    }
+    
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+}
+
+dependencies {
+    compile project(':api')
+}
+
+jfx {
+    mainClass = 'org.aiconic.Bootstrapper'
+    vendor = 'Aiconic'
+}
