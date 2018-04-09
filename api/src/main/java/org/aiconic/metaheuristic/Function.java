@@ -17,7 +17,8 @@ public class Function
         if (functionType.children() == 0)
         {
             Random rand = new Random();
-            inputVariableIndex = rand.nextInt(DataManager.getFeatureSize() - 1);
+            int upperBound = (DataManager.getFeatureSize() - 1 > 0) ? DataManager.getFeatureSize() - 1 : 1;
+            inputVariableIndex = rand.nextInt(upperBound);
             constant = rand.nextDouble() * 2;
         }
     }
