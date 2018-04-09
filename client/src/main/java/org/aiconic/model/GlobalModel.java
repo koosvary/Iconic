@@ -3,8 +3,16 @@ package org.aiconic.model;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableMapValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
+import org.aiconic.metaheuristic.Trainer;
+import org.aiconic.workspace.WorkspaceController;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * <p>
@@ -16,7 +24,7 @@ import javafx.collections.ObservableList;
  */
 public enum GlobalModel {
     INSTANCE;
-
+    private final ObservableMap<UUID, SearchModel> searches;
     private final ObjectProperty<DatasetModel> activeDataset;
     private final ObservableList<DatasetModel> datasets;
 
@@ -26,11 +34,13 @@ public enum GlobalModel {
      * </p>
      */
     private GlobalModel() {
+        Map<UUID, SearchModel> map = new HashMap<>();
+
+        this.searches = FXCollections.observableMap(map);
         this.activeDataset = new SimpleObjectProperty<>(null);
         this.datasets = FXCollections.observableArrayList(dataset -> new Observable[]{
                 dataset.absolutePathProperty(), dataset.nameProperty()
         });
-        this.datasets.add(new DatasetModel("Home", "Home"));
     }
 
     /**
@@ -79,5 +89,9 @@ public enum GlobalModel {
      */
     public void setActiveDataset(final DatasetModel activeDataset) {
         activeDatasetProperty().set(activeDataset);
+    }
+
+    public ObservableMap<UUID, SearchModel> searchesProperty() {
+        return searches;
     }
 }

@@ -53,8 +53,7 @@ public class MenuController implements Initializable {
      * Opens a file dialog for choosing a dataset to import.
      * </p>
      *
-     * @param actionEvent
-     *      The action that triggered the event
+     * @param actionEvent The action that triggered the event
      */
     public void importDataset(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();

@@ -49,13 +49,17 @@ public class ProjectTreeController implements Initializable {
      */
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
-        projectView.setCellFactory(p -> new DatasetTreeCellImpl());
-        projectView.setShowRoot(false);
-        projectView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) ->
-                GlobalModel.INSTANCE.setActiveDataset(newValue.getValue())
-        );
+        // Check that the tree view actually exists
+        if (projectView != null) {
+            projectView.setCellFactory(p -> new DatasetTreeCellImpl());
 
-        updateTreeView();
+            // Add a listener to check when the tree view's selection is changed and make the model match it
+            projectView.getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) ->
+                    setTreeViewSelection(newValue)
+            );
+
+            updateTreeView();
+        }
     }
 
     /**
@@ -64,14 +68,35 @@ public class ProjectTreeController implements Initializable {
      * </p>
      */
     private void updateTreeView() {
-        TreeItem<DatasetModel> root = new TreeItem<>();
-        root.setExpanded(true);
+        // Check that the tree view actually exists
+        if (projectView != null) {
+            TreeItem<DatasetModel> root = new TreeItem<>();
+            root.setExpanded(true);
 
-        for (final DatasetModel d : GlobalModel.INSTANCE.getDatasets()) {
-            root.getChildren().add(new TreeItem<>(d));
+            // Add every dataset as a child to the root node
+            for (final DatasetModel d : GlobalModel.INSTANCE.getDatasets()) {
+                root.getChildren().add(new TreeItem<>(d));
+            }
+
+            projectView.setRoot(root);
+            projectView.setShowRoot(false);
         }
+    }
 
-        projectView.setRoot(root);
+    /**
+     * <p>Sets the current active dataset to the value within the provided tree view cell</p>
+     *
+     * @param cell
+     *      The cell whose contents are to be set as the current active dataset
+     */
+    private void setTreeViewSelection(TreeItem<DatasetModel> cell) {
+        if (cell != null) {
+            final DatasetModel dataset = cell.getValue();
+
+            if (cell.getValue() != null) {
+                GlobalModel.INSTANCE.setActiveDataset(dataset);
+            }
+        }
     }
 
     /**

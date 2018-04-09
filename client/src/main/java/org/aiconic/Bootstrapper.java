@@ -1,19 +1,19 @@
 package org.aiconic;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.UUID;
 
 import javafx.application.Application;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import org.aiconic.io.DataManager;
-import org.aiconic.metaheuristic.Trainer;
-import org.aiconic.model.DatasetModel;
 import org.aiconic.model.GlobalModel;
+import org.aiconic.model.SearchModel;
 
 public class Bootstrapper extends Application {
 
@@ -44,50 +44,45 @@ public class Bootstrapper extends Application {
         // Load the child UI elements from FXML resources
         FXMLLoader menuLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/menu/MenuView.fxml"));
         FXMLLoader projectLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/project/ProjectTreeView.fxml"));
+        FXMLLoader workspaceLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/workspace/WorkspaceView.fxml"));
 
         // Provide a localisation resource to use for i18n strings
         if (Locale.getDefault().getLanguage().startsWith("en")) {
             menuLoader.setResources(ResourceBundle.getBundle("localisation.en_au"));
             projectLoader.setResources(ResourceBundle.getBundle("localisation.en_au"));
+            workspaceLoader.setResources(ResourceBundle.getBundle("localisation.en_au"));
         }
         // Just throw an exception for other languages (for now)
         else {
             throw new UnsupportedOperationException("Your language is not yet supported");
         }
 
-
         try {
             root.setTop(menuLoader.load());
             root.setLeft(projectLoader.load());
+            root.setCenter(workspaceLoader.load());
         } catch (IOException ex) {
             System.err.println(ex.getMessage());
         }
 
         Scene scene = new Scene(root, 720, 480);
-        // Load our stylesheets
-        scene.getStylesheets().add(getClass().getClassLoader().getResource("stylesheet.css").toExternalForm());
-        primaryStage.setScene(scene);
 
+        // Load our stylesheets
+        URL stylesheet = getClass().getClassLoader().getResource("stylesheet.css");
+
+        if (stylesheet != null) {
+            scene.getStylesheets().add(stylesheet.toExternalForm());
+        }
+
+        primaryStage.setScene(scene);
         primaryStage.setMaximized(true);
         primaryStage.show();
     }
 
-    /**
-     * Starts a search using the currently selected dataset.
-     *
-     * @param actionEvent
-     *      The action that triggered this event.
-     */
-    @Deprecated
-    private void startSearch(ActionEvent actionEvent) {
-        DatasetModel dataset = GlobalModel.INSTANCE.getActiveDataset();
-
-        if (dataset != null) {
-            DataManager DM = new DataManager();
-            DM.importData(dataset.getAbsolutePath());
-            DM.normalizeScale();
-            Trainer trainer = new Trainer();
-            trainer.startSearch();
+    @Override
+    public void stop() {
+        for (Map.Entry<UUID, SearchModel> search : GlobalModel.INSTANCE.searchesProperty().entrySet()) {
+            search.getValue().stop();
         }
     }
 }
