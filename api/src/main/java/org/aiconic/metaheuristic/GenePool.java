@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 
 public class GenePool implements Runnable
 {
+    private boolean running;
     private int id;
     private int numGenes;
     private GeneExpression[] genes;
@@ -18,6 +19,7 @@ public class GenePool implements Runnable
     {
         this.id = id;
         this.numGenes = numGenes;
+        this.running = false;
         generateGenes();
     }
     
@@ -36,6 +38,9 @@ public class GenePool implements Runnable
         List<Double> scores;
         int bestScoreIndex;
         boolean newBest;
+
+        setRunning(true);
+
         do
         {
             //Debug.out("GenePool " + id + " run()");
@@ -66,7 +71,7 @@ public class GenePool implements Runnable
                 genes[i] = new GeneExpression();
             }
         }
-        while (scores.get(bestScoreIndex) > 0.3);
+        while (scores.get(bestScoreIndex) > 0.3 && isRunning());
             
         String[] expression = genes[0].getExpression();
         
@@ -76,5 +81,13 @@ public class GenePool implements Runnable
             output += s + ", ";
         
         System.out.println("GenePool " + id + " Best expression = " + output + " Best score = " + scores.get(bestScoreIndex));
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
     }
 }

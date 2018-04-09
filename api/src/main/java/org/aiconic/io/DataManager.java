@@ -37,7 +37,7 @@ public class DataManager
         featureSize = 0;
         sampleSize = 0;
         File file = new File(fileName);
-        
+
         // This ArrayList holds all the data collected from the file
         samples = new ArrayList<double[]>();
         
