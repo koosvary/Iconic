@@ -10,10 +10,35 @@
     <MenuBar>
         <Menu text="%menu.file">
             <MenuItem text="%menu.import" accelerator="Shortcut+D" onAction="#importDataset"/>
+            <MenuItem text="%menu.open" />
+            <Menu text="%menu.openRecent" />
+            <SeparatorMenuItem />
+            <MenuItem text="%menu.close" />
+            <MenuItem text="%menu.save" />
+            <MenuItem text="%menu.saveAs" />
+            <MenuItem text="%menu.revert" />
+            <SeparatorMenuItem/>
+            <MenuItem text="%menu.preferences"/>
             <SeparatorMenuItem/>
             <MenuItem text="%menu.exit" accelerator="Shortcut+X" onAction="#exit"/>
         </Menu>
-        <Menu text="%menu.edit"/>
+        <Menu text="%menu.edit">
+            <MenuItem text="%menu.undo" />
+            <MenuItem text="%menu.redo" />
+            <SeparatorMenuItem/>
+            <MenuItem text="%menu.cut" />
+            <MenuItem text="%menu.copy" />
+            <MenuItem text="%menu.paste" />
+            <MenuItem text="%menu.delete" />
+            <SeparatorMenuItem/>
+            <MenuItem text="%menu.selectAll" />
+            <MenuItem text="%menu.deselectAll" />
+        </Menu>
         <Menu text="%menu.view"/>
+        <Menu text="%menu.help">
+            <items>
+                <MenuItem text="About AIonic Workbench" onAction="#showAbout"/>
+            </items>
+        </Menu>
     </MenuBar>
 </StackPane>

@@ -4,6 +4,8 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import org.aiconic.model.DatasetModel;
@@ -93,5 +95,20 @@ public class MenuController implements Initializable {
      */
     private StackPane getPane() {
         return pane;
+    }
+
+    public void showAbout(ActionEvent actionEvent) {
+        Alert alert = new Alert(
+                Alert.AlertType.INFORMATION,
+                "Iconic Solutions © 2018",
+                ButtonType.OK
+        );
+
+        alert.setTitle("About");
+        alert.setHeaderText("About");
+
+        alert.showAndWait()
+            .filter(response -> response == ButtonType.OK)
+            .ifPresent(response -> alert.close());
     }
 }
