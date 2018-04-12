@@ -2,6 +2,12 @@ apply plugin: 'application'
 
 mainClassName = 'org.aiconic.Main'
 
+run {
+  if (project.hasProperty("appArgs")) {
+    args Eval.me(appArgs)
+  }
+}
+
 jar {
   baseName = 'gene-expression-core'
   version = '0.0.5'
@@ -14,5 +20,9 @@ jar {
       'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
       'Main-Class': 'org.aiconic.Main'
     )
+  }
+
+  from {
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
   }
 }

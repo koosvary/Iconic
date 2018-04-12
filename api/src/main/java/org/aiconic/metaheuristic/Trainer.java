@@ -3,8 +3,11 @@ package org.aiconic.metaheuristic;
 import java.util.*;
 
 import org.aiconic.io.Debug;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Trainer {
+    private static final Logger logger = LogManager.getLogger(Trainer.class.getName());
     private int numCores;
     private int numThreads;
     private int numGenes;
@@ -37,8 +40,7 @@ public class Trainer {
     }
 
     public void generateThreads() {
-        Debug.out("Trainer  generateThreads()");
-        Debug.out("Trainer  Number of threads: " + numThreads);
+        logger.debug("Trainer::generateThreads() called with {} threads", () -> numThreads);
 
         for (int i = 0; i < numThreads; i++) {
             GenePool deme = new GenePool(i, numGenes);
