@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.stage.Screen?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<Tab text="Start Search"
+     xmlns="http://javafx.com/javafx"
+     xmlns:fx="http://javafx.com/fxml"
+     fx:controller="org.aiconic.workspace.WorkspaceController">
+    <!-- Define the primary screen so we can use percentage based widths -->
+    <fx:define>
+        <Screen fx:factory="getPrimary" fx:id="screen"/>
+    </fx:define>
+
+    <HBox>
+        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.33}">
+            <padding>
+                <Insets top="10" bottom="10" left="10" right="10"/>
+            </padding>
+            <Label text="%search.progress.options.title">
+                <font>
+                    <Font size="16.0"/>
+                </font>
+            </Label>
+            <CheckBox text="Option A"/>
+            <CheckBox text="Option B"/>
+            <CheckBox text="Option C"/>
+            <CheckBox text="Option D"/>
+        </VBox>
+        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.66}">
+            <padding>
+                <Insets top="10" bottom="10" left="10" right="10"/>
+            </padding>
+            <AnchorPane>
+                <ProgressIndicator progress="0.17" AnchorPane.topAnchor="10" AnchorPane.rightAnchor="20"/>
+                <LineChart title="%search.progress.chart.title"
+                           AnchorPane.topAnchor="0"
+                           AnchorPane.leftAnchor="0"
+                           AnchorPane.rightAnchor="0"
+                           AnchorPane.BottomAnchor="0">
+                    <xAxis>
+                        <CategoryAxis side="BOTTOM"/>
+                    </xAxis>
+                    <yAxis>
+                        <NumberAxis side="LEFT"/>
+                    </yAxis>
+                </LineChart>
+            </AnchorPane>
+        </VBox>
+    </HBox>
+</Tab>

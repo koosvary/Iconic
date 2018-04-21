@@ -4,12 +4,11 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
 
-<BorderPane xmlns="http://javafx.com/javafx"
+<SplitPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.aiconic.workspace.WorkspaceController">
-    <center>
+            fx:controller="org.aiconic.workspace.WorkspaceController"
+            orientation="VERTICAL">
         <AnchorPane>
             <TabPane AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
                      AnchorPane.rightAnchor="0">
@@ -20,12 +19,9 @@
                             GridPane.columnIndex="2"/>
                 </Tab>
                 <fx:include source="DatasetView.fxml"/>
-                <Tab text="Configure Search"/>
+                <fx:include source="SearchProgressView.fxml"/>
                 <Tab text="Results"/>
             </TabPane>
         </AnchorPane>
-    </center>
-    <bottom>
         <fx:include source="ConsoleView.fxml"/>
-    </bottom>
-</BorderPane>
+</SplitPane>
