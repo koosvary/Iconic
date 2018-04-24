@@ -1,20 +1,19 @@
-package org.aiconic;
+package org.iconic;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Locale;
-import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.UUID;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import org.aiconic.model.GlobalModel;
-import org.aiconic.model.SearchModel;
+import lombok.extern.log4j.Log4j2;
+import lombok.val;
+import org.iconic.global.GlobalModel;
 
+@Log4j2
 public class Bootstrapper extends Application {
 
     /**
@@ -35,16 +34,15 @@ public class Bootstrapper extends Application {
     @Override
     public void start(Stage primaryStage) {
         // Create the primary stage
-        Stage primaryStage1 = primaryStage;
-        primaryStage.setTitle("- AIconic Workbench");
+        primaryStage.setTitle("- Iconic Workbench");
 
         // Create the root node for placing all the other components
-        BorderPane root = new BorderPane();
+        val root = new BorderPane();
 
         // Load the child UI elements from FXML resources
-        FXMLLoader menuLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/menu/MenuView.fxml"));
-        FXMLLoader projectLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/project/ProjectTreeView.fxml"));
-        FXMLLoader workspaceLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/workspace/WorkspaceView.fxml"));
+        val menuLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/menu/MenuView.fxml"));
+        val projectLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/project/ProjectTreeView.fxml"));
+        val workspaceLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/workspace/WorkspaceView.fxml"));
 
         // Provide a localisation resource to use for i18n strings
         if (Locale.getDefault().getLanguage().startsWith("en")) {
@@ -62,13 +60,13 @@ public class Bootstrapper extends Application {
             root.setLeft(projectLoader.load());
             root.setCenter(workspaceLoader.load());
         } catch (IOException ex) {
-            System.err.println(ex.getMessage());
+            log.debug(ex.getMessage());
         }
 
-        Scene scene = new Scene(root, 720, 480);
+        val scene = new Scene(root, 720, 480);
 
         // Load our stylesheets
-        URL stylesheet = getClass().getClassLoader().getResource("stylesheet.css");
+        val stylesheet = getClass().getClassLoader().getResource("stylesheet.css");
 
         if (stylesheet != null) {
             scene.getStylesheets().add(stylesheet.toExternalForm());
@@ -81,7 +79,7 @@ public class Bootstrapper extends Application {
 
     @Override
     public void stop() {
-        for (Map.Entry<UUID, SearchModel> search : GlobalModel.INSTANCE.searchesProperty().entrySet()) {
+        for (val search : GlobalModel.INSTANCE.searchesProperty().entrySet()) {
             search.getValue().stop();
         }
     }

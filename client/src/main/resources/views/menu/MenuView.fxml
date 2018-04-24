@@ -5,11 +5,11 @@
 
 <StackPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
-           fx:controller="org.aiconic.menu.MenuController"
+           fx:controller="org.iconic.menu.MenuController"
            fx:id="pane">
     <MenuBar>
         <Menu text="%menu.file">
-            <MenuItem text="%menu.import" accelerator="Shortcut+D" onAction="#importDataset"/>
+            <MenuItem text="%menu.new" accelerator="Shortcut+N" onAction="#createProject"/>
             <MenuItem text="%menu.open" />
             <Menu text="%menu.openRecent" />
             <SeparatorMenuItem />

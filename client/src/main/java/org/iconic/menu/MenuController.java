@@ -1,4 +1,4 @@
-package org.aiconic.menu;
+package org.iconic.menu;
 
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -6,12 +6,13 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.StackPane;
-import javafx.stage.FileChooser;
-import org.aiconic.model.DatasetModel;
-import org.aiconic.model.GlobalModel;
+import lombok.extern.log4j.Log4j2;
+import lombok.val;
+import org.iconic.global.GlobalModel;
+import org.iconic.project.ProjectModel;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -20,9 +21,10 @@ import java.util.ResourceBundle;
  * A controller for handling menu options.
  * </p>
  * <p>
- * The MenuController maintains the functionality available through the menu.
+ * The MenuController maintains the functionality available through the main menu toolbar.
  * </p>
  */
+@Log4j2
 public class MenuController implements Initializable {
     @FXML
     private StackPane pane;
@@ -52,31 +54,6 @@ public class MenuController implements Initializable {
 
     /**
      * <p>
-     * Opens a file dialog for choosing a dataset to import.
-     * </p>
-     *
-     * @param actionEvent The action that triggered the event
-     */
-    public void importDataset(ActionEvent actionEvent) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Import Dataset");
-        // Show only .txt and .csv files
-        fileChooser.getExtensionFilters().addAll(
-                new FileChooser.ExtensionFilter("Text files", "*.txt", "*.csv")
-        );
-
-        // Show the file dialog over the parent window
-        File f = fileChooser.showOpenDialog(getPane().getScene().getWindow());
-
-        // If the user selected a file add it to the global model as a dataset
-        if (f != null) {
-            final DatasetModel dataset = new DatasetModel(f.getName(), f.getAbsolutePath());
-            GlobalModel.INSTANCE.getDatasets().add(dataset);
-        }
-    }
-
-    /**
-     * <p>
      * Closes all stages and exits the application.
      * </p>
      *
@@ -97,10 +74,15 @@ public class MenuController implements Initializable {
         return pane;
     }
 
+    /**
+     * Shows an about modal
+     *
+     * @param actionEvent The action that triggered this event
+     */
     public void showAbout(ActionEvent actionEvent) {
-        Alert alert = new Alert(
+        val alert = new Alert(
                 Alert.AlertType.INFORMATION,
-                "Iconic Solutions © 2018",
+                "Iconic © 2018",
                 ButtonType.OK
         );
 
@@ -108,7 +90,29 @@ public class MenuController implements Initializable {
         alert.setHeaderText("About");
 
         alert.showAndWait()
-            .filter(response -> response == ButtonType.OK)
-            .ifPresent(response -> alert.close());
+                .filter(response -> response == ButtonType.OK)
+                .ifPresent(response -> alert.close());
+    }
+
+    /**
+     * Creates a new project with the name provided by a user's input
+     * and then attaches it to the global model instance
+     *
+     * @param actionEvent The action that triggered this event
+     */
+    public void createProject(ActionEvent actionEvent) {
+        val defaultName = "";
+        val dialog = new TextInputDialog(defaultName);
+
+        dialog.setTitle("New Project");
+        dialog.setHeaderText("Project name");
+
+        // Create the project only if a name was provided
+        dialog.showAndWait().ifPresent(
+                name -> {
+                    final ProjectModel project = ProjectModel.builder().name(name).build();
+                    GlobalModel.getInstance().getProjects().add(project);
+                }
+        );
     }
 }

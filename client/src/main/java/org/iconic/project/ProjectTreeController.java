@@ -1,0 +1,227 @@
+package org.iconic.project;
+
+import javafx.beans.InvalidationListener;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.*;
+import javafx.scene.input.KeyCombination;
+import javafx.stage.FileChooser;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.val;
+import org.iconic.project.dataset.DatasetModel;
+import org.iconic.global.GlobalModel;
+
+import java.io.File;
+import java.net.URL;
+import java.util.ResourceBundle;
+
+/**
+ * <p>
+ * A controller for handling the project tree explorer view.
+ * </p>
+ * <p>
+ * The ProjectTreeController maintains a tree view of the currently loaded datasets.
+ * </p>
+ */
+public class ProjectTreeController implements Initializable {
+    @FXML
+    @Getter(AccessLevel.PRIVATE)
+    private TreeView<Displayable> projectView;
+
+    /**
+     * <p>
+     * Constructs a new ProjectTreeController that attaches an invalidation listener onto the global model.
+     * </p>
+     */
+    public ProjectTreeController() {
+        // Update the tree view whenever its backing global is invalidated
+        InvalidationListener listener = observable -> updateTreeView();
+
+        GlobalModel.getInstance().getProjects().addListener(listener);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Any user interface configuration that needs to happen at construction time must be done in this method to
+     * guarantee that it's run after the user interface has been initialised.
+     * </p>
+     */
+    @Override
+    public void initialize(URL arg1, ResourceBundle arg2) {
+        // Check that the tree view actually exists
+        if (getProjectView() != null) {
+            getProjectView().setCellFactory(p -> new ProjectItemTreeCellImpl());
+
+            // Add a listener to check when the tree view's selection is changed and make the global match it
+            getProjectView().getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) ->
+                    setTreeViewSelection(newValue)
+            );
+
+            updateTreeView();
+        }
+    }
+
+    /**
+     * <p>
+     * Updates the tree view based on the global global.
+     * </p>
+     */
+    private void updateTreeView() {
+        // Check that the tree view actually exists
+        if (getProjectView() != null) {
+            val root = new TreeItem<Displayable>();
+            root.setExpanded(true);
+
+            // Add every project as a child to the root node
+            for (final ProjectModel p : GlobalModel.getInstance().getProjects()) {
+                val child = new TreeItem<Displayable>(p);
+
+                for (final DatasetModel d : p.getDatasets()) {
+                    child.getChildren().add(new TreeItem<>(d));
+                }
+
+                child.setExpanded(true);
+
+                root.getChildren().add(child);
+            }
+
+            getProjectView().setRoot(root);
+            getProjectView().setShowRoot(false);
+        }
+    }
+
+    /**
+     * <p>Sets the current active dataset to the value within the provided tree view cell</p>
+     *
+     * @param cell
+     *      The cell whose contents are to be set as the current active dataset
+     */
+    private void setTreeViewSelection(TreeItem<Displayable> cell) {
+        if (cell != null) {
+            val item = cell.getValue();
+
+            if (item != null) {
+                GlobalModel.getInstance().setActiveProjectItem(item);
+            }
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * A ProjectItemTreeCellImpl defines a cell factory for formatting the contents of a tree view when the
+     * cells contain project items.
+     * </p>
+     */
+    private final class ProjectItemTreeCellImpl extends TreeCell<Displayable> {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void updateItem(Displayable item, boolean empty) {
+            super.updateItem(item, empty);
+
+            // If there's no item in the cell, don't display anything
+            if (empty) {
+                setText(null);
+            }
+            // Otherwise display the item's withName
+            else {
+                setText(item.getLabel());
+
+                // If the cell is for a ProjectModel give it a custom context menu
+                if (item instanceof ProjectModel) {
+                    // Add a menu item for importing datasets
+                    val miImportDataset = new MenuItem("Import _Dataset...");
+                    miImportDataset.setOnAction(this::importDataset);
+                    miImportDataset.setMnemonicParsing(true);
+                    miImportDataset.setAccelerator(KeyCombination.keyCombination("Shortcut+D"));
+
+                    // Add a menu item for renaming the project
+                    val miRenameProject = new MenuItem("_Rename...");
+                    miRenameProject.setOnAction(this::renameProject);
+                    miRenameProject.setMnemonicParsing(true);
+                    miRenameProject.setAccelerator(KeyCombination.keyCombination("Shortcut+R"));
+
+                    setContextMenu(
+                            new ContextMenu(miImportDataset, miRenameProject)
+                    );
+                }
+            }
+        }
+
+        /**
+         * <p>
+         * Opens a file dialog for choosing a dataset to import.
+         * </p>
+         *
+         * @param actionEvent The action that triggered the event
+         */
+        private void importDataset(ActionEvent actionEvent) {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Import Dataset");
+            // Show only .txt and .csv files
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("Text files", "*.txt", "*.csv")
+            );
+
+            // Show the file dialog over the parent window
+            File f = fileChooser.showOpenDialog(getTreeView().getScene().getWindow());
+
+            // If the user selected a file add it to the current active item as a dataset
+            if (f != null) {
+                val dataset = new DatasetModel(f.getName(), f.getAbsolutePath());
+                val item = GlobalModel.getInstance().getActiveProjectItem();
+
+                // If the current active item isn't a project don't do anything
+                if (item instanceof ProjectModel) {
+                    val project = (ProjectModel) item;
+                    val newProject = project.toBuilder().dataset(dataset).build();
+
+                    GlobalModel.getInstance().setActiveProjectItem(null);
+                    GlobalModel.getInstance().getProjects().remove(project);
+                    GlobalModel.getInstance().getProjects().add(newProject);
+                    GlobalModel.getInstance().setActiveProjectItem(newProject);
+                }
+            }
+        }
+
+
+        /**
+         * <p>
+         * Opens a text input dialog for renaming the selected project.
+         * </p>
+         *
+         * @param actionEvent The action that triggered the event
+         */
+        private void renameProject(ActionEvent actionEvent) {
+            val item = GlobalModel.getInstance().getActiveProjectItem();
+
+            // If the current active item isn't a project don't do anything
+            if (item instanceof ProjectModel) {
+                val project = (ProjectModel) item;
+                val defaultName = project.getLabel();
+
+                // Open a text input dialog to get the new name and only do anything if the new name
+                // is different
+                TextInputDialog dialog = new TextInputDialog(defaultName);
+                dialog.setTitle("Rename Project");
+                dialog.setHeaderText("Project name");
+                dialog.showAndWait().ifPresent(
+                        name -> {
+                            if (!name.trim().equals(project.getLabel())) {
+                                val newProject = project.toBuilder().name(name).build();
+                                GlobalModel.getInstance().setActiveProjectItem(null);
+                                GlobalModel.getInstance().getProjects().remove(project);
+                                GlobalModel.getInstance().getProjects().add(newProject);
+                                GlobalModel.getInstance().setActiveProjectItem(newProject);
+                            }
+                        }
+                );
+            }
+        }
+    }
+}

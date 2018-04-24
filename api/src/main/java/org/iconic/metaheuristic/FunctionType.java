@@ -1,4 +1,4 @@
-package org.aiconic.metaheuristic;
+package org.iconic.metaheuristic;
 
 public enum FunctionType {
     // BLOCK_NAME( Symbol Representation, Complexity)

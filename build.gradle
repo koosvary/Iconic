@@ -7,7 +7,7 @@ allprojects {
   apply plugin: 'idea'
 
   group = 'org.iconic'
-  description = """Aiconic Engine"""
+  description = """Iconic Framework"""
 
   sourceCompatibility = 1.8
   targetCompatibility = 1.8

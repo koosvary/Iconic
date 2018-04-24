@@ -1,6 +1,6 @@
-package org.aiconic.metaheuristic;
+package org.iconic.metaheuristic;
 
-import org.aiconic.io.DataManager;
+import org.iconic.io.DataManager;
 
 public class ErrorFunction {
 

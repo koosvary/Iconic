@@ -1,4 +1,4 @@
-package org.aiconic.io;
+package org.iconic.io;
 
 import java.util.*;
 import java.io.*;

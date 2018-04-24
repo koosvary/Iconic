@@ -12,7 +12,7 @@
 <Tab text="Prepare Data"
      xmlns="http://javafx.com/javafx"
      xmlns:fx="http://javafx.com/fxml"
-     fx:controller="org.aiconic.workspace.WorkspaceController">
+     fx:controller="org.iconic.workspace.WorkspaceController">
     <VBox spacing="5">
         <padding><Insets top="10" bottom="10" left="10" right="10"/></padding>
         <VBox>

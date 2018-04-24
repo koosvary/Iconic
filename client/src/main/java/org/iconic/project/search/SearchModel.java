@@ -1,40 +1,33 @@
-package org.aiconic.model;
+package org.iconic.project.search;
 
-import org.aiconic.io.DataManager;
-import org.aiconic.metaheuristic.Trainer;
+import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
+import org.iconic.io.DataManager;
+import org.iconic.metaheuristic.Trainer;
+import org.iconic.project.dataset.DatasetModel;
 
 import java.util.Arrays;
 
 /**
  * <p>
- * A model for evolutionary searches, it maintains a dataset, data manager, and a trainer.
+ * A global for evolutionary searches, it maintains a dataset, data manager, and a trainer.
  * </p>
  * <p>
  * SearchModels implement the Runnable interface so that the search may be performed on a separate thread.
  * </p>
  */
+@Log4j2
 public class SearchModel implements Runnable {
     private final DataManager dataManager;
     private final DatasetModel datasetModel;
     private Trainer trainer;
 
     /**
-     * <p>
-     * Constructs a new search model with no dataset, data manager, nor trainer.
-     * </p>
-     */
-    private SearchModel() {
-        this.datasetModel = null;
-        this.dataManager = null;
-        this.trainer = null;
-    }
-
-    /**
-     * Constructs a new search model with tne provided dataset.
+     * Constructs a new search global with tne provided dataset.
      * @param datasetModel
      *      The dataset to perform the search on
      */
-    public SearchModel(final DatasetModel datasetModel) {
+    public SearchModel(@NonNull final DatasetModel datasetModel) {
         this.datasetModel = datasetModel;
         this.dataManager = new DataManager();
         this.trainer = null;
@@ -42,12 +35,15 @@ public class SearchModel implements Runnable {
         try {
             this.trainer = new Trainer();
         } catch (Exception ex) {
-            System.err.println(ex.getMessage() + ": ");
-            Arrays.stream(ex.getStackTrace()).forEach(System.err::println);
+            log.debug(ex.getMessage());
+            Arrays.stream(ex.getStackTrace()).forEach(log::debug);
             // TODO: The Trainer throws null pointer exceptions
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void run() {
         dataManager.importData(datasetModel.getAbsolutePath());
@@ -80,7 +76,7 @@ public class SearchModel implements Runnable {
      * Returns the dataset that's being trained on.
      * </p>
      * @return
-     *      The dataset that this search model is training on
+     *      The dataset that this search global is training on
      */
     public DatasetModel getDatasetModel() {
         return datasetModel;

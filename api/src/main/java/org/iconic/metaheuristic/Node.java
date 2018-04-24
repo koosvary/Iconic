@@ -1,4 +1,4 @@
-package org.aiconic.metaheuristic;
+package org.iconic.metaheuristic;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

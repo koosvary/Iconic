@@ -1,7 +1,12 @@
-package org.aiconic.model;
+package org.iconic.project.dataset;
 
 import javafx.beans.property.SimpleStringProperty;
+import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
+import org.iconic.project.Displayable;
 
+import java.net.URI;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -9,7 +14,8 @@ import java.util.UUID;
  * A model for datasets.
  * </p>
  */
-public class DatasetModel {
+@Log4j2
+public class DatasetModel implements Displayable {
     private final UUID id;
     private final SimpleStringProperty name;
     private final SimpleStringProperty absolutePath;
@@ -17,40 +23,55 @@ public class DatasetModel {
     /**
      * <p>Constructs a new DatasetModel with the provided name and absolute path.</p>
      *
-     * @return
-     *      The absolute path to the dataset
+     * @param name The name of the dataset
+     * @param absolutePath The absolute path to the dataset
      */
-    public DatasetModel(String name, String absolutePath) {
+    public DatasetModel(@NonNull String name, @NonNull String absolutePath) {
         this.name = new SimpleStringProperty(name);
         this.absolutePath = new SimpleStringProperty(absolutePath);
         this.id = UUID.randomUUID();
     }
 
     /**
-     * <p>Returns the file name of this dataset.</p>
+     * Returns the name of this DatasetModel
      *
-     * @return
-     *      The file name of the dataset
+     * @return the name of the DatasetModel
      */
     public String getName() {
-        return name.get();
+        return nameProperty().get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getLabel() {
+        return getName();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return
+     */
+    @Override
+    public Optional<URI> getIcon() {
+        return Optional.empty();
     }
 
     /**
      * <p>Returns the name property of this dataset.</p>
      *
-     * @return
-     *      The name property of the dataset
+     * @return The name property of the dataset
      */
-    final SimpleStringProperty nameProperty() {
+    public final SimpleStringProperty nameProperty() {
         return name;
     }
 
     /**
      * <p>Returns the absolute path of this dataset.</p>
      *
-     * @return
-     *      The absolute path to the dataset
+     * @return The absolute path to the dataset
      */
     public String getAbsolutePath() {
         return absolutePath.get();
@@ -59,18 +80,16 @@ public class DatasetModel {
     /**
      * <p>Returns the absolute path property of this dataset.</p>
      *
-     * @return
-     *      The absolute path property of the dataset
+     * @return The absolute path property of the dataset
      */
-    final SimpleStringProperty absolutePathProperty() {
+    public final SimpleStringProperty absolutePathProperty() {
         return absolutePath;
     }
 
     /**
      * <p>Sets the name of this dataset to the provided value.</p>
      *
-     * @param name
-     *      The new name for this dataset
+     * @param name The new name for this dataset
      */
     public void setName(final String name) {
         this.nameProperty().set(name);
@@ -79,8 +98,7 @@ public class DatasetModel {
     /**
      * <p>Sets the absolute path to this dataset to the provided value.</p>
      *
-     * @param absolutePath
-     *      The new absolute path for this dataset
+     * @param absolutePath The new absolute path for this dataset
      */
     public void setAbsolutePath(final String absolutePath) {
         this.absolutePathProperty().set(absolutePath);

@@ -1,8 +1,8 @@
-package org.aiconic.metaheuristic;
+package org.iconic.metaheuristic;
 
 import java.util.*;
 
-import org.aiconic.io.DataManager;
+import org.iconic.io.DataManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

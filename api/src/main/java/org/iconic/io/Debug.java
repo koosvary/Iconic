@@ -1,4 +1,4 @@
-package org.aiconic.io;
+package org.iconic.io;
 
 /**
  * A utility class for printing debug statements.
