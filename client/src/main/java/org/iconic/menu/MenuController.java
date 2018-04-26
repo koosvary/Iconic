@@ -1,5 +1,6 @@
 package org.iconic.menu;
 
+import com.google.inject.Inject;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -10,8 +11,8 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.StackPane;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import org.iconic.global.GlobalModel;
 import org.iconic.project.ProjectModel;
+import org.iconic.project.ProjectService;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -26,6 +27,8 @@ import java.util.ResourceBundle;
  */
 @Log4j2
 public class MenuController implements Initializable {
+    private final ProjectService projectService;
+
     @FXML
     private StackPane pane;
 
@@ -34,18 +37,17 @@ public class MenuController implements Initializable {
      * Constructs a new MenuController
      * </p>
      */
-    public MenuController() {
-        // Do nothing
+    @Inject
+    public MenuController(final ProjectService projectService) {
+        this.projectService = projectService;
     }
 
     /**
+     * {@inheritDoc}
      * <p>
      * Any user interface configuration that needs to happen at construction time must be done in this method to
      * guarantee that it's run after the user interface has been initialised.
      * </p>
-     *
-     * @param arg1
-     * @param arg2
      */
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
@@ -96,7 +98,7 @@ public class MenuController implements Initializable {
 
     /**
      * Creates a new project with the name provided by a user's input
-     * and then attaches it to the global model instance
+     * and then attaches it to the project service
      *
      * @param actionEvent The action that triggered this event
      */
@@ -111,8 +113,19 @@ public class MenuController implements Initializable {
         dialog.showAndWait().ifPresent(
                 name -> {
                     final ProjectModel project = ProjectModel.builder().name(name).build();
-                    GlobalModel.getInstance().getProjects().add(project);
+                    getProjectService().getProjects().add(project);
                 }
         );
+    }
+
+    /**
+     * <p>
+     * Returns the project service of this controller
+     * </p>
+     *
+     * @return the project service of the controller
+     */
+    private ProjectService getProjectService() {
+        return projectService;
     }
 }

@@ -49,6 +49,7 @@ allprojects {
     compile group: 'org.projectlombok', name: 'lombok', version: '1.16.16'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.0'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.0'
+    compile group: 'com.google.inject', name: 'guice', version: '4.2.0'
   }
 
   // JaCoCo relies on the test task's execution data by default so we need to point it at JUnit 5's task instead.

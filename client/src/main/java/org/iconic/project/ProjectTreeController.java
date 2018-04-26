@@ -1,5 +1,6 @@
 package org.iconic.project;
 
+import com.google.inject.Inject;
 import javafx.beans.InvalidationListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,7 +12,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.global.GlobalModel;
+import org.iconic.workspace.WorkspaceService;
 
 import java.io.File;
 import java.net.URL;
@@ -26,20 +27,27 @@ import java.util.ResourceBundle;
  * </p>
  */
 public class ProjectTreeController implements Initializable {
+    private final ProjectService projectService;
+    private final WorkspaceService workspaceService;
+
     @FXML
     @Getter(AccessLevel.PRIVATE)
     private TreeView<Displayable> projectView;
 
     /**
      * <p>
-     * Constructs a new ProjectTreeController that attaches an invalidation listener onto the global model.
+     * Constructs a new ProjectTreeController that attaches an invalidation listener onto the project service.
      * </p>
      */
-    public ProjectTreeController() {
-        // Update the tree view whenever its backing global is invalidated
+    @Inject
+    public ProjectTreeController(final ProjectService projectService, final WorkspaceService workspaceService) {
+        this.projectService = projectService;
+        this.workspaceService = workspaceService;
+
+        // Update the tree view whenever its backing model is invalidated
         InvalidationListener listener = observable -> updateTreeView();
 
-        GlobalModel.getInstance().getProjects().addListener(listener);
+        getProjectService().getProjects().addListener(listener);
     }
 
     /**
@@ -55,7 +63,7 @@ public class ProjectTreeController implements Initializable {
         if (getProjectView() != null) {
             getProjectView().setCellFactory(p -> new ProjectItemTreeCellImpl());
 
-            // Add a listener to check when the tree view's selection is changed and make the global match it
+            // Add a listener to check when the tree view's selection is changed and make the model match it
             getProjectView().getSelectionModel().selectedItemProperty().addListener((obs, oldValue, newValue) ->
                     setTreeViewSelection(newValue)
             );
@@ -66,7 +74,7 @@ public class ProjectTreeController implements Initializable {
 
     /**
      * <p>
-     * Updates the tree view based on the global global.
+     * Updates the tree view based on the backing model.
      * </p>
      */
     private void updateTreeView() {
@@ -76,7 +84,7 @@ public class ProjectTreeController implements Initializable {
             root.setExpanded(true);
 
             // Add every project as a child to the root node
-            for (final ProjectModel p : GlobalModel.getInstance().getProjects()) {
+            for (final ProjectModel p : getProjectService().getProjects()) {
                 val child = new TreeItem<Displayable>(p);
 
                 for (final DatasetModel d : p.getDatasets()) {
@@ -96,17 +104,38 @@ public class ProjectTreeController implements Initializable {
     /**
      * <p>Sets the current active dataset to the value within the provided tree view cell</p>
      *
-     * @param cell
-     *      The cell whose contents are to be set as the current active dataset
+     * @param cell The cell whose contents are to be set as the current active dataset
      */
     private void setTreeViewSelection(TreeItem<Displayable> cell) {
         if (cell != null) {
             val item = cell.getValue();
 
             if (item != null) {
-                GlobalModel.getInstance().setActiveProjectItem(item);
+                getWorkspaceService().setActiveWorkspaceItem(item);
             }
         }
+    }
+
+    /**
+     * <p>
+     * Returns the project service of this controller
+     * </p>
+     *
+     * @return the project service of the controller
+     */
+    private ProjectService getProjectService() {
+        return projectService;
+    }
+
+    /**
+     * <p>
+     * Returns the workspace service of this controller
+     * </p>
+     *
+     * @return the workspace service of the controller
+     */
+    private WorkspaceService getWorkspaceService() {
+        return workspaceService;
     }
 
     /**
@@ -174,17 +203,17 @@ public class ProjectTreeController implements Initializable {
             // If the user selected a file add it to the current active item as a dataset
             if (f != null) {
                 val dataset = new DatasetModel(f.getName(), f.getAbsolutePath());
-                val item = GlobalModel.getInstance().getActiveProjectItem();
+                val item = getWorkspaceService().getActiveWorkspaceItem();
 
                 // If the current active item isn't a project don't do anything
                 if (item instanceof ProjectModel) {
                     val project = (ProjectModel) item;
                     val newProject = project.toBuilder().dataset(dataset).build();
 
-                    GlobalModel.getInstance().setActiveProjectItem(null);
-                    GlobalModel.getInstance().getProjects().remove(project);
-                    GlobalModel.getInstance().getProjects().add(newProject);
-                    GlobalModel.getInstance().setActiveProjectItem(newProject);
+                    getWorkspaceService().setActiveWorkspaceItem(null);
+                    getProjectService().getProjects().remove(project);
+                    getProjectService().getProjects().add(newProject);
+                    getWorkspaceService().setActiveWorkspaceItem(newProject);
                 }
             }
         }
@@ -198,7 +227,7 @@ public class ProjectTreeController implements Initializable {
          * @param actionEvent The action that triggered the event
          */
         private void renameProject(ActionEvent actionEvent) {
-            val item = GlobalModel.getInstance().getActiveProjectItem();
+            val item = getWorkspaceService().getActiveWorkspaceItem();
 
             // If the current active item isn't a project don't do anything
             if (item instanceof ProjectModel) {
@@ -214,10 +243,10 @@ public class ProjectTreeController implements Initializable {
                         name -> {
                             if (!name.trim().equals(project.getLabel())) {
                                 val newProject = project.toBuilder().name(name).build();
-                                GlobalModel.getInstance().setActiveProjectItem(null);
-                                GlobalModel.getInstance().getProjects().remove(project);
-                                GlobalModel.getInstance().getProjects().add(newProject);
-                                GlobalModel.getInstance().setActiveProjectItem(newProject);
+                                getWorkspaceService().setActiveWorkspaceItem(null);
+                                getProjectService().getProjects().remove(project);
+                                getProjectService().getProjects().add(newProject);
+                                getWorkspaceService().setActiveWorkspaceItem(newProject);
                             }
                         }
                 );

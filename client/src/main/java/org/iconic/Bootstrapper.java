@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -11,10 +13,20 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import org.iconic.global.GlobalModel;
+import org.iconic.config.InMemoryModule;
+import org.iconic.project.search.SearchService;
 
+/**
+ * {@inheritDoc}
+ * <p>
+ * The bootstrapper defines the entry point for the graphical user interface and performs all the necessary setup
+ * to link views to their controllers and models.
+ * </p>
+ */
 @Log4j2
 public class Bootstrapper extends Application {
+    private final Injector injector;
+    private final SearchService searchService;
 
     /**
      * <p>
@@ -27,9 +39,14 @@ public class Bootstrapper extends Application {
         launch(args);
     }
 
+    public Bootstrapper() {
+        super();
+        injector = Guice.createInjector(new InMemoryModule());
+        searchService = injector.getInstance(SearchService.class);
+    }
+
     /**
-     *
-     * @param primaryStage
+     * {@inheritDoc}
      */
     @Override
     public void start(Stage primaryStage) {
@@ -43,6 +60,10 @@ public class Bootstrapper extends Application {
         val menuLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/menu/MenuView.fxml"));
         val projectLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/project/ProjectTreeView.fxml"));
         val workspaceLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/workspace/WorkspaceView.fxml"));
+
+        menuLoader.setControllerFactory(getInjector()::getInstance);
+        projectLoader.setControllerFactory(getInjector()::getInstance);
+        workspaceLoader.setControllerFactory(getInjector()::getInstance);
 
         // Provide a localisation resource to use for i18n strings
         if (Locale.getDefault().getLanguage().startsWith("en")) {
@@ -79,8 +100,31 @@ public class Bootstrapper extends Application {
 
     @Override
     public void stop() {
-        for (val search : GlobalModel.INSTANCE.searchesProperty().entrySet()) {
+        for (val search : getSearchService().searchesProperty().entrySet()) {
             search.getValue().stop();
         }
     }
+
+    /**
+     * <p>
+     * Returns the default injector of this bootstrapper
+     * </p>
+     *
+     * @return the default injector of the bootstrapper
+     */
+    private Injector getInjector() {
+        return injector;
+    }
+
+    /**
+     * <p>
+     * Returns the search service of this bootstrapper
+     * </p>
+     *
+     * @return the search service of the bootstrapper
+     */
+    private SearchService getSearchService() {
+        return searchService;
+    }
+
 }

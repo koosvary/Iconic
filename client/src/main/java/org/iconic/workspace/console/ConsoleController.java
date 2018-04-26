@@ -1,5 +1,6 @@
-package org.iconic.workspace;
+package org.iconic.workspace.console;
 
+import com.google.inject.Inject;
 import javafx.collections.MapChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -7,8 +8,8 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import org.iconic.global.GlobalModel;
 import org.iconic.project.search.SearchModel;
+import org.iconic.project.search.SearchService;
 
 import java.net.URL;
 import java.util.*;
@@ -24,15 +25,20 @@ import java.util.stream.Collectors;
  */
 @Log4j2
 public class ConsoleController implements Initializable {
+    private final SearchService searchService;
+
     @FXML
     private TabPane consoleTabs;
 
     /**
      * <p>
-     * Constructs a new ConsoleController that attaches a change listener onto the global global.
+     * Constructs a new ConsoleController that attaches a change listener onto the search service.
      * </p>
      */
-    public ConsoleController() {
+    @Inject
+    public ConsoleController(final SearchService searchService) {
+        this.searchService = searchService;
+
         // Update the console whenever the searches change
         MapChangeListener<UUID, SearchModel> searchChangeListener = change -> {
             // Check the console tab pane as there's no guarantee it will exist when this is triggered
@@ -65,7 +71,7 @@ public class ConsoleController implements Initializable {
             }
         };
 
-        GlobalModel.INSTANCE.searchesProperty().addListener(searchChangeListener);
+        getSearchService().searchesProperty().addListener(searchChangeListener);
     }
 
     /**
@@ -77,7 +83,7 @@ public class ConsoleController implements Initializable {
      */
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
-        val searches = GlobalModel.INSTANCE.searchesProperty();
+        val searches = getSearchService().searchesProperty();
 
         // Check that the console tab pane actually exists
         if (consoleTabs != null) {
@@ -92,5 +98,16 @@ public class ConsoleController implements Initializable {
 
             consoleTabs.getTabs().setAll(s);
         }
+    }
+
+    /**
+     * <p>
+     * Returns the search service of this controller
+     * </p>
+     *
+     * @return the search service of the controller
+     */
+    private SearchService getSearchService() {
+        return searchService;
     }
 }
