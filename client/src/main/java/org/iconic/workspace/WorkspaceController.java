@@ -6,7 +6,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.text.Text;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
@@ -32,12 +31,6 @@ public class WorkspaceController implements Initializable {
 
     @FXML
     private Button btnSearch;
-
-    @FXML
-    private Text txtName;
-
-    @FXML
-    private Text txtWelcome;
 
     @Getter(AccessLevel.PRIVATE)
     private final String defaultName;
@@ -105,14 +98,12 @@ public class WorkspaceController implements Initializable {
         val item = getWorkspaceService().getActiveWorkspaceItem();
 
         // Make sure that all the UI elements actually exist
-        if (btnSearch != null && txtName != null && txtWelcome != null) {
+        if (btnSearch != null) {
             // If the selected item is a dataset
             if (item instanceof DatasetModel) {
                 val dataset = (DatasetModel) item;
                 // Check if a search on the current active dataset is being performed
                 val search = getSearchService().searchesProperty().get(dataset.getId());
-                txtName.setText(dataset.getLabel());
-                txtWelcome.setText("Selected dataset: ");
                 btnSearch.setDisable(false);
 
                 // If there's no search...
@@ -127,8 +118,6 @@ public class WorkspaceController implements Initializable {
             // Otherwise if no interesting project item is selected
             else {
                 // Display some default messages
-                txtName.setText(getDefaultName());
-                txtWelcome.setText(getDefaultWelcomeMessage());
                 btnSearch.setText("Start Search");
                 // And disable the search button
                 btnSearch.setDisable(true);

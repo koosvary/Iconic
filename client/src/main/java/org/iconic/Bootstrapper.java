@@ -39,6 +39,9 @@ public class Bootstrapper extends Application {
         launch(args);
     }
 
+    /**
+     * <p>Constructs a new Bootstrapper</p>
+     */
     public Bootstrapper() {
         super();
         injector = Guice.createInjector(new InMemoryModule());
@@ -57,24 +60,9 @@ public class Bootstrapper extends Application {
         val root = new BorderPane();
 
         // Load the child UI elements from FXML resources
-        val menuLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/menu/MenuView.fxml"));
-        val projectLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/project/ProjectTreeView.fxml"));
-        val workspaceLoader = new FXMLLoader(getClass().getClassLoader().getResource("views/workspace/WorkspaceView.fxml"));
-
-        menuLoader.setControllerFactory(getInjector()::getInstance);
-        projectLoader.setControllerFactory(getInjector()::getInstance);
-        workspaceLoader.setControllerFactory(getInjector()::getInstance);
-
-        // Provide a localisation resource to use for i18n strings
-        if (Locale.getDefault().getLanguage().startsWith("en")) {
-            menuLoader.setResources(ResourceBundle.getBundle("localisation.en_au"));
-            projectLoader.setResources(ResourceBundle.getBundle("localisation.en_au"));
-            workspaceLoader.setResources(ResourceBundle.getBundle("localisation.en_au"));
-        }
-        // Just throw an exception for other languages (for now)
-        else {
-            throw new UnsupportedOperationException("Your language is not yet supported");
-        }
+        val menuLoader = load("views/menu/MenuView.fxml");
+        val projectLoader = load("views/project/ProjectTreeView.fxml");
+        val workspaceLoader = load("views/workspace/WorkspaceView.fxml");
 
         try {
             root.setTop(menuLoader.load());
@@ -97,6 +85,25 @@ public class Bootstrapper extends Application {
         primaryStage.setMaximized(true);
         primaryStage.show();
     }
+
+    private FXMLLoader load(final String uri) throws UnsupportedOperationException {
+        val defaultLocale = "en";
+        val defaultLocaleResource = "localisation.en_au";
+        val loader = new FXMLLoader(getClass().getClassLoader().getResource(uri));
+        loader.setControllerFactory(getInjector()::getInstance);
+
+        // Provide a localisation resource to use for i18n strings
+        if (Locale.getDefault().getLanguage().startsWith(defaultLocale)) {
+            loader.setResources(ResourceBundle.getBundle(defaultLocaleResource));
+        }
+        // Just throw an exception for other languages (for now)
+        else {
+            throw new UnsupportedOperationException("Your language is not yet supported");
+        }
+
+        return loader;
+    }
+
 
     @Override
     public void stop() {

@@ -12,11 +12,9 @@
         <AnchorPane>
             <TabPane AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
                      AnchorPane.rightAnchor="0">
-                <Tab text="Search">
+                <Tab text="Project Info">
                     <Text fx:id="txtWelcome" GridPane.columnIndex="0"/>
                     <Text fx:id="txtName" GridPane.columnIndex="1"/>
-                    <Button fx:id="btnSearch" text="%workspace.search" onAction="#startSearch"
-                            GridPane.columnIndex="2"/>
                 </Tab>
                 <fx:include source="DatasetView.fxml"/>
                 <fx:include source="SearchProgressView.fxml"/>

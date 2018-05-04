@@ -8,7 +8,6 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.stage.Screen?>
 
 <?import javafx.scene.layout.AnchorPane?>
@@ -26,6 +25,13 @@
             <padding>
                 <Insets top="10" bottom="10" left="10" right="10"/>
             </padding>
+            <HBox>
+                <ButtonBar>
+                    <buttons>
+                        <Button fx:id="btnSearch" text="%workspace.search" onAction="#startSearch"/>
+                    </buttons>
+                </ButtonBar>
+            </HBox>
             <Label text="%search.progress.options.title">
                 <font>
                     <Font size="16.0"/>
