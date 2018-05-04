@@ -16,6 +16,6 @@ dependencies {
 }
 
 jfx {
-    mainClass = 'org.aiconic.Bootstrapper'
-    vendor = 'Aiconic'
+    mainClass = 'org.iconic.Bootstrapper'
+    vendor = 'Iconic'
 }
