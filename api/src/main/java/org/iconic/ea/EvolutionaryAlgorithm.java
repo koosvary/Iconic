@@ -1,5 +1,7 @@
 package org.iconic.ea;
 
+import org.iconic.ea.operator.primitive.FunctionalPrimitive;
+
 import java.util.LinkedList;
 import java.util.List;
 

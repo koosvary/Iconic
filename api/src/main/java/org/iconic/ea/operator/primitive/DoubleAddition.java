@@ -1,4 +1,4 @@
-package org.iconic.ea;
+package org.iconic.ea.operator.primitive;
 
 import java.util.List;
 
@@ -10,6 +10,7 @@ public class DoubleAddition extends FunctionalPrimitive<Double> {
                 2
         );
 
-        super.setShortCode("+");
+        setShortCode("+");
+        setComplexity(1);
     }
 }

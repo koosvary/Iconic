@@ -1,4 +1,4 @@
-package org.iconic.ea;
+package org.iconic.ea.operator.primitive;
 
 import java.util.List;
 import java.util.function.Function;
@@ -8,6 +8,7 @@ public class FunctionalPrimitive<T> {
     private final Function<List<T>, T> lambda;
     private final int arity; // Argument Size
     private int complexity;
+
 
     public FunctionalPrimitive(final Function<List<T>, T> lambda, int arity) {
         this.lambda = lambda;
@@ -33,4 +34,8 @@ public class FunctionalPrimitive<T> {
     public void setShortCode(String shortCode) { this.shortCode = shortCode; }
 
     public String toString() { return getShortCode(); }
+
+    public int getComplexity() { return complexity; }
+
+    public void setComplexity(int complexity) { this.complexity = complexity; }
 }
