@@ -1,6 +1,6 @@
 apply plugin: 'application'
 
-mainClassName = 'org.iconic.Main'
+mainClassName = 'org.iconic.Client'
 
 run {
   if (project.hasProperty("appArgs")) {
@@ -8,9 +8,14 @@ run {
   }
 }
 
+dependencies {
+  compile project(':api')
+  compile group: 'com.beust', name: 'jcommander', version: '1.72'
+}
+
 jar {
-  baseName = 'gene-expression-core'
-  version = '0.0.5'
+  baseName = 'iconic-cli'
+  version = '0.0.1'
 
   // The Java plugin doesn't specify any of the 
   // manifest attributes, so we need at least
@@ -18,7 +23,7 @@ jar {
   manifest {
     attributes(
       'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-      'Main-Class': 'org.iconic.Main'
+      'Main-Class': 'org.iconic.Client'
     )
   }
 
