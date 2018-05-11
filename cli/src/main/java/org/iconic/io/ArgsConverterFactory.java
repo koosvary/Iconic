@@ -7,7 +7,7 @@ public class ArgsConverterFactory {
     @Parameter(names = {"--algorithm", "-a"}, description = "The type of evolutionary algorithm to use")
     private EvolutionaryAlgorithmType eaType;
 
-    @Parameter(names = {"--input", "-i"}, description = "The dataset to use")
+    @Parameter(names = {"--input", "-i"}, required = true, description = "The dataset to use")
     private String input;
 
     @Parameter(names = {"--help", "-h"}, help = true)
