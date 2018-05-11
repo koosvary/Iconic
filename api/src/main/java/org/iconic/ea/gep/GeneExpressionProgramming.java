@@ -8,6 +8,7 @@ import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeChromosome<T>> {
     private List<TreeChromosome<T>> chromosomes = new LinkedList<>();
@@ -60,16 +61,25 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeC
 
     @Override
     public List<TreeChromosome<T>> evolve(List<TreeChromosome<T>> population) {
+        final double mutationChance = 0.2;
 
+        for (TreeChromosome<T> c: population) {
+            if (ThreadLocalRandom.current().nextDouble(0, 1) < mutationChance) {
+                c = mutate(c);
+            }
+        }
 
+        return population;
+    }
 
+    public TreeChromosome<T> mutate(TreeChromosome<T> c) {
         return null;
     }
 
-    @Override
-    public T evaluate(List<T> sampleRowValues) {
-        return null;
-    }
+//    @Override
+//    public T evaluate(List<T> sampleRowValues) {
+//        return null;
+//    }
 
     public List<TreeChromosome<T>> getChromosomes() { return chromosomes; }
 }

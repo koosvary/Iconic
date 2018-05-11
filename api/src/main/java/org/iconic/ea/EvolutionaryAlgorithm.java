@@ -23,5 +23,5 @@ public abstract class EvolutionaryAlgorithm<T, R extends Chromosome<T>> {
 
     public int getFunctionalPrimitivesSize() { return functionalPrimitives.size(); }
 
-    public abstract T evaluate(List<T> sampleRowValues);
+//    public abstract T evaluate(List<T> sampleRowValues);
 }
