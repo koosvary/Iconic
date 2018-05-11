@@ -121,4 +121,9 @@ public class DataManager<T> {
     public static int getSampleSize() {
         return sampleSize;
     }
+
+    private double map(double value, double oldMin, double oldMax, double newMin, double newMax)
+    {
+        return newMin + ((value - oldMin) * (newMax - newMin)) / (oldMax - oldMin);
+    }
 }

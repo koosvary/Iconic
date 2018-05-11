@@ -134,8 +134,6 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeC
         } else {
             chromosome.setFitness(oldChromosomeFitness);
         }
-        else
-            chromosome.setFitness(oldChromosomeFitness);
 
         return chromosome;
     }

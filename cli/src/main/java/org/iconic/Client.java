@@ -55,7 +55,7 @@ public class Client {
 
                 TreeChromosome<Double> bestCandidate = gep.getChromosomes()
                         .stream().max((a, b) -> {
-                            if (a.getFitness() > b.getFitness()) {
+                            if (a.getFitness() < b.getFitness()) {
                                 return 1;
                             } if (a.getFitness() == b.getFitness()) {
                                 return 0;
