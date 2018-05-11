@@ -29,6 +29,10 @@ public class TreeChromosome<T> extends Chromosome<T> {
         }
     }
 
+    public int getExpressionLength() { return expression.size(); }
+
+    public List<Node<T>> getExpression() { return expression; }
+
     public void setExpression(List<Node<T>> expression) {
         this.expression = expression;
         root = expression.get(0);
@@ -47,4 +51,5 @@ public class TreeChromosome<T> extends Chromosome<T> {
 
         return output.toString();
     }
+
 }

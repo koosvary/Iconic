@@ -72,8 +72,42 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeC
         return population;
     }
 
-    public TreeChromosome<T> mutate(TreeChromosome<T> c) {
-        return null;
+    public TreeChromosome<T> mutate(TreeChromosome<T> chromosome) {
+
+        // Pick an index of the chromosome to mutate
+        int index = (int) Math.floor(Math.random() * chromosome.getExpressionLength());
+
+        // Get all the functions available to use / replace with
+        List<FunctionalPrimitive<T>> functions = getFunctionalPrimitives();
+
+        // Get the expression from the chromosome
+        List<Node<T>> expression = chromosome.getExpression();
+
+        // If the index is less than half way, pick from function or input variable. Otherwiseo only pick input variable
+        if (index < Math.floor(chromosome.getExpressionLength() / 2)) {
+
+            // Function and input variable
+            if (Math.random() > 0.5) {
+                // Create a function
+                int functionIndex = (int) Math.floor(Math.random() * functions.size());
+                FunctionalPrimitive function = functions.get(index);
+                expression.set(index, new Node<T>(function));
+            } else {
+                // Feature Index
+                int functionIndex = (int) Math.floor(Math.random() * functions.size());
+                expression.set(index, new Node<T>(functionIndex));
+            }
+
+        } else { // Only Variable
+            // Feature Index
+            int functionIndex = (int) Math.floor(Math.random() * functions.size());
+            expression.set(index, new Node<T>(functionIndex));
+        }
+
+        chromosome.setExpression(expression);
+        chromosome.generateTree();
+
+        return chromosome;
     }
 
 //    @Override
