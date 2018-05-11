@@ -92,7 +92,7 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeC
             if (Math.random() > 0.5) {
                 // Create a function
                 int functionIndex = (int) Math.floor(Math.random() * functions.size());
-                FunctionalPrimitive function = functions.get(index);
+                FunctionalPrimitive function = functions.get(functionIndex);
                 expression.set(index, new Node<T>(function));
             } else {
                 // Feature Index
@@ -130,8 +130,10 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeC
         if (newChromosomeFitness < oldChromosomeFitness) {
             chromosome.setExpression(expression);
             chromosome.generateTree();
+            chromosome.setFitness(newChromosomeFitness);
         }
-
+        else
+            chromosome.setFitness(oldChromosomeFitness);
 
         return chromosome;
     }

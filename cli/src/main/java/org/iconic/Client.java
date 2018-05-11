@@ -52,6 +52,7 @@ public class Client {
                 List<TreeChromosome<Double>> oldPopulation = gep.getChromosomes();
                 List<TreeChromosome<Double>> newPopulation = gep.evolve(oldPopulation);
                 gep.setChromosomes(newPopulation);
+                log.info(newPopulation.get(0).toString());
             }
         }
     }
