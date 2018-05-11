@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class DataManager<T> {
     private final Class<T> clazz;
     private static String fileName;
-    private List<ArrayList<T>> samples;
+    private List<List<T>> samples;
     private static ArrayList<String> sampleHeader;
     private static ArrayList<String> sampleDescription;
     private static int featureSize;
@@ -100,6 +100,10 @@ public class DataManager<T> {
             }
         }
         sc.close();
+    }
+
+    public List<List<T>> getSamples() {
+        return samples;
     }
 
     public List<T> getSampleRow(int row) {

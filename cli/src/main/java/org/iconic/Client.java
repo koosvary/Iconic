@@ -39,7 +39,7 @@ public class Client {
             log.info("Sample Size: {}", () -> sampleSize);
 
             // Create an evolutionary algorithm using Gene Expression Programming
-            GeneExpressionProgramming<Double> gep = new GeneExpressionProgramming<>();
+            GeneExpressionProgramming<Double> gep = new GeneExpressionProgramming<>(dm.getSamples());
             // Add in the functions it can use
             gep.addFunctionalPrimitive(new DoubleAddition());
             gep.addFunctionalPrimitive(new DoubleProduct());
