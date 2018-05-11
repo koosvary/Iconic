@@ -1,6 +1,7 @@
 package org.iconic.ea.chromosome;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class TreeChromosome<T> extends Chromosome<T> {
@@ -39,17 +40,13 @@ public class TreeChromosome<T> extends Chromosome<T> {
     }
 
     @Override
-    public T evaluate(List<List<T>> sampleData) {
-        T values = null;
+    public List<T> evaluate(List<List<T>> sampleData) {
+        List<T> calculatedValues = new LinkedList<T>();
 
-        for (List<T> sampleRow : sampleData) {
-            if (values == null)
-                values = root.apply(sampleRow);
-            else
-                values += root.apply(sampleRow);
-        }
+        for (List<T> sampleRow : sampleData)
+            calculatedValues.add(root.apply(sampleRow));
 
-        return values;
+        return calculatedValues;
     }
 
     public String toString() {

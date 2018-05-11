@@ -47,14 +47,14 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeC
                 expression.add(new Node<T>(function));
             } else {
                 // Feature Index
-                int index = (int) Math.floor(Math.random() * featureSize);
+                int index = (int) Math.floor(Math.random() * (featureSize - 1));
                 expression.add(new Node<T>(index));
             }
         }
 
         // Tail
         for (int i = 0; i < headerLength + 1; i++) {
-            int index = (int) Math.floor(Math.random() * featureSize);
+            int index = (int) Math.floor(Math.random() * (featureSize - 1));
             expression.add(new Node<T>(index));
         }
 
@@ -112,11 +112,22 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeC
         newChromosome.generateTree();
 
         // Compare the two chromosomes
-        double newFitness = newChromosome.evaluate(sampleData);
-        double oldFitness = chromosome.evaluate(sampleData);
+        List<T> newChromosomeExpectedResults = newChromosome.evaluate(sampleData);
+        List<T> oldChromosomeExpectedResults = chromosome.evaluate(sampleData);
+
+        // Collect the expected answers
+        List<T> expectedResults = new LinkedList<>();
+        for (List<T> sampleRow : sampleData) {
+            T expectedAnswer = sampleRow.get(sampleRow.size() - 1);
+            expectedResults.add(expectedAnswer);
+        }
+
+        // Evaluate the fitness of both chromosomes
+        double oldChromosomeFitness = getErrorFunction().apply(oldChromosomeExpectedResults, expectedResults);
+        double newChromosomeFitness = getErrorFunction().apply(newChromosomeExpectedResults, expectedResults);
 
         // If the new one is better than the old one then change the old chromosome to the new one
-        if (newFitness > oldFitness) {
+        if (newChromosomeFitness < oldChromosomeFitness) {
             chromosome.setExpression(expression);
             chromosome.generateTree();
         }

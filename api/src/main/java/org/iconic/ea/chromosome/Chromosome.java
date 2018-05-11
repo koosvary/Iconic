@@ -22,6 +22,6 @@ public abstract class Chromosome<T> {
         return fitness;
     }
 
-    public abstract T evaluate(List<List<T>> sampleData);
+    public abstract List<T> evaluate(List<List<T>> sampleData);
 
 }
