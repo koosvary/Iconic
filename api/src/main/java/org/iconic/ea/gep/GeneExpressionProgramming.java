@@ -85,7 +85,7 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeC
         // Get the expression from the chromosome
         List<Node<T>> expression = chromosome.getExpression();
 
-        // If the index is less than half way, pick from function or input variable. Otherwiseo only pick input variable
+        // If the index is less than half way, pick from function or input variable. Otherwise only pick input variable
         if (index < Math.floor(chromosome.getExpressionLength() / 2)) {
 
             // Function and input variable
@@ -131,6 +131,8 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeC
             chromosome.setExpression(expression);
             chromosome.generateTree();
             chromosome.setFitness(newChromosomeFitness);
+        } else {
+            chromosome.setFitness(oldChromosomeFitness);
         }
         else
             chromosome.setFitness(oldChromosomeFitness);

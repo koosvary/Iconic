@@ -52,7 +52,19 @@ public class Client {
                 List<TreeChromosome<Double>> oldPopulation = gep.getChromosomes();
                 List<TreeChromosome<Double>> newPopulation = gep.evolve(oldPopulation);
                 gep.setChromosomes(newPopulation);
-                log.info(newPopulation.get(0).toString());
+
+                TreeChromosome<Double> bestCandidate = gep.getChromosomes()
+                        .stream().max((a, b) -> {
+                            if (a.getFitness() > b.getFitness()) {
+                                return 1;
+                            } if (a.getFitness() == b.getFitness()) {
+                                return 0;
+                            } {
+                                return -1;
+                            }
+                        }).get();
+
+                log.info("Best candidate: {},\nFitness: {}", bestCandidate, bestCandidate.getFitness());
             }
         }
     }
