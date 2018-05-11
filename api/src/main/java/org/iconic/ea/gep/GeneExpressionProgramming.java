@@ -10,20 +10,29 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeChromosome<T>> {
-    private TreeChromosome<T> chromosome = new TreeChromosome<>();
+    private List<TreeChromosome<T>> chromosomes = new LinkedList<>();
 
     public GeneExpressionProgramming() {
         super();
     }
 
-    public void generateExpression() {
+    public void generateGenePool(int geneSize) {
+        for (int i = 0; i < geneSize; i++) {
+            TreeChromosome<T> chromosome = new TreeChromosome<>();
+            chromosome.setExpression(generateExpression());
+            chromosome.generateTree();
+            chromosomes.add(chromosome);
+        }
+    }
+
+    public List<Node<T>> generateExpression() {
         int headerLength = 3;
 
         int featureSize = DataManager.getFeatureSize();
         List<FunctionalPrimitive<T>> functions = getFunctionalPrimitives();
         if (functions.size() == 0) {
             System.out.println("GeneExpressionProgramming  There are no Functions available");
-            return;
+            return null;
         }
 
         List<Node<T>> expression = new LinkedList<>();
@@ -46,19 +55,21 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeC
             expression.add(new Node<T>(index));
         }
 
-        chromosome.setExpression(expression);
-        System.out.println("GeneExpressionProgramming  expression: " + chromosome.toString());
-        chromosome.generateTree();
-
+        return expression;
     }
 
     @Override
     public List<TreeChromosome<T>> evolve(List<TreeChromosome<T>> population) {
+
+
+
         return null;
     }
 
     @Override
     public T evaluate(List<T> sampleRowValues) {
-        return chromosome.evaluate(sampleRowValues);
+        return null;
     }
+
+    public List<TreeChromosome<T>> getChromosomes() { return chromosomes; }
 }
