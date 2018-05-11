@@ -39,8 +39,17 @@ public class TreeChromosome<T> extends Chromosome<T> {
     }
 
     @Override
-    public T evaluate(List<T> sampleRowValues) {
-        return root.apply(sampleRowValues);
+    public T evaluate(List<List<T>> sampleData) {
+        T values = null;
+
+        for (List<T> sampleRow : sampleData) {
+            if (values == null)
+                values = root.apply(sampleRow);
+            else
+                values += root.apply(sampleRow);
+        }
+
+        return values;
     }
 
     public String toString() {
