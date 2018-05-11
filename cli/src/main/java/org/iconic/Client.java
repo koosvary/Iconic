@@ -2,11 +2,14 @@ package org.iconic;
 
 import com.beust.jcommander.JCommander;
 import lombok.extern.log4j.Log4j2;
+import org.iconic.ea.chromosome.TreeChromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.gep.GeneExpressionProgramming;
 import org.iconic.ea.operator.primitive.DoubleAddition;
 import org.iconic.ea.operator.primitive.DoubleProduct;
 import org.iconic.io.ArgsConverterFactory;
+
+import java.util.List;
 
 @Log4j2
 public class Client {
@@ -43,7 +46,13 @@ public class Client {
 
             log.info("Function Primitives used: {}", gep::getFunctionalPrimitives);
 
-            gep.generateExpression();
+            gep.generateGenePool(client.getArgs().getPopulation());
+
+            for (int i = 0; i < client.getArgs().getGenerations(); ++i) {
+                List<TreeChromosome<Double>> oldPopulation = gep.getChromosomes();
+                List<TreeChromosome<Double>> newPopulation = gep.evolve(oldPopulation);
+                gep.setChromosomes(newPopulation);
+            }
         }
     }
 

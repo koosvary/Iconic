@@ -116,4 +116,8 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeC
 //    }
 
     public List<TreeChromosome<T>> getChromosomes() { return chromosomes; }
+
+    public void setChromosomes(List<TreeChromosome<T>> chromosomes) {
+        this.chromosomes = chromosomes;
+    }
 }
