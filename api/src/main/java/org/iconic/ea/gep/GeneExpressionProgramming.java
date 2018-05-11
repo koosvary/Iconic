@@ -12,9 +12,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeChromosome<T>> {
     private List<TreeChromosome<T>> chromosomes = new LinkedList<>();
+    private List<List<T>> sampleData = new LinkedList<>();
 
-    public GeneExpressionProgramming() {
+    public GeneExpressionProgramming(List<List<T>> sampleData) {
         super();
+        this.sampleData = sampleData;
     }
 
     public void generateGenePool(int geneSize) {
@@ -104,8 +106,21 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeC
             expression.set(index, new Node<T>(functionIndex));
         }
 
-        chromosome.setExpression(expression);
-        chromosome.generateTree();
+        // Create the new Chromosome with the mutation
+        TreeChromosome<T> newChromosome = new TreeChromosome<>();
+        newChromosome.setExpression(expression);
+        newChromosome.generateTree();
+
+        // Compare the two chromosomes
+        double newFitness = newChromosome.evaluate(sampleData);
+        double oldFitness = chromosome.evaluate(sampleData);
+
+        // If the new one is better than the old one then change the old chromosome to the new one
+        if (newFitness > oldFitness) {
+            chromosome.setExpression(expression);
+            chromosome.generateTree();
+        }
+
 
         return chromosome;
     }
