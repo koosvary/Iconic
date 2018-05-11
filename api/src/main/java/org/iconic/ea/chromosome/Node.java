@@ -7,7 +7,7 @@ import java.util.List;
 public class Node<T> {
     private enum NodeType { FUNCTION, FEATURE, CONSTANT }
     private NodeType nodeType; // Used to determine what this node is holding
-    private List<Node> children;
+    private List<Node<T>> children;
     private FunctionalPrimitive<T> function; // Function such as + - * /
     private int featureIndex; // The feature index referes to the feature to use from the data, e.g. sex, age, height
     private T constant; // Just a random constant that is passed in
@@ -28,13 +28,12 @@ public class Node<T> {
         this.constant = constant;
     }
 
-    public void addChild(Node n) {
+    void addChild(Node<T> n) {
         children.add(n);
     }
 
-    public void addChildren(List<Node> children) {
-        for (Node n : children)
-            this.children.add(n);
+    public void addChildren(List<Node<T>> children) {
+        this.children.addAll(children);
     }
 
     public T apply(List<T> sampleRowValues) {

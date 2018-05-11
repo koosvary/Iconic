@@ -39,17 +39,12 @@ public class TreeChromosome<T> extends Chromosome<T> {
         return root.apply(sampleRowValues);
     }
 
-    @Override
-    public List evolve(List population) {
-        return null;
-    }
-
     public String toString() {
-        String output = "";
+        StringBuilder output = new StringBuilder();
 
         for (Node<T> n : expression)
-            output += n.toString();
+            output.append(n.toString());
 
-        return output;
+        return output.toString();
     }
 }

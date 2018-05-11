@@ -1,7 +1,5 @@
 package org.iconic.ea.chromosome;
 
-import org.iconic.ea.EvolutionaryAlgorithm;
-
 import java.util.List;
 
 /**
@@ -9,7 +7,7 @@ import java.util.List;
  * <p>Chromosomes are strongly typed and must return an output of the same form as its input.</p>
  * @param <T> The type of data that passes through the chromosome
  */
-public abstract class Chromosome<T> extends EvolutionaryAlgorithm<T> {
+public abstract class Chromosome<T> {
     private double fitness;
     private int size;
     private int complexity;

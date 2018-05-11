@@ -9,7 +9,7 @@ import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import java.util.LinkedList;
 import java.util.List;
 
-public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T> {
+public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeChromosome<T>> {
     private TreeChromosome<T> chromosome = new TreeChromosome<>();
 
     public GeneExpressionProgramming() {
@@ -53,7 +53,7 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T> {
     }
 
     @Override
-    public List evolve(List population) {
+    public List<TreeChromosome<T>> evolve(List<TreeChromosome<T>> population) {
         return null;
     }
 
