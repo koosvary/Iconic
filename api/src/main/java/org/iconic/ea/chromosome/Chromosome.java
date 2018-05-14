@@ -1,5 +1,8 @@
 package org.iconic.ea.chromosome;
 
+import org.iconic.ea.operator.evolutionary.mutation.Mutation;
+
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -8,11 +11,16 @@ import java.util.List;
  * @param <T> The type of data that passes through the chromosome
  */
 public abstract class Chromosome<T> {
+    private boolean changed;
     private double fitness;
-    private int size;
-    private int complexity;
+    private final List<Mutation<Chromosome<T>, T>> mutators;
 
-    public Chromosome() {}
+    public Chromosome() {
+        this.changed = true;
+        this.mutators = new LinkedList<>();
+    }
+
+    public abstract Chromosome<T> mutate(final double p);
 
     public void setFitness(final double fitness) {
         this.fitness = fitness;
@@ -22,6 +30,24 @@ public abstract class Chromosome<T> {
         return fitness;
     }
 
-    public abstract List<T> evaluate(List<List<T>> sampleData);
+    public boolean isChanged() {
+        return changed;
+    }
 
+    public void setChanged(boolean changed) {
+        this.changed = changed;
+    }
+
+    public abstract List<T> evaluate(List<List<T>> input);
+
+    protected final List<Mutation<Chromosome<T>, T>> getMutators() {
+        List<Mutation<Chromosome<T>, T>> copy = new LinkedList<>();
+        copy.addAll(mutators);
+
+        return copy;
+    }
+
+    public void addMutator(Mutation<Chromosome<T>, T> mutator) {
+        getMutators().add(mutator);
+    }
 }

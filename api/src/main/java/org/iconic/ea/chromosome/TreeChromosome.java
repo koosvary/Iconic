@@ -40,11 +40,17 @@ public class TreeChromosome<T> extends Chromosome<T> {
     }
 
     @Override
-    public List<T> evaluate(List<List<T>> sampleData) {
-        List<T> calculatedValues = new LinkedList<T>();
+    public TreeChromosome<T> mutate(final double p) {
+        return null;
+    }
 
-        for (List<T> sampleRow : sampleData)
-            calculatedValues.add(root.apply(sampleRow));
+    @Override
+    public List<T> evaluate(List<List<T>> input) {
+        List<T> calculatedValues = new LinkedList<>();
+
+        for (List<T> row : input) {
+            calculatedValues.add(root.apply(row));
+        }
 
         return calculatedValues;
     }

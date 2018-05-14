@@ -9,22 +9,22 @@ public class Node<T> {
     private NodeType nodeType; // Used to determine what this node is holding
     private List<Node<T>> children;
     private FunctionalPrimitive<T> function; // Function such as + - * /
-    private int featureIndex; // The feature index referes to the feature to use from the data, e.g. sex, age, height
+    private int featureIndex; // The feature index refers to the feature to use from the data, e.g. sex, age, height
     private T constant; // Just a random constant that is passed in
 
     public Node(FunctionalPrimitive<T> function) {
-        nodeType = NodeType.FUNCTION;
+        this.nodeType = NodeType.FUNCTION;
         this.function = function;
-        children = new LinkedList<>();
+        this.children = new LinkedList<>();
     }
 
     public Node(int featureIndex) {
-        nodeType = NodeType.FEATURE;
+        this.nodeType = NodeType.FEATURE;
         this.featureIndex = featureIndex;
     }
 
     public Node(T constant) {
-        nodeType = NodeType.CONSTANT;
+        this.nodeType = NodeType.CONSTANT;
         this.constant = constant;
     }
 
@@ -53,9 +53,9 @@ public class Node<T> {
                 return sampleRowValues.get(featureIndex);
 
             case CONSTANT: return constant;
+            default:
+                throw new IllegalArgumentException();
         }
-
-        return null;
     }
 
     public String toString() {

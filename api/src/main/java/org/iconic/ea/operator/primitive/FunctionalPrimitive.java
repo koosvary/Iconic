@@ -3,18 +3,18 @@ package org.iconic.ea.operator.primitive;
 import java.util.List;
 import java.util.function.Function;
 
-public class FunctionalPrimitive<T> {
-    private String shortCode;
+public class FunctionalPrimitive<T> implements UncheckedFunctionalPrimitive<T> {
     private final Function<List<T>, T> lambda;
-    private final int arity; // Argument Size
-    private int complexity;
+    private final int arity;
+    private final String symbol;
 
-
-    public FunctionalPrimitive(final Function<List<T>, T> lambda, int arity) {
+    public FunctionalPrimitive(final Function<List<T>, T> lambda, final int arity, final String symbol) {
         this.lambda = lambda;
         this.arity = arity;
+        this.symbol = symbol;
     }
 
+    @Override
     public T apply(List<T> args) {
         assert(args.size() >= getArity());
 
@@ -25,17 +25,16 @@ public class FunctionalPrimitive<T> {
         return arity;
     }
 
+    @Override
+    public String toString() {
+        return getSymbol();
+    }
+
     private Function<List<T>, T> getLambda() {
         return lambda;
     }
 
-    public String getShortCode() { return shortCode; }
-
-    public void setShortCode(String shortCode) { this.shortCode = shortCode; }
-
-    public String toString() { return getShortCode(); }
-
-    public int getComplexity() { return complexity; }
-
-    public void setComplexity(int complexity) { this.complexity = complexity; }
+    public String getSymbol() {
+        return symbol;
+    }
 }

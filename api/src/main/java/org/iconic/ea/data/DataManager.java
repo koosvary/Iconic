@@ -17,10 +17,6 @@ public class DataManager<T> {
     private static int featureSize;
     private static int sampleSize;
 
-    public DataManager(Class<T> clazz) {
-        this.clazz = clazz;
-    }
-
     public DataManager(Class<T> clazz, String fileName) {
         this.clazz = clazz;
         DataManager.fileName = fileName;
