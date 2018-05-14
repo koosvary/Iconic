@@ -10,13 +10,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeChromosome<T>> {
+public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<TreeChromosome<T>, T> {
     private List<TreeChromosome<T>> chromosomes = new LinkedList<>();
-    private List<List<T>> sampleData = new LinkedList<>();
 
-    public GeneExpressionProgramming(List<List<T>> sampleData) {
+    public GeneExpressionProgramming() {
         super();
-        this.sampleData = sampleData;
     }
 
     public void generateGenePool(int geneSize) {
@@ -30,21 +28,19 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeC
 
     public List<Node<T>> generateExpression() {
         int headerLength = 3;
+        int numFunctions = getFunctionalPrimitives().size();
 
         int featureSize = DataManager.getFeatureSize();
-        List<FunctionalPrimitive<T>> functions = getFunctionalPrimitives();
-        if (functions.size() == 0) {
-            System.out.println("GeneExpressionProgramming  There are no Functions available");
-            return null;
-        }
+        assert (numFunctions > 0);
+
 
         List<Node<T>> expression = new LinkedList<>();
         for (int i = 0; i < headerLength; i++) {
             if (Math.random() > 0.5) {
                 // Create a function
-                int index = (int) Math.floor(Math.random() * functions.size());
-                FunctionalPrimitive function = functions.get(index);
-                expression.add(new Node<T>(function));
+                int index = (int) Math.floor(Math.random() * numFunctions);
+                FunctionalPrimitive<T> function = getFunctionalPrimitives().get(index);
+                expression.add(new Node<>(function));
             } else {
                 // Feature Index
                 int index = (int) Math.floor(Math.random() * (featureSize - 1));
@@ -75,64 +71,18 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<T, TreeC
     }
 
     public TreeChromosome<T> mutate(TreeChromosome<T> chromosome) {
+        assert(getMutators().size() > 0);
+        assert(getObjectives().size() > 0);
 
-        // Pick an index of the chromosome to mutate
-        int index = (int) Math.floor(Math.random() * chromosome.getExpressionLength());
-
-        // Get all the functions available to use / replace with
-        List<FunctionalPrimitive<T>> functions = getFunctionalPrimitives();
-
-        // Get the expression from the chromosome
-        List<Node<T>> expression = chromosome.getExpression();
-
-        // If the index is less than half way, pick from function or input variable. Otherwise only pick input variable
-        if (index < Math.floor(chromosome.getExpressionLength() / 2)) {
-
-            // Function and input variable
-            if (Math.random() > 0.5) {
-                // Create a function
-                int functionIndex = (int) Math.floor(Math.random() * functions.size());
-                FunctionalPrimitive function = functions.get(functionIndex);
-                expression.set(index, new Node<T>(function));
-            } else {
-                // Feature Index
-                int functionIndex = (int) Math.floor(Math.random() * functions.size());
-                expression.set(index, new Node<T>(functionIndex));
-            }
-
-        } else { // Only Variable
-            // Feature Index
-            int functionIndex = (int) Math.floor(Math.random() * functions.size());
-            expression.set(index, new Node<T>(functionIndex));
-        }
-
-        // Create the new Chromosome with the mutation
-        TreeChromosome<T> newChromosome = new TreeChromosome<>();
-        newChromosome.setExpression(expression);
-        newChromosome.generateTree();
-
-        // Compare the two chromosomes
-        List<T> newChromosomeExpectedResults = newChromosome.evaluate(sampleData);
-        List<T> oldChromosomeExpectedResults = chromosome.evaluate(sampleData);
-
-        // Collect the expected answers
-        List<T> expectedResults = new LinkedList<>();
-        for (List<T> sampleRow : sampleData) {
-            T expectedAnswer = sampleRow.get(sampleRow.size() - 1);
-            expectedResults.add(expectedAnswer);
-        }
+        TreeChromosome<T> child = getMutator(0).apply(getFunctionalPrimitives(), chromosome);
 
         // Evaluate the fitness of both chromosomes
-        double oldChromosomeFitness = getErrorFunction().apply(oldChromosomeExpectedResults, expectedResults);
-        double newChromosomeFitness = getErrorFunction().apply(newChromosomeExpectedResults, expectedResults);
+        double parentFitness = getObjective(0).apply(chromosome);
+        double childFitness = getObjective(0).apply(child);
 
-        // If the new one is better than the old one then change the old chromosome to the new one
-        if (newChromosomeFitness < oldChromosomeFitness) {
-            chromosome.setExpression(expression);
-            chromosome.generateTree();
-            chromosome.setFitness(newChromosomeFitness);
-        } else {
-            chromosome.setFitness(oldChromosomeFitness);
+        // Return the new chromosome if it's objectively better or equivalent to its parent
+        if (childFitness <= parentFitness) {
+            return child;
         }
 
         return chromosome;

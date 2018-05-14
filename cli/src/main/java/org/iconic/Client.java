@@ -2,13 +2,19 @@ package org.iconic;
 
 import com.beust.jcommander.JCommander;
 import lombok.extern.log4j.Log4j2;
+import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.TreeChromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.gep.GeneExpressionProgramming;
+import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
+import org.iconic.ea.operator.objective.DefaultObjective;
+import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.operator.primitive.DoubleAddition;
 import org.iconic.ea.operator.primitive.DoubleProduct;
+import org.iconic.ea.operator.primitive.DoubleSubtract;
 import org.iconic.io.ArgsConverterFactory;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Log4j2
@@ -39,12 +45,18 @@ public class Client {
             log.info("Sample Size: {}", () -> sampleSize);
 
             // Create an evolutionary algorithm using Gene Expression Programming
-            GeneExpressionProgramming<Double> gep = new GeneExpressionProgramming<>(dm.getSamples());
+            GeneExpressionProgramming<Double> gep = new GeneExpressionProgramming<>();
             // Add in the functions it can use
-            gep.addFunctionalPrimitive(new DoubleAddition());
-            gep.addFunctionalPrimitive(new DoubleProduct());
+            gep.addFunction(new DoubleAddition());
+            gep.addFunction(new DoubleSubtract());
+            gep.addFunction(new DoubleProduct());
+            gep.addMutator(new ExpressionMutator<Double>());
+            gep.addObjective(
+                    new DefaultObjective<TreeChromosome<Double>, Double>(
+                            new MeanSquaredError(), dm.getSamples())
+            );
 
-            log.info("Function Primitives used: {}", gep::getFunctionalPrimitives);
+//            log.info("Function Primitives used: {}", gep::getFunctions);
 
             gep.generateGenePool(client.getArgs().getPopulation());
 
@@ -53,18 +65,13 @@ public class Client {
                 List<TreeChromosome<Double>> newPopulation = gep.evolve(oldPopulation);
                 gep.setChromosomes(newPopulation);
 
-                TreeChromosome<Double> bestCandidate = gep.getChromosomes()
-                        .stream().max((a, b) -> {
-                            if (a.getFitness() < b.getFitness()) {
-                                return 1;
-                            } if (a.getFitness() == b.getFitness()) {
-                                return 0;
-                            } {
-                                return -1;
-                            }
-                        }).get();
+                Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
 
-                log.info("Best candidate: {},\nFitness: {}", bestCandidate, bestCandidate.getFitness());
+                TreeChromosome<Double> bestCandidate = gep.getChromosomes()
+                        .stream().min(comparator).get();
+
+                log.info("\n\tGeneration: {}\n\tBest candidate: {}\n\tFitness: {}",
+                        i, bestCandidate, bestCandidate.getFitness());
             }
         }
     }
