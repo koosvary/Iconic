@@ -9,6 +9,13 @@ import java.util.List;
 
 @Log4j2
 public class MeanSquaredError implements ErrorFunction {
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * Applies the mean squared error method to calculate the amount of error to base the fitness on.
+     * </p>
+     */
     @Override
     public double apply(final List<Double> calculated, final List<Double> expected) {
         assert (calculated.size() == expected.size());
