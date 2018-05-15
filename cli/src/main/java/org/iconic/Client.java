@@ -65,7 +65,7 @@ public class Client {
 
 //            log.info("Function Primitives used: {}", gep::getFunctions);
 
-            gep.generateGenePool(client.getArgs().getPopulation());
+            gep.initialisePopulation(client.getArgs().getPopulation());
 
             for (int i = 0; i < client.getArgs().getGenerations(); ++i) {
                 List<ExpressionChromosome<Double>> oldPopulation = gep.getChromosomes();

@@ -2,11 +2,23 @@ package org.iconic.project.search;
 
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
-import org.iconic.io.DataManager;
-import org.iconic.metaheuristic.Trainer;
+import org.iconic.ea.chromosome.Chromosome;
+import org.iconic.ea.chromosome.ExpressionChromosome;
+import org.iconic.ea.data.DataManager;
+import org.iconic.ea.EvolutionaryAlgorithm;
+import org.iconic.ea.gep.GeneExpressionProgramming;
+import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
+import org.iconic.ea.operator.objective.DefaultObjective;
+import org.iconic.ea.operator.objective.error.MeanSquaredError;
+import org.iconic.ea.operator.primitive.Addition;
+import org.iconic.ea.operator.primitive.Division;
+import org.iconic.ea.operator.primitive.Multiplication;
+import org.iconic.ea.operator.primitive.Subtraction;
 import org.iconic.project.dataset.DatasetModel;
 
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * <p>
@@ -18,27 +30,44 @@ import java.util.Arrays;
  */
 @Log4j2
 public class SearchModel implements Runnable {
-    private final DataManager dataManager;
     private final DatasetModel datasetModel;
-    private Trainer trainer;
+    private EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> ea;
+    private boolean running;
 
     /**
      * Constructs a new search global with tne provided dataset.
-     * @param datasetModel
-     *      The dataset to perform the search on
+     *
+     * @param datasetModel The dataset to perform the search on
      */
     public SearchModel(@NonNull final DatasetModel datasetModel) {
         this.datasetModel = datasetModel;
-        this.dataManager = new DataManager();
-        this.trainer = null;
+        this.ea = new GeneExpressionProgramming<Double>();
+        this.running = false;
+        DataManager<Double> dataManager = new DataManager<>(Double.class, datasetModel.getAbsolutePath());
 
-        try {
-            this.trainer = new Trainer();
-        } catch (Exception ex) {
-            log.debug(ex.getMessage());
-            Arrays.stream(ex.getStackTrace()).forEach(log::debug);
-            // TODO: The Trainer throws null pointer exceptions
-        }
+        // Add in the functions it can use
+        ea.addFunction(new Addition());
+        ea.addFunction(new Subtraction());
+        ea.addFunction(new Multiplication());
+        ea.addFunction(new Division());
+
+        // Add in the mutators it can use
+        ea.addMutator(new ExpressionMutator<>());
+
+        // Add in the objectives it should aim for
+        ea.addObjective(
+                new DefaultObjective<>(
+                        new MeanSquaredError(), dataManager.getSamples())
+        );
+
+//
+//        try {
+//            this.trainer = new Trainer();
+//        } catch (Exception ex) {
+//            log.debug(ex.getMessage());
+//            Arrays.stream(ex.getStackTrace()).forEach(log::debug);
+//            // TODO: The Trainer throws null pointer exceptions
+//        }
     }
 
     /**
@@ -46,18 +75,34 @@ public class SearchModel implements Runnable {
      */
     @Override
     public void run() {
-        dataManager.importData(datasetModel.getAbsolutePath());
-        dataManager.normalizeScale();
+        setRunning(true);
 
-        if (trainer != null) {
+        final int populationSize = 100;
+        final int numGenerations = 100;
+        Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
+
+        while (isRunning()) {
             try {
-                trainer.startSearch();
+                ea.initialisePopulation(populationSize);
+
+                for (int i = 0; i < numGenerations; ++i) {
+                    List<ExpressionChromosome<Double>> oldPopulation = ea.getChromosomes();
+                    List<ExpressionChromosome<Double>> newPopulation = ea.evolve(oldPopulation);
+                    ea.setChromosomes(newPopulation);
+
+                    ExpressionChromosome<Double> bestCandidate = ea.getChromosomes()
+                            .stream().min(comparator).get();
+
+                    log.info("\n\tGeneration: {}\n\tBest candidate: {}\n\tFitness: {}",
+                            i, bestCandidate, bestCandidate.getFitness());
+                }
             } catch (Exception ex) {
-                System.err.println(ex.getMessage() + ": ");
-                Arrays.stream(ex.getStackTrace()).forEach(System.out::println);
+                log.error("{}: ", ex::getMessage);
+                Arrays.stream(ex.getStackTrace()).forEach(log::error);
                 // TODO: The Trainer throws null pointer exceptions
             }
         }
+
     }
 
     /**
@@ -66,19 +111,25 @@ public class SearchModel implements Runnable {
      * </p>
      */
     public void stop() {
-        if (trainer != null) {
-            trainer.stopSearch();
-        }
+        setRunning(false);
     }
 
     /**
      * <p>
      * Returns the dataset that's being trained on.
      * </p>
-     * @return
-     *      The dataset that this search global is training on
+     *
+     * @return The dataset that this search global is training on
      */
     public DatasetModel getDatasetModel() {
         return datasetModel;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    private void setRunning(boolean running) {
+        this.running = running;
     }
 }

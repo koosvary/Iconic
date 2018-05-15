@@ -16,6 +16,7 @@ public abstract class EvolutionaryAlgorithm<T extends Chromosome<R>, R> {
     private final List<Mutator<T, R>> mutators;
     private final List<Selection<T, R>> selectors;
     private final List<Objective<T, R>> objectives;
+    private List<T> chromosomes;
 
     protected EvolutionaryAlgorithm() {
         this.functionalPrimitives = new LinkedList<>();
@@ -23,7 +24,10 @@ public abstract class EvolutionaryAlgorithm<T extends Chromosome<R>, R> {
         this.mutators = new LinkedList<>();
         this.selectors = new LinkedList<>();
         this.objectives = new LinkedList<>();
+        this.chromosomes = new LinkedList<>();
     }
+
+    public abstract void initialisePopulation(int geneSize);
 
     public abstract List<T> evolve(final List<T> population);
 
@@ -85,5 +89,11 @@ public abstract class EvolutionaryAlgorithm<T extends Chromosome<R>, R> {
 
     public void addObjective(Objective<T, R> objective) {
         getObjectives().add(objective);
+    }
+
+    public List<T> getChromosomes() { return chromosomes; }
+
+    public void setChromosomes(List<T> chromosomes) {
+        this.chromosomes = chromosomes;
     }
 }
