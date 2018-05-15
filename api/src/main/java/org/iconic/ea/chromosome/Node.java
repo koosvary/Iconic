@@ -8,11 +8,11 @@ public class Node<T> {
     private enum NodeType { FUNCTION, FEATURE, CONSTANT }
     private NodeType nodeType; // Used to determine what this node is holding
     private List<Node<T>> children;
-    private FunctionalPrimitive<T> function; // Function such as + - * /
+    private FunctionalPrimitive<T, T> function; // Function such as + - * /
     private int featureIndex; // The feature index refers to the feature to use from the data, e.g. sex, age, height
     private T constant; // Just a random constant that is passed in
 
-    public Node(FunctionalPrimitive<T> function) {
+    public Node(FunctionalPrimitive<T, T> function) {
         this.nodeType = NodeType.FUNCTION;
         this.function = function;
         this.children = new LinkedList<>();

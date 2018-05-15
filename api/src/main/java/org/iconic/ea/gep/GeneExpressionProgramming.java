@@ -2,7 +2,7 @@ package org.iconic.ea.gep;
 
 import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Node;
-import org.iconic.ea.chromosome.TreeChromosome;
+import org.iconic.ea.chromosome.ExpressionChromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
@@ -10,8 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<TreeChromosome<T>, T> {
-    private List<TreeChromosome<T>> chromosomes = new LinkedList<>();
+public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<ExpressionChromosome<T>, T> {
+    private List<ExpressionChromosome<T>> chromosomes = new LinkedList<>();
 
     public GeneExpressionProgramming() {
         super();
@@ -19,7 +19,7 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<TreeChro
 
     public void generateGenePool(int geneSize) {
         for (int i = 0; i < geneSize; i++) {
-            TreeChromosome<T> chromosome = new TreeChromosome<>();
+            ExpressionChromosome<T> chromosome = new ExpressionChromosome<>();
             chromosome.setExpression(generateExpression());
             chromosome.generateTree();
             chromosomes.add(chromosome);
@@ -39,7 +39,7 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<TreeChro
             if (Math.random() > 0.5) {
                 // Create a function
                 int index = (int) Math.floor(Math.random() * numFunctions);
-                FunctionalPrimitive<T> function = getFunctionalPrimitives().get(index);
+                FunctionalPrimitive<T, T> function = getFunctionalPrimitives().get(index);
                 expression.add(new Node<>(function));
             } else {
                 // Feature Index
@@ -58,10 +58,10 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<TreeChro
     }
 
     @Override
-    public List<TreeChromosome<T>> evolve(List<TreeChromosome<T>> population) {
+    public List<ExpressionChromosome<T>> evolve(List<ExpressionChromosome<T>> population) {
         final double mutationChance = 0.2;
 
-        for (TreeChromosome<T> c: population) {
+        for (ExpressionChromosome<T> c: population) {
             if (ThreadLocalRandom.current().nextDouble(0, 1) < mutationChance) {
                 c = mutate(c);
             }
@@ -70,11 +70,11 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<TreeChro
         return population;
     }
 
-    public TreeChromosome<T> mutate(TreeChromosome<T> chromosome) {
+    public ExpressionChromosome<T> mutate(ExpressionChromosome<T> chromosome) {
         assert(getMutators().size() > 0);
         assert(getObjectives().size() > 0);
 
-        TreeChromosome<T> child = getMutator(0).apply(getFunctionalPrimitives(), chromosome);
+        ExpressionChromosome<T> child = getMutator(0).apply(getFunctionalPrimitives(), chromosome);
 
         // Evaluate the fitness of both chromosomes
         double parentFitness = getObjective(0).apply(chromosome);
@@ -93,9 +93,9 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<TreeChro
 //        return null;
 //    }
 
-    public List<TreeChromosome<T>> getChromosomes() { return chromosomes; }
+    public List<ExpressionChromosome<T>> getChromosomes() { return chromosomes; }
 
-    public void setChromosomes(List<TreeChromosome<T>> chromosomes) {
+    public void setChromosomes(List<ExpressionChromosome<T>> chromosomes) {
         this.chromosomes = chromosomes;
     }
 }

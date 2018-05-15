@@ -1,6 +1,6 @@
 package org.iconic.ea.chromosome;
 
-import org.iconic.ea.operator.evolutionary.mutation.Mutation;
+import org.iconic.ea.operator.evolutionary.mutation.Mutator;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
 public abstract class Chromosome<T> {
     private boolean changed;
     private double fitness;
-    private final List<Mutation<Chromosome<T>, T>> mutators;
+    private final List<Mutator<Chromosome<T>, T>> mutators;
 
     public Chromosome() {
         this.changed = true;
@@ -40,14 +40,14 @@ public abstract class Chromosome<T> {
 
     public abstract List<T> evaluate(List<List<T>> input);
 
-    protected final List<Mutation<Chromosome<T>, T>> getMutators() {
-        List<Mutation<Chromosome<T>, T>> copy = new LinkedList<>();
+    protected final List<Mutator<Chromosome<T>, T>> getMutators() {
+        List<Mutator<Chromosome<T>, T>> copy = new LinkedList<>();
         copy.addAll(mutators);
 
         return copy;
     }
 
-    public void addMutator(Mutation<Chromosome<T>, T> mutator) {
+    public void addMutator(Mutator<Chromosome<T>, T> mutator) {
         getMutators().add(mutator);
     }
 }
