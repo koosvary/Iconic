@@ -1,2 +1,2 @@
 rootProject.name = 'iconic'
-include ':api', ':client'
+include ':api', ':client', ':cli'
