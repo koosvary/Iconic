@@ -9,9 +9,9 @@ import javafx.scene.control.Button;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.SearchModel;
-import org.iconic.project.Displayable;
 import org.iconic.project.search.SearchService;
 
 import java.net.URL;
