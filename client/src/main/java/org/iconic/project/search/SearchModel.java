@@ -1,11 +1,14 @@
 package org.iconic.project.search;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import lombok.NonNull;
+import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
+import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.ExpressionChromosome;
 import org.iconic.ea.data.DataManager;
-import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.gep.GeneExpressionProgramming;
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.DefaultObjective;
@@ -31,18 +34,21 @@ import java.util.List;
 @Log4j2
 public class SearchModel implements Runnable {
     private final DatasetModel datasetModel;
+    private final ObjectProperty<String> updates;
     private EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> ea;
     private boolean running;
 
     /**
-     * Constructs a new search global with tne provided dataset.
+     * Constructs a new search model with tne provided dataset.
      *
      * @param datasetModel The dataset to perform the search on
      */
     public SearchModel(@NonNull final DatasetModel datasetModel) {
         this.datasetModel = datasetModel;
-        this.ea = new GeneExpressionProgramming<Double>();
+        this.updates = new SimpleObjectProperty<>(null);
+        this.ea = new GeneExpressionProgramming<>();
         this.running = false;
+
         DataManager<Double> dataManager = new DataManager<>(Double.class, datasetModel.getAbsolutePath());
 
         // Add in the functions it can use
@@ -59,15 +65,6 @@ public class SearchModel implements Runnable {
                 new DefaultObjective<>(
                         new MeanSquaredError(), dataManager.getSamples())
         );
-
-//
-//        try {
-//            this.trainer = new Trainer();
-//        } catch (Exception ex) {
-//            log.debug(ex.getMessage());
-//            Arrays.stream(ex.getStackTrace()).forEach(log::debug);
-//            // TODO: The Trainer throws null pointer exceptions
-//        }
     }
 
     /**
@@ -93,13 +90,22 @@ public class SearchModel implements Runnable {
                     ExpressionChromosome<Double> bestCandidate = ea.getChromosomes()
                             .stream().min(comparator).get();
 
-                    log.info("\n\tGeneration: {}\n\tBest candidate: {}\n\tFitness: {}",
-                            i, bestCandidate, bestCandidate.getFitness());
+                    final String generation = "\nGeneration: " + i;
+                    final String candidate = "\n\tBest candidate: " + bestCandidate;
+                    final String fitness = "\n\tFitness: " + bestCandidate.getFitness();
+
+                    // Append the current generation's best results in front of the list of updates
+                    setUpdates(
+                            generation + candidate + fitness + getUpdates()
+                    );
+
+                    log.info(generation + candidate + fitness);
                 }
+
+                return;
             } catch (Exception ex) {
                 log.error("{}: ", ex::getMessage);
                 Arrays.stream(ex.getStackTrace()).forEach(log::error);
-                // TODO: The Trainer throws null pointer exceptions
             }
         }
 
@@ -119,10 +125,25 @@ public class SearchModel implements Runnable {
      * Returns the dataset that's being trained on.
      * </p>
      *
-     * @return The dataset that this search global is training on
+     * @return The dataset that this search model is training on
      */
     public DatasetModel getDatasetModel() {
         return datasetModel;
+    }
+
+    @Synchronized
+    public String getUpdates() {
+        return updates.get();
+    }
+
+    @Synchronized
+    public ObjectProperty<String> updatesProperty() {
+        return updates;
+    }
+
+    @Synchronized
+    private void setUpdates(String updates) {
+        this.updates.set(updates);
     }
 
     public boolean isRunning() {
