@@ -23,24 +23,26 @@ public class DataManager<T> {
 
         try {
             importData(fileName);
-        } catch (IOException e) {
-            log.error("File not found: {}", () -> fileName);
+        } catch (IOException ex) {
+            log.error("Bad File: {}", () -> fileName);
+            log.error("Exception: {}", ex);
         }
     }
 
-    public void importData(String fileName) throws IOException {
+    private void importData(String fileName) throws IOException {
         DataManager.fileName = fileName;
         log.traceEntry();
         featureSize = 0;
         sampleSize = 0;
 
         // Check if the file is on the classpath, otherwise check outside
-        InputStream resource = getClass().getClassLoader().getResourceAsStream(fileName);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(resource));
+        InputStream resource = Thread.currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream(fileName);
 
-        if (resource.available() <= 0) {
-            return;
-        }
+        BufferedReader reader = (resource == null)
+                ? new BufferedReader(new FileReader(fileName))
+                : new BufferedReader(new InputStreamReader(resource));
 
         samples = new ArrayList<>();
 
@@ -63,8 +65,9 @@ public class DataManager<T> {
                 String[] values = line.split(",");
 
                 // Track the number of features
-                if (featureSize == 0)
+                if (featureSize == 0) {
                     featureSize = values.length;
+                }
 
                 // currentValues holds all the collected values in a double format
                 ArrayList<T> currentValues = new ArrayList<>();
@@ -87,7 +90,7 @@ public class DataManager<T> {
                     }
                     // If the value collected is a string value then...
                     catch (NumberFormatException nfe) {
-                        System.out.println("DataManager importData  Trying to cast the input to <T>");
+                        log.error("DataManager importData  Trying to cast the input to <T>");
                     }
                 }
 
@@ -118,8 +121,7 @@ public class DataManager<T> {
         return sampleSize;
     }
 
-    private double map(double value, double oldMin, double oldMax, double newMin, double newMax)
-    {
+    private double map(double value, double oldMin, double oldMax, double newMin, double newMax) {
         return newMin + ((value - oldMin) * (newMax - newMin)) / (oldMax - oldMin);
     }
 }

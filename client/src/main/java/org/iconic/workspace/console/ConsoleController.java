@@ -4,10 +4,14 @@ import com.google.inject.Inject;
 import javafx.collections.MapChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.AnchorPane;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
+import org.iconic.control.SearchLogTextArea;
 import org.iconic.project.search.SearchModel;
 import org.iconic.project.search.SearchService;
 
@@ -22,6 +26,11 @@ import java.util.stream.Collectors;
  * <p>
  * The ConsoleController maintains a tab pane of console windows for searches to log their results onto.
  * </p>
+ * <p>
+ * A ConsoleController attaches a change listener onto a search service and it listens for any changes made to the
+ * backing search model. When a search is started a corresponding tab is created in the console for the
+ * search's output to displayed through, when the search is stopped the tab is removed.
+ * </p>
  */
 @Log4j2
 public class ConsoleController implements Initializable {
@@ -32,7 +41,7 @@ public class ConsoleController implements Initializable {
 
     /**
      * <p>
-     * Constructs a new ConsoleController that attaches a change listener onto the search service.
+     * Constructs a new ConsoleController
      * </p>
      */
     @Inject
@@ -55,10 +64,29 @@ public class ConsoleController implements Initializable {
 
                 // If this isn't an update operation, add a new tab - but first make sure everything's not null
                 if (tabs.size() < 1 && change.getValueAdded().getDatasetModel() != null) {
-                    val newTab = new Tab();
-                    newTab.setText(change.getValueAdded().getDatasetModel().getLabel());
+                    Tab newTab = new Tab();
+                    SearchModel searchModel = change.getValueAdded();
+
+                    newTab.setText(searchModel.getDatasetModel().getLabel());
                     // Set the ID so we can modify the tab pane later without re-rendering the entire thing
                     newTab.setId(change.getKey().toString());
+
+                    AnchorPane p = new AnchorPane();
+                    ScrollPane s = new ScrollPane();
+                    TextArea textArea = new SearchLogTextArea(searchModel);
+
+                    s.setFitToHeight(true);
+                    s.setFitToWidth(true);
+                    s.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+                    AnchorPane.setTopAnchor(textArea, 0.0);
+                    AnchorPane.setLeftAnchor(textArea, 0.0);
+                    AnchorPane.setRightAnchor(textArea, 0.0);
+                    AnchorPane.setBottomAnchor(textArea, 0.0);
+                    s.setContent(textArea);
+                    p.getChildren().add(s);
+
+                    newTab.setContent(p);
+
                     this.consoleTabs.getTabs().add(newTab);
                 }
                 // Otherwise don't do anything - but for future reference, this may be undesirable if we want to change
