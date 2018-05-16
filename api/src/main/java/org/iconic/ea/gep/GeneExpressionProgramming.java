@@ -11,18 +11,16 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<ExpressionChromosome<T>, T> {
-    private List<ExpressionChromosome<T>> chromosomes = new LinkedList<>();
-
     public GeneExpressionProgramming() {
         super();
     }
 
-    public void generateGenePool(int geneSize) {
+    public void initialisePopulation(int geneSize) {
         for (int i = 0; i < geneSize; i++) {
             ExpressionChromosome<T> chromosome = new ExpressionChromosome<>();
             chromosome.setExpression(generateExpression());
             chromosome.generateTree();
-            chromosomes.add(chromosome);
+            getChromosomes().add(chromosome);
         }
     }
 
@@ -71,8 +69,8 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
     }
 
     public ExpressionChromosome<T> mutate(ExpressionChromosome<T> chromosome) {
-        assert(getMutators().size() > 0);
-        assert(getObjectives().size() > 0);
+        assert (getMutators().size() > 0);
+        assert (getObjectives().size() > 0);
 
         ExpressionChromosome<T> child = getMutator(0).apply(getFunctionalPrimitives(), chromosome);
 
@@ -86,16 +84,5 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
         }
 
         return chromosome;
-    }
-
-//    @Override
-//    public T evaluate(List<T> sampleRowValues) {
-//        return null;
-//    }
-
-    public List<ExpressionChromosome<T>> getChromosomes() { return chromosomes; }
-
-    public void setChromosomes(List<ExpressionChromosome<T>> chromosomes) {
-        this.chromosomes = chromosomes;
     }
 }
