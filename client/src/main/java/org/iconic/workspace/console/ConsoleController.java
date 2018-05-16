@@ -78,10 +78,16 @@ public class ConsoleController implements Initializable {
                     s.setFitToHeight(true);
                     s.setFitToWidth(true);
                     s.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+                    // Fit the textarea and scroll pane to the anchor pane
+                    // *Both* of them need to be set or they'll fall back to the size of their contents
                     AnchorPane.setTopAnchor(textArea, 0.0);
                     AnchorPane.setLeftAnchor(textArea, 0.0);
                     AnchorPane.setRightAnchor(textArea, 0.0);
                     AnchorPane.setBottomAnchor(textArea, 0.0);
+                    AnchorPane.setTopAnchor(s, 0.0);
+                    AnchorPane.setLeftAnchor(s, 0.0);
+                    AnchorPane.setRightAnchor(s, 0.0);
+                    AnchorPane.setBottomAnchor(s, 0.0);
                     s.setContent(textArea);
                     p.getChildren().add(s);
 
