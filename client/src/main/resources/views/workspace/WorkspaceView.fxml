@@ -7,6 +7,7 @@
 
 <?import javafx.scene.layout.VBox?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.HBox?>
 <SplitPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
            fx:controller="org.iconic.workspace.WorkspaceController"
@@ -14,15 +15,29 @@
         <AnchorPane>
             <TabPane AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
                      AnchorPane.rightAnchor="0">
-                <Tab text="Project Info">
+                <Tab text="Project Info" closable="false">
                     <VBox>
                         <padding><Insets topRightBottomLeft="5"/></padding>
                         <Text GridPane.columnIndex="0">Welcome, import a dataset to get started.</Text>
+
+                        <HBox>
+                            <padding><Insets top="5" bottom="5"/></padding>
+                            <Button fx:id="btnLoadDataset" text="Load Dataset"/>
+                            <TextField fx:id="txtDatasetFilePath" promptText="File Path" />
+                        </HBox>
+
+                        <HBox>
+                            <padding><Insets top="5" bottom="5"/></padding>
+                            <Button fx:id="btnOutputDirectory" text="Output Directory"/>
+                            <TextField fx:id="txtOutputFilePath" promptText="{Default = Dataset Directory}" />
+                        </HBox>
+
+
                     </VBox>
                 </Tab>
                 <fx:include source="DatasetView.fxml"/>
                 <fx:include source="SearchProgressView.fxml"/>
-                <Tab text="Results"/>
+                <Tab text="Results" closable="false"/>
             </TabPane>
         </AnchorPane>
         <fx:include source="ConsoleView.fxml"/>

@@ -11,7 +11,7 @@
 <?import javafx.stage.Screen?>
 
 <?import javafx.scene.layout.AnchorPane?>
-<Tab text="Start Search"
+<Tab text="Start Search" closable="false"
      xmlns="http://javafx.com/javafx"
      xmlns:fx="http://javafx.com/fxml"
      fx:controller="org.iconic.workspace.WorkspaceController">
