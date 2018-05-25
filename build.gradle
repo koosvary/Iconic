@@ -28,24 +28,7 @@ allprojects {
     targetCompatibility = 1.8
     options.compilerArgs << "-Xlint:all" << "-Xlint:-processing"
   }
-
-  // Jupiter requires Java 8
-  compileTestJava {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-    options.compilerArgs << "-Xlint:all" << "-Xlint:-processing"
-  }
-
-  test {
-    useJUnitPlatform()
-  }
-
   dependencies {
-    testCompileOnly group: 'org.apiguardian', name: 'apiguardian-api', version:'1.0.0'
-    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.1.0'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.11.0'
-    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.1.0'
-    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.1.0'
     compile group: 'org.projectlombok', name: 'lombok', version: '1.16.16'
     compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.0'
     compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.0'
