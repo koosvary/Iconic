@@ -9,12 +9,14 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.geometry.Insets?>
 <?import javafx.stage.Screen?>
+<?import javafx.scene.image.*?>
 
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.text.Text?>
-<Tab text="Start Search" closable="false"
+
+<Tab text="   Start Search" closable="false"
      xmlns="http://javafx.com/javafx"
      xmlns:fx="http://javafx.com/fxml"
      fx:controller="org.iconic.workspace.WorkspaceController">
@@ -23,6 +25,14 @@
         <Screen fx:factory="getPrimary" fx:id="screen"/>
     </fx:define>
 
+	<graphic>
+		<ImageView fitWidth="24" fitHeight="24">
+			<image>
+				<Image url="@/images/play-button.png"/>
+			</image>
+		</ImageView>
+	</graphic>
+	
     <VBox>
         <HBox>
             <padding>

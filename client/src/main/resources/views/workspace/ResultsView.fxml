@@ -9,6 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.geometry.Insets?>
 <?import javafx.stage.Screen?>
+<?import javafx.scene.image.*?>
 
 <?import javafx.scene.layout.AnchorPane?>
 <?import com.sun.javafx.scene.control.skin.TableHeaderRow?>
@@ -16,7 +17,8 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Text?>
-<Tab text="Results"
+
+<Tab text="   Results"
      xmlns="http://javafx.com/javafx"
      xmlns:fx="http://javafx.com/fxml"
      fx:controller="org.iconic.workspace.WorkspaceController">
@@ -24,7 +26,15 @@
     <fx:define>
         <Screen fx:factory="getPrimary" fx:id="screen"/>
     </fx:define>
-
+	
+	<graphic>
+		<ImageView fitWidth="24" fitHeight="24">
+			<image>
+				<Image url="@/images/graph.png"/>
+			</image>
+		</ImageView>
+	</graphic>
+	
     <VBox>
         <HBox>
             <HBox spacing="5" prefWidth="${screen.visualBounds.width*0.5}">

@@ -6,12 +6,20 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.collections.*?>
+<?import javafx.scene.image.*?>
 
-<Tab text="Define Search" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+<Tab text="   Define Search" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+	<graphic>
+		<ImageView fitWidth="24" fitHeight="24">
+			<image>
+				<Image url="@/images/file.png"/>
+			</image>
+		</ImageView>
+	</graphic>
+	
 	<VBox>
 		<padding><Insets topRightBottomLeft="25"/></padding>
 		<HBox>
-			
 			<Label text="Target Expression:">
 				<padding><Insets left="20" right="20"/></padding>
 				<font>
