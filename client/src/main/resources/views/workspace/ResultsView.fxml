@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.chart.LineChart?>
@@ -10,7 +11,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.stage.Screen?>
 <?import javafx.scene.image.*?>
-
+<?import javafx.collections.*?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import com.sun.javafx.scene.control.skin.TableHeaderRow?>
 <?import javafx.scene.layout.GridPane?>
@@ -56,13 +57,15 @@
                         <Font size="18.0" />
                     </font>
                 </Label>
-                <MenuButton mnemonicParsing="false" text="Select plot type">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="Option 1" />
-                        <MenuItem mnemonicParsing="false" text="Option 2" />
-                        <MenuItem mnemonicParsing="false" text="Option 3" />
-                    </items>
-                </MenuButton>
+				<ComboBox value="Solution Fit Plot (default)">
+					<items>
+						<FXCollections fx:factory="observableArrayList">
+							<String fx:value="Solution Fit Plot (default)"/>
+							<String fx:value="Observed vs. Predicted Plot"/>
+							<String fx:value="Classification ROC Plot"/>
+						</FXCollections>
+					</items>
+				</ComboBox>
             </HBox>
         </HBox>
         <Separator/>

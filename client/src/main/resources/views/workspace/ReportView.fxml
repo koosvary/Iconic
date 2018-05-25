@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.lang.*?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.ComboBox?>
@@ -19,7 +20,7 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.stage.Screen?>
 <?import javafx.scene.image.*?>
-
+<?import javafx.collections.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.TitledPane?>
 
@@ -64,13 +65,15 @@
                     <Insets right="10.0" />
                 </HBox.margin>
             </Label>
-            <MenuButton mnemonicParsing="false" text="Select report type" fx:id="reportOption">
-               <items>
-                   <MenuItem mnemonicParsing="false" text="Generate summary report" />
-                   <MenuItem mnemonicParsing="false" text="Quick evaluate and predict values" />
-                   <MenuItem mnemonicParsing="false" text="Evaluate model values from a dataset" />
-               </items>
-            </MenuButton>
+			<ComboBox value="Generate summary report" fx:id="reportOption">
+				<items>
+					<FXCollections fx:factory="observableArrayList">
+						<String fx:value="Generate summary report"/>
+						<String fx:value="Quick evaluate and predict values"/>
+						<String fx:value="Evaluate model values from a dataset"/>
+					</FXCollections>
+				</items>
+			</ComboBox>
         </HBox>
         <VBox>
             <padding>
