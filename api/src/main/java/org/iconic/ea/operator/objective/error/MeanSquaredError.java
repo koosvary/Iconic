@@ -26,6 +26,7 @@ public class MeanSquaredError implements ErrorFunction {
 
         for (int i = 0; i < numValues; i++) {
             final double error = (expected.get(i) - calculated.get(i));
+            //System.out.println("MeanSquaredError    apply   expected: " + expected.get(i) + " calculated: " + calculated.get(i) + " error = " + error);
             sum += error * error;
         }
 

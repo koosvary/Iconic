@@ -52,7 +52,7 @@ public class Client {
             gep.addFunction(new Addition());
             gep.addFunction(new Subtraction());
             gep.addFunction(new Multiplication());
-            gep.addFunction(new Division());
+            //gep.addFunction(new Division());
 
             // Add in the mutators it can use
             gep.addMutator(new ExpressionMutator<>());
