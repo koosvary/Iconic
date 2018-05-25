@@ -89,7 +89,7 @@ public class MenuController implements Initializable {
         );
 
         alert.setTitle("About");
-        alert.setHeaderText("About");
+        alert.setHeaderText("Version:    1.0\n\nIcons made by Smashicons, Roundicons, Freepik and DinosoftLabs from www.flaticon.com");
 
         alert.showAndWait()
                 .filter(response -> response == ButtonType.OK)

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.Insets?>
+
+<Tab text="   Input Data" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+	<graphic>
+		<ImageView fitWidth="24" fitHeight="24">
+			<image>
+				<Image url="@/images/folder.png"/>
+			</image>
+		</ImageView>
+	</graphic>
+
+	<VBox>
+		<padding><Insets topRightBottomLeft="5"/></padding>
+		<Text GridPane.columnIndex="0">Welcome, import a dataset to get started.</Text>
+
+		<HBox>
+			<padding><Insets top="5" bottom="5"/></padding>
+			<Button fx:id="btnLoadDataset" text="Load Dataset"/>
+			<Label><padding><Insets left="5" right="5"/></padding></Label>
+			<TextField fx:id="txtDatasetFilePath" promptText="File Path" />
+		</HBox>
+
+		<HBox>
+			<padding><Insets top="5" bottom="5"/></padding>
+			<Button fx:id="btnOutputDirectory" text="Output Directory"/>
+			<Label><padding><Insets left="5" right="5"/></padding></Label>
+			<TextField fx:id="txtOutputFilePath" promptText="{Default = Dataset Directory}" />
+		</HBox>
+	</VBox>
+</Tab>

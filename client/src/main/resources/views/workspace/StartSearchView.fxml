@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.stage.Screen?>
+<?import javafx.scene.image.*?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.text.Text?>
+
+<Tab text="   Start Search" closable="false"
+     xmlns="http://javafx.com/javafx"
+     xmlns:fx="http://javafx.com/fxml"
+     fx:controller="org.iconic.workspace.WorkspaceController">
+    <!-- Define the primary screen so we can use percentage based widths -->
+    <fx:define>
+        <Screen fx:factory="getPrimary" fx:id="screen"/>
+    </fx:define>
+
+	<graphic>
+		<ImageView fitWidth="24" fitHeight="24">
+			<image>
+				<Image url="@/images/play-button.png"/>
+			</image>
+		</ImageView>
+	</graphic>
+	
+    <VBox>
+        <HBox>
+            <padding>
+                <Insets top="10" bottom="10" left="10" right="10"/>
+            </padding>
+            <ButtonBar>
+                <buttons>
+                    <Button fx:id="btnSearch" text="%workspace.search" onAction="#startSearch"/>
+                    <Button fx:id="btnStopSearch" text="Stop" onAction="#stopSearch"/>
+                </buttons>
+            </ButtonBar>
+        </HBox>
+        <Separator/>
+        <HBox>
+            <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.33}">
+                <padding>
+                    <Insets top="10" bottom="10" left="10" right="10"/>
+                </padding>
+                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Search Progress">
+                    <font>
+                        <Font size="18.0" />
+                    </font>
+                </Text>
+                <ScrollPane fitToWidth="true">
+                    <content>
+                        <GridPane alignment="CENTER" >
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="30.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="70.0" prefWidth="100.0" />
+                            </columnConstraints>
+                            <children>
+                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Time" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                    <font>
+                                        <Font size="12.0"/>
+                                    </font>
+                                </Text>
+                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="CPU Cores" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                    <font>
+                                        <Font size="12.0" />
+                                    </font>
+                                </Text>
+                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="0s" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                    <font>
+                                        <Font size="12.0" />
+                                    </font>
+                                </Text>
+                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <font>
+                                        <Font size="12.0" />
+                                    </font>
+                                </Text>
+                            </children>
+                        </GridPane>
+                    </content>
+                </ScrollPane>
+            </VBox>
+            <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.66}">
+                <padding>
+                    <Insets top="10" bottom="10" left="10" right="10"/>
+                </padding>
+                <AnchorPane>
+                    <ProgressIndicator progress="0.17" AnchorPane.topAnchor="10" AnchorPane.rightAnchor="20"/>
+                    <LineChart title="%search.progress.chart.title"
+                               AnchorPane.topAnchor="0"
+                               AnchorPane.leftAnchor="0"
+                               AnchorPane.rightAnchor="0"
+                               AnchorPane.BottomAnchor="0">
+                        <xAxis>
+                            <CategoryAxis side="BOTTOM"/>
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis side="LEFT"/>
+                        </yAxis>
+                    </LineChart>
+                </AnchorPane>
+            </VBox>
+        </HBox>
+    </VBox>
+</Tab>
