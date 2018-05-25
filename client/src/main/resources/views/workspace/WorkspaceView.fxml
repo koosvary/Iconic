@@ -13,14 +13,8 @@
            fx:controller="org.iconic.workspace.WorkspaceController"
            orientation="VERTICAL">
         <AnchorPane>
-            <TabPane AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
-<<<<<<< HEAD
-                     AnchorPane.rightAnchor="0" tabClosingPolicy="UNAVAILABLE">
-                <Tab text="Input Data">
-=======
-                     AnchorPane.rightAnchor="0">
-                <Tab text="Project Info" closable="false">
->>>>>>> origin/feature/implimentation
+            <TabPane AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" tabClosingPolicy="UNAVAILABLE">
+                <Tab text="Input Data" closable="false">
                     <VBox>
                         <padding><Insets topRightBottomLeft="5"/></padding>
                         <Text GridPane.columnIndex="0">Welcome, import a dataset to get started.</Text>
@@ -36,19 +30,17 @@
                             <Button fx:id="btnOutputDirectory" text="Output Directory"/>
                             <TextField fx:id="txtOutputFilePath" promptText="{Default = Dataset Directory}" />
                         </HBox>
-
-
                     </VBox>
                 </Tab>
                 <fx:include source="DatasetView.fxml"/>
+				
 				<Tab text="Define Search"/>
+				
                 <fx:include source="SearchProgressView.fxml"/>
-<<<<<<< HEAD
-                <Tab text="Results"/>
-				<Tab text="Reports"/>
-=======
+				
                 <Tab text="Results" closable="false"/>
->>>>>>> origin/feature/implimentation
+				
+				<Tab text="Reports"/>
             </TabPane>
         </AnchorPane>
         <fx:include source="ConsoleView.fxml"/>

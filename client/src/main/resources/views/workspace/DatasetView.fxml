@@ -8,18 +8,15 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.geometry.Insets?>
-
-<<<<<<< HEAD
-<Tab text="Process Data"
-=======
 <?import javafx.collections.FXCollections?>
 <?import java.lang.String?>
 <?import javafx.stage.Screen?>
-<Tab text="Prepare Data" closable="false"
->>>>>>> origin/feature/implimentation
+
+<Tab text="Process Data" closable="false"
      xmlns="http://javafx.com/javafx"
      xmlns:fx="http://javafx.com/fxml"
      fx:controller="org.iconic.workspace.WorkspaceController">
+	 
     <fx:define>
         <Screen fx:factory="getPrimary" fx:id="screen"/>
     </fx:define>
