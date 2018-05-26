@@ -1,8 +1,10 @@
 package org.iconic.ea.gep;
 
 import org.iconic.ea.EvolutionaryAlgorithm;
-import org.iconic.ea.chromosome.Node;
 import org.iconic.ea.chromosome.ExpressionChromosome;
+import org.iconic.ea.chromosome.FunctionNode;
+import org.iconic.ea.chromosome.InputNode;
+import org.iconic.ea.chromosome.Node;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
@@ -38,18 +40,18 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
                 // Create a function
                 int index = (int) Math.floor(Math.random() * numFunctions);
                 FunctionalPrimitive<T, T> function = getFunctionalPrimitives().get(index);
-                expression.add(new Node<>(function));
+                expression.add(new FunctionNode<>(function));
             } else {
                 // Feature Index
                 int index = (int) Math.floor(Math.random() * (featureSize - 1));
-                expression.add(new Node<T>(index));
+                expression.add(new InputNode<>(index));
             }
         }
 
         // Tail
         for (int i = 0; i < headerLength + 1; i++) {
             int index = (int) Math.floor(Math.random() * (featureSize - 1));
-            expression.add(new Node<T>(index));
+            expression.add(new InputNode<>(index));
         }
 
         return expression;
@@ -75,8 +77,10 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
         ExpressionChromosome<T> child = getMutator(0).apply(getFunctionalPrimitives(), chromosome);
 
         // Evaluate the fitness of both chromosomes
+
         double parentFitness = getObjective(0).apply(chromosome);
         double childFitness = getObjective(0).apply(child);
+
 
         // Return the new chromosome if it's objectively better or equivalent to its parent
         if (childFitness <= parentFitness) {
