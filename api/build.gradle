@@ -1,15 +1,32 @@
 apply plugin: 'application'
 
-mainClassName = 'org.iconic.Main'
-
 run {
   if (project.hasProperty("appArgs")) {
     args Eval.me(appArgs)
   }
 }
 
+// Jupiter requires Java 8
+compileTestJava {
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
+  options.compilerArgs << "-Xlint:all" << "-Xlint:-processing"
+}
+
+test {
+  useJUnitPlatform()
+}
+
+dependencies {
+  testCompileOnly group: 'org.apiguardian', name: 'apiguardian-api', version: '1.0.0'
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.1.0'
+  testCompile group: 'org.mockito', name: 'mockito-core', version: '2.11.0'
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.1.0'
+  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.1.0'
+}
+
 jar {
-  baseName = 'gene-expression-core'
+  baseName = 'iconic-api'
   version = '0.0.5'
 
   // The Java plugin doesn't specify any of the 
@@ -18,7 +35,6 @@ jar {
   manifest {
     attributes(
       'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-      'Main-Class': 'org.iconic.Main'
     )
   }
 

@@ -31,6 +31,8 @@ public class WorkspaceController implements Initializable {
 
     @FXML
     private Button btnSearch;
+    @FXML
+    private Button btnStopSearch;
 
     @Getter(AccessLevel.PRIVATE)
     private final String defaultName;
@@ -85,9 +87,28 @@ public class WorkspaceController implements Initializable {
             }
             // Otherwise stop the current search
             else {
+//              TODO implement pause functionality
                 search.stop();
                 getSearchService().searchesProperty().remove(dataset.getId());
             }
+        }
+    }
+
+    /**
+     * Stops the current search.
+     *
+     * @param actionEvent The action that triggered this event
+     */
+    public void stopSearch(ActionEvent actionEvent) {
+        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
+
+        // Check that there's an active dataset before starting the search
+        if (item instanceof DatasetModel) {
+            val dataset = (DatasetModel) item;
+            val search = getSearchService().searchesProperty().get(dataset.getId());
+
+            search.stop();
+            getSearchService().searchesProperty().remove(dataset.getId());
         }
     }
 
@@ -108,17 +129,20 @@ public class WorkspaceController implements Initializable {
 
                 // If there's no search...
                 if (search != null) {
-                    btnSearch.setText("Stop Search");
+                    btnSearch.setText("Pause");
+                    btnStopSearch.setVisible(true);
                 }
                 // Otherwise...
                 else {
                     btnSearch.setText("Start Search");
+                    btnStopSearch.setVisible(false);
                 }
             }
             // Otherwise if no interesting project item is selected
             else {
                 // Display some default messages
                 btnSearch.setText("Start Search");
+                btnStopSearch.setVisible(false);
                 // And disable the search button
                 btnSearch.setDisable(true);
             }

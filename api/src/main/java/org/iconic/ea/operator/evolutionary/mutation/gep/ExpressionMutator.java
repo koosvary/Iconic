@@ -15,8 +15,7 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
     public ExpressionChromosome<R> apply(final List<FunctionalPrimitive<R, R>> functionalPrimitives,
                                          final ExpressionChromosome<R> chromosome) {
         // Pick an index of the chromosome to mutate
-        int index = (int) Math.floor(Math.random() * chromosome.getExpressionLength());
-        final int numFunctions = functionalPrimitives.size();
+        int index = (int) Math.floor(Math.random() * chromosome.getActiveNodes());
 
         // Get the expression from the chromosome
         List<Node<R>> expression = chromosome.getExpression();

@@ -1,20 +1,17 @@
 package org.iconic;
 
-import java.io.IOException;
-import java.util.Locale;
-import java.util.ResourceBundle;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.config.InMemoryModule;
 import org.iconic.project.search.SearchService;
+
+import java.io.IOException;
 
 /**
  * {@inheritDoc}
@@ -60,14 +57,14 @@ public class Bootstrapper extends Application {
         val root = new BorderPane();
 
         // Load the child UI elements from FXML resources
-        val menuLoader = load("views/menu/MenuView.fxml");
-        val projectLoader = load("views/project/ProjectTreeView.fxml");
-        val workspaceLoader = load("views/workspace/WorkspaceView.fxml");
+        val menuView = new View("views/menu/MenuView.fxml", getInjector());
+        val projectView = new View("views/project/ProjectTreeView.fxml", getInjector());
+        val workspaceView = new View("views/workspace/WorkspaceView.fxml", getInjector());
 
         try {
-            root.setTop(menuLoader.load());
-            root.setLeft(projectLoader.load());
-            root.setCenter(workspaceLoader.load());
+            root.setTop(menuView.load());
+            root.setLeft(projectView.load());
+            root.setCenter(workspaceView.load());
         } catch (IOException ex) {
             log.debug(ex.getMessage());
         }
@@ -85,25 +82,6 @@ public class Bootstrapper extends Application {
         primaryStage.setMaximized(true);
         primaryStage.show();
     }
-
-    private FXMLLoader load(final String uri) throws UnsupportedOperationException {
-        val defaultLocale = "en";
-        val defaultLocaleResource = "localisation.en_au";
-        val loader = new FXMLLoader(getClass().getClassLoader().getResource(uri));
-        loader.setControllerFactory(getInjector()::getInstance);
-
-        // Provide a localisation resource to use for i18n strings
-        if (Locale.getDefault().getLanguage().startsWith(defaultLocale)) {
-            loader.setResources(ResourceBundle.getBundle(defaultLocaleResource));
-        }
-        // Just throw an exception for other languages (for now)
-        else {
-            throw new UnsupportedOperationException("Your language is not yet supported");
-        }
-
-        return loader;
-    }
-
 
     @Override
     public void stop() {

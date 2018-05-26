@@ -8,19 +8,28 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.geometry.Insets?>
-
 <?import javafx.collections.FXCollections?>
 <?import java.lang.String?>
 <?import javafx.stage.Screen?>
-<Tab text="Prepare Data" closable="false"
+<?import javafx.scene.image.*?>
+
+<Tab text="   Process Data" closable="false"
      xmlns="http://javafx.com/javafx"
      xmlns:fx="http://javafx.com/fxml"
      fx:controller="org.iconic.workspace.WorkspaceController">
+	 
     <fx:define>
         <Screen fx:factory="getPrimary" fx:id="screen"/>
     </fx:define>
 
-
+	<graphic>
+		<ImageView fitWidth="24" fitHeight="24">
+			<image>
+				<Image url="@/images/data.png"/>
+			</image>
+		</ImageView>
+	</graphic>
+	
     <VBox spacing="5">
         <padding><Insets top="10" bottom="10" left="10" right="10"/></padding>
         <VBox>

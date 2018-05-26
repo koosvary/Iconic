@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.collections.*?>
+<?import javafx.scene.image.*?>
+
+<Tab text="   Define Search" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+	<graphic>
+		<ImageView fitWidth="24" fitHeight="24">
+			<image>
+				<Image url="@/images/file.png"/>
+			</image>
+		</ImageView>
+	</graphic>
+	
+	<VBox>
+		<padding><Insets topRightBottomLeft="25"/></padding>
+		<HBox>
+			<Label text="Target Expression:">
+				<padding><Insets left="20" right="20"/></padding>
+				<font>
+					<Font size="16.0"/>
+				</font>
+			</Label>
+			
+			<TextField text="y = f(x)"/>
+		</HBox>
+		
+		<HBox>
+			<padding><Insets top="25" left="20"/></padding>
+			<TableView>
+				<columns>
+					<TableColumn text="Enabled"/>
+					<TableColumn text="Name"/>
+					<TableColumn text="Complexity"/>
+				</columns>
+			</TableView>
+			
+			<Label><padding><Insets left="20" right="20"/></padding></Label>
+			
+			<ListView/>
+		</HBox>
+		
+		<HBox>
+			<padding><Insets top="25"/></padding>
+			<Label text="Error metric:">
+				<padding><Insets left="20" right="20"/></padding>
+				<font>
+					<Font size="16.0"/>
+				</font>
+			</Label>
+		
+			<ComboBox value="Absolute error (default)">
+				<items>
+					<FXCollections fx:factory="observableArrayList">
+						<String fx:value="Absolute error (default)"/>
+						<String fx:value="Squared error"/>
+						<String fx:value="Mean Squared Error (MSE)"/>
+						<String fx:value="Root Mean Squared Error (RMSE)"/>
+						<String fx:value="Maximum error"/>
+						<String fx:value="Median error"/>
+					</FXCollections>
+				</items>
+			</ComboBox>
+		</HBox>
+		
+		<HBox>
+			<padding><Insets top="25"/></padding>
+			<Label text="Base Solutions:">
+				<padding><Insets left="20" right="20"/></padding>
+				<font>
+					<Font size="16.0"/>
+				</font>
+			</Label>
+			
+			<TextField/>
+		</HBox>
+	</VBox>
+</Tab>
