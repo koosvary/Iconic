@@ -28,13 +28,15 @@ public class Node<T> {
         this.constant = constant;
     }
 
-    void addChild(Node<T> n) {
+    public void addChild(Node<T> n) {
         children.add(n);
     }
 
     public void addChildren(List<Node<T>> children) {
         this.children.addAll(children);
     }
+
+    public void removeAllChildren() { children = new LinkedList<>(); }
 
     public T apply(List<T> sampleRowValues) {
         switch (nodeType) {
@@ -64,7 +66,7 @@ public class Node<T> {
             case FEATURE: return featureIndex + "";
             case FUNCTION:
                 if (children.size() > 0)
-                    return "{" + function + "," + children.get(0) + ", " + children.get(1) + "}";
+                    return "(" + children.get(0) + " " + function + " " + children.get(1) + ")";
                 else
                     return function.toString();
             default: return ":)";

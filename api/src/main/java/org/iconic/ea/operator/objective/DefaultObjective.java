@@ -29,8 +29,10 @@ public class DefaultObjective<T extends Chromosome<R>, R> extends ErrorBasedObje
         List<Double> results = (List<Double>) c.evaluate(getSamples());
 
         final double fitness = getLambda().apply(results, (List<Double>) getExpectedResults());
-        ;
+
         c.setFitness(fitness);
+
+        System.out.println("DefaultObjective    apply   Fitness: " + fitness + " c.toString(): " + c.toString());
 
         return fitness;
     }

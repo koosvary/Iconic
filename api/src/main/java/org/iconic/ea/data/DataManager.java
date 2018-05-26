@@ -98,6 +98,7 @@ public class DataManager<T> {
                 samples.add(currentValues);
             }
         }
+
         sc.close();
     }
 

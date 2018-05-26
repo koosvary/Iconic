@@ -57,11 +57,12 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
 
     @Override
     public List<ExpressionChromosome<T>> evolve(List<ExpressionChromosome<T>> population) {
-        final double mutationChance = 0.2;
+        final double mutationChance = 1.0;
 
         for (ExpressionChromosome<T> c: population) {
             if (ThreadLocalRandom.current().nextDouble(0, 1) < mutationChance) {
                 c = mutate(c);
+                c.generateTree();
             }
         }
 
@@ -73,10 +74,17 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
         assert (getObjectives().size() > 0);
 
         ExpressionChromosome<T> child = getMutator(0).apply(getFunctionalPrimitives(), chromosome);
+        child.generateTree();
+        chromosome.generateTree();
 
         // Evaluate the fitness of both chromosomes
+
+        System.out.println("GeneExpressionProgramming    mutate   chromosome.toString(): " + chromosome.toString() + "Full: " + chromosome.getExpression());
         double parentFitness = getObjective(0).apply(chromosome);
+        System.out.println("GeneExpressionProgramming    mutate   child.toString(): " + child.toString());
         double childFitness = getObjective(0).apply(child);
+
+        System.out.println("GeneExpressionProgramming    mutate   parentFitness: " + parentFitness + " childFitness: " + childFitness);
 
         // Return the new chromosome if it's objectively better or equivalent to its parent
         if (childFitness <= parentFitness) {
