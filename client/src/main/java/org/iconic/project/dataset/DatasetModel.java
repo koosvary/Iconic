@@ -3,6 +3,7 @@ package org.iconic.project.dataset;
 import javafx.beans.property.SimpleStringProperty;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
+import org.iconic.ea.data.DataManager;
 import org.iconic.project.Displayable;
 
 import java.net.URI;
@@ -19,16 +20,18 @@ public class DatasetModel implements Displayable {
     private final UUID id;
     private final SimpleStringProperty name;
     private final SimpleStringProperty absolutePath;
+    private final DataManager<Double> dataManager;
 
     /**
      * <p>Constructs a new DatasetModel with the provided name and absolute path.</p>
      *
-     * @param name The name of the dataset
+     * @param name         The name of the dataset
      * @param absolutePath The absolute path to the dataset
      */
-    public DatasetModel(@NonNull String name, @NonNull String absolutePath) {
+    public DatasetModel(@NonNull final String name, @NonNull final String absolutePath) {
         this.name = new SimpleStringProperty(name);
         this.absolutePath = new SimpleStringProperty(absolutePath);
+        this.dataManager = new DataManager<>(Double.class, absolutePath);
         this.id = UUID.randomUUID();
     }
 
@@ -111,5 +114,9 @@ public class DatasetModel implements Displayable {
      */
     public UUID getId() {
         return id;
+    }
+
+    public DataManager<Double> getDataManager() {
+        return dataManager;
     }
 }

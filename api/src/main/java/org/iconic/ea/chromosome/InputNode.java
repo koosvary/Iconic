@@ -25,7 +25,7 @@ public class InputNode<T> extends Node<T> {
 
     @Override
     public String toString() {
-        return " " + featureIndex + " ";
+        return " F" + featureIndex + " ";
     }
 
     @Override
@@ -33,7 +33,7 @@ public class InputNode<T> extends Node<T> {
         return new InputNode<>(getFeatureIndex());
     }
 
-    public int getChildrenSize() {
+    public int getNumberOfChildren() {
         return 0;
     }
 }

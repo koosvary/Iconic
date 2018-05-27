@@ -31,9 +31,9 @@ public class FunctionNode<T> extends Node<T> {
         StringBuilder output = new StringBuilder();
 
         if (getChildren().size() > 0) {
-            output.append("( ").append(getLambda());
+            output.append(" ( ").append(getLambda());
             getChildren().forEach(output::append);
-            output.append(")");
+            output.append(" ) ");
         }
         else {
             output.append(getLambda().toString());
@@ -42,7 +42,7 @@ public class FunctionNode<T> extends Node<T> {
         return output.toString();
     }
 
-    public int getChildrenSize() {
+    public int getNumberOfChildren() {
         // By returning the arity any excess child nodes will be skipped during evaluation
         return getLambda().getArity();
     }

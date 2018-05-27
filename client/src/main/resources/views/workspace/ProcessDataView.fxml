@@ -4,7 +4,6 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.geometry.Insets?>
@@ -23,11 +22,9 @@
     </fx:define>
 
 	<graphic>
-		<ImageView fitWidth="24" fitHeight="24">
-			<image>
-				<Image url="@/images/data.png"/>
-			</image>
-		</ImageView>
+        <ImageView fitWidth="24" fitHeight="24">
+            <Image url="@/images/data.png"/>
+        </ImageView>
 	</graphic>
 	
     <VBox spacing="5">
@@ -44,8 +41,7 @@
             </Separator>
 
             <HBox>
-                <ListView prefWidth="${screen.visualBounds.width*0.33}">
-                </ListView>
+                <ListView fx:id="lvFeatures" prefWidth="${screen.visualBounds.width*0.33}"/>
 
                 <VBox prefWidth="${screen.visualBounds.width*0.66}" spacing="5">
                     <padding><Insets top="10" bottom="10" left="10" right="10"/></padding>
@@ -54,10 +50,10 @@
                     <CheckBox fx:id="cbSmoothData" text="Smooth data points of (x)"/>
 
                     <!-- "managed" variable essentially sets the height of the HBox to 0 instead of just being "invisible" but still there -->
-                    <VBox fx:id="vbSmoothData" visible="true" managed="true">
+                    <VBox fx:id="vbSmoothData">
                         <HBox>
                             <Label text="Smoothness:"><padding><Insets left="25" right="25"/></padding></Label>
-                            <Slider min="0" max="100" value="50" showTickLabels="true" showTickMarks="true"/>
+                            <Slider value="50" showTickLabels="true" showTickMarks="true"/>
                             <TextField text="50%">
                             </TextField>
                             <Button text="Choose Automatically"/>
@@ -66,7 +62,7 @@
                     <Separator/>
 
                     <CheckBox fx:id="cbHandleMissingValues" text="Handle missing values of (x)"/>
-                    <VBox fx:id="vbHandleMissingValues" visible="true" managed="true">
+                    <VBox fx:id="vbHandleMissingValues">
                         <HBox>
                             <Label text="Method:"><padding><Insets left="25" right="10"/></padding></Label>
                             <ComboBox promptText="Choose Method">
@@ -86,7 +82,7 @@
                     <Separator/>
 
                     <CheckBox fx:id="cbRemoveOutliers" text="Remove outliers of (x)"/>
-                    <VBox fx:id="vbRemoveOutliers" visible="true" managed="true">
+                    <VBox fx:id="vbRemoveOutliers">
                         <HBox>
                             <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
                             <TextField text="0"/>
@@ -98,15 +94,15 @@
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbNormalise" text="Normalise scale and offset of (x)"/>
-                    <VBox fx:id="vbNormalise" visible="true" managed="true">
+                    <CheckBox fx:id="cbNormalise" text="Normalise scale and offset of (x)" onAction="#normalizeDatasetFeature"/>
+                    <VBox fx:id="vbNormalise">
                         <HBox>
                             <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
-                            <TextField text="0"/>
+                            <TextField fx:id="tfNormaliseMin" text="0" onAction="#normalizeDatasetFeature"/>
                         </HBox>
                         <HBox>
                             <Label text="Max Value:"><padding><Insets left="25" right="10"/></padding></Label>
-                            <TextField text="100"/>
+                            <TextField fx:id="tfNormaliseMax" text="1" onAction="#normalizeDatasetFeature"/>
                         </HBox>
                     </VBox>
                     <Separator/>
@@ -119,10 +115,10 @@
         <Separator/>
         <LineChart fx:id="lcDataView">
             <xAxis>
-                <CategoryAxis side="BOTTOM"/>
+                <NumberAxis side="BOTTOM" />
             </xAxis>
             <yAxis>
-                <NumberAxis side="LEFT"/>
+                <NumberAxis side="LEFT" />
             </yAxis>
         </LineChart>
     </VBox>

@@ -7,8 +7,12 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.collections.*?>
 <?import javafx.scene.image.*?>
+<?import javafx.scene.control.cell.*?>
+<?import javafx.collections.*?>
 
-<Tab text="   Define Search" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+<?import org.iconic.project.BlockDisplay?>
+
+<Tab text="   Define Search" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="org.iconic.workspace.WorkspaceController">
 	<graphic>
 		<ImageView fitWidth="24" fitHeight="24">
 			<image>
@@ -34,10 +38,27 @@
 			<padding><Insets top="25" left="20"/></padding>
 			<TableView>
 				<columns>
-					<TableColumn text="Enabled"/>
-					<TableColumn text="Name"/>
-					<TableColumn text="Complexity"/>
+					<TableColumn text="Enabled">
+						<cellValueFactory><PropertyValueFactory property="enabled"/></cellValueFactory>
+					</TableColumn>
+					<TableColumn text="Name">
+						<cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
+					</TableColumn>
+					<TableColumn text="Complexity">
+						<cellValueFactory><PropertyValueFactory property="complexity"/></cellValueFactory>
+					</TableColumn>
 				</columns>
+				<items>
+					<FXCollections fx:factory="observableArrayList">
+						<BlockDisplay enabled="" name="+" complexity="1"/>
+						<BlockDisplay enabled="" name="-" complexity="1"/>
+						<BlockDisplay enabled="" name="/" complexity="2"/>
+						<BlockDisplay enabled="" name="*" complexity="2"/>
+						<BlockDisplay enabled="" name="Sin" complexity="3"/>
+						<BlockDisplay enabled="" name="Cos" complexity="3"/>
+						<BlockDisplay enabled="" name="Tan" complexity="4"/>
+					</FXCollections>
+				</items>
 			</TableView>
 			
 			<Label><padding><Insets left="20" right="20"/></padding></Label>
