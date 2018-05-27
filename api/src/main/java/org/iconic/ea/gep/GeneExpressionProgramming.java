@@ -24,10 +24,10 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
         this.tailLength = headLength * (maxArity - 1) + 1;
     }
 
-    public void initialisePopulation(int populationSize) {
+    public void initialisePopulation(int populationSize, int numFeatures) {
         for (int i = 0; i < populationSize; i++) {
-            ExpressionChromosome<T> chromosome = new ExpressionChromosome<>(headLength, tailLength);
-            chromosome.setExpression(generateExpression());
+            ExpressionChromosome<T> chromosome = new ExpressionChromosome<>(headLength, tailLength, numFeatures);
+            chromosome.setExpression(generateExpression(numFeatures));
             chromosome.generateTree();
 
             getObjective(0).apply(chromosome);
@@ -36,7 +36,7 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
         }
     }
 
-    public List<Node<T>> generateExpression() {
+    public List<Node<T>> generateExpression(int numFeatures) {
         final Comparator<FunctionalPrimitive<T, T>> comparator =
                 Comparator.comparing(FunctionalPrimitive::getArity);
         this.maxArity = getFunctionalPrimitives().stream().max(comparator).get().getArity();
@@ -45,7 +45,6 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
         List<Node<T>> expression = new LinkedList<>();
 
         final int numFunctions = getFunctionalPrimitives().size();
-        final int numFeatures = DataManager.getFeatureSize();
         final double p = 0.5;
 
         assert (numFunctions > 0);

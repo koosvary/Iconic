@@ -4,7 +4,6 @@ import org.iconic.ea.chromosome.ExpressionChromosome;
 import org.iconic.ea.chromosome.FunctionNode;
 import org.iconic.ea.chromosome.InputNode;
 import org.iconic.ea.chromosome.Node;
-import org.iconic.ea.data.DataManager;
 import org.iconic.ea.operator.evolutionary.mutation.Mutator;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
@@ -22,7 +21,7 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
         // Pick an index of the chromosome to mutate
         final int index = ThreadLocalRandom.current().nextInt(chromosome.getExpressionLength());
         final int numFunctions = functionalPrimitives.size();
-        final int numFeatures = DataManager.getFeatureSize();
+        final int numFeatures = chromosome.getNumFeatures();
         final double p = 0.5;
 
         // Get the expression from the chromosome
@@ -49,7 +48,7 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
 
         // Create the new Chromosome with the mutation
         ExpressionChromosome<R> newChromosome = new ExpressionChromosome<>(
-                chromosome.getHeadLength(), chromosome.getTailLength()
+                chromosome.getHeadLength(), chromosome.getTailLength(), chromosome.getNumFeatures()
         );
 
         newChromosome.setExpression(expression);

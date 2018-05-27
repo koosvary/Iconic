@@ -37,8 +37,8 @@ public class Client {
         if (!"".equals(inputFile) && !inputFile.isEmpty()) {
             final DataManager<Double> dm = new DataManager<>(Double.class, inputFile);
 
-            int featureSize = DataManager.getFeatureSize();
-            int sampleSize = DataManager.getSampleSize();
+            int featureSize = dm.getFeatureSize();
+            int sampleSize = dm.getSampleSize();
 
             log.info("Feature Size: {}", () -> featureSize);
             log.info("Sample Size: {}", () -> sampleSize);
@@ -72,7 +72,7 @@ public class Client {
 //            log.info("Function Primitives used: {}", gep::getFunctions);
 
             final Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
-            gep.initialisePopulation(client.getArgs().getPopulation());
+            gep.initialisePopulation(client.getArgs().getPopulation(), dm.getFeatureSize());
             List<ExpressionChromosome<Double>> population = gep.getChromosomes();
 
             for (int i = 0; i < client.getArgs().getGenerations(); ++i) {

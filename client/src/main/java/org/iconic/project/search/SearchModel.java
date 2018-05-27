@@ -8,7 +8,6 @@ import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.ExpressionChromosome;
-import org.iconic.ea.data.DataManager;
 import org.iconic.ea.gep.GeneExpressionProgramming;
 import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
@@ -35,7 +34,6 @@ public class SearchModel implements Runnable {
     private final ObjectProperty<String> updates;
     private EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> ea;
     private boolean running;
-    private DataManager<Double> dataManager;
 
     /**
      * Constructs a new search model with tne provided dataset.
@@ -47,10 +45,7 @@ public class SearchModel implements Runnable {
         this.updates = new SimpleObjectProperty<>(null);
         this.running = false;
         this.ea = new GeneExpressionProgramming<>();
-
         this.updates.set("");
-
-        this.dataManager = new DataManager<>(Double.class, datasetModel.getAbsolutePath());
 
         ea.setCrossoverProbability(1.0);
         ea.setMutationProbability(1.0);
@@ -73,7 +68,7 @@ public class SearchModel implements Runnable {
         // Add in the objectives it should aim for
         ea.addObjective(
                 new DefaultObjective<>(
-                        new MeanSquaredError(), dataManager.getSamples())
+                        new MeanSquaredError(), datasetModel.getDataManager().getSamples())
         );
     }
 
@@ -90,7 +85,7 @@ public class SearchModel implements Runnable {
 
         while (isRunning()) {
             try {
-                ea.initialisePopulation(populationSize);
+                ea.initialisePopulation(populationSize, getDatasetModel().getDataManager().getFeatureSize());
 
                 for (int i = 0; i < numGenerations && isRunning(); ++i) {
                     List<ExpressionChromosome<Double>> oldPopulation = ea.getChromosomes();
@@ -100,7 +95,7 @@ public class SearchModel implements Runnable {
                     ExpressionChromosome<Double> bestCandidate = ea.getChromosomes()
                             .stream().min(comparator).get();
 
-                    final String generation = "\nGeneration: " + i;
+                    final String generation = "\nGeneration: " + (i + 1);
                     final String candidate = "\n\tBest candidate: " + bestCandidate.toString();
                     final String fitness = "\n\tFitness: " + bestCandidate.getFitness();
 
@@ -164,6 +159,4 @@ public class SearchModel implements Runnable {
     private void setRunning(boolean running) {
         this.running = running;
     }
-
-    public DataManager<Double> getDataManager() { return dataManager; }
 }

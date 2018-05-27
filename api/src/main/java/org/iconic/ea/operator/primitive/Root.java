@@ -9,7 +9,7 @@ public class Root extends ArithmeticPrimitive<Number> {
                             ? Math.pow(args.get(0), 1 / args.get(1))
                             : 1;
                 },
-                2, "√ "
+                2, "ROOT"
         );
     }
 }
