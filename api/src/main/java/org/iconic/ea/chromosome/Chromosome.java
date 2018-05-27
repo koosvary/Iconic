@@ -20,8 +20,6 @@ public abstract class Chromosome<T> {
         this.mutators = new LinkedList<>();
     }
 
-    public abstract Chromosome<T> mutate(final double p);
-
     public void setFitness(final double fitness) {
         this.fitness = fitness;
     }

@@ -144,8 +144,7 @@ public class WorkspaceController implements Initializable {
             // Otherwise stop the current search
             else {
 //              TODO implement pause functionality
-                search.stop();
-                getSearchService().searchesProperty().remove(dataset.getId());
+                stopSearch(actionEvent);
             }
         }
     }
@@ -244,7 +243,7 @@ public class WorkspaceController implements Initializable {
         }
 
         // Make sure that all the UI elements actually exist
-        if (btnSearch != null) {
+        if (btnSearch != null && btnStopSearch != null) {
             // If the selected item is a dataset
             if (item instanceof DatasetModel) {
                 DatasetModel dataset = (DatasetModel) item;
@@ -255,11 +254,13 @@ public class WorkspaceController implements Initializable {
                 // If there's no search...
                 if (search != null && search.isRunning()) {
                     btnSearch.setText("Pause");
+                    btnSearch.setDisable(true);
                     btnStopSearch.setVisible(true);
                 }
                 // Otherwise...
                 else {
                     btnSearch.setText("Start Search");
+                    btnSearch.setDisable(false);
                     btnStopSearch.setVisible(false);
                 }
             }
@@ -268,8 +269,9 @@ public class WorkspaceController implements Initializable {
                 // Display some default messages
                 btnSearch.setText("Start Search");
                 btnStopSearch.setVisible(false);
-                // And disable the search button
+                // And disable the search buttons
                 btnSearch.setDisable(true);
+                btnStopSearch.setDisable(true);
             }
         }
 

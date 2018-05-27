@@ -136,7 +136,7 @@ public class DataManager<T> {
     }
 
     public static int getFeatureSize() {
-        return featureSize;
+        return featureSize - 1;
     }
 
     public static int getSampleSize() {

@@ -16,6 +16,12 @@ public class ArgsConverterFactory {
     @Parameter(names= {"--population", "-p"}, required = true, description = "The population size of the candidates")
     private int population;
 
+    @Parameter(names= {"--crossoverProbability", "-cP"}, required = false, description = "The crossover probability for each candidate")
+    private double crossoverProbability = 0.2;
+
+    @Parameter(names= {"--mutationProbability", "-mP"}, required = false, description = "The mutation probability for each candidate")
+    private double mutationProbability = 0.1;
+
     @Parameter(names = {"--help", "-h"}, help = true)
     private boolean help;
 
@@ -37,5 +43,13 @@ public class ArgsConverterFactory {
 
     public int getPopulation() {
         return population;
+    }
+
+    public double getMutationProbability() {
+        return mutationProbability;
+    }
+
+    public double getCrossoverProbability() {
+        return crossoverProbability;
     }
 }

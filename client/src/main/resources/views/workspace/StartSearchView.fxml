@@ -41,7 +41,7 @@
             <ButtonBar>
                 <buttons>
                     <Button fx:id="btnSearch" text="%workspace.search" onAction="#startSearch"/>
-                    <Button fx:id="btnStopSearch" text="Stop" onAction="#stopSearch"/>
+                    <Button fx:id="btnStopSearch" text="%worksapce.search.stop" onAction="#stopSearch"/>
                 </buttons>
             </ButtonBar>
         </HBox>

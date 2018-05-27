@@ -10,13 +10,11 @@ import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.ExpressionChromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.gep.GeneExpressionProgramming;
+import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
-import org.iconic.ea.operator.primitive.Addition;
-import org.iconic.ea.operator.primitive.Division;
-import org.iconic.ea.operator.primitive.Multiplication;
-import org.iconic.ea.operator.primitive.Subtraction;
+import org.iconic.ea.operator.primitive.*;
 import org.iconic.project.dataset.DatasetModel;
 
 import java.util.Arrays;
@@ -54,13 +52,22 @@ public class SearchModel implements Runnable {
 
         this.dataManager = new DataManager<>(Double.class, datasetModel.getAbsolutePath());
 
+        ea.setCrossoverProbability(1.0);
+        ea.setMutationProbability(1.0);
+
         // Add in the functions it can use
         ea.addFunction(new Addition());
         ea.addFunction(new Subtraction());
         ea.addFunction(new Multiplication());
         ea.addFunction(new Division());
+        ea.addFunction(new Power());
+        ea.addFunction(new Root());
+        ea.addFunction(new Sin());
+        ea.addFunction(new Cos());
+        ea.addFunction(new Tan());
 
-        // Add in the mutators it can use
+        // Add in the evolutionary operators it can use
+        ea.addCrossover(new SimpleExpressionCrossover<>());
         ea.addMutator(new ExpressionMutator<>());
 
         // Add in the objectives it should aim for
@@ -78,14 +85,14 @@ public class SearchModel implements Runnable {
         setRunning(true);
 
         final int populationSize = 100;
-        final int numGenerations = 100;
+        final int numGenerations = 500;
         Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
 
         while (isRunning()) {
             try {
                 ea.initialisePopulation(populationSize);
 
-                for (int i = 0; i < numGenerations; ++i) {
+                for (int i = 0; i < numGenerations && isRunning(); ++i) {
                     List<ExpressionChromosome<Double>> oldPopulation = ea.getChromosomes();
                     List<ExpressionChromosome<Double>> newPopulation = ea.evolve(oldPopulation);
                     ea.setChromosomes(newPopulation);
@@ -105,7 +112,7 @@ public class SearchModel implements Runnable {
                     log.info(generation + candidate + fitness);
                 }
 
-                return;
+                setRunning(false);
             } catch (Exception ex) {
                 log.error("{}: ", ex::getMessage);
                 Arrays.stream(ex.getStackTrace()).forEach(log::error);
@@ -153,6 +160,7 @@ public class SearchModel implements Runnable {
         return running;
     }
 
+    @Synchronized
     private void setRunning(boolean running) {
         this.running = running;
     }
