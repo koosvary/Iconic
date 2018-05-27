@@ -32,7 +32,7 @@ public class SimpleExpressionCrossover<R> implements Crossover<ExpressionChromos
 
         // Create the new Chromosome with the crossover point
         ExpressionChromosome<R> newChromosome = new ExpressionChromosome<>(
-                c1.getHeadLength(), c1.getTailLength()
+                c1.getHeadLength(), c1.getTailLength(), c1.getNumFeatures()
         );
 
         newChromosome.setExpression(left);

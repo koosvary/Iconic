@@ -8,7 +8,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -17,7 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.experimental.var;
+import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.preprocessing.Normalise;
@@ -27,8 +26,8 @@ import org.iconic.project.search.SearchModel;
 import org.iconic.project.search.SearchService;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -39,6 +38,7 @@ import java.util.ResourceBundle;
  * The WorkspaceController maintains the information shown within the workspace based on the current active dataset.
  * </p>
  */
+@Log4j2
 public class WorkspaceController implements Initializable {
     private final WorkspaceService workspaceService;
     private final SearchService searchService;
@@ -55,6 +55,7 @@ public class WorkspaceController implements Initializable {
     @FXML private VBox vbRemoveOutliers;
     @FXML private CheckBox cbNormalise;
     @FXML private VBox vbNormalise;
+    @FXML private CheckBox cbFilter;
     @FXML private TextField tfNormaliseMin;
     @FXML private TextField tfNormaliseMax;
 
@@ -88,12 +89,10 @@ public class WorkspaceController implements Initializable {
     public void initialize(URL arg1, ResourceBundle arg2) {
         updateWorkspace();
 
-
         if (lvFeatures != null) {
             // lvFeatures - One of the items in the list is selected and the other objects need to be updates
             lvFeatures.getSelectionModel().selectedItemProperty()
                     .addListener((observable, oldValue, newValue) -> {
-                        //System.out.println("You Selected " + newValue);
                         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
                         featureSelected(selectedIndex);
                     });
@@ -129,15 +128,10 @@ public class WorkspaceController implements Initializable {
             DatasetModel dataset = (DatasetModel) item;
             SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
 
-            // If there is no search, create a new one
+            // If there's no search already being performed on the dataset, start a new one
             if (search == null) {
                 SearchModel newSearch = new SearchModel(dataset);
                 getSearchService().searchesProperty().put(dataset.getId(), newSearch);
-            }
-
-            // If there's no search already being performed on the dataset, start a new one
-            if (!search.isRunning()) {
-                // Otherwise search model does exist and just needs to start
                 Thread thread = new Thread(getSearchService().searchesProperty().get(dataset.getId()));
                 thread.start();
             }
@@ -174,39 +168,36 @@ public class WorkspaceController implements Initializable {
      * @param selectedIndex The item index that was selected in the ListView
      */
     public void featureSelected(int selectedIndex) {
-        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
-
         // Update lcDataView
         if (lcDataView != null) {
-            //defining a series
-            XYChart.Series series = new XYChart.Series();
+            // defining a series
+            XYChart.Series<Number, Number> series = new XYChart.Series<>();
 
-            //populating the series with data
+            // populating the series with data
             lcDataView.getData().clear();
+            Optional<DataManager<Double>> dataManager = getDataManager();
 
-            if (item instanceof DatasetModel) {
-                DataManager<Double> dataManager = (DataManager<Double>) getDataManager();
-                List<Double> values = (ArrayList<Double>)dataManager.getSampleColumn(selectedIndex);
+            if (dataManager.isPresent() && selectedIndex >= 0) {
+                List<Double> values = dataManager.get().getSampleColumn(selectedIndex);
 
                 for (int sample = 0; sample < values.size(); sample++) {
                     double value = values.get(sample);
-                    series.getData().add(new XYChart.Data(sample, value));
+                    series.getData().add(new XYChart.Data<>(sample, value));
                 }
             }
             lcDataView.getData().add(series);
         }
     }
 
-    @FXML
-    private void normalizeDatasetFeature() {
+    public void normalizeDatasetFeature() {
         if (lvFeatures != null) {
             int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
 
             if (selectedIndex != -1) {
-                DataManager<Double> dataManager = (DataManager<Double>) getDataManager();
+                Optional<DataManager<Double>> dataManager = getDataManager();
 
-                if (cbNormalise.isSelected()) {
-                    List<Double> values = dataManager.getSampleColumn(selectedIndex);
+                if (cbNormalise.isSelected() && dataManager.isPresent()) {
+                    List<Double> values = dataManager.get().getSampleColumn(selectedIndex);
 
                     try {
                         double min = Double.parseDouble(tfNormaliseMin.getText());
@@ -215,16 +206,14 @@ public class WorkspaceController implements Initializable {
                         if (min < max) {
                             values = Normalise.apply(values, min, max);
 
-                            dataManager.setSampleColumn(selectedIndex, values);
+                            dataManager.get().setSampleColumn(selectedIndex, values);
                         }
                     } catch( Exception e) {
-                        System.out.println("Min and Max values must be a Number");
+                        log.error("Min and Max values must be a Number");
                     }
                 }
                 // Otherwise reset the sample column
-                else {
-                    getDataManager().resetSampleColumn(selectedIndex);
-                }
+                else dataManager.ifPresent(doubleDataManager -> doubleDataManager.resetSampleColumn(selectedIndex));
 
                 featureSelected(selectedIndex);
             }
@@ -249,19 +238,20 @@ public class WorkspaceController implements Initializable {
                 DatasetModel dataset = (DatasetModel) item;
                 // Check if a search on the current active dataset is being performed
                 SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
-                btnSearch.setDisable(false);
 
                 // If there's no search...
-                if (search != null && search.isRunning()) {
-                    btnSearch.setText("Pause");
-                    btnSearch.setDisable(true);
-                    btnStopSearch.setVisible(true);
+                if (search == null) {
+                    btnSearch.setText("Start Search");
+                    btnSearch.setDisable(false);
+                    btnStopSearch.setDisable(true);
+                    btnStopSearch.setVisible(false);
                 }
                 // Otherwise...
                 else {
-                    btnSearch.setText("Start Search");
-                    btnSearch.setDisable(false);
-                    btnStopSearch.setVisible(false);
+                    btnSearch.setText("Pause");
+                    btnSearch.setDisable(true);
+                    btnStopSearch.setDisable(false);
+                    btnStopSearch.setVisible(true);
                 }
             }
             // Otherwise if no interesting project item is selected
@@ -275,15 +265,17 @@ public class WorkspaceController implements Initializable {
             }
         }
 
-        // Make sure the UI element is actually exists
+        //  Make sure the UI element actually exist
         if (lvFeatures != null) {
             // If the selected item is a dataset
             if (item instanceof DatasetModel) {
                 // Add Dataset Headers to list
-                DataManager<Double> dataManager = (DataManager<Double>) getDataManager();
+                Optional<DataManager<Double>> dataManager = getDataManager();
 
-                ObservableList<String> items = FXCollections.observableArrayList (dataManager.getSampleHeaders());
-                lvFeatures.setItems(items);
+                if (dataManager.isPresent()) {
+                    ObservableList<String> items = FXCollections.observableArrayList (dataManager.get().getSampleHeaders());
+                    lvFeatures.setItems(items);
+                }
             }
             // Otherwise clear the elements in the table
             else {
@@ -294,24 +286,21 @@ public class WorkspaceController implements Initializable {
     }
 
     private void clearUI() {
-        // Make sure the UI element is actually exists
+        // Make sure the UI element actually exists
         if (lcDataView != null) {
             lcDataView.getData().clear();
         }
     }
 
-    private DataManager<?> getDataManager() {
+    private Optional<DataManager<Double>> getDataManager() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
-        DatasetModel dataset = (DatasetModel) item;
-        SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
 
-        // If there's no search already being performed on the dataset, start a new one
-        if (search == null) {
-            search = new SearchModel(dataset);
-            getSearchService().searchesProperty().put(dataset.getId(), search);
+        if (item instanceof DatasetModel) {
+            DatasetModel dataset = (DatasetModel) item;
+            return Optional.of(dataset.getDataManager());
+        } else {
+            return Optional.empty();
         }
-
-        return search.getDataManager();
     }
 
     /**
