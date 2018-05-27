@@ -2,6 +2,7 @@ package org.iconic.project.search;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.chart.XYChart;
 import lombok.NonNull;
 import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
@@ -30,6 +31,7 @@ import java.util.List;
  */
 @Log4j2
 public class SearchModel implements Runnable {
+    private final XYChart.Series<Number, Number> plots;
     private final DatasetModel datasetModel;
     private final ObjectProperty<String> updates;
     private EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> ea;
@@ -41,11 +43,13 @@ public class SearchModel implements Runnable {
      * @param datasetModel The dataset to perform the search on
      */
     public SearchModel(@NonNull final DatasetModel datasetModel) {
+        this.plots = new XYChart.Series<>();
         this.datasetModel = datasetModel;
         this.updates = new SimpleObjectProperty<>(null);
         this.running = false;
         this.ea = new GeneExpressionProgramming<>();
         this.updates.set("");
+        this.plots.setName(this.datasetModel.getName());
 
         ea.setCrossoverProbability(1.0);
         ea.setMutationProbability(1.0);
@@ -87,13 +91,23 @@ public class SearchModel implements Runnable {
             try {
                 ea.initialisePopulation(populationSize, getDatasetModel().getDataManager().getFeatureSize());
 
+                ExpressionChromosome<Double> bestCandidate = ea.getChromosomes()
+                        .stream().min(comparator).get();
+
                 for (int i = 0; i < numGenerations && isRunning(); ++i) {
                     List<ExpressionChromosome<Double>> oldPopulation = ea.getChromosomes();
                     List<ExpressionChromosome<Double>> newPopulation = ea.evolve(oldPopulation);
                     ea.setChromosomes(newPopulation);
 
-                    ExpressionChromosome<Double> bestCandidate = ea.getChromosomes()
+                    ExpressionChromosome<Double> newBestCandidate = ea.getChromosomes()
                             .stream().min(comparator).get();
+
+                    // Only add a new plot point if the fitness value improves
+                    if (bestCandidate.getFitness() > newBestCandidate.getFitness()) {
+                        getPlots().getData().add(new XYChart.Data<>(i + 1, newBestCandidate.getFitness()));
+                    }
+
+                    bestCandidate = newBestCandidate;
 
                     final String generation = "\nGeneration: " + (i + 1);
                     final String candidate = "\n\tBest candidate: " + bestCandidate.toString();
@@ -158,5 +172,9 @@ public class SearchModel implements Runnable {
     @Synchronized
     private void setRunning(boolean running) {
         this.running = running;
+    }
+
+    public XYChart.Series<Number, Number> getPlots() {
+        return plots;
     }
 }
