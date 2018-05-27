@@ -46,8 +46,10 @@ public class SearchModel implements Runnable {
     public SearchModel(@NonNull final DatasetModel datasetModel) {
         this.datasetModel = datasetModel;
         this.updates = new SimpleObjectProperty<>(null);
-        this.ea = new GeneExpressionProgramming<>();
         this.running = false;
+        this.ea = new GeneExpressionProgramming<>();
+
+        this.updates.set("");
 
         DataManager<Double> dataManager = new DataManager<>(Double.class, datasetModel.getAbsolutePath());
 
@@ -91,7 +93,7 @@ public class SearchModel implements Runnable {
                             .stream().min(comparator).get();
 
                     final String generation = "\nGeneration: " + i;
-                    final String candidate = "\n\tBest candidate: " + bestCandidate;
+                    final String candidate = "\n\tBest candidate: " + bestCandidate.toString();
                     final String fitness = "\n\tFitness: " + bestCandidate.getFitness();
 
                     // Append the current generation's best results in front of the list of updates

@@ -73,17 +73,17 @@ public class DataManager<T> {
                 ArrayList<T> currentValues = new ArrayList<>();
 
                 // Loop through all the collected values
-                for (int i = 0; i < values.length; i++) {
+                for (String value : values) {
                     // If the value is already in a double format then instantly add it into the array
                     try {
                         if (clazz.isAssignableFrom(String.class)) {
-                            currentValues.add((T) (values[i]));
+                            currentValues.add((T) (value));
                         } else if (clazz.isAssignableFrom(Integer.class)) {
-                            currentValues.add((T) Integer.valueOf(values[i]));
+                            currentValues.add((T) Integer.valueOf(value));
                         } else if (clazz.isAssignableFrom(Boolean.class)) {
-                            currentValues.add((T) Boolean.valueOf(values[i]));
+                            currentValues.add((T) Boolean.valueOf(value));
                         } else if (clazz.isAssignableFrom(Double.class)) {
-                            currentValues.add((T) Double.valueOf(values[i]));
+                            currentValues.add((T) Double.valueOf(value));
                         } else {
                             throw new IllegalArgumentException("Bad type.");
                         }
