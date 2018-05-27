@@ -1,6 +1,7 @@
 apply plugin: 'application'
 
 mainClassName = 'org.iconic.Client'
+applicationDefaultJvmArgs = ["-ea"]
 
 run {
   if (project.hasProperty("appArgs")) {

@@ -6,13 +6,11 @@ import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.ExpressionChromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.gep.GeneExpressionProgramming;
+import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
-import org.iconic.ea.operator.primitive.Addition;
-import org.iconic.ea.operator.primitive.Division;
-import org.iconic.ea.operator.primitive.Multiplication;
-import org.iconic.ea.operator.primitive.Subtraction;
+import org.iconic.ea.operator.primitive.*;
 import org.iconic.io.ArgsConverterFactory;
 
 import java.util.Comparator;
@@ -39,22 +37,30 @@ public class Client {
         if (!"".equals(inputFile) && !inputFile.isEmpty()) {
             final DataManager<Double> dm = new DataManager<>(Double.class, inputFile);
 
-            int featureSize = DataManager.getFeatureSize();
-            int sampleSize = DataManager.getSampleSize();
+            int featureSize = dm.getFeatureSize();
+            int sampleSize = dm.getSampleSize();
 
             log.info("Feature Size: {}", () -> featureSize);
             log.info("Sample Size: {}", () -> sampleSize);
 
             // Create an evolutionary algorithm using Gene Expression Programming
             GeneExpressionProgramming<Double> gep = new GeneExpressionProgramming<>();
+            gep.setCrossoverProbability(client.getArgs().getCrossoverProbability());
+            gep.setMutationProbability(client.getArgs().getMutationProbability());
 
             // Add in the functions it can use
             gep.addFunction(new Addition());
             gep.addFunction(new Subtraction());
             gep.addFunction(new Multiplication());
             gep.addFunction(new Division());
+            gep.addFunction(new Power());
+            gep.addFunction(new Root());
+            gep.addFunction(new Sin());
+            gep.addFunction(new Cos());
+            gep.addFunction(new Tan());
 
-            // Add in the mutators it can use
+            // Add in the evolutionary operators it can use
+            gep.addCrossover(new SimpleExpressionCrossover<>());
             gep.addMutator(new ExpressionMutator<>());
 
             // Add in the objectives it should aim for
@@ -65,20 +71,18 @@ public class Client {
 
 //            log.info("Function Primitives used: {}", gep::getFunctions);
 
-            gep.initialisePopulation(client.getArgs().getPopulation());
+            final Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
+            gep.initialisePopulation(client.getArgs().getPopulation(), dm.getFeatureSize());
+            List<ExpressionChromosome<Double>> population = gep.getChromosomes();
 
             for (int i = 0; i < client.getArgs().getGenerations(); ++i) {
-                List<ExpressionChromosome<Double>> oldPopulation = gep.getChromosomes();
-                List<ExpressionChromosome<Double>> newPopulation = gep.evolve(oldPopulation);
-                gep.setChromosomes(newPopulation);
+                gep.evolve(population);
 
-                Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
-
-                ExpressionChromosome<Double> bestCandidate = gep.getChromosomes()
+                ExpressionChromosome<Double> bestCandidate = population
                         .stream().min(comparator).get();
 
                 log.info("\n\tGeneration: {}\n\tBest candidate: {}\n\tFitness: {}",
-                        i, bestCandidate, bestCandidate.getFitness());
+                        i + 1, bestCandidate.toString(), bestCandidate.getFitness());
             }
         }
     }

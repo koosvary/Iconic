@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.Insets?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<?import javafx.stage.Screen?>
+<?import javafx.scene.image.*?>
+
+<Tab text="   Process Data" closable="false"
+     xmlns="http://javafx.com/javafx"
+     xmlns:fx="http://javafx.com/fxml"
+     fx:controller="org.iconic.workspace.WorkspaceController">
+	 
+    <fx:define>
+        <Screen fx:factory="getPrimary" fx:id="screen"/>
+    </fx:define>
+
+	<graphic>
+        <ImageView fitWidth="24" fitHeight="24">
+            <Image url="@/images/data.png"/>
+        </ImageView>
+	</graphic>
+	
+    <VBox spacing="5">
+        <padding><Insets top="10" bottom="10" left="10" right="10"/></padding>
+        <VBox>
+            <Label text="Variable Preparation Options">
+                <font>
+                    <Font size="16.0"/>
+                </font>
+            </Label>
+
+            <Separator>
+                <padding><Insets top="10" bottom="10"/></padding>
+            </Separator>
+
+            <HBox>
+                <ListView fx:id="lvFeatures" prefWidth="${screen.visualBounds.width*0.33}"/>
+
+                <VBox prefWidth="${screen.visualBounds.width*0.66}" spacing="5">
+                    <padding><Insets top="10" bottom="10" left="10" right="10"/></padding>
+
+                    <Separator/>
+                    <CheckBox fx:id="cbSmoothData" text="Smooth data points of (x)"/>
+
+                    <!-- "managed" variable essentially sets the height of the HBox to 0 instead of just being "invisible" but still there -->
+                    <VBox fx:id="vbSmoothData">
+                        <HBox>
+                            <Label text="Smoothness:"><padding><Insets left="25" right="25"/></padding></Label>
+                            <Slider value="50" showTickLabels="true" showTickMarks="true"/>
+                            <TextField text="50%">
+                            </TextField>
+                            <Button text="Choose Automatically"/>
+                        </HBox>
+                    </VBox>
+                    <Separator/>
+
+                    <CheckBox fx:id="cbHandleMissingValues" text="Handle missing values of (x)"/>
+                    <VBox fx:id="vbHandleMissingValues">
+                        <HBox>
+                            <Label text="Method:"><padding><Insets left="25" right="10"/></padding></Label>
+                            <ComboBox promptText="Choose Method">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="Ignore entire row" />
+                                        <String fx:value="Copy Values from the previous row" />
+                                        <String fx:value="Set to the mean value" />
+                                        <String fx:value="Set to the median value" />
+                                        <String fx:value="Set to 0" />
+                                        <String fx:value="Set to 1" />
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+                        </HBox>
+                    </VBox>
+                    <Separator/>
+
+                    <CheckBox fx:id="cbRemoveOutliers" text="Remove outliers of (x)"/>
+                    <VBox fx:id="vbRemoveOutliers">
+                        <HBox>
+                            <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
+                            <TextField text="0"/>
+                        </HBox>
+                        <HBox>
+                            <Label text="Max Value:"><padding><Insets left="25" right="10"/></padding></Label>
+                            <TextField text="100"/>
+                        </HBox>
+                    </VBox>
+                    <Separator/>
+
+                    <CheckBox fx:id="cbNormalise" text="Normalise scale and offset of (x)" onAction="#normalizeDatasetFeature"/>
+                    <VBox fx:id="vbNormalise">
+                        <HBox>
+                            <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
+                            <TextField fx:id="tfNormaliseMin" text="0" onAction="#normalizeDatasetFeature"/>
+                        </HBox>
+                        <HBox>
+                            <Label text="Max Value:"><padding><Insets left="25" right="10"/></padding></Label>
+                            <TextField fx:id="tfNormaliseMax" text="1" onAction="#normalizeDatasetFeature"/>
+                        </HBox>
+                    </VBox>
+                    <Separator/>
+
+                    <CheckBox fx:id="cbFilter" text="Filter data of (x)"/>
+                    <Separator/>
+                </VBox>
+            </HBox>
+        </VBox>
+        <Separator/>
+        <LineChart fx:id="lcDataView">
+            <xAxis>
+                <NumberAxis side="BOTTOM" />
+            </xAxis>
+            <yAxis>
+                <NumberAxis side="LEFT" />
+            </yAxis>
+        </LineChart>
+    </VBox>
+</Tab>
