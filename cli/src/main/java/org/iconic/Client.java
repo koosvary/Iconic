@@ -10,9 +10,7 @@ import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossov
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
-import org.iconic.ea.operator.primitive.Addition;
-import org.iconic.ea.operator.primitive.Multiplication;
-import org.iconic.ea.operator.primitive.Subtraction;
+import org.iconic.ea.operator.primitive.*;
 import org.iconic.io.ArgsConverterFactory;
 
 import java.util.Comparator;
@@ -54,7 +52,12 @@ public class Client {
             gep.addFunction(new Addition());
             gep.addFunction(new Subtraction());
             gep.addFunction(new Multiplication());
-            //gep.addFunction(new Division());
+            gep.addFunction(new Division());
+            gep.addFunction(new Power());
+            gep.addFunction(new Root());
+            gep.addFunction(new Sin());
+            gep.addFunction(new Cos());
+            gep.addFunction(new Tan());
 
             // Add in the evolutionary operators it can use
             gep.addCrossover(new SimpleExpressionCrossover<>());

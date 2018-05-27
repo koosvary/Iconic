@@ -14,10 +14,7 @@ import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossov
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
-import org.iconic.ea.operator.primitive.Addition;
-import org.iconic.ea.operator.primitive.Division;
-import org.iconic.ea.operator.primitive.Multiplication;
-import org.iconic.ea.operator.primitive.Subtraction;
+import org.iconic.ea.operator.primitive.*;
 import org.iconic.project.dataset.DatasetModel;
 
 import java.util.Arrays;
@@ -55,11 +52,19 @@ public class SearchModel implements Runnable {
 
         this.dataManager = new DataManager<>(Double.class, datasetModel.getAbsolutePath());
 
+        ea.setCrossoverProbability(1.0);
+        ea.setMutationProbability(1.0);
+
         // Add in the functions it can use
         ea.addFunction(new Addition());
         ea.addFunction(new Subtraction());
         ea.addFunction(new Multiplication());
         ea.addFunction(new Division());
+        ea.addFunction(new Power());
+        ea.addFunction(new Root());
+        ea.addFunction(new Sin());
+        ea.addFunction(new Cos());
+        ea.addFunction(new Tan());
 
         // Add in the evolutionary operators it can use
         ea.addCrossover(new SimpleExpressionCrossover<>());
@@ -79,8 +84,8 @@ public class SearchModel implements Runnable {
     public void run() {
         setRunning(true);
 
-        final int populationSize = 10;
-        final int numGenerations = 100;
+        final int populationSize = 100;
+        final int numGenerations = 500;
         Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
 
         while (isRunning()) {
