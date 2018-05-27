@@ -43,21 +43,38 @@ public class WorkspaceController implements Initializable {
     private final WorkspaceService workspaceService;
     private final SearchService searchService;
 
-    @FXML private Button btnSearch;
-    @FXML private Button btnStopSearch;
-    @FXML private ListView<String> lvFeatures;
-    @FXML private LineChart<Number, Number> lcDataView;
-    @FXML private CheckBox cbSmoothData;
-    @FXML private VBox vbSmoothData;
-    @FXML private CheckBox cbHandleMissingValues;
-    @FXML private VBox vbHandleMissingValues;
-    @FXML private CheckBox cbRemoveOutliers;
-    @FXML private VBox vbRemoveOutliers;
-    @FXML private CheckBox cbNormalise;
-    @FXML private VBox vbNormalise;
-    @FXML private CheckBox cbFilter;
-    @FXML private TextField tfNormaliseMin;
-    @FXML private TextField tfNormaliseMax;
+    @FXML
+    private Button btnSearch;
+    @FXML
+    private Button btnStopSearch;
+    @FXML
+    private ListView<String> lvFeatures;
+    @FXML
+    private LineChart<Number, Number> lcDataView;
+    @FXML
+    private LineChart<Number, Number> lcSearchProgress;
+    @FXML
+    private CheckBox cbSmoothData;
+    @FXML
+    private VBox vbSmoothData;
+    @FXML
+    private CheckBox cbHandleMissingValues;
+    @FXML
+    private VBox vbHandleMissingValues;
+    @FXML
+    private CheckBox cbRemoveOutliers;
+    @FXML
+    private VBox vbRemoveOutliers;
+    @FXML
+    private CheckBox cbNormalise;
+    @FXML
+    private VBox vbNormalise;
+    @FXML
+    private CheckBox cbFilter;
+    @FXML
+    private TextField tfNormaliseMin;
+    @FXML
+    private TextField tfNormaliseMax;
 
 
     @Getter(AccessLevel.PRIVATE)
@@ -156,6 +173,9 @@ public class WorkspaceController implements Initializable {
             val dataset = (DatasetModel) item;
             val search = getSearchService().searchesProperty().get(dataset.getId());
 
+            lcSearchProgress.getData().clear();
+            lcSearchProgress.getData().add(search.getPlots());
+
             search.stop();
             getSearchService().searchesProperty().remove(dataset.getId());
         }
@@ -208,7 +228,7 @@ public class WorkspaceController implements Initializable {
 
                             dataManager.get().setSampleColumn(selectedIndex, values);
                         }
-                    } catch( Exception e) {
+                    } catch (Exception e) {
                         log.error("Min and Max values must be a Number");
                     }
                 }
@@ -273,7 +293,7 @@ public class WorkspaceController implements Initializable {
                 Optional<DataManager<Double>> dataManager = getDataManager();
 
                 if (dataManager.isPresent()) {
-                    ObservableList<String> items = FXCollections.observableArrayList (dataManager.get().getSampleHeaders());
+                    ObservableList<String> items = FXCollections.observableArrayList(dataManager.get().getSampleHeaders());
                     lvFeatures.setItems(items);
                 }
             }
@@ -289,6 +309,10 @@ public class WorkspaceController implements Initializable {
         // Make sure the UI element actually exists
         if (lcDataView != null) {
             lcDataView.getData().clear();
+        }
+
+        if (lcSearchProgress != null) {
+            lcSearchProgress.getData().clear();
         }
     }
 

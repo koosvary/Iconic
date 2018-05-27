@@ -95,16 +95,16 @@
                 </padding>
                 <AnchorPane>
                     <ProgressIndicator progress="0.17" AnchorPane.topAnchor="10" AnchorPane.rightAnchor="20"/>
-                    <LineChart title="%search.progress.chart.title"
+                    <LineChart fx:id="lcSearchProgress" title="%search.progress.chart.title"
                                AnchorPane.topAnchor="0"
                                AnchorPane.leftAnchor="0"
                                AnchorPane.rightAnchor="0"
                                AnchorPane.BottomAnchor="0">
                         <xAxis>
-                            <CategoryAxis side="BOTTOM"/>
+                            <NumberAxis label="Generations" side="BOTTOM"/>
                         </xAxis>
                         <yAxis>
-                            <NumberAxis side="LEFT"/>
+                            <NumberAxis label="Fitness" side="LEFT"/>
                         </yAxis>
                     </LineChart>
                 </AnchorPane>
