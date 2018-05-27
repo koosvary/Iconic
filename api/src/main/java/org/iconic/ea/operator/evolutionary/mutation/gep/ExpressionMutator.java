@@ -20,6 +20,8 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
         // Get the expression from the chromosome
         List<Node<R>> expression = chromosome.getExpression();
 
+        // Get the number of functions available
+        int numFunctions = functionalPrimitives.size();
 
         // If the index is less than half way, pick from function or input variable. Otherwise only pick input variable
         if (index < Math.floor(chromosome.getExpressionLength() / 2)) {

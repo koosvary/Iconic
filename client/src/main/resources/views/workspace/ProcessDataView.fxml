@@ -44,8 +44,7 @@
             </Separator>
 
             <HBox>
-                <ListView prefWidth="${screen.visualBounds.width*0.33}">
-                </ListView>
+                <ListView fx:id="lvFeatures" prefWidth="${screen.visualBounds.width*0.33}"/>
 
                 <VBox prefWidth="${screen.visualBounds.width*0.66}" spacing="5">
                     <padding><Insets top="10" bottom="10" left="10" right="10"/></padding>
@@ -54,7 +53,7 @@
                     <CheckBox fx:id="cbSmoothData" text="Smooth data points of (x)"/>
 
                     <!-- "managed" variable essentially sets the height of the HBox to 0 instead of just being "invisible" but still there -->
-                    <VBox fx:id="vbSmoothData" visible="true" managed="true">
+                    <VBox fx:id="cbSmoothData" visible="true" managed="true">
                         <HBox>
                             <Label text="Smoothness:"><padding><Insets left="25" right="25"/></padding></Label>
                             <Slider min="0" max="100" value="50" showTickLabels="true" showTickMarks="true"/>
@@ -119,10 +118,10 @@
         <Separator/>
         <LineChart fx:id="lcDataView">
             <xAxis>
-                <CategoryAxis side="BOTTOM"/>
+                <NumberAxis side="BOTTOM" />
             </xAxis>
             <yAxis>
-                <NumberAxis side="LEFT"/>
+                <NumberAxis side="LEFT" />
             </yAxis>
         </LineChart>
     </VBox>

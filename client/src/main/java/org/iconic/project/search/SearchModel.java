@@ -37,6 +37,7 @@ public class SearchModel implements Runnable {
     private final ObjectProperty<String> updates;
     private EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> ea;
     private boolean running;
+    private DataManager<Double> dataManager;
 
     /**
      * Constructs a new search model with tne provided dataset.
@@ -51,7 +52,7 @@ public class SearchModel implements Runnable {
 
         this.updates.set("");
 
-        DataManager<Double> dataManager = new DataManager<>(Double.class, datasetModel.getAbsolutePath());
+        this.dataManager = new DataManager<>(Double.class, datasetModel.getAbsolutePath());
 
         // Add in the functions it can use
         ea.addFunction(new Addition());
@@ -155,4 +156,6 @@ public class SearchModel implements Runnable {
     private void setRunning(boolean running) {
         this.running = running;
     }
+
+    public DataManager<Double> getDataManager() { return dataManager; }
 }
