@@ -11,8 +11,8 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements LinearChro
     private final int tailLength;
     private int treeIndex;
 
-    public ExpressionChromosome(final int headLength, final int tailLength) {
-        super();
+    public ExpressionChromosome(final int headLength, final int tailLength, final int numFeatures) {
+        super(numFeatures);
         this.expression = new LinkedList<>();
         this.headLength = headLength;
         this.tailLength = tailLength;

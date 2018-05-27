@@ -13,11 +13,13 @@ import java.util.List;
 public abstract class Chromosome<T> {
     private boolean changed;
     private double fitness;
+    private final int numFeatures;
     private final List<Mutator<Chromosome<T>, T>> mutators;
 
-    public Chromosome() {
+    public Chromosome(final int numFeatures) {
         this.changed = true;
         this.mutators = new LinkedList<>();
+        this.numFeatures = numFeatures;
     }
 
     public void setFitness(final double fitness) {
@@ -43,6 +45,10 @@ public abstract class Chromosome<T> {
         copy.addAll(mutators);
 
         return copy;
+    }
+
+    public int getNumFeatures() {
+        return numFeatures;
     }
 
     public void addMutator(Mutator<Chromosome<T>, T> mutator) {
