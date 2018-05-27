@@ -20,7 +20,7 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
     public GeneExpressionProgramming() {
         super();
         this.maxArity = 0;
-        this.headLength = 3;
+        this.headLength = 10;
         this.tailLength = headLength * (maxArity - 1) + 1;
     }
 
