@@ -68,16 +68,14 @@ public class Client {
 
 //            log.info("Function Primitives used: {}", gep::getFunctions);
 
+            final Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
             gep.initialisePopulation(client.getArgs().getPopulation());
+            List<ExpressionChromosome<Double>> population = gep.getChromosomes();
 
             for (int i = 0; i < client.getArgs().getGenerations(); ++i) {
-                List<ExpressionChromosome<Double>> oldPopulation = gep.getChromosomes();
-                List<ExpressionChromosome<Double>> newPopulation = gep.evolve(oldPopulation);
-                gep.setChromosomes(newPopulation);
+                gep.evolve(population);
 
-                Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
-
-                ExpressionChromosome<Double> bestCandidate = gep.getChromosomes()
+                ExpressionChromosome<Double> bestCandidate = population
                         .stream().min(comparator).get();
 
                 log.info("\n\tGeneration: {}\n\tBest candidate: {}\n\tFitness: {}",
