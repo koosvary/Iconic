@@ -17,8 +17,8 @@ public class ExpressionChromosomeTest {
     void equalityTest() {
         List<Node<Double>> expression = generateExpression();
 
-        ExpressionChromosome<Double> c1 = new ExpressionChromosome<>();
-        ExpressionChromosome<Double> c2 = new ExpressionChromosome<>();
+        ExpressionChromosome<Double> c1 = new ExpressionChromosome<>(3, 4, 3);
+        ExpressionChromosome<Double> c2 = new ExpressionChromosome<>(3, 4, 3);
 
         c1.setExpression(expression);
         c2.setExpression(expression);
@@ -45,7 +45,6 @@ public class ExpressionChromosomeTest {
 
     private List<Node<Double>> generateExpression() {
         int headerLength = 3;
-        int numFunctions = 2;
         int featureSize = 3;
 
         List<Node<Double>> expression = new LinkedList<>();
@@ -53,7 +52,6 @@ public class ExpressionChromosomeTest {
         for (int i = 0; i < headerLength; i++) {
             if (Math.random() > 0.5) {
                 // Create a function
-                int index = (int) Math.floor(Math.random() * numFunctions);
                 FunctionalPrimitive<Double, Double> function = new Addition();
                 expression.add(new FunctionNode<>(function));
             } else {

@@ -11,6 +11,8 @@ buildscript {
     }
 }
 
+version = '0.1.0'
+
 dependencies {
     compile 'org.controlsfx:controlsfx:8.40.14'
     compile project(':api')

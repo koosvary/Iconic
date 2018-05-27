@@ -1,44 +1,43 @@
-apply plugin: 'application'
-
-run {
-  if (project.hasProperty("appArgs")) {
-    args Eval.me(appArgs)
-  }
+plugins {
+    id 'java-library'
 }
 
 // Jupiter requires Java 8
 compileTestJava {
-  sourceCompatibility = 1.8
-  targetCompatibility = 1.8
-  options.compilerArgs << "-Xlint:all" << "-Xlint:-processing"
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    options.compilerArgs << "-Xlint:all" << "-Xlint:-processing"
 }
 
 test {
-  useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 dependencies {
-  testCompileOnly group: 'org.apiguardian', name: 'apiguardian-api', version: '1.0.0'
-  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.1.0'
-  testCompile group: 'org.mockito', name: 'mockito-core', version: '2.11.0'
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.1.0'
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.1.0'
+    testCompileOnly group: 'org.apiguardian', name: 'apiguardian-api', version: '1.0.0'
+    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.1.0'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.11.0'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.1.0'
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.1.0'
 }
 
+version = '0.1.0'
+
 jar {
-  baseName = 'iconic-api'
-  version = '0.0.5'
+    baseName = 'iconic-api'
 
-  // The Java plugin doesn't specify any of the 
-  // manifest attributes, so we need at least
-  // these two attributes for the JAR to work
-  manifest {
-    attributes(
-      'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
-    )
-  }
+    // The Java plugin doesn't specify any of the
+    // manifest attributes, so we need at least
+    // these two attributes for the JAR to work
+    manifest {
+        attributes(
+                'Implementation-Title': project.name,
+                'Implementation-Version': project.version,
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+        )
+    }
 
-  from {
-    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
-  }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }

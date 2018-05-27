@@ -16,7 +16,7 @@ dependencies {
 
 jar {
   baseName = 'iconic-cli'
-  version = '0.0.1'
+  version = '0.1.0'
 
   // The Java plugin doesn't specify any of the 
   // manifest attributes, so we need at least
