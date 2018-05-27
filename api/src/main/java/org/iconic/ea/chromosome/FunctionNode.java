@@ -3,6 +3,7 @@ import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class FunctionNode<T> extends Node<T> {
     private  final FunctionalPrimitive<T, T> lambda;
@@ -30,8 +31,8 @@ public class FunctionNode<T> extends Node<T> {
         StringBuilder output = new StringBuilder();
 
         if (getChildren().size() > 0) {
-            output.append("( ").append(getLambda()).append(" ");
-            getChildren().forEach(child -> output.append(child).append(" "));
+            output.append("( ").append(getLambda());
+            getChildren().forEach(output::append);
             output.append(")");
         }
         else {
@@ -48,5 +49,18 @@ public class FunctionNode<T> extends Node<T> {
 
     private FunctionalPrimitive<T, T> getLambda() {
         return lambda;
+    }
+
+    @Override
+    public Node<T> clone() {
+        Node<T> clone = new FunctionNode<>(getLambda());
+
+        if (getChildren().size() < 1) {
+            return clone;
+        }
+
+        clone.addChildren(getChildren().stream().map(Node::clone).collect(Collectors.toList()));
+
+        return clone;
     }
 }

@@ -2,7 +2,7 @@ package org.iconic.ea.chromosome;
 
 import java.util.List;
 
-public class InputNode<T> extends Node<T> implements Cloneable {
+public class InputNode<T> extends Node<T> {
     /*
      * <p>
      * The feature index refers to the feature to use from the data, e.g. sex, age, height
@@ -25,14 +25,12 @@ public class InputNode<T> extends Node<T> implements Cloneable {
 
     @Override
     public String toString() {
-        return featureIndex + "";
+        return " " + featureIndex + " ";
     }
 
     @Override
-    @SuppressWarnings("MethodDoesntCallSuperMethod")
-    public InputNode<T> clone() {
-        InputNode<T> clone = new InputNode<>(getFeatureIndex());
-        return clone;
+    public Node<T> clone() {
+        return new InputNode<>(getFeatureIndex());
     }
 
     public int getChildrenSize() {
