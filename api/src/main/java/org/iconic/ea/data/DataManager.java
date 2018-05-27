@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class DataManager<T> {
     private final Class<T> clazz;
     private static String fileName;
-    private List<List<T>> samples;
+    private List<List<T>> samples, orignialSamples;
     private static ArrayList<String> sampleHeader;
     private static ArrayList<String> sampleDescription;
     private static int featureSize;
@@ -46,6 +46,7 @@ public class DataManager<T> {
                 : new BufferedReader(new InputStreamReader(resource));
 
         samples = new ArrayList<>();
+        orignialSamples = new ArrayList<>();
         sampleHeader = new ArrayList<>();
 
         // Sometimes data is given as a String like "Boy, Girl", this ArrayList keeps track of all the strings and returns the
@@ -60,9 +61,6 @@ public class DataManager<T> {
 
             // Ensure the line isn't blank
             if (!"".equals(line)) {
-                // Track the sample size
-                sampleSize++;
-
                 // Split the line values separated by a ","
                 String[] values = line.split(",");
 
@@ -104,12 +102,16 @@ public class DataManager<T> {
                     headerRow = false;
 
                 // At the end of each line being read in, add that array into the ArrayList for storage
-                if (!currentValues.isEmpty())
+                if (!currentValues.isEmpty()) {
+                    // Track the sample size
+                    sampleSize++;
                     samples.add(currentValues);
+                    orignialSamples.add((List<T>)currentValues.clone());
+                }
             }
         }
-
         sc.close();
+        log.info("DataManager importData - Successfully Imported Dataset");
     }
 
     public List<List<T>> getSamples() {
@@ -121,14 +123,10 @@ public class DataManager<T> {
     }
 
     public List<T> getSampleColumn(int column) {
-        System.out.println("DataManager getSampleColumn column: " + column);
         List<T> values = new ArrayList<>();
-        System.out.println("DataManager getSampleColumn samples: " + samples);
 
-        for (List<T> row : samples) {
-            System.out.println("row: " + row.toString());
+        for (List<T> row : samples)
             values.add(row.get(column));
-        }
 
         return values;
     }
@@ -145,9 +143,23 @@ public class DataManager<T> {
         return sampleSize;
     }
 
-    private double map(double value, double oldMin, double oldMax, double newMin, double newMax) {
-        return newMin + ((value - oldMin) * (newMax - newMin)) / (oldMax - oldMin);
+    /**
+     * Loop through all samples and reset the current value back to the origninal.
+     * Used when preprocessing methods are deactivated.
+     *
+     * @param column
+     */
+    public void resetSampleColumn(int column) {
+        for (int i = 0; i < sampleSize; i++)
+            samples.get(i).set(column, orignialSamples.get(i).get(column));
     }
 
     public ArrayList<String> getSampleHeaders() { return sampleHeader; }
+
+    public void setSampleColumn(int column, List<T> values) {
+        for (int i = 0; i < sampleSize; i++) {
+            T value = values.get(i);
+            samples.get(i).set(column, value);
+        }
+    }
 }

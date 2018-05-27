@@ -8,14 +8,19 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.var;
 import lombok.val;
 import org.iconic.ea.data.DataManager;
+import org.iconic.ea.data.preprocessing.Normalise;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.SearchModel;
@@ -38,14 +43,21 @@ public class WorkspaceController implements Initializable {
     private final WorkspaceService workspaceService;
     private final SearchService searchService;
 
-    @FXML
-    private Button btnSearch;
-    @FXML
-    private Button btnStopSearch;
-    @FXML
-    private ListView<String> lvFeatures;
-    @FXML
-    private LineChart<Number, Number> lcDataView;
+    @FXML private Button btnSearch;
+    @FXML private Button btnStopSearch;
+    @FXML private ListView<String> lvFeatures;
+    @FXML private LineChart<Number, Number> lcDataView;
+    @FXML private CheckBox cbSmoothData;
+    @FXML private VBox vbSmoothData;
+    @FXML private CheckBox cbHandleMissingValues;
+    @FXML private VBox vbHandleMissingValues;
+    @FXML private CheckBox cbRemoveOutliers;
+    @FXML private VBox vbRemoveOutliers;
+    @FXML private CheckBox cbNormalise;
+    @FXML private VBox vbNormalise;
+    @FXML private TextField tfNormaliseMin;
+    @FXML private TextField tfNormaliseMax;
+
 
     @Getter(AccessLevel.PRIVATE)
     private final String defaultName;
@@ -87,6 +99,21 @@ public class WorkspaceController implements Initializable {
                     });
         }
 
+        // A quick way to add a listener for the checkboxes
+        addListenerToHideElement(cbSmoothData, vbSmoothData);
+        addListenerToHideElement(cbHandleMissingValues, vbHandleMissingValues);
+        addListenerToHideElement(cbRemoveOutliers, vbRemoveOutliers);
+        addListenerToHideElement(cbNormalise, vbNormalise);
+    }
+
+    private void addListenerToHideElement(CheckBox cb, VBox vb) {
+        if (cb != null)
+            cb.selectedProperty().addListener((observable, oldValue, newValue) -> {
+                if (vb != null) {
+                    vb.setManaged(newValue);
+                    vb.setVisible(newValue);
+                }
+            });
     }
 
     /**
@@ -155,15 +182,8 @@ public class WorkspaceController implements Initializable {
             lcDataView.getData().clear();
 
             if (item instanceof DatasetModel) {
-                // TODO - Get the values from the dataManager
                 DataManager<Double> dataManager = (DataManager<Double>) getDataManager();
-                System.out.println("WorkspaceController featureSelected dataManager: " + dataManager);
-                System.out.println("WorkspaceController featureSelected Before loading in values");
                 List<Double> values = (ArrayList<Double>)dataManager.getSampleColumn(selectedIndex);
-                System.out.println("WorkspaceController featureSelected After loading in values");
-                System.out.println("WorkspaceController featureSelected values: " + values);
-                // TODO - Get the values from the dataManager
-
 
                 for (int sample = 0; sample < values.size(); sample++) {
                     double value = values.get(sample);
@@ -171,6 +191,40 @@ public class WorkspaceController implements Initializable {
                 }
             }
             lcDataView.getData().add(series);
+        }
+    }
+
+    @FXML
+    private void normalizeDatasetFeature() {
+        if (lvFeatures != null) {
+            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+
+            if (selectedIndex != -1) {
+                DataManager<Double> dataManager = (DataManager<Double>) getDataManager();
+
+                if (cbNormalise.isSelected()) {
+                    List<Double> values = dataManager.getSampleColumn(selectedIndex);
+
+                    try {
+                        double min = Double.parseDouble(tfNormaliseMin.getText());
+                        double max = Double.parseDouble(tfNormaliseMax.getText());
+
+                        if (min < max) {
+                            values = Normalise.apply(values, min, max);
+
+                            dataManager.setSampleColumn(selectedIndex, values);
+                        }
+                    } catch( Exception e) {
+                        System.out.println("Min and Max values must be a Number");
+                    }
+                }
+                // Otherwise reset the sample column
+                else {
+                    getDataManager().resetSampleColumn(selectedIndex);
+                }
+
+                featureSelected(selectedIndex);
+            }
         }
     }
 
@@ -220,7 +274,6 @@ public class WorkspaceController implements Initializable {
             // If the selected item is a dataset
             if (item instanceof DatasetModel) {
                 // Add Dataset Headers to list
-                // TODO - get the real header values
                 DataManager<Double> dataManager = (DataManager<Double>) getDataManager();
 
                 ObservableList<String> items = FXCollections.observableArrayList (dataManager.getSampleHeaders());
@@ -251,6 +304,7 @@ public class WorkspaceController implements Initializable {
             search = new SearchModel(dataset);
             getSearchService().searchesProperty().put(dataset.getId(), search);
         }
+
         return search.getDataManager();
     }
 

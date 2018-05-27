@@ -53,7 +53,7 @@
                     <CheckBox fx:id="cbSmoothData" text="Smooth data points of (x)"/>
 
                     <!-- "managed" variable essentially sets the height of the HBox to 0 instead of just being "invisible" but still there -->
-                    <VBox fx:id="cbSmoothData" visible="true" managed="true">
+                    <VBox fx:id="vbSmoothData" visible="true" managed="true">
                         <HBox>
                             <Label text="Smoothness:"><padding><Insets left="25" right="25"/></padding></Label>
                             <Slider min="0" max="100" value="50" showTickLabels="true" showTickMarks="true"/>
@@ -97,15 +97,15 @@
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbNormalise" text="Normalise scale and offset of (x)"/>
+                    <CheckBox fx:id="cbNormalise" text="Normalise scale and offset of (x)" onAction="#normalizeDatasetFeature"/>
                     <VBox fx:id="vbNormalise" visible="true" managed="true">
                         <HBox>
                             <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
-                            <TextField text="0"/>
+                            <TextField fx:id="tfNormaliseMin" text="0" onAction="#normalizeDatasetFeature"/>
                         </HBox>
                         <HBox>
                             <Label text="Max Value:"><padding><Insets left="25" right="10"/></padding></Label>
-                            <TextField text="100"/>
+                            <TextField fx:id="tfNormaliseMax" text="1" onAction="#normalizeDatasetFeature"/>
                         </HBox>
                     </VBox>
                     <Separator/>
