@@ -126,14 +126,18 @@ public class WorkspaceController implements Initializable {
 
         // Check that there's an active dataset before starting the search
         if (item instanceof DatasetModel) {
-            val dataset = (DatasetModel) item;
-            val search = getSearchService().searchesProperty().get(dataset.getId());
+            DatasetModel dataset = (DatasetModel) item;
+            SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
 
-            // If there's no search already being performed on the dataset, start a new one
+            // If there is no search, create a new one
             if (search == null) {
                 SearchModel newSearch = new SearchModel(dataset);
                 getSearchService().searchesProperty().put(dataset.getId(), newSearch);
+            }
 
+            // If there's no search already being performed on the dataset, start a new one
+            if (!search.isRunning()) {
+                // Otherwise search model does exist and just needs to start
                 Thread thread = new Thread(getSearchService().searchesProperty().get(dataset.getId()));
                 thread.start();
             }
@@ -243,13 +247,13 @@ public class WorkspaceController implements Initializable {
         if (btnSearch != null) {
             // If the selected item is a dataset
             if (item instanceof DatasetModel) {
-                val dataset = (DatasetModel) item;
+                DatasetModel dataset = (DatasetModel) item;
                 // Check if a search on the current active dataset is being performed
-                val search = getSearchService().searchesProperty().get(dataset.getId());
+                SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
                 btnSearch.setDisable(false);
 
                 // If there's no search...
-                if (search != null) {
+                if (search != null && search.isRunning()) {
                     btnSearch.setText("Pause");
                     btnStopSearch.setVisible(true);
                 }
