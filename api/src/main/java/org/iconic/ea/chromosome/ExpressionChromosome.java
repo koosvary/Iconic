@@ -31,7 +31,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements LinearChro
      * @param expression
      */
     private void generateTree(List<Node<T>> expression) {
-        assert(expression.size() == 7);
+        treeIndex = 0;
         // Start at the root and greedily fill the tree
         expression.forEach(Node::removeAllChildren);
         root = recursivelyGenerateTree(expression.get(treeIndex++));
@@ -82,6 +82,12 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements LinearChro
 
     @Override
     public String toString() {
+        StringBuilder output = new StringBuilder();
+//
+//        for (final Node<T> node: getExpression()) {
+//            output.append(node.toString());
+//        }
+
         return root.toString();
     }
 
