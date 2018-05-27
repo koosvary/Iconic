@@ -44,8 +44,7 @@
             </Separator>
 
             <HBox>
-                <ListView prefWidth="${screen.visualBounds.width*0.33}">
-                </ListView>
+                <ListView fx:id="lvFeatures" prefWidth="${screen.visualBounds.width*0.33}"/>
 
                 <VBox prefWidth="${screen.visualBounds.width*0.66}" spacing="5">
                     <padding><Insets top="10" bottom="10" left="10" right="10"/></padding>
@@ -98,15 +97,15 @@
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbNormalise" text="Normalise scale and offset of (x)"/>
+                    <CheckBox fx:id="cbNormalise" text="Normalise scale and offset of (x)" onAction="#normalizeDatasetFeature"/>
                     <VBox fx:id="vbNormalise" visible="true" managed="true">
                         <HBox>
                             <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
-                            <TextField text="0"/>
+                            <TextField fx:id="tfNormaliseMin" text="0" onAction="#normalizeDatasetFeature"/>
                         </HBox>
                         <HBox>
                             <Label text="Max Value:"><padding><Insets left="25" right="10"/></padding></Label>
-                            <TextField text="100"/>
+                            <TextField fx:id="tfNormaliseMax" text="1" onAction="#normalizeDatasetFeature"/>
                         </HBox>
                     </VBox>
                     <Separator/>
@@ -119,10 +118,10 @@
         <Separator/>
         <LineChart fx:id="lcDataView">
             <xAxis>
-                <CategoryAxis side="BOTTOM"/>
+                <NumberAxis side="BOTTOM" />
             </xAxis>
             <yAxis>
-                <NumberAxis side="LEFT"/>
+                <NumberAxis side="LEFT" />
             </yAxis>
         </LineChart>
     </VBox>
