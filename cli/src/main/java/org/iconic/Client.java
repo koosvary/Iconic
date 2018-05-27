@@ -6,11 +6,11 @@ import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.ExpressionChromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.gep.GeneExpressionProgramming;
+import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.operator.primitive.Addition;
-import org.iconic.ea.operator.primitive.Division;
 import org.iconic.ea.operator.primitive.Multiplication;
 import org.iconic.ea.operator.primitive.Subtraction;
 import org.iconic.io.ArgsConverterFactory;
@@ -47,6 +47,8 @@ public class Client {
 
             // Create an evolutionary algorithm using Gene Expression Programming
             GeneExpressionProgramming<Double> gep = new GeneExpressionProgramming<>();
+            gep.setCrossoverProbability(client.getArgs().getCrossoverProbability());
+            gep.setMutationProbability(client.getArgs().getMutationProbability());
 
             // Add in the functions it can use
             gep.addFunction(new Addition());
@@ -54,7 +56,8 @@ public class Client {
             gep.addFunction(new Multiplication());
             //gep.addFunction(new Division());
 
-            // Add in the mutators it can use
+            // Add in the evolutionary operators it can use
+            gep.addCrossover(new SimpleExpressionCrossover<>());
             gep.addMutator(new ExpressionMutator<>());
 
             // Add in the objectives it should aim for
@@ -78,7 +81,7 @@ public class Client {
                         .stream().min(comparator).get();
 
                 log.info("\n\tGeneration: {}\n\tBest candidate: {}\n\tFitness: {}",
-                        i, bestCandidate, bestCandidate.getFitness());
+                        i + 1, bestCandidate.toString(), bestCandidate.getFitness());
             }
         }
     }

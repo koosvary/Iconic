@@ -16,6 +16,8 @@ public abstract class EvolutionaryAlgorithm<T extends Chromosome<R>, R> {
     private final List<Mutator<T, R>> mutators;
     private final List<Selection<T, R>> selectors;
     private final List<Objective<T, R>> objectives;
+    private double crossoverProbability;
+    private double mutationProbability;
     private List<T> chromosomes;
 
     protected EvolutionaryAlgorithm() {
@@ -25,6 +27,8 @@ public abstract class EvolutionaryAlgorithm<T extends Chromosome<R>, R> {
         this.selectors = new LinkedList<>();
         this.objectives = new LinkedList<>();
         this.chromosomes = new LinkedList<>();
+        this.crossoverProbability = 0.2;
+        this.mutationProbability = 0.1;
     }
 
     public abstract void initialisePopulation(int geneSize);
@@ -95,5 +99,21 @@ public abstract class EvolutionaryAlgorithm<T extends Chromosome<R>, R> {
 
     public void setChromosomes(List<T> chromosomes) {
         this.chromosomes = chromosomes;
+    }
+
+    public double getCrossoverProbability() {
+        return crossoverProbability;
+    }
+
+    public void setCrossoverProbability(double crossoverProbability) {
+        this.crossoverProbability = crossoverProbability;
+    }
+
+    public double getMutationProbability() {
+        return mutationProbability;
+    }
+
+    public void setMutationProbability(double mutationProbability) {
+        this.mutationProbability = mutationProbability;
     }
 }
