@@ -10,6 +10,7 @@ import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.ExpressionChromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.gep.GeneExpressionProgramming;
+import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
@@ -59,7 +60,8 @@ public class SearchModel implements Runnable {
         ea.addFunction(new Multiplication());
         ea.addFunction(new Division());
 
-        // Add in the mutators it can use
+        // Add in the evolutionary operators it can use
+        ea.addCrossover(new SimpleExpressionCrossover<>());
         ea.addMutator(new ExpressionMutator<>());
 
         // Add in the objectives it should aim for
@@ -76,7 +78,7 @@ public class SearchModel implements Runnable {
     public void run() {
         setRunning(true);
 
-        final int populationSize = 100;
+        final int populationSize = 10;
         final int numGenerations = 100;
         Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
 
@@ -84,7 +86,7 @@ public class SearchModel implements Runnable {
             try {
                 ea.initialisePopulation(populationSize);
 
-                for (int i = 0; i < numGenerations; ++i) {
+                for (int i = 0; i < numGenerations && isRunning(); ++i) {
                     List<ExpressionChromosome<Double>> oldPopulation = ea.getChromosomes();
                     List<ExpressionChromosome<Double>> newPopulation = ea.evolve(oldPopulation);
                     ea.setChromosomes(newPopulation);
@@ -104,7 +106,7 @@ public class SearchModel implements Runnable {
                     log.info(generation + candidate + fitness);
                 }
 
-                return;
+                setRunning(false);
             } catch (Exception ex) {
                 log.error("{}: ", ex::getMessage);
                 Arrays.stream(ex.getStackTrace()).forEach(log::error);
@@ -152,6 +154,7 @@ public class SearchModel implements Runnable {
         return running;
     }
 
+    @Synchronized
     private void setRunning(boolean running) {
         this.running = running;
     }
