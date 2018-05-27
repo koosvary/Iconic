@@ -25,7 +25,7 @@ public abstract class Node<T> implements Cloneable {
 
     public abstract T apply(List<T> sampleRowValues);
 
-    public abstract int getChildrenSize();
+    public abstract int getNumberOfChildren();
 
     public abstract Node<T> clone();
 }

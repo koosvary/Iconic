@@ -1,55 +1,72 @@
 package org.iconic.ea.chromosome;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExpressionChromosome<T> extends Chromosome<T> implements LinearChromosome<T>, TreeChromosome<T> {
     private Node<T> root;
     private List<Node<T>> expression;
-    private int activeNodes;
+    private final int headLength;
+    private final int tailLength;
+    private int treeIndex;
 
-    public ExpressionChromosome() {
-        expression = new ArrayList<>();
+    public ExpressionChromosome(final int headLength, final int tailLength) {
+        super();
+        this.expression = new LinkedList<>();
+        this.headLength = headLength;
+        this.tailLength = tailLength;
+        this.treeIndex = 0;
     }
 
     public void generateTree() {
         generateTree(expression);
     }
 
+    /**
+     * <p>
+     * Generate the phenotypic expression tree from the genotype
+     * </p>
+     *
+     * @param expression
+     */
     private void generateTree(List<Node<T>> expression) {
-        root = expression.get(0);
-        int currentNodeIndex = 0;
-        int currentChildrenIndex = 1;
+        assert(expression.size() == 7);
+        // Start at the root and greedily fill the tree
+        expression.forEach(Node::removeAllChildren);
+        root = recursivelyGenerateTree(expression.get(treeIndex++));
+    }
 
-        for (Node<T> n : expression)
-            n.removeAllChildren();
-
-        while (currentNodeIndex < currentChildrenIndex) {
-            Node<T> currentNode = expression.get(currentNodeIndex);
-            for (int i = 0; i < currentNode.getChildrenSize(); i++) {
-                currentNode.addChild(expression.get(currentChildrenIndex));
-                currentChildrenIndex++;
-            }
-            currentNodeIndex++;
+    private Node<T> recursivelyGenerateTree(Node<T> root) {
+        if (root.getNumberOfChildren() < 1) {
+            return root;
         }
 
-        activeNodes = currentNodeIndex;
+        for (int i = 0; i < root.getNumberOfChildren(); ++i) {
+            root.addChild(
+                    recursivelyGenerateTree(getExpression().get(treeIndex++))
+            );
+        }
+
+        return root;
     }
 
-    public int getExpressionLength() { return expression.size(); }
+    public int getExpressionLength() {
+        return expression.size();
+    }
 
-    public List<Node<T>> getExpression() { return expression; }
+    public List<Node<T>> getExpression() {
+        return expression;
+    }
 
     public void setExpression(List<Node<T>> expression) {
-        this.expression = expression;
-        root = expression.get(0);
-    }
+        this.expression = new LinkedList<>();
 
-    @Override
-    public ExpressionChromosome<T> mutate(final double p) {
-        System.out.println("ExpressionChromosome    mutate  This function just returns null.. Dont think it should be called");
-        return null;
+        this.expression.addAll(
+                expression.stream().map(Node::clone).collect(Collectors.toList())
+        );
+
+        root = this.expression.get(0);
     }
 
     @Override
@@ -63,17 +80,16 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements LinearChro
         return calculatedValues;
     }
 
+    @Override
     public String toString() {
-        StringBuilder output = new StringBuilder();
-
-        //for (Node<T> n : expression)
-        //    output.append(n.toString());
-        output.append(root.toString());
-
-        return output.toString();
+        return root.toString();
     }
 
-    // The expression only uses some nodes and others are there to be used later after mutation.
-    // This returns the current active ones determined when building the tree
-    public int getActiveNodes() { return activeNodes; }
+    public int getHeadLength() {
+        return headLength;
+    }
+
+    public int getTailLength() {
+        return tailLength;
+    }
 }
