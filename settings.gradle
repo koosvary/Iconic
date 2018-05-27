@@ -1,2 +1,2 @@
-rootProject.name = 'gene-expression'
-include ':api', ':client'
+rootProject.name = 'iconic'
+include ':api', ':client', ':cli'

@@ -1,0 +1,8 @@
+.tab-pane {
+	-fx-tab-min-width:140px;
+	-fx-tab-max-width:140px;
+	-fx-tab-min-height:30px;
+	-fx-tab-max-height:30px;
+	
+	-fx-focus-color: transparent;
+}
