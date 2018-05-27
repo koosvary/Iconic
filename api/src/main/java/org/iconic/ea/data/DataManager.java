@@ -11,7 +11,7 @@ import java.util.Scanner;
 public class DataManager<T> {
     private final Class<T> clazz;
     private static String fileName;
-    private List<List<T>> samples, orignialSamples;
+    private List<List<T>> samples, originalSamples;
     private static ArrayList<String> sampleHeader;
     private static ArrayList<String> sampleDescription;
     private static int featureSize;
@@ -46,7 +46,7 @@ public class DataManager<T> {
                 : new BufferedReader(new InputStreamReader(resource));
 
         samples = new ArrayList<>();
-        orignialSamples = new ArrayList<>();
+        originalSamples = new ArrayList<>();
         sampleHeader = new ArrayList<>();
 
         // Sometimes data is given as a String like "Boy, Girl", this ArrayList keeps track of all the strings and returns the
@@ -106,7 +106,7 @@ public class DataManager<T> {
                     // Track the sample size
                     sampleSize++;
                     samples.add(currentValues);
-                    orignialSamples.add((List<T>)currentValues.clone());
+                    originalSamples.add((List<T>)currentValues.clone());
                 }
             }
         }
@@ -135,11 +135,11 @@ public class DataManager<T> {
         return samples.get(sample).get(index);
     }
 
-    public static int getFeatureSize() {
+    public int getFeatureSize() {
         return featureSize - 1;
     }
 
-    public static int getSampleSize() {
+    public int getSampleSize() {
         return sampleSize;
     }
 
@@ -151,7 +151,7 @@ public class DataManager<T> {
      */
     public void resetSampleColumn(int column) {
         for (int i = 0; i < sampleSize; i++)
-            samples.get(i).set(column, orignialSamples.get(i).get(column));
+            samples.get(i).set(column, originalSamples.get(i).get(column));
     }
 
     public ArrayList<String> getSampleHeaders() { return sampleHeader; }

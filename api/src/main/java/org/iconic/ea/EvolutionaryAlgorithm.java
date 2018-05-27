@@ -31,7 +31,7 @@ public abstract class EvolutionaryAlgorithm<T extends Chromosome<R>, R> {
         this.mutationProbability = 0.1;
     }
 
-    public abstract void initialisePopulation(int geneSize);
+    public abstract void initialisePopulation(int populationSize, int numFeatures);
 
     public abstract List<T> evolve(final List<T> population);
 
