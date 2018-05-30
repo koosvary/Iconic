@@ -2,8 +2,11 @@ package org.iconic.ea.gep;
 
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
-import org.iconic.ea.chromosome.*;
-import org.iconic.ea.data.DataManager;
+import org.iconic.ea.chromosome.Chromosome;
+import org.iconic.ea.chromosome.expression.ExpressionChromosome;
+import org.iconic.ea.chromosome.graph.FunctionNode;
+import org.iconic.ea.chromosome.graph.InputNode;
+import org.iconic.ea.chromosome.graph.Node;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.Comparator;
@@ -27,11 +30,8 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
     public void initialisePopulation(int populationSize, int numFeatures) {
         for (int i = 0; i < populationSize; i++) {
             ExpressionChromosome<T> chromosome = new ExpressionChromosome<>(headLength, tailLength, numFeatures);
-            chromosome.setExpression(generateExpression(numFeatures));
-            chromosome.generateTree();
-
+            chromosome.setGenome(generateExpression(numFeatures));
             getObjective(0).apply(chromosome);
-
             getChromosomes().add(chromosome);
         }
     }

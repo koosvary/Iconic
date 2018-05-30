@@ -1,5 +1,9 @@
 package org.iconic.ea.chromosome;
 
+import org.iconic.ea.chromosome.expression.ExpressionChromosome;
+import org.iconic.ea.chromosome.graph.FunctionNode;
+import org.iconic.ea.chromosome.graph.InputNode;
+import org.iconic.ea.chromosome.graph.Node;
 import org.iconic.ea.operator.primitive.Addition;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.junit.jupiter.api.DisplayName;
@@ -13,32 +17,29 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ExpressionChromosomeTest {
     @Test
-    @DisplayName("Test that expression chromosomes are unique")
+    @DisplayName("Test that the genome of expression chromosomes are unique")
     void equalityTest() {
-        List<Node<Double>> expression = generateExpression();
+        List<Node<Double>> genome = generateExpression();
 
         ExpressionChromosome<Double> c1 = new ExpressionChromosome<>(3, 4, 3);
         ExpressionChromosome<Double> c2 = new ExpressionChromosome<>(3, 4, 3);
 
-        c1.setExpression(expression);
-        c2.setExpression(expression);
+        c1.setGenome(genome);
+        c2.setGenome(genome);
 
-        c1.generateTree();
-        c2.generateTree();
-
-        // Chromosomes using the same expression should not have the same object references, but they
+        // Chromosomes with the same genome should not have the same object references, but they
         // should still have the same semantics
-        assertAll("expression",
-                () -> assertEquals(c1.getExpressionLength(), c2.getExpressionLength()),
+        assertAll("genome",
+                () -> assertEquals(c1.getGenome().size(), c2.getGenome().size()),
                 () -> {
-                    for (int i = 0; i < c1.getExpressionLength(); ++i) {
-                        assertNotSame(c1.getExpression().get(i), c2.getExpression().get(i));
+                    for (int i = 0; i < c1.getGenome().size(); ++i) {
+                        assertNotSame(c1.getGenome().get(i), c2.getGenome().get(i));
                     }
                 },
-                () -> assertNotSame(c1.getExpression(), c2.getExpression()),
+                () -> assertNotSame(c1.getGenome(), c2.getGenome()),
                 () -> assertLinesMatch(
-                        Arrays.asList(c1.getExpression().toString()),
-                        Arrays.asList(c2.getExpression().toString())
+                        Arrays.asList(c1.getGenome().toString()),
+                        Arrays.asList(c2.getGenome().toString())
                 )
         );
     }

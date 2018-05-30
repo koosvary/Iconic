@@ -3,7 +3,7 @@ package org.iconic;
 import com.beust.jcommander.JCommander;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
-import org.iconic.ea.chromosome.ExpressionChromosome;
+import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.gep.GeneExpressionProgramming;
 import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
