@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 /**
  * {@inheritDoc}
- * <p>A chromosome that encodes an genome tree.</p>
+ * <p>A chromosome that encodes an expression tree.</p>
  */
 public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromosome<T>, LinearChromosome<Node<T>>, Cloneable {
     private List<Node<T>> genome;
@@ -21,7 +21,9 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
     private int treeIndex;
 
     /**
-     * <p>Constructs a new genome chromosome which decodes to an expression tree</p>
+     * <p>
+     * Constructs a new expression chromosome with the provided head length, tail length, and number of feeatures.
+     * </p>
      *
      * @param headLength  The length of the chromosome's head
      * @param tailLength  The length of the chromosome's tail
@@ -36,7 +38,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
 
     /**
      * <p>
-     * Generate the phenotypic expression tree from the genotype
+     * Generates a phenotypic expression tree from the genotype.
      * </p>
      */
     protected void generateTree() {
@@ -56,9 +58,12 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
     }
 
     /**
+     * <p>
+     * A recursive helper function for {@link #generateTree()}, it fills the tree starting from the root.
+     * </p>
      *
-     * @param root
-     * @return
+     * @param root The root of the tree
+     * @return the root with all of its child nodes populated
      */
     private Node<T> recursivelyGenerateTree(Node<T> root) {
         final int treeIndex = getTreeIndex() + 1;
@@ -106,10 +111,10 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
 
     /**
      * <p>
-     * Returns the length of this chromosome's head
+     * Returns the length of this chromosome's head.
      * </p>
      *
-     * @return the head length the chromosome
+     * @return the length of the chromosome's head
      */
     public int getHeadLength() {
         return headLength;
@@ -120,7 +125,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
      * Returns the length of this chromosome's tail
      * </p>
      *
-     * @return the tail length of the chromosome
+     * @return the length of the chromosome's tail
      */
     public int getTailLength() {
         return tailLength;
@@ -136,7 +141,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
 
     /**
      * <p>
-     * Sets the genome of this chromosome to the specified value
+     * Sets the genome of this chromosome to the specified value.
      * </p>
      *
      * @param genome The new genome of the chromosome
@@ -153,7 +158,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
 
     /**
      * <p>
-     * Sets the tree index of this chromosome to the specified value
+     * Sets the tree index of this chromosome to the specified value.
      * </p>
      * <p>
      * The tree index is used to track the current active node of this chromosome's tree.
@@ -167,7 +172,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
 
     /**
      * <p>
-     * Returns the tree index of this chromosome which tracks the current active node of the tree
+     * Returns the tree index of this chromosome which tracks the current active node of the tree.
      * </p>
      *
      * @return the tree index of the chromosome

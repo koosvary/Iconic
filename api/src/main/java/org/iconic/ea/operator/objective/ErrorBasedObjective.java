@@ -8,7 +8,9 @@ import java.util.List;
 
 /**
  * {@inheritDoc}
- * <p>An error based objective is an objective function based around an error function.</p>
+ * <p>
+ * An error based objective is an objective function based around an error function.
+ * </p>
  */
 public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements Objective<T, R> {
     private final ErrorFunction lambda;
@@ -20,6 +22,7 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
      * <p>
      * Constructs a new ErrorBasedObjective with the provided error function and samples.
      * </p>
+     *
      * <p>
      * The samples used should be a two-dimensional matrix, with each sample on a separate row. The final
      * column must contain the expected result.
@@ -42,7 +45,7 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
     public abstract double apply(final T c);
 
     /**
-     * <p>Returns the samples used by this objective</p>
+     * <p>Returns the samples used by this objective.</p>
      *
      * @return the samples used by this objective
      */
@@ -51,7 +54,7 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
     }
 
     /**
-     * <p>Returns the error function used by this objective</p>
+     * <p>Returns the error function used by this objective.</p>
      *
      * @return the error function used by this objective
      */
@@ -60,7 +63,7 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
     }
 
     /**
-     * <p>Returns the expected results for the samples used by this objective</p>
+     * <p>Returns the expected results for the samples used by this objective.</p>
      *
      * @return the expected results for the samples used by this objective
      */
@@ -83,7 +86,8 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
     }
 
     /**
-     * <p>Returns the changed status of this objective</p>
+     * <p>Returns the changed status of this objective.</p>
+     *
      * <p>
      * If the backing samples used by this objective are changed then the expected results need to be
      * recalculated.
@@ -96,7 +100,9 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
     }
 
     /**
-     * <p>Sets the changed status of this objective to the provided value</p>
+     * <p>
+     * Sets the changed status of this objective to the provided value.
+     * </p>
      *
      * @param changed The value to set the changed status of this objective to
      */
@@ -105,7 +111,9 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
     }
 
     /**
-     * <p>Sets the samples of this objective to the provided value and marks it as changed</p>
+     * <p>
+     * Sets the samples of this objective to the provided value and marks it as changed.
+     * </p>
      *
      * @param samples The value to set the samples of this objective to
      */
