@@ -1,4 +1,4 @@
-package org.iconic.ea.chromosome;
+package org.iconic.ea.chromosome.graph;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.LinkedList;

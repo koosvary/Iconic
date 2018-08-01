@@ -8,7 +8,7 @@ import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
-import org.iconic.ea.chromosome.ExpressionChromosome;
+import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.ea.gep.GeneExpressionProgramming;
 import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
