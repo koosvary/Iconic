@@ -49,15 +49,10 @@ public class Client {
             ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(10, featureSize);
 
             // Add in the functions the chromosomes can use
-            supplier.addFunction(new Addition());
-            supplier.addFunction(new Subtraction());
-            supplier.addFunction(new Multiplication());
-            supplier.addFunction(new Division());
-            supplier.addFunction(new Power());
-            supplier.addFunction(new Root());
-            supplier.addFunction(new Sin());
-            supplier.addFunction(new Cos());
-            supplier.addFunction(new Tan());
+            supplier.addFunction(
+                    new Addition(), new Subtraction(), new Multiplication(), new Division(),
+                    new Power(), new Root(), new Sin(), new Cos(), new Tan()
+            );
 
             // Create an evolutionary algorithm using Gene Expression Programming
             EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> gep = new GeneExpressionProgramming<>(supplier);

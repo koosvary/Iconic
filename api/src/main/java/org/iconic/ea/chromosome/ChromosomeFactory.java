@@ -30,7 +30,11 @@ public abstract class ChromosomeFactory<T extends Chromosome<R>, R> {
         return getFunctionalPrimitives().get(i);
     }
 
-    public void addFunction(FunctionalPrimitive<R, R> function) {
-        getFunctionalPrimitives().add(function);
+    @SafeVarargs
+    public final void addFunction(FunctionalPrimitive<R, R>... function) {
+        for (FunctionalPrimitive<R, R> f: function) {
+            getFunctionalPrimitives().add(f);
+        }
     }
+
 }
