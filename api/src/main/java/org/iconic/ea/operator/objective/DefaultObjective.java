@@ -13,7 +13,7 @@ import java.util.List;
  * </p>
  */
 @Log4j2
-public class DefaultObjective<T extends Chromosome<R>, R> extends ErrorBasedObjective<T, R> {
+public class DefaultObjective<T> extends ErrorBasedObjective<T> {
 
     /**
      * <p>
@@ -23,7 +23,7 @@ public class DefaultObjective<T extends Chromosome<R>, R> extends ErrorBasedObje
      * @param lambda  The error function to apply
      * @param samples The samples to use with the error function
      */
-    public DefaultObjective(ErrorFunction lambda, List<List<R>> samples) {
+    public DefaultObjective(ErrorFunction lambda, List<List<T>> samples) {
         super(lambda, samples);
     }
 
@@ -31,7 +31,7 @@ public class DefaultObjective<T extends Chromosome<R>, R> extends ErrorBasedObje
      * {@inheritDoc}
      */
     @Override
-    public double apply(final T c) {
+    public double apply(final Chromosome<T> c) {
         List<Double> results = (List<Double>) c.evaluate(getSamples());
 
         final double fitness = getLambda().apply(results, (List<Double>) getExpectedResults());

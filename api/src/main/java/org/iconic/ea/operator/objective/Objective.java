@@ -10,11 +10,10 @@ import org.iconic.ea.chromosome.Chromosome;
  * of chromosomes.
  * </p>
  *
- * @param <T> The type of {@link org.iconic.ea.chromosome.Chromosome chromosome} being evaluated
- * @param <R> The type of the {@link org.iconic.ea.chromosome.Chromosome chromosome's} input and output
+ * @param <T> The type of the {@link org.iconic.ea.chromosome.Chromosome chromosome's} input and output
  */
 @FunctionalInterface
-public interface Objective<T extends Chromosome<R>, R> {
+public interface Objective<T> {
     /**
      * <p>Applies this objective to the given {@link org.iconic.ea.chromosome.Chromosome chromosome}</p>
      *
@@ -22,5 +21,5 @@ public interface Objective<T extends Chromosome<R>, R> {
      * @return the fitness of the chromosome
      * @see org.iconic.ea.chromosome.Chromosome
      */
-    double apply(final T c);
+    double apply(final Chromosome<T> c);
 }
