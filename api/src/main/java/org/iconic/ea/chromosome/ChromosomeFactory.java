@@ -9,6 +9,9 @@ import java.util.List;
  * <p>
  * A ChromosomeFactory is used for easy replication of chromosomes.
  * </p>
+ *
+ * @param <T> The type of chromosome to be constructed
+ * @param <R> The type class of the data to pass through the chromosome
  */
 public abstract class ChromosomeFactory<T extends Chromosome<R>, R> {
     protected final List<FunctionalPrimitive<R, R>> functionalPrimitives;
@@ -30,11 +33,8 @@ public abstract class ChromosomeFactory<T extends Chromosome<R>, R> {
         return getFunctionalPrimitives().get(i);
     }
 
-    @SafeVarargs
-    public final void addFunction(FunctionalPrimitive<R, R>... function) {
-        for (FunctionalPrimitive<R, R> f: function) {
-            getFunctionalPrimitives().add(f);
-        }
+    public void addFunction(List<FunctionalPrimitive<R, R>> functions) {
+        functionalPrimitives.addAll(functions);
     }
 
 }

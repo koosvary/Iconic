@@ -52,10 +52,10 @@ public class SearchModel implements Runnable {
         );
 
         // Add in the functions the chromosomes can use
-        supplier.addFunction(
+        supplier.addFunction(Arrays.asList(
                 new Addition(), new Subtraction(), new Multiplication(), new Division(),
                 new Power(), new Root(), new Sin(), new Cos(), new Tan()
-        );
+        ));
 
         this.plots = new XYChart.Series<>();
         this.updates = new SimpleObjectProperty<>(null);

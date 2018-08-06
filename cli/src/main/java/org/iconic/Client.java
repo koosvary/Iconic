@@ -15,6 +15,7 @@ import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.operator.primitive.*;
 import org.iconic.io.ArgsConverterFactory;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -49,10 +50,10 @@ public class Client {
             ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(10, featureSize);
 
             // Add in the functions the chromosomes can use
-            supplier.addFunction(
+            supplier.addFunction(Arrays.asList(
                     new Addition(), new Subtraction(), new Multiplication(), new Division(),
                     new Power(), new Root(), new Sin(), new Cos(), new Tan()
-            );
+            ));
 
             // Create an evolutionary algorithm using Gene Expression Programming
             EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> gep = new GeneExpressionProgramming<>(supplier);
