@@ -3,7 +3,7 @@ I'm really glad you're reading this.
 
 ## Merges into higher branches
 This section is for merging your changes into the development branch (and later the master branch).
-Mke sure you run every unit test in the suite before creating your pull request. We don't want any regressions. Once you've done this, you're good yo make your very own Pull Request!
+Make sure you run every unit test in the suite before creating your pull request. We don't want any regressions. Once you've done this, you're good to make your very own Pull Request!
 
 ### Creating a Pull Request (PR)
 - Merges from any branch into *development* and *master* must go through a GitHub PR.
@@ -24,5 +24,5 @@ Mke sure you run every unit test in the suite before creating your pull request.
 ## Coding conventions
 I'm hoping you all adhere to these when writing your code. It will increase readability for your reviewers and maintainability later on...
 - No single line *if*, *while*, *for*, etc. structures without curly braces. Use curly braces.
-- Each method that does not call a subroutine should perform at most 1 function. (eg. A method to translate numbers to excel headers should not be burried within another function, it should be its own)
+- Each method that does not call a subroutine should perform at most 1 function. (eg. A method to translate numbers to excel headers should not be buried within another function, it should be its own)
 - If your methods are too long, create a private subroutine.
