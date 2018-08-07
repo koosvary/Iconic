@@ -22,7 +22,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
 
     /**
      * <p>
-     * Constructs a new expression chromosome with the provided head length, tail length, and number of feeatures.
+     * Constructs a new expression chromosome with the provided head length, tail length, and number of features.
      * </p>
      *
      * @param headLength  The length of the chromosome's head

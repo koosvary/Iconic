@@ -1,32 +1,38 @@
-package org.iconic.ea.chromosome;
+package org.iconic.ea.chromosome.expression;
 
-import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.ea.chromosome.graph.FunctionNode;
 import org.iconic.ea.chromosome.graph.InputNode;
 import org.iconic.ea.chromosome.graph.Node;
 import org.iconic.ea.operator.primitive.Addition;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * <p>
+ * A test suite for the {@link ExpressionChromosome} class.
+ * </p>
+ *
+ * <p>
+ * This test suite ensures the following:
+ *  - chromosomes are always unique objects that don't share <b>any</b> references
+ * </p>
+ */
 public class ExpressionChromosomeTest {
-    @Test
+    @ParameterizedTest
+    @MethodSource("equalityTestProvider")
     @DisplayName("Test that the genome of expression chromosomes are unique")
-    void equalityTest() {
-        List<Node<Double>> genome = generateExpression();
-
-        ExpressionChromosome<Double> c1 = new ExpressionChromosome<>(3, 4, 3);
-        ExpressionChromosome<Double> c2 = new ExpressionChromosome<>(3, 4, 3);
-
-        c1.setGenome(genome);
-        c2.setGenome(genome);
-
+    void equalityTest(final ExpressionChromosome<Double> c1, final ExpressionChromosome<Double> c2) {
         // Chromosomes with the same genome should not have the same object references, but they
         // should still have the same semantics
         assertAll("genome",
@@ -44,9 +50,21 @@ public class ExpressionChromosomeTest {
         );
     }
 
-    private List<Node<Double>> generateExpression() {
-        int headerLength = 3;
-        int featureSize = 3;
+    /**
+     * <p>
+     * Returns a stream of expression chromosome tuples, where each tuple contains two identical
+     * expression chromosome constructed from a randomly generated expression.
+     * </p>
+     *
+     * <p>
+     * The contents of the expression aren't important.
+     * </p>
+     *
+     * @return a stream of identical expression chromosomes
+     */
+    private static Stream<Arguments> equalityTestProvider() {
+        int headerLength = ThreadLocalRandom.current().nextInt(100);
+        int numFeatures = ThreadLocalRandom.current().nextInt(100);
 
         List<Node<Double>> expression = new LinkedList<>();
 
@@ -57,17 +75,23 @@ public class ExpressionChromosomeTest {
                 expression.add(new FunctionNode<>(function));
             } else {
                 // Feature Index
-                int index = (int) Math.floor(Math.random() * (featureSize - 1));
+                int index = (int) Math.floor(Math.random() * (numFeatures - 1));
                 expression.add(new InputNode<>(index));
             }
         }
 
         // Tail
         for (int i = 0; i < headerLength + 1; i++) {
-            int index = (int) Math.floor(Math.random() * (featureSize - 1));
+            int index = (int) Math.floor(Math.random() * (numFeatures - 1));
             expression.add(new InputNode<>(index));
         }
 
-        return expression;
+        ExpressionChromosome<Double> c1 = new ExpressionChromosome<>(headerLength, headerLength, numFeatures);
+        ExpressionChromosome<Double> c2 = new ExpressionChromosome<>(headerLength, headerLength, numFeatures);
+
+        c1.setGenome(expression);
+        c2.setGenome(expression);
+
+        return Stream.of(Arguments.of(c1, c2));
     }
 }

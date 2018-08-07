@@ -12,10 +12,10 @@ import java.util.List;
  * An error based objective is an objective function based around an error function.
  * </p>
  */
-public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements Objective<T, R> {
+public abstract class ErrorBasedObjective<T> implements Objective<T> {
     private final ErrorFunction lambda;
-    private List<List<R>> samples;
-    private List<R> expectedResults;
+    private List<List<T>> samples;
+    private List<T> expectedResults;
     private boolean changed;
 
     /**
@@ -31,7 +31,7 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
      * @param lambda  The error function to apply
      * @param samples The samples to use with the error function
      */
-    public ErrorBasedObjective(final ErrorFunction lambda, final List<List<R>> samples) {
+    public ErrorBasedObjective(final ErrorFunction lambda, final List<List<T>> samples) {
         this.lambda = lambda;
         this.samples = samples;
         this.expectedResults = new LinkedList<>();
@@ -42,14 +42,14 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
      * {@inheritDoc}
      */
     @Override
-    public abstract double apply(final T c);
+    public abstract double apply(final Chromosome<T> c);
 
     /**
      * <p>Returns the samples used by this objective.</p>
      *
      * @return the samples used by this objective
      */
-    protected List<List<R>> getSamples() {
+    protected List<List<T>> getSamples() {
         return samples;
     }
 
@@ -67,14 +67,14 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
      *
      * @return the expected results for the samples used by this objective
      */
-    protected List<R> getExpectedResults() {
+    protected List<T> getExpectedResults() {
         // Check if the expected results need to be recalculated
         if (isChanged()) {
-            List<R> results = new LinkedList<>();
+            List<T> results = new LinkedList<>();
 
             // Collect the expected answers
-            for (List<R> sample : getSamples()) {
-                R result = sample.get(sample.size() - 1);
+            for (List<T> sample : getSamples()) {
+                T result = sample.get(sample.size() - 1);
                 results.add(result);
             }
 
@@ -117,7 +117,7 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
      *
      * @param samples The value to set the samples of this objective to
      */
-    public void setSamples(final List<List<R>> samples) {
+    public void setSamples(final List<List<T>> samples) {
         setChanged(true);
         this.samples = samples;
     }
