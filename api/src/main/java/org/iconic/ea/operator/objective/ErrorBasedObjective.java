@@ -1,10 +1,11 @@
 package org.iconic.ea.operator.objective;
 
 import org.iconic.ea.chromosome.Chromosome;
+import org.iconic.ea.data.DataManager;
+import org.iconic.ea.data.FeatureClass;
 import org.iconic.ea.operator.objective.error.ErrorFunction;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * {@inheritDoc}
@@ -14,7 +15,7 @@ import java.util.List;
  */
 public abstract class ErrorBasedObjective<T> implements Objective<T> {
     private final ErrorFunction lambda;
-    private List<List<T>> samples;
+    private DataManager dataManager;
     private List<T> expectedResults;
     private boolean changed;
 
@@ -23,17 +24,12 @@ public abstract class ErrorBasedObjective<T> implements Objective<T> {
      * Constructs a new ErrorBasedObjective with the provided error function and samples.
      * </p>
      *
-     * <p>
-     * The samples used should be a two-dimensional matrix, with each sample on a separate row. The final
-     * column must contain the expected result.
-     * </p>
-     *
      * @param lambda  The error function to apply
-     * @param samples The samples to use with the error function
+     * @param dataManager The dataset to use with the error function
      */
-    public ErrorBasedObjective(final ErrorFunction lambda, final List<List<T>> samples) {
+    public ErrorBasedObjective(final ErrorFunction lambda, final DataManager dataManager) {
         this.lambda = lambda;
-        this.samples = samples;
+        this.dataManager = dataManager;
         this.expectedResults = new LinkedList<>();
         this.changed = true;
     }
@@ -45,12 +41,12 @@ public abstract class ErrorBasedObjective<T> implements Objective<T> {
     public abstract double apply(final Chromosome<T> c);
 
     /**
-     * <p>Returns the samples used by this objective.</p>
+     * <p>Returns the dataset used by this objective.</p>
      *
-     * @return the samples used by this objective
+     * @return the dataset used by this objective
      */
-    protected List<List<T>> getSamples() {
-        return samples;
+    protected DataManager getDataManager() {
+        return dataManager;
     }
 
     /**
@@ -71,6 +67,18 @@ public abstract class ErrorBasedObjective<T> implements Objective<T> {
         // Check if the expected results need to be recalculated
         if (isChanged()) {
             List<T> results = new LinkedList<>();
+
+            HashMap<String, FeatureClass<Double>> dataset = dataManager.getDataset();
+            int featureSize = dataManager.getFeatureSize();
+
+            /* Display content using Iterator*/
+            Set set = dataset.entrySet();
+            Iterator iterator = set.iterator();
+            while(iterator.hasNext()) {
+                Map.Entry mentry = (Map.Entry) iterator.next();
+                System.out.print("key is: "+ mentry.getKey() + " & Value is: ");
+                System.out.println(mentry.getValue());
+            }
 
             // Collect the expected answers
             for (List<T> sample : getSamples()) {
@@ -112,13 +120,13 @@ public abstract class ErrorBasedObjective<T> implements Objective<T> {
 
     /**
      * <p>
-     * Sets the samples of this objective to the provided value and marks it as changed.
+     * Sets the dataset of this objective to the provided value and marks it as changed.
      * </p>
      *
-     * @param samples The value to set the samples of this objective to
+     * @param dataManager The value to set the dataset of this objective to
      */
-    public void setSamples(final List<List<T>> samples) {
+    public void setDataManager(final DataManager dataManager) {
         setChanged(true);
-        this.samples = samples;
+        this.dataManager = dataManager;
     }
 }

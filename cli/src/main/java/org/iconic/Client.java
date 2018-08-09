@@ -38,7 +38,7 @@ public class Client {
         final String inputFile = client.getArgs().getInput();
 
         if (!"".equals(inputFile) && !inputFile.isEmpty()) {
-            final DataManager<Double> dm = new DataManager<>(Double.class, inputFile);
+            final DataManager<Double> dm = new DataManager<>(inputFile);
 
             int featureSize = dm.getFeatureSize();
             int sampleSize = dm.getSampleSize();
@@ -66,7 +66,7 @@ public class Client {
 
             // Add in the objectives the algorithm should aim for
             gep.addObjective(
-                    new DefaultObjective<>(
+                    new DefaultObjective<Double>(
                             new MeanSquaredError(), dm.getSamples())
             );
 
