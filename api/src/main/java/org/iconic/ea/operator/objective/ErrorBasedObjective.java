@@ -1,11 +1,16 @@
 package org.iconic.ea.operator.objective;
 
+import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.FeatureClass;
 import org.iconic.ea.operator.objective.error.ErrorFunction;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * {@inheritDoc}
@@ -13,9 +18,10 @@ import java.util.*;
  * An error based objective is an objective function based around an error function.
  * </p>
  */
+@Log4j2
 public abstract class ErrorBasedObjective<T> implements Objective<T> {
     private final ErrorFunction lambda;
-    private DataManager dataManager;
+    private DataManager<T> dataManager;
     private List<T> expectedResults;
     private boolean changed;
 
@@ -25,7 +31,7 @@ public abstract class ErrorBasedObjective<T> implements Objective<T> {
      * </p>
      *
      * @param lambda  The error function to apply
-     * @param dataManager The dataset to use with the error function
+     * @param dataManager The dataset to apply the error function on
      */
     public ErrorBasedObjective(final ErrorFunction lambda, final DataManager dataManager) {
         this.lambda = lambda;
@@ -45,7 +51,7 @@ public abstract class ErrorBasedObjective<T> implements Objective<T> {
      *
      * @return the dataset used by this objective
      */
-    protected DataManager getDataManager() {
+    protected DataManager<T> getDataManager() {
         return dataManager;
     }
 
@@ -66,27 +72,16 @@ public abstract class ErrorBasedObjective<T> implements Objective<T> {
     protected List<T> getExpectedResults() {
         // Check if the expected results need to be recalculated
         if (isChanged()) {
-            List<T> results = new LinkedList<>();
-
-            HashMap<String, FeatureClass<Double>> dataset = dataManager.getDataset();
-            int featureSize = dataManager.getFeatureSize();
-
-            /* Display content using Iterator*/
-            Set set = dataset.entrySet();
-            Iterator iterator = set.iterator();
-            while(iterator.hasNext()) {
-                Map.Entry mentry = (Map.Entry) iterator.next();
-                System.out.print("key is: "+ mentry.getKey() + " & Value is: ");
-                System.out.println(mentry.getValue());
-            }
+            HashMap<String, FeatureClass<Number>> dataset = getDataManager().getDataset();
 
             // Collect the expected answers
-            for (List<T> sample : getSamples()) {
-                T result = sample.get(sample.size() - 1);
-                results.add(result);
-            }
+            List<FeatureClass<Number>> features = dataset.values().stream()
+                    .filter(FeatureClass::isOutput)
+                    .limit(1)
+                    .collect(Collectors.toList());
 
-            expectedResults = results;
+            expectedResults = (ArrayList<T>) features.get(0).getSamples();
+
             setChanged(false);
         }
 

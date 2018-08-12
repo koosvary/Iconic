@@ -1,20 +1,22 @@
 package org.iconic.ea.data;
 
-import org.iconic.ea.data.preprocessing.Normalise;
+import org.iconic.ea.data.preprocessing.Preprocessor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
-public class FeatureClass<T extends Number> {
-    private boolean expectedResultsFeature;
-    private ArrayList<Number> originalSamples, modifiedSamples;
-    private Normalise<T> normaliseClass;
+public abstract class FeatureClass<T> {
+    private boolean output;
+    private ArrayList<T> originalSamples, modifiedSamples;
+    private Set<Preprocessor<T>> preprocessors;
     // TODO - Add in the pre-processing features
 
-    public FeatureClass() {
-        this.expectedResultsFeature = false;
-        originalSamples = new ArrayList<>();
-        modifiedSamples = new ArrayList<>();
-        normaliseClass = new Normalise<>();
+    protected FeatureClass(boolean output) {
+        this.output = output;
+        this.originalSamples = new ArrayList<>();
+        this.modifiedSamples = new ArrayList<>();
+        this.preprocessors = new HashSet<>();
     }
 
     public void addSampleValue(T value) {
@@ -22,19 +24,34 @@ public class FeatureClass<T extends Number> {
         modifiedSamples.add(value);
     }
 
-    public Number getSampleValue(int row) {
+    public T getSampleValue(int row) {
         return modifiedSamples.get(row);
     }
 
-    public ArrayList<Number> getSamples() {
+    public ArrayList<T> getSamples() {
         return modifiedSamples;
     }
 
     public void applyPreProcessing() {
-        if (normaliseClass.isEnabled()) {
-            normaliseClass.apply(modifiedSamples);
-        }
+        // Ignoring order of operations
+        getPreprocessors().stream()
+                .filter(Preprocessor::isEnabled)
+                .forEach(p -> p.apply(modifiedSamples));
     }
 
-    public void setExpectedResultsFeature(boolean value) { this.expectedResultsFeature = value; }
+    public Set<Preprocessor<T>> getPreprocessors() {
+        return preprocessors;
+    }
+
+    public void setPreprocessors(Set<Preprocessor<T>> preprocessors) {
+        this.preprocessors = preprocessors;
+    }
+
+    public boolean isOutput() {
+        return output;
+    }
+
+    public void setOutput(boolean value) {
+        this.output = value;
+    }
 }

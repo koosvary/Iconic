@@ -2,10 +2,14 @@ package org.iconic.ea.data.preprocessing;
 
 import java.util.ArrayList;
 
-public class Normalise<T extends Number> {
+public class Normalise extends Preprocessor<Number>{
     private Number oldMin, oldMax, newMin, newMax;
-    private boolean enabled = false;
 
+    /**
+     *
+     * @param values
+     */
+    @Override
     public void apply(ArrayList<Number> values) {
         oldMin = values.get(0);
         oldMax = values.get(0);
@@ -34,6 +38,4 @@ public class Normalise<T extends Number> {
     }
 
     public void setRange(Number newMin, Number newMax) { this.newMin = newMin; this.newMax = newMax; }
-    public void setEnabled(boolean enabled) { this.enabled = enabled; }
-    public boolean isEnabled() { return enabled; }
 }

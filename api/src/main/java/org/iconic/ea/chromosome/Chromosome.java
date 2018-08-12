@@ -1,5 +1,6 @@
 package org.iconic.ea.chromosome;
 
+import org.iconic.ea.data.DataManager;
 import org.iconic.ea.operator.evolutionary.mutation.Mutator;
 
 import java.util.LinkedList;
@@ -96,7 +97,7 @@ public abstract class Chromosome<T> {
      * @param input The input samples to evaluate
      * @return A list of outputs, one for each input sample
      */
-    public abstract List<T> evaluate(List<List<T>> input);
+    public abstract List<T> evaluate(final DataManager<T> input);
 
     /**
      * <p>
