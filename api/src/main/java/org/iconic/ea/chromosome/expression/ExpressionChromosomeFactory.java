@@ -12,12 +12,13 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * {@inheritDoc}
  *
+ * <P>Chromosomes constructed by this factory form an expression tree.</P>
+ *
  * @param <T> The type class of the data to pass through the chromosome
  */
 public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<ExpressionChromosome<T>, T> {
     private final int headLength;
     private final int numFeatures;
-    private int maxArity;
     private int tailLength;
 
     /**
@@ -37,7 +38,6 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
 
         this.headLength = headLength;
         this.numFeatures = numFeatures;
-        this.maxArity = 0;
         this.tailLength = 0;
     }
 
@@ -96,21 +96,6 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
         return numFeatures;
     }
 
-    /**
-     * <p>
-     * Returns the maximum arity of the functions used by this factory.
-     * </p>
-     *
-     * @return the maximum arity of the functions used by the factory
-     */
-    public int getMaxArity() {
-        return maxArity;
-    }
-
-    private void setMaxArity(int maxArity) {
-        this.maxArity = maxArity;
-    }
-
     private void setTailLength(int tailLength) {
         this.tailLength = tailLength;
     }
@@ -120,10 +105,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
      */
     @Override
     public final void addFunction(List<FunctionalPrimitive<T, T>> functions) {
-        assert (functions.size() > 0);
-
-        // Directly access the functional primitives because the getter returns a copy
-        functionalPrimitives.addAll(functions);
+        super.addFunction(functions);
 
         // Create a comparator for recalculating the maximum arity after we've added all the new functions
         final Comparator<FunctionalPrimitive<T, T>> comparator =
@@ -141,7 +123,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
         }
 
         // We also need to recalculate the tail length
-        setTailLength(headLength * (maxArity - 1) + 1);
+        setTailLength(headLength * (getMaxArity() - 1) + 1);
     }
 
     /**

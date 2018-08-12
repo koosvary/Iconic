@@ -1,4 +1,4 @@
-package org.iconic.ea.gep;
+package org.iconic.ea.strategies.gep;
 
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
