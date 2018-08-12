@@ -24,6 +24,3 @@
         <fx:include source="ReportView.fxml"/>
     </TabPane>
 </AnchorPane>
-
-<!-- Console view
-        <fx:include source="ConsoleView.fxml"/> -->

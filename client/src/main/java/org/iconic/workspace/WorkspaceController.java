@@ -72,6 +72,8 @@ public class WorkspaceController implements Initializable {
     @FXML
     private CheckBox cbFilter;
     @FXML
+    private VBox vbFilter;
+    @FXML
     private TextField tfNormaliseMin;
     @FXML
     private TextField tfNormaliseMax;
@@ -120,6 +122,7 @@ public class WorkspaceController implements Initializable {
         addListenerToHideElement(cbHandleMissingValues, vbHandleMissingValues);
         addListenerToHideElement(cbRemoveOutliers, vbRemoveOutliers);
         addListenerToHideElement(cbNormalise, vbNormalise);
+        addListenerToHideElement(cbFilter, vbFilter);
     }
 
     private void addListenerToHideElement(CheckBox cb, VBox vb) {
