@@ -6,7 +6,7 @@ public class GaussianFunction extends ArithmeticPrimitive<Number> {
     public GaussianFunction() {
         super(
                 args -> Math.exp(-Math.pow(args.get(0),2)),
-                1, "gauss"
+                1, "GAUSS"
         );
     }
 }
