@@ -46,10 +46,8 @@
                 <VBox prefWidth="${screen.visualBounds.width*0.66}" spacing="5">
                     <padding><Insets top="10" bottom="10" left="10" right="10"/></padding>
 
-                    <Separator/>
                     <CheckBox fx:id="cbSmoothData" text="Smooth data points of (x)"/>
 
-                    <!-- "managed" variable essentially sets the height of the HBox to 0 instead of just being "invisible" but still there -->
                     <VBox fx:id="vbSmoothData">
                         <HBox>
                             <Label text="Smoothness:"><padding><Insets left="25" right="25"/></padding></Label>
@@ -108,7 +106,6 @@
                     <Separator/>
 
                     <CheckBox fx:id="cbFilter" text="Filter data of (x)"/>
-                    <Separator/>
                 </VBox>
             </HBox>
         </VBox>
