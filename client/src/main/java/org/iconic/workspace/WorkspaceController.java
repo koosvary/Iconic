@@ -193,6 +193,9 @@ public class WorkspaceController implements Initializable {
     public void featureSelected(int selectedIndex) {
         // Update lcDataView
         if (lcDataView != null) {
+            // Stores the currently selected header in the lvFeatures list
+            String selectedHeader = "";
+
             // defining a series
             XYChart.Series<Number, Number> series = new XYChart.Series<>();
 
@@ -207,8 +210,16 @@ public class WorkspaceController implements Initializable {
                     double value = values.get(sample);
                     series.getData().add(new XYChart.Data<>(sample, value));
                 }
+
+                selectedHeader = String.valueOf(dataManager.get().getSampleHeaders().get(selectedIndex));
             }
             lcDataView.getData().add(series);
+
+            cbSmoothData.setText("Smooth data points of (" + selectedHeader + ")");
+            cbHandleMissingValues.setText("Handle missing values of (" + selectedHeader + ")");
+            cbRemoveOutliers.setText("Remove outliers of (" + selectedHeader + ")");
+            cbNormalise.setText("Normalise scale and offset of (" + selectedHeader + ")");
+            cbFilter.setText("Filter data of (" + selectedHeader + ")");
         }
     }
 
