@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCode;
@@ -164,22 +165,6 @@ public class InputDataController implements Initializable {
         return projectService;
     }
 
-//    private void newDataset(){
-//        val dataset = new DatasetModel(f.getName(), f.getAbsolutePath());
-//        val item = getWorkspaceService().getActiveWorkspaceItem();
-//
-//        // If the current active item isn't a project don't do anything
-//        if (item instanceof ProjectModel) {
-//            val project = (ProjectModel) item;
-//            val newProject = project.toBuilder().dataset(dataset).build();
-//
-//            getWorkspaceService().setActiveWorkspaceItem(null);
-//            getProjectService().getProjects().remove(project);
-//            getProjectService().getProjects().add(newProject);
-//            getWorkspaceService().setActiveWorkspaceItem(newProject);
-//        }
-//    }
-
     public void saveDataset(ActionEvent actionEvent) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Dataset");
@@ -204,6 +189,15 @@ public class InputDataController implements Initializable {
      * @param actionEvent The action that triggered the event
      */
     public void importDataset(ActionEvent actionEvent) {
+        //Temporary fix to account for project not being selected in menu
+        if((!(getWorkspaceService().getActiveWorkspaceItem() instanceof ProjectModel) && getProjectService().getProjects().size() > 0)){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Please Select a Project");
+            alert.setHeaderText(null);
+            alert.setContentText("Please select/highlight the project in the menu that you would like to your dataset to.");
+            alert.showAndWait();
+            return;
+        }
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Import Dataset");
         // Show only .txt and .csv files
@@ -213,7 +207,6 @@ public class InputDataController implements Initializable {
 
         // Show the file dialog over the parent window
         File f = fileChooser.showOpenDialog(spreadsheet.getScene().getWindow());
-//        File f = fileChooser.showOpenDialog(getTreeView().getScene().getWindow());
 
         // If the user selected a file add it to the current active item as a dataset
         if (f != null) {
@@ -230,6 +223,7 @@ public class InputDataController implements Initializable {
                         name -> {
                             final ProjectModel project = ProjectModel.builder().name(name).build();
                             getWorkspaceService().setActiveWorkspaceItem(project);
+                            getProjectService().getProjects().add(project);
                         }
                 );
             }
@@ -243,6 +237,9 @@ public class InputDataController implements Initializable {
 //                getProjectService().getProjects().remove(project);
 //                getProjectService().getProjects().add(newProject);
                 getWorkspaceService().setActiveWorkspaceItem(newProject);
+            }
+            else{
+                //TODO If a project is not highlighted get the project associated with the current view
             }
         }
     }
