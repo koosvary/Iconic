@@ -9,6 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCode;
 import javafx.stage.FileChooser;
 import lombok.val;
@@ -163,6 +164,22 @@ public class InputDataController implements Initializable {
         return projectService;
     }
 
+//    private void newDataset(){
+//        val dataset = new DatasetModel(f.getName(), f.getAbsolutePath());
+//        val item = getWorkspaceService().getActiveWorkspaceItem();
+//
+//        // If the current active item isn't a project don't do anything
+//        if (item instanceof ProjectModel) {
+//            val project = (ProjectModel) item;
+//            val newProject = project.toBuilder().dataset(dataset).build();
+//
+//            getWorkspaceService().setActiveWorkspaceItem(null);
+//            getProjectService().getProjects().remove(project);
+//            getProjectService().getProjects().add(newProject);
+//            getWorkspaceService().setActiveWorkspaceItem(newProject);
+//        }
+//    }
+
     public void saveDataset(ActionEvent actionEvent) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Dataset");
@@ -200,13 +217,26 @@ public class InputDataController implements Initializable {
 
         // If the user selected a file add it to the current active item as a dataset
         if (f != null) {
-            val dataset = new DatasetModel(f.getName(), f.getAbsolutePath());
-            val item = getWorkspaceService().getActiveWorkspaceItem();
-
-            // If the current active item isn't a project don't do anything
-            if (item instanceof ProjectModel) {
-                val project = (ProjectModel) item;
-                val newProject = project.toBuilder().dataset(dataset).build();
+            DatasetModel dataset = new DatasetModel(f.getName(), f.getAbsolutePath());
+            Displayable currentItem = getWorkspaceService().getActiveWorkspaceItem();
+            // If the current active item isn't a project create a new project
+            if ((!(currentItem instanceof ProjectModel)) && (!(currentItem instanceof DatasetModel))){
+                TextInputDialog dialog = new TextInputDialog("Project1");
+                dialog.setTitle("Create a Project");
+                dialog.setHeaderText("To load a dataset, you need to create a project.");
+                dialog.setContentText("Please enter a project name:");
+                // Create the project only if a name was provided
+                dialog.showAndWait().ifPresent(
+                        name -> {
+                            final ProjectModel project = ProjectModel.builder().name(name).build();
+                            getWorkspaceService().setActiveWorkspaceItem(project);
+                        }
+                );
+            }
+            //If statement required to check if user clicked cancel in previous dialog
+            if (getWorkspaceService().getActiveWorkspaceItem() instanceof ProjectModel) {
+                ProjectModel project = (ProjectModel) getWorkspaceService().getActiveWorkspaceItem();
+                ProjectModel newProject = project.toBuilder().dataset(dataset).build();
 
                 getWorkspaceService().setActiveWorkspaceItem(null);
                 getProjectService().getProjects().remove(project);
