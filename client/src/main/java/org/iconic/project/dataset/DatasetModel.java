@@ -31,7 +31,7 @@ public class DatasetModel implements Displayable {
     public DatasetModel(@NonNull final String name, @NonNull final String absolutePath) {
         this.name = new SimpleStringProperty(name);
         this.absolutePath = new SimpleStringProperty(absolutePath);
-        this.dataManager = new DataManager<>(Double.class, absolutePath);
+        this.dataManager = new DataManager<Double>(absolutePath);
         this.id = UUID.randomUUID();
     }
 

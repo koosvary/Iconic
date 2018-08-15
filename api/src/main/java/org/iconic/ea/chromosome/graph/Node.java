@@ -1,4 +1,4 @@
-package org.iconic.ea.chromosome;
+package org.iconic.ea.chromosome.graph;
 import java.util.LinkedList;
 import java.util.List;
 

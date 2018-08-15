@@ -5,23 +5,20 @@ import org.iconic.ea.operator.evolutionary.crossover.Crossover;
 import org.iconic.ea.operator.evolutionary.mutation.Mutator;
 import org.iconic.ea.operator.evolutionary.selection.Selection;
 import org.iconic.ea.operator.objective.Objective;
-import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public abstract class EvolutionaryAlgorithm<T extends Chromosome<R>, R> {
-    private final List<FunctionalPrimitive<R, R>> functionalPrimitives;
     private final List<Crossover<T, R>> crossovers;
     private final List<Mutator<T, R>> mutators;
     private final List<Selection<T, R>> selectors;
-    private final List<Objective<T, R>> objectives;
+    private final List<Objective<R>> objectives;
     private double crossoverProbability;
     private double mutationProbability;
     private List<T> chromosomes;
 
     protected EvolutionaryAlgorithm() {
-        this.functionalPrimitives = new LinkedList<>();
         this.crossovers = new LinkedList<>();
         this.mutators = new LinkedList<>();
         this.selectors = new LinkedList<>();
@@ -35,10 +32,6 @@ public abstract class EvolutionaryAlgorithm<T extends Chromosome<R>, R> {
 
     public abstract List<T> evolve(final List<T> population);
 
-    protected List<FunctionalPrimitive<R, R>> getFunctionalPrimitives() {
-        return functionalPrimitives;
-    }
-
     protected List<Crossover<T, R>> getCrossovers() {
         return crossovers;
     }
@@ -51,12 +44,8 @@ public abstract class EvolutionaryAlgorithm<T extends Chromosome<R>, R> {
         return selectors;
     }
 
-    protected List<Objective<T, R>> getObjectives() {
+    protected List<Objective<R>> getObjectives() {
         return objectives;
-    }
-
-    public FunctionalPrimitive<R, R> getFunction(final int i) {
-        return getFunctionalPrimitives().get(i);
     }
 
     public Crossover<T, R> getCrossover(final int i) {
@@ -71,12 +60,8 @@ public abstract class EvolutionaryAlgorithm<T extends Chromosome<R>, R> {
         return getSelectors().get(i);
     }
 
-    public Objective<T, R> getObjective(final int i) {
+    public Objective<R> getObjective(final int i) {
         return getObjectives().get(i);
-    }
-
-    public void addFunction(FunctionalPrimitive<R, R> function) {
-        getFunctionalPrimitives().add(function);
     }
 
     public void addCrossover(Crossover<T, R> crossover) {
@@ -91,7 +76,7 @@ public abstract class EvolutionaryAlgorithm<T extends Chromosome<R>, R> {
         getSelectors().add(selector);
     }
 
-    public void addObjective(Objective<T, R> objective) {
+    public void addObjective(Objective<R> objective) {
         getObjectives().add(objective);
     }
 

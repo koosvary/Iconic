@@ -2,78 +2,29 @@ package org.iconic.ea.gep;
 
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
-import org.iconic.ea.chromosome.*;
-import org.iconic.ea.data.DataManager;
-import org.iconic.ea.operator.primitive.FunctionalPrimitive;
+import org.iconic.ea.chromosome.Chromosome;
+import org.iconic.ea.chromosome.expression.ExpressionChromosome;
+import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
 
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Log4j2
 public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<ExpressionChromosome<T>, T> {
-    private int maxArity;
-    private int tailLength;
-    private final int headLength;
+    private final ExpressionChromosomeFactory<T> chromosomeFactory;
 
-    public GeneExpressionProgramming() {
+    public GeneExpressionProgramming(ExpressionChromosomeFactory<T> chromosomeFactory) {
         super();
-        this.maxArity = 0;
-        this.headLength = 10;
-        this.tailLength = headLength * (maxArity - 1) + 1;
+        this.chromosomeFactory = chromosomeFactory;
     }
 
     public void initialisePopulation(int populationSize, int numFeatures) {
         for (int i = 0; i < populationSize; i++) {
-            ExpressionChromosome<T> chromosome = new ExpressionChromosome<>(headLength, tailLength, numFeatures);
-            chromosome.setExpression(generateExpression(numFeatures));
-            chromosome.generateTree();
-
+            Chromosome<T> chromosome = getChromosomeFactory().getChromosome();
             getObjective(0).apply(chromosome);
-
-            getChromosomes().add(chromosome);
+            getChromosomes().add((ExpressionChromosome<T>) chromosome);
         }
-    }
-
-    public List<Node<T>> generateExpression(int numFeatures) {
-        final Comparator<FunctionalPrimitive<T, T>> comparator =
-                Comparator.comparing(FunctionalPrimitive::getArity);
-        this.maxArity = getFunctionalPrimitives().stream().max(comparator).get().getArity();
-        this.tailLength = headLength * (maxArity - 1) + 1;
-
-        List<Node<T>> expression = new LinkedList<>();
-
-        final int numFunctions = getFunctionalPrimitives().size();
-        final double p = 0.5;
-
-        assert (numFunctions > 0);
-
-        for (int i = 0; i < headLength; i++) {
-            if (ThreadLocalRandom.current().nextDouble(0, 1) <= p) {
-                // Create a function
-                final int index = ThreadLocalRandom.current().nextInt(numFunctions);
-                FunctionalPrimitive<T, T> function = getFunctionalPrimitives().get(index);
-                expression.add(new FunctionNode<>(function));
-            } else {
-                // Feature Index
-                final int index = ThreadLocalRandom.current().nextInt(numFeatures);
-                expression.add(new InputNode<>(index));
-            }
-        }
-
-        // Tail
-        for (int i = 0; i < tailLength; i++) {
-            final int index = ThreadLocalRandom.current().nextInt(numFeatures);
-//            if (Math.random() > p) {
-            expression.add(new InputNode<>(index));
-//            } else {
-//                final double constant = (Math.random() * 100);
-//                expression.add(new FunctionNode<>((Constant<T>) new Constant<>(constant)));
-//            }
-        }
-
-        return expression;
     }
 
     @Override
@@ -116,7 +67,10 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
         assert (getMutators().size() > 0);
         assert (getObjectives().size() > 0);
 
-        ExpressionChromosome<T> child = getMutator(0).apply(getFunctionalPrimitives(), chromosome);
+        ExpressionChromosome<T> child = getMutator(0).apply(
+                getChromosomeFactory().getFunctionalPrimitives(),
+                chromosome
+        );
 
         // Evaluate the fitness of both chromosomes
         double parentFitness = getObjective(0).apply(chromosome);
@@ -128,5 +82,9 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
         }
 
         return chromosome;
+    }
+
+    public ExpressionChromosomeFactory<T> getChromosomeFactory() {
+        return chromosomeFactory;
     }
 }
