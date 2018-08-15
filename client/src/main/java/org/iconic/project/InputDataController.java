@@ -1,17 +1,13 @@
 package org.iconic.project;
 
 import javafx.beans.InvalidationListener;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
-import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.input.KeyCode;
 import javafx.stage.FileChooser;
 import lombok.val;
 import org.controlsfx.control.spreadsheet.*;
@@ -23,7 +19,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -51,7 +46,6 @@ public class InputDataController implements Initializable {
         // If no dataset is selected clear the UI
         if (!(item instanceof DatasetModel)) {
             clearUI();
-//            fillSpreadsheet2();
         }
         else{
             fillSpreadsheetByRow();
@@ -101,31 +95,6 @@ public class InputDataController implements Initializable {
         spreadsheet.setGrid(grid);
     }
 
-    private void fillSpreadsheet2(){
-        int rowCount = 5;
-        int columnCount = 3;
-        GridBase grid = new GridBase(rowCount, columnCount);
-
-        ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
-        for (int row = 0; row < grid.getRowCount(); ++row) {
-            final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
-            for (int column = 0; column < grid.getColumnCount(); ++column) {
-//                list.add(SpreadsheetCellType.STRING.createCell(row, column, 1, 1,"Jack"));
-                SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1,"Change Me");
-                nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
-                    if (newValue instanceof String) {
-                        //Do something
-                        nextCell.setItem("Jack was here");
-                    }
-                });
-                list.add(nextCell);
-            }
-            rows.add(list);
-        }
-        grid.setRows(rows);
-        spreadsheet.setGrid(grid);
-    }
-
     private void updateProjectDataset(int row, int column, Number newValue){
         Optional<DataManager<Double>> dataManager = getDataManager();
         dataManager.get().getSampleColumn(column).set(row,newValue);
@@ -141,7 +110,6 @@ public class InputDataController implements Initializable {
             return Optional.empty();
         }
     }
-
 
     /**
      * <p>
@@ -231,16 +199,11 @@ public class InputDataController implements Initializable {
             if (getWorkspaceService().getActiveWorkspaceItem() instanceof ProjectModel) {
                 ProjectModel project = (ProjectModel) getWorkspaceService().getActiveWorkspaceItem();
                 ProjectModel newProject = project.toBuilder().dataset(dataset).build();
-
                 getWorkspaceService().setActiveWorkspaceItem(null);
                 getProjectService().getProjects().set(getProjectService().getProjects().indexOf(project),newProject);
-//                getProjectService().getProjects().remove(project);
-//                getProjectService().getProjects().add(newProject);
                 getWorkspaceService().setActiveWorkspaceItem(newProject);
             }
-            else{
-                //TODO If a project is not highlighted get the project associated with the current view
-            }
+            //TODO If a project is not highlighted get the project associated with the current view
         }
     }
 }

@@ -30,7 +30,6 @@
 
         <HBox>
             <padding><Insets top="5" bottom="5"/></padding>
-            <!--<Button fx:id="btnLoadDataset" text="Load Dataset"/>-->
             <Button fx:id="btnLoadDataset" text="Load Dataset" onAction="#importDataset"/>
             <Label><padding><Insets left="5" right="5"/></padding></Label>
             <TextField fx:id="txtDatasetFilePath" promptText="File Path" />
