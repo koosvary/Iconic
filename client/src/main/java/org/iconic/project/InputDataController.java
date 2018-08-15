@@ -162,7 +162,7 @@ public class InputDataController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Please Select a Project");
             alert.setHeaderText(null);
-            alert.setContentText("Please select/highlight the project in the menu that you would like to your dataset to.");
+            alert.setContentText("Please select/highlight the project in the menu that you would like add your new dataset to.");
             alert.showAndWait();
             return;
         }
