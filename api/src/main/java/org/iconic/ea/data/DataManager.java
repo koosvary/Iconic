@@ -169,8 +169,16 @@ public class DataManager<T> {
         return dataset;
     }
 
-    public List<T> getSampleRow(int row) {
-        return null;
+    public List<Number> getSampleRow(int row) {
+        List<Number> samples = new ArrayList<>();
+
+        for (String header : sampleHeaders) {
+            FeatureClass<Number> fc = dataset.get(header);
+            Number value = fc.getSampleValue(row);
+            samples.add(value);
+        }
+
+        return samples;
     }
 
     public ArrayList<Number> getSampleColumn(int column) {
