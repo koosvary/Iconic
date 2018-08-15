@@ -22,7 +22,7 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
         final ExpressionChromosome<R> mutant = chromosome.clone();
         final int index = ThreadLocalRandom.current().nextInt(mutant.getGenome().size());
         final int numFunctions = functionalPrimitives.size();
-        final int numFeatures = mutant.getNumFeatures();
+        final int numFeatures = mutant.getInputs();
         final double p = 0.5;
 
         // Get the expression from the chromosome
