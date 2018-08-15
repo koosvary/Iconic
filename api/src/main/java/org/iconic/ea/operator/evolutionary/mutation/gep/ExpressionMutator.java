@@ -1,9 +1,9 @@
 package org.iconic.ea.operator.evolutionary.mutation.gep;
 
-import org.iconic.ea.chromosome.ExpressionChromosome;
-import org.iconic.ea.chromosome.FunctionNode;
-import org.iconic.ea.chromosome.InputNode;
-import org.iconic.ea.chromosome.Node;
+import org.iconic.ea.chromosome.expression.ExpressionChromosome;
+import org.iconic.ea.chromosome.graph.FunctionNode;
+import org.iconic.ea.chromosome.graph.InputNode;
+import org.iconic.ea.chromosome.graph.Node;
 import org.iconic.ea.operator.evolutionary.mutation.Mutator;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
@@ -16,20 +16,21 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
     @Override
     public ExpressionChromosome<R> apply(final List<FunctionalPrimitive<R, R>> functionalPrimitives,
                                          final ExpressionChromosome<R> chromosome) {
-        assert (chromosome.getExpressionLength() > 0);
+        assert (chromosome.getGenome().size() > 0);
 
         // Pick an index of the chromosome to mutate
-        final int index = ThreadLocalRandom.current().nextInt(chromosome.getExpressionLength());
+        final ExpressionChromosome<R> mutant = chromosome.clone();
+        final int index = ThreadLocalRandom.current().nextInt(mutant.getGenome().size());
         final int numFunctions = functionalPrimitives.size();
-        final int numFeatures = chromosome.getNumFeatures();
+        final int numFeatures = mutant.getNumFeatures();
         final double p = 0.5;
 
         // Get the expression from the chromosome
-        List<Node<R>> expression = chromosome.getExpression().stream().map(Node::clone)
+        List<Node<R>> expression = mutant.getGenome().stream().map(Node::clone)
                 .collect(Collectors.toList());
 
         // If the index is in the head, pick from a function or input variable
-        if (index < chromosome.getHeadLength()) {
+        if (index < mutant.getHeadLength()) {
             // Function and input variable
             if (Math.random() > p) {
                 // Create a function
@@ -46,15 +47,9 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
             expression.set(index, generateFeatureOrConstant(numFeatures, p));
         }
 
-        // Create the new Chromosome with the mutation
-        ExpressionChromosome<R> newChromosome = new ExpressionChromosome<>(
-                chromosome.getHeadLength(), chromosome.getTailLength(), chromosome.getNumFeatures()
-        );
+        mutant.setGenome(expression);
 
-        newChromosome.setExpression(expression);
-        newChromosome.generateTree();
-
-        return newChromosome;
+        return mutant;
     }
 
     /**

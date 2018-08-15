@@ -3,6 +3,11 @@ package org.iconic.ea.operator.primitive;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ * 
+ * @param <T>
+ * @param <R>
+ */
 public class FunctionalPrimitive<T, R> implements UncheckedFunctionalPrimitive<T, R> {
     private final Function<List<T>, R> lambda;
     private final int arity;

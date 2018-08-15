@@ -8,7 +8,8 @@ import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
-import org.iconic.ea.chromosome.ExpressionChromosome;
+import org.iconic.ea.chromosome.expression.ExpressionChromosome;
+import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
 import org.iconic.ea.gep.GeneExpressionProgramming;
 import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
@@ -43,36 +44,37 @@ public class SearchModel implements Runnable {
      * @param datasetModel The dataset to perform the search on
      */
     public SearchModel(@NonNull final DatasetModel datasetModel) {
-        this.plots = new XYChart.Series<>();
         this.datasetModel = datasetModel;
+
+        ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(
+                10,
+                datasetModel.getDataManager().getFeatureSize()
+        );
+
+        // Add in the functions the chromosomes can use
+        supplier.addFunction(Arrays.asList(
+                new Addition(), new Subtraction(), new Multiplication(), new Division(),
+                new Power(), new Root(), new Sin(), new Cos(), new Tan()
+        ));
+
+        this.plots = new XYChart.Series<>();
         this.updates = new SimpleObjectProperty<>(null);
         this.running = false;
-        this.ea = new GeneExpressionProgramming<>();
+        this.ea = new GeneExpressionProgramming<>(supplier);
         this.updates.set("");
         this.plots.setName(this.datasetModel.getName());
 
         ea.setCrossoverProbability(1.0);
         ea.setMutationProbability(1.0);
 
-        // Add in the functions it can use
-        ea.addFunction(new Addition());
-        ea.addFunction(new Subtraction());
-        ea.addFunction(new Multiplication());
-        ea.addFunction(new Division());
-        ea.addFunction(new Power());
-        ea.addFunction(new Root());
-        ea.addFunction(new Sin());
-        ea.addFunction(new Cos());
-        ea.addFunction(new Tan());
-
-        // Add in the evolutionary operators it can use
+        // Add in the evolutionary operators the algorithm can use
         ea.addCrossover(new SimpleExpressionCrossover<>());
         ea.addMutator(new ExpressionMutator<>());
 
-        // Add in the objectives it should aim for
+        // Add in the objectives the algorithm should aim for
         ea.addObjective(
                 new DefaultObjective<>(
-                        new MeanSquaredError(), datasetModel.getDataManager().getSamples())
+                        new MeanSquaredError(), datasetModel.getDataManager())
         );
     }
 

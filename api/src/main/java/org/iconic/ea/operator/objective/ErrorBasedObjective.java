@@ -1,36 +1,41 @@
 package org.iconic.ea.operator.objective;
 
+import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
+import org.iconic.ea.data.DataManager;
+import org.iconic.ea.data.FeatureClass;
 import org.iconic.ea.operator.objective.error.ErrorFunction;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * {@inheritDoc}
- * <p>An error based objective is an objective function based around an error function.</p>
+ * <p>
+ * An error based objective is an objective function based around an error function.
+ * </p>
  */
-public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements Objective<T, R> {
+@Log4j2
+public abstract class ErrorBasedObjective<T> implements Objective<T> {
     private final ErrorFunction lambda;
-    private List<List<R>> samples;
-    private List<R> expectedResults;
+    private DataManager<T> dataManager;
+    private List<T> expectedResults;
     private boolean changed;
 
     /**
      * <p>
      * Constructs a new ErrorBasedObjective with the provided error function and samples.
      * </p>
-     * <p>
-     * The samples used should be a two-dimensional matrix, with each sample on a separate row. The final
-     * column must contain the expected result.
-     * </p>
      *
      * @param lambda  The error function to apply
-     * @param samples The samples to use with the error function
+     * @param dataManager The dataset to apply the error function on
      */
-    public ErrorBasedObjective(final ErrorFunction lambda, final List<List<R>> samples) {
+    public ErrorBasedObjective(final ErrorFunction lambda, final DataManager dataManager) {
         this.lambda = lambda;
-        this.samples = samples;
+        this.dataManager = dataManager;
         this.expectedResults = new LinkedList<>();
         this.changed = true;
     }
@@ -39,19 +44,19 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
      * {@inheritDoc}
      */
     @Override
-    public abstract double apply(final T c);
+    public abstract double apply(final Chromosome<T> c);
 
     /**
-     * <p>Returns the samples used by this objective</p>
+     * <p>Returns the dataset used by this objective.</p>
      *
-     * @return the samples used by this objective
+     * @return the dataset used by this objective
      */
-    protected List<List<R>> getSamples() {
-        return samples;
+    protected DataManager<T> getDataManager() {
+        return dataManager;
     }
 
     /**
-     * <p>Returns the error function used by this objective</p>
+     * <p>Returns the error function used by this objective.</p>
      *
      * @return the error function used by this objective
      */
@@ -60,22 +65,23 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
     }
 
     /**
-     * <p>Returns the expected results for the samples used by this objective</p>
+     * <p>Returns the expected results for the samples used by this objective.</p>
      *
      * @return the expected results for the samples used by this objective
      */
-    protected List<R> getExpectedResults() {
+    protected List<T> getExpectedResults() {
         // Check if the expected results need to be recalculated
         if (isChanged()) {
-            List<R> results = new LinkedList<>();
+            HashMap<String, FeatureClass<Number>> dataset = getDataManager().getDataset();
 
             // Collect the expected answers
-            for (List<R> sample : getSamples()) {
-                R result = sample.get(sample.size() - 1);
-                results.add(result);
-            }
+            List<FeatureClass<Number>> features = dataset.values().stream()
+                    .filter(FeatureClass::isOutput)
+                    .limit(1)
+                    .collect(Collectors.toList());
 
-            expectedResults = results;
+            expectedResults = (ArrayList<T>) features.get(0).getSamples();
+
             setChanged(false);
         }
 
@@ -83,7 +89,8 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
     }
 
     /**
-     * <p>Returns the changed status of this objective</p>
+     * <p>Returns the changed status of this objective.</p>
+     *
      * <p>
      * If the backing samples used by this objective are changed then the expected results need to be
      * recalculated.
@@ -96,7 +103,9 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
     }
 
     /**
-     * <p>Sets the changed status of this objective to the provided value</p>
+     * <p>
+     * Sets the changed status of this objective to the provided value.
+     * </p>
      *
      * @param changed The value to set the changed status of this objective to
      */
@@ -105,12 +114,14 @@ public abstract class ErrorBasedObjective<T extends Chromosome<R>, R> implements
     }
 
     /**
-     * <p>Sets the samples of this objective to the provided value and marks it as changed</p>
+     * <p>
+     * Sets the dataset of this objective to the provided value and marks it as changed.
+     * </p>
      *
-     * @param samples The value to set the samples of this objective to
+     * @param dataManager The value to set the dataset of this objective to
      */
-    public void setSamples(final List<List<R>> samples) {
+    public void setDataManager(final DataManager dataManager) {
         setChanged(true);
-        this.samples = samples;
+        this.dataManager = dataManager;
     }
 }
