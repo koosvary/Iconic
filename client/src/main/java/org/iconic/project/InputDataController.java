@@ -239,8 +239,9 @@ public class InputDataController implements Initializable {
                 ProjectModel newProject = project.toBuilder().dataset(dataset).build();
 
                 getWorkspaceService().setActiveWorkspaceItem(null);
-                getProjectService().getProjects().remove(project);
-                getProjectService().getProjects().add(newProject);
+                getProjectService().getProjects().set(getProjectService().getProjects().indexOf(project),newProject);
+//                getProjectService().getProjects().remove(project);
+//                getProjectService().getProjects().add(newProject);
                 getWorkspaceService().setActiveWorkspaceItem(newProject);
             }
         }
