@@ -10,6 +10,7 @@ import java.util.*;
  * TODO: generify this - DataManager => NumericDataManager / StringDataManager / PictureDataManager
  */
 public class DataManager<T> {
+
     private String fileName;
     private List<String> sampleHeaders;
     private List<String> expectedOutputHeaders;
@@ -52,32 +53,36 @@ public class DataManager<T> {
 
         // Check the file isn't empty
         if (!sc.hasNextLine()) {
-             log.error("The input file is empty");
+            log.error("The input file is empty");
             return;
         }
 
         // Get the first line from the datafile
         String line = getNextLineFromDataFile(sc);
 
+        // Assume the delimiter is a comma, and set feature size
+        String[] split = line.split(",");
+        featureSize = split.length;
+
+        // Try to determine if the datafile contains a header row
+        for (String header : split) {
+            try {
+                Double.parseDouble(header);
+            } catch (NumberFormatException e) {
+                containsHeader = true;
+                break;
+            }
+        }
+
         if (containsHeader) {
             // Update the headers
-            // Assume the delimiter is a comma
-            Collections.addAll(sampleHeaders, line.split(","));
+            Collections.addAll(sampleHeaders, split);
             log.error(sampleHeaders);
-            // Update the feature size
-            featureSize = sampleHeaders.size();
 
-            // Read in the next line for later (needed because the
-            // !containsHeader route already reads in the next line)
+            // Read in the next line for later (needed because the `else` block already reads in the next line)
             line = getNextLineFromDataFile(sc);
         } else {
             // Generate all the header names such as: A, B, C, ..., Z, AA, BB, etc
-            String[] sampleValues = line.split(",");
-
-            // Update the feature size
-            featureSize = sampleValues.length;
-
-            // Generate the header names
             for (int i = 0; i < featureSize; i++) {
                 sampleHeaders.add(intToHeader(i));
             }
@@ -205,5 +210,7 @@ public class DataManager<T> {
         return sampleSize;
     }
 
-    public List<String> getSampleHeaders() { return sampleHeaders; }
+    public List<String> getSampleHeaders() {
+        return sampleHeaders;
+    }
 }
