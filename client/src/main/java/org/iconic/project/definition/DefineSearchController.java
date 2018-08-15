@@ -23,7 +23,7 @@ import org.iconic.project.dataset.DatasetModel;
 import org.iconic.workspace.WorkspaceService;
 
 @Log4j2
-public class DefineSearchController implements Initializable {
+public class DefineSearchController implements Initializable, DefineSearchService {
 
     private final ProjectService projectService;
     private final WorkspaceService workspaceService;
@@ -31,7 +31,7 @@ public class DefineSearchController implements Initializable {
     private HashMap<String, String> functionDefinitions;
 
     @FXML
-    private TextField targetExpression;
+    private TextField tfTargetExpression;
 
     @Inject
     public DefineSearchController(final ProjectService projectService, final WorkspaceService workspaceService)
@@ -45,50 +45,78 @@ public class DefineSearchController implements Initializable {
     }
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {
-//        Optional<DataManager<Double>> dataManager = workspaceService.getDataManager();
+    public void initialize(URL location, ResourceBundle resources) {}
+
+    @Override
+    public String getFunction()
+    {
+        String functionStr = null;
+
+        Optional<DataManager<Double>> dataset = getDataManager();
+
+        if(dataset.isPresent()) {
+            // Get the ID of the dataset
+            String[] splitString = dataset.toString().split("@");
+            String datasetID = splitString[splitString.length - 1].replace("]", ""); // There's a trailing ']' from the toString
+
+            // Get the dataset, if exists
+            functionStr = functionDefinitions.get(datasetID);
+        }
+
+        return functionStr;
     }
 
-    public void loadFunction()
+    private void loadFunction()
     {
         Optional<DataManager<Double>> dataset = getDataManager();
 
-        if(dataset.isPresent()){
+        if(dataset.isPresent())
+        {
             // Get the ID of the dataset
             String[] splitString = dataset.toString().split("@");
-            String datasetID = splitString[splitString.length - 1].replace("]", "");
+            String datasetID = splitString[splitString.length - 1].replace("]", ""); // There's a trailing ']' from the toString
 
             // No need to redefine the function if one already exists, just insert instead
-            String function = functionDefinitions.get(datasetID);
-            if(function != null)
+            String functionStr = functionDefinitions.get(datasetID);
+            if(functionStr == null)
             {
-                targetExpression.setText(function);
-                return;
+                ArrayList<String> headers = dataset.get().getSampleHeaders();
+
+                if(!headers.isEmpty())
+                {
+                    functionStr = generateDefaultFunction(headers);
+
+                    // Save the function defined in the hashmap of all the functions definitions
+                    functionDefinitions.put(datasetID, functionStr);
+                }
+                else
+                {
+                    log.error("No headers found in this dataset");
+                }
             }
 
-            ArrayList<String> headers = dataset.get().getSampleHeaders();
-
-            if(!headers.isEmpty())
+            // NOTE(Meyer): Must check if not null otherwise injection will cause an NPE (it's dumb, I know)
+            if(tfTargetExpression != null)
             {
-                // Get the last value in arraylist to get the target variable
-                String functionResult = "(" + headers.get(headers.size() - 1) + ")";
-                // Get the first value in list to start the function going
-                String functionDefinition = "(" + headers.get(0) + ")";
-
-                // Get all the values bar the first and last column, which we already have
-                for(int i = 1; i < headers.size() - 1; i++)
-                {
-                    functionDefinition += ", (" + headers.get(i) + ")";
-                }
-
-                function = functionResult + " = f(" + functionDefinition + ")";
-
-                targetExpression.setText(function);
-
-                // Save the function defined in the hashmap of all the functions definitions
-                functionDefinitions.put(datasetID, function);
+                tfTargetExpression.setText(functionStr);
             }
         }
+    }
+
+    private String generateDefaultFunction(ArrayList<String> headers)
+    {
+        // Get the last value in arraylist to get the target variable
+        String functionResultStr = "(" + headers.get(headers.size() - 1) + ")";
+        // Get the first value in list to start the function going
+        String functionDefinitionStr = "(" + headers.get(0) + ")";
+
+        // Get all the values bar the first and last column, which we already have
+        for(int i = 1; i < headers.size() - 1; i++)
+        {
+            functionDefinitionStr += ", (" + headers.get(i) + ")";
+        }
+
+        return functionResultStr + " = f(" + functionDefinitionStr + ")";
     }
 
     private Optional<DataManager<Double>> getDataManager() {

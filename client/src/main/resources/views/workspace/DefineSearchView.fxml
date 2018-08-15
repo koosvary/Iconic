@@ -31,7 +31,7 @@
 				</font>
 			</Label>
 			
-			<TextField fx:id="targetExpression" text="y = f(x)"/>
+			<TextField fx:id="tfTargetExpression" text="y = f(x)"/>
 		</HBox>
 		
 		<HBox>

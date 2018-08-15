@@ -22,6 +22,7 @@ import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.preprocessing.Normalise;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
+import org.iconic.project.definition.DefineSearchService;
 import org.iconic.project.search.SearchModel;
 import org.iconic.project.search.SearchService;
 
@@ -40,8 +41,9 @@ import java.util.ResourceBundle;
  */
 @Log4j2
 public class WorkspaceController implements Initializable {
-    private final WorkspaceService workspaceService;
     private final SearchService searchService;
+    private final WorkspaceService workspaceService;
+    private final DefineSearchService defineSearchService;
 
     @FXML
     private Button btnSearch;
@@ -75,6 +77,8 @@ public class WorkspaceController implements Initializable {
     private TextField tfNormaliseMin;
     @FXML
     private TextField tfNormaliseMax;
+    @FXML
+    private TextField tfTargetExpression;
 
 
     @Getter(AccessLevel.PRIVATE)
@@ -90,9 +94,10 @@ public class WorkspaceController implements Initializable {
      * </p>
      */
     @Inject
-    public WorkspaceController(final WorkspaceService workspaceService, final SearchService searchService) {
-        this.workspaceService = workspaceService;
+    public WorkspaceController(final WorkspaceService workspaceService, final SearchService searchService, final DefineSearchService defineSearchService) {
+        this.defineSearchService = defineSearchService;
         this.searchService = searchService;
+        this.workspaceService = workspaceService;
         this.defaultName = "";
         this.defaultWelcomeMessage = "Select a dataset on the left to get started.";
 
@@ -139,6 +144,8 @@ public class WorkspaceController implements Initializable {
      */
     public void startSearch(ActionEvent actionEvent) {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
+
+        log.info("Function for use: " + defineSearchService.getFunction());
 
         // Check that there's an active dataset before starting the search
         if (item instanceof DatasetModel) {
