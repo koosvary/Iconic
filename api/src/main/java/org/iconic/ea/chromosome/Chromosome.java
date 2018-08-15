@@ -4,6 +4,7 @@ import org.iconic.ea.operator.evolutionary.mutation.Mutator;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -94,9 +95,9 @@ public abstract class Chromosome<T> {
      * </p>
      *
      * @param input The input samples to evaluate
-     * @return A list of outputs, one for each input sample
+     * @return A list of outputs, one for each input sample, referenced by output id
      */
-    public abstract List<T> evaluate(List<List<T>> input);
+    public abstract List<Map<Integer, T>> evaluate(List<List<T>> input);
 
     /**
      * <p>
@@ -119,7 +120,7 @@ public abstract class Chromosome<T> {
      *
      * @return the number of features the chromosome can express
      */
-    public int getNumFeatures() {
+    public int getInputs() {
         return numFeatures;
     }
 

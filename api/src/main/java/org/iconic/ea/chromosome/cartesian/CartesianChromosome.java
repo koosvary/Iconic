@@ -66,15 +66,53 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Generates the phenotype for all outputs in this chromosome</p>
+     * <p>Generates the output of all active nodes in this chromosome</p>
      */
-    protected Map<Integer, List<Integer>> generatePhenotype(List<Integer> genotype, Map<Integer, List<Integer>> activeNodes) {
-        // Construct the initial empty phenotype
-        for (Integer output : getOutputs()) {
-            phenomes.put(output, new LinkedList<>());
+    protected Map<Integer, T> generateOutput(Map<Integer, List<Integer>> activeNodes, List<Integer> genome,
+                                                         int inputs, List<Integer> outputs,
+                                                         List<FunctionalPrimitive<T, T>> primitives,
+                                                         List<T> samples) {
+
+        Map<Integer, List<T>> out = new HashMap<>();
+        Map<Integer, T> results = new HashMap<>();
+
+        // Construct the output of every active node starting from the inputs
+        // Todo: skip nodes that don't need to be recalculated
+        for (Integer output : outputs) {
+            out.put(output, new ArrayList<>(activeNodes.size()));
+
+            // Assign all inputs
+            for (int i = 0; i < inputs; ++i) {
+                out.get(output).add(samples.get(i));
+            }
+
+            // Assign all non-input nodes
+            for (int i = 0; i < activeNodes.size(); ++i) {
+                // Calculate the node's index in the genome
+                final int index = (getMaxArity() + 1) * i - inputs - getMaxArity();
+                final int functionGene = genome.get(index);
+                final FunctionalPrimitive<T, T> f = primitives.get(functionGene);
+                final List<T> params = new ArrayList<>(f.getArity());
+
+                // Add all of the node's required parameters
+                for (int j = 0; j < getMaxArity(); ++j) {
+                    params.add(
+                            out.get(output).get(
+                                    genome.get(index + j)
+                            )
+                    );
+                }
+
+                // Calculate the output
+                f.apply(params);
+            }
+
+            // Store the final output
+            final List<T> o = out.get(output);
+            results.put(output, o.get(o.size() - 1));
         }
 
-        return new HashMap<>();
+        return results;
     }
 
     /**
@@ -143,18 +181,19 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
      * {@inheritDoc}
      */
     @Override
-    public List<T> evaluate(List<List<T>> input) {
-        List<T> calculatedValues = new LinkedList<>();
-
+    public List<Map<Integer, T>> evaluate(List<List<T>> input) {
         if (isChanged()) {
-            Map<Integer, List<Integer>> activeNodes = findActiveNodes(getNumFeatures(), getGenome(), getOutputs(), getPrimitives());
-            setPhenomes(generatePhenotype(getGenome(), activeNodes));
+            setPhenomes(findActiveNodes(getInputs(), getGenome(), getOutputs(), getPrimitives()));
         }
 
-        for (List<Integer> output : getPhenomes().values()) {
-            for (List<T> row : input) {
-//                calculatedValues.add(getRoot().apply(row));
-            }
+        List<Map<Integer, T>> calculatedValues = new ArrayList<>(input.size());
+
+        for (final List<T> sample: input) {
+            final Map<Integer, T> output = generateOutput(
+                    getPhenome(), getGenome(), getInputs(), getOutputs(), getPrimitives(), sample
+            );
+
+            calculatedValues.add(output);
         }
 
         return calculatedValues;
@@ -165,8 +204,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
      */
     @Override
     public String toString() {
-        return "na";
-//        return root.toString();
+        return getPhenome().toString();
     }
 
     public int getMaxArity() {
@@ -197,7 +235,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         this.phenomes = phenomes;
     }
 
-    public Map<Integer, List<Integer>> getPhenomes() {
+    public Map<Integer, List<Integer>> getPhenome() {
         return phenomes;
     }
 
@@ -227,7 +265,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     @Override
     public CartesianChromosome<T> clone() {
         CartesianChromosome<T> clone = new CartesianChromosome<>(
-                getPrimitives(), getNumFeatures(), getColumns(), getRows(), getLevelsBack(), getOutputs(), null
+                getPrimitives(), getInputs(), getColumns(), getRows(), getLevelsBack(), getOutputs(), null
         );
 
         clone.setGenome(getGenome());

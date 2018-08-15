@@ -2,11 +2,10 @@ package org.iconic.ea.chromosome.expression;
 
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.LinearChromosome;
-import org.iconic.ea.chromosome.graph.Node;
 import org.iconic.ea.chromosome.TreeChromosome;
+import org.iconic.ea.chromosome.graph.Node;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -91,11 +90,15 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
      * {@inheritDoc}
      */
     @Override
-    public List<T> evaluate(List<List<T>> input) {
-        List<T> calculatedValues = new LinkedList<>();
+    public List<Map<Integer, T>> evaluate(List<List<T>> input) {
+        List<Map<Integer, T>> calculatedValues = new ArrayList<>(input.size());
 
-        for (List<T> row : input) {
-            calculatedValues.add(getRoot().apply(row));
+        // Calculate the output for each sample
+        for (int i = 0; i < input.size(); ++i) {
+            Map<Integer, T> output = new HashMap<>();
+            List<T> row = input.get(i);
+            output.put(i, getRoot().apply(row));
+            calculatedValues.add(output);
         }
 
         return calculatedValues;
@@ -206,7 +209,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
                 .map(Node::clone)
                 .collect(Collectors.toList());
 
-        ExpressionChromosome<T> clone = new ExpressionChromosome<>(getHeadLength(), getTailLength(), getNumFeatures());
+        ExpressionChromosome<T> clone = new ExpressionChromosome<>(getHeadLength(), getTailLength(), getInputs());
         clone.setGenome(genome);
 
         return clone;

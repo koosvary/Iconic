@@ -4,7 +4,9 @@ import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.operator.objective.error.ErrorFunction;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@inheritDoc}
@@ -32,9 +34,13 @@ public class DefaultObjective<T> extends ErrorBasedObjective<T> {
      */
     @Override
     public double apply(final Chromosome<T> c) {
-        List<Double> results = (List<Double>) c.evaluate(getSamples());
+        List<Map<Integer, T>> results = c.evaluate(getSamples());
+        List<Double> summatedResults = new ArrayList<>(results.size());
 
-        final double fitness = getLambda().apply(results, (List<Double>) getExpectedResults());
+        // Convert results into a List<T> with each output summed
+        results.forEach(result -> summatedResults.add(result.values().stream().mapToDouble(i -> (Double) i).sum()));
+
+        final double fitness = getLambda().apply(summatedResults, (List<Double>) getExpectedResults());
 
         c.setFitness(fitness);
 
