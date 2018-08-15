@@ -20,6 +20,11 @@
     </graphic>
     <VBox>
         <SpreadsheetView fx:id="spreadsheet" editable="true" showRowHeader="true" showColumnHeader="true"/>
+        <HBox>
+            <padding><Insets top="5" bottom="5"/></padding>
+            <Button fx:id="btnSaveDataset" text="Save Dataset to file" onAction="#saveDataset"/>
+            <Label><padding><Insets left="5" right="5"/></padding></Label>
+        </HBox>
         <padding><Insets topRightBottomLeft="5"/></padding>
         <Text GridPane.columnIndex="0">Welcome, import a dataset to get started.</Text>
 

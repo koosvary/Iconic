@@ -19,6 +19,7 @@ import org.iconic.workspace.WorkspaceService;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
@@ -128,10 +129,6 @@ public class InputDataController implements Initializable {
         dataManager.get().getSampleColumn(column).set(row,newValue);
     }
 
-    private void saveDatasetToFile(){
-
-    }
-
     private Optional<DataManager<Double>> getDataManager() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
@@ -164,6 +161,22 @@ public class InputDataController implements Initializable {
      */
     private ProjectService getProjectService() {
         return projectService;
+    }
+
+    public void saveDataset(ActionEvent actionEvent) throws IOException {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Dataset");
+        // Show only .txt and .csv files
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Text files", "*.txt", "*.csv")
+        );
+
+        // Show the file dialog over the parent window
+        File f = fileChooser.showSaveDialog(spreadsheet.getScene().getWindow());
+
+        if(f != null){
+            getDataManager().get().saveDatasetToFile(f);
+        }
     }
 
     /**

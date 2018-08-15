@@ -31,6 +31,35 @@ public class DataManager<T> {
         }
     }
 
+    public void saveDatasetToFile(File fileName) throws IOException {
+        FileWriter fileWriter = null;
+
+        try{
+            fileWriter = new FileWriter(fileName);
+            for(int i = 0; i < sampleSize; i++){
+                List<Number> currentRow = getSampleRow(i);
+                for(int j = 0; j < currentRow.size()-1; j ++) {
+                    fileWriter.append(String.valueOf(currentRow.get(j)));
+                    fileWriter.append(",");
+                }
+                fileWriter.append(String.valueOf(currentRow.get(currentRow.size()-1)));
+                fileWriter.append(System.getProperty("line.separator"));
+            }
+        } catch (Exception ex){
+            log.error("Error when saving file. File: {}", () -> fileName);
+            log.error("Exception: {}", ex);
+        } finally{
+            try{
+                fileWriter.flush();
+                fileWriter.close();
+            } catch (IOException ex){
+                log.error("Error when closing FileWriter. File: {}", () -> fileName);
+                log.error("Exception: {}", ex);
+            }
+        }
+
+    }
+
     private void importData(String fileName) throws IOException {
         this.fileName = fileName;
         sampleSize = 0;
