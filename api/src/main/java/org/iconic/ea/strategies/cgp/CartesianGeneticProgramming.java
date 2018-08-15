@@ -4,7 +4,6 @@ import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosomeFactory;
-import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 
 import java.util.Comparator;
 import java.util.List;
@@ -36,6 +35,8 @@ public class CartesianGeneticProgramming<T> extends EvolutionaryAlgorithm<Cartes
 			CartesianChromosome<T> c = population.get(populationIndex);
 			population.set(populationIndex, mutate(c));
 		}
+
+		return null;
 	}
 
 	public CartesianChromosome<T> mutate(CartesianChromosome<T> chromosome){

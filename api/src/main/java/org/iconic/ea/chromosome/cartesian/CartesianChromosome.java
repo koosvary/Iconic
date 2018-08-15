@@ -66,6 +66,17 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
+     *
+     * @param node
+     * @param inputs
+     * @param maxArity
+     * @return
+     */
+    static int nodeToIndex(int node, int inputs, int maxArity) {
+        return (node < inputs) ? node : (maxArity + 1) * (node - inputs) + inputs;
+    }
+
+    /**
      * <p>Generates the output of all active nodes in this chromosome</p>
      */
     protected Map<Integer, T> generateOutput(Map<Integer, List<Integer>> activeNodes, List<Integer> genome,
@@ -73,43 +84,47 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
                                                          List<FunctionalPrimitive<T, T>> primitives,
                                                          List<T> samples) {
 
-        Map<Integer, List<T>> out = new HashMap<>();
         Map<Integer, T> results = new HashMap<>();
+        Map<Integer, T> allActiveNodes = new TreeMap<>();
 
-        // Construct the output of every active node starting from the inputs
-        // Todo: skip nodes that don't need to be recalculated
-        for (Integer output : outputs) {
-            out.put(output, new ArrayList<>(activeNodes.size()));
-
-            // Assign all inputs
-            for (int i = 0; i < inputs; ++i) {
-                out.get(output).add(samples.get(i));
+        for (List<Integer> nodes: activeNodes.values()) {
+            for (Integer node: nodes) {
+                allActiveNodes.put(node, null);
             }
+        }
 
-            // Assign all non-input nodes
-            for (int i = 0; i < activeNodes.size(); ++i) {
-                // Calculate the node's index in the genome
-                final int index = (getMaxArity() + 1) * i - inputs - getMaxArity();
+        for (Integer output: outputs) {
+            allActiveNodes.put(output, null);
+        }
+
+        for (int i = 0; i < inputs; ++i) {
+            allActiveNodes.put(i, samples.get(i));
+        }
+
+        for (Integer node: allActiveNodes.keySet()) {
+            final int index = nodeToIndex(node, inputs, getMaxArity());
+
+            if (allActiveNodes.get(node) == null) {
                 final int functionGene = genome.get(index);
                 final FunctionalPrimitive<T, T> f = primitives.get(functionGene);
                 final List<T> params = new ArrayList<>(f.getArity());
 
                 // Add all of the node's required parameters
-                for (int j = 0; j < getMaxArity(); ++j) {
+                for (int j = 0; j < f.getArity(); ++j) {
+                    final int child = genome.get(index + j + 1);
                     params.add(
-                            out.get(output).get(
-                                    genome.get(index + j)
-                            )
+                            allActiveNodes.get(child)
                     );
                 }
 
                 // Calculate the output
-                f.apply(params);
+                allActiveNodes.put(node, f.apply(params));
             }
+        }
 
-            // Store the final output
-            final List<T> o = out.get(output);
-            results.put(output, o.get(o.size() - 1));
+        // Store the final output
+        for (Integer output: outputs) {
+            results.put(output, allActiveNodes.get(output));
         }
 
         return results;
@@ -124,8 +139,8 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
      * @param primitives The primitives used in the genome
      * @return an ordered list of active nodes sorted by their respective output node
      */
-    public Map<Integer, List<Integer>> findActiveNodes(int inputs, List<Integer> genome, List<Integer> outputs,
-                                                       List<FunctionalPrimitive<T, T>> primitives) {
+    public Map<Integer, List<Integer>> getActiveNodes(int inputs, List<Integer> genome, List<Integer> outputs,
+                                               List<FunctionalPrimitive<T, T>> primitives) {
         final int numNodes = (genome.size() - inputs) / (getMaxArity() + 1);
         final Map<Integer, List<Integer>> activeNodes = new HashMap<>();
 
@@ -183,7 +198,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     @Override
     public List<Map<Integer, T>> evaluate(List<List<T>> input) {
         if (isChanged()) {
-            setPhenomes(findActiveNodes(getInputs(), getGenome(), getOutputs(), getPrimitives()));
+            setPhenomes(getActiveNodes(getInputs(), getGenome(), getOutputs(), getPrimitives()));
         }
 
         List<Map<Integer, T>> calculatedValues = new ArrayList<>(input.size());
