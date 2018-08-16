@@ -40,6 +40,13 @@ public class CartesianGeneticProgramming<T> extends EvolutionaryAlgorithm<Cartes
 	}
 
 	public CartesianChromosome<T> mutate(CartesianChromosome<T> chromosome){
-		return null;
+		assert (getMutators().size() > 0);
+		assert (getObjectives().size() > 0);
+
+		CartesianChromosome<T> child = getMutator(0).apply(
+				chromosomeFactory.getFunctionalPrimitives(),
+				chromosome
+		);
+		return child;
 	}
 }

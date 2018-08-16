@@ -188,7 +188,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         return activeNodes;
     }
 
-    private List<Integer> getOutputs() {
+    public List<Integer> getOutputs() {
         return outputs;
     }
 
