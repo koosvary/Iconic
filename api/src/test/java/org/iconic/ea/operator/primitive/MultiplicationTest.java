@@ -11,32 +11,35 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class MultiplicationTest {
+/**
+ * Test class for {@link org.iconic.ea.operator.primitive.Multiplication}
+ * @author Jasbir Shah
+ */
+class MultiplicationTest {
     @DisplayName("Test multiplication using doubles")
     @MethodSource("doubleListProvider")
     @ParameterizedTest
     void multiplyDoublesTest(final List<Double> args, final double expected) {
         final FunctionalPrimitive<Double, Double> multiplication = new Multiplication();
-        final double delta = 0.001d;
+        final double delta = 0.001;
         final double actual = multiplication.apply(args);
 
         assertEquals(expected, actual, delta);
     }
 
     /**
-     * <p>
-     * Returns a stream of double n-tuples, where the last member of the tuple is the sum of all the preceeding
-     * members
-     * </p>
+     * <p>Returns a stream of double n-tuples, where the last member is the multiplication
+     * of the first two</p>
      *
      * @return a stream of double n-tuples
      */
     private static Stream<Arguments> doubleListProvider() {
         return Stream.of(
-                Arguments.of(Arrays.asList(1.d, 1.d), 1.d),
-                Arguments.of(Arrays.asList(1.d, -1.d), -1.d),
-                Arguments.of(Arrays.asList(0.d, -1.d), 0.d),
-                Arguments.of(Arrays.asList(0.d, 1.d), 0.d)
+                Arguments.of(Arrays.asList(1.0, 1.0), 1.0),
+                Arguments.of(Arrays.asList(1.0, -1.0), -1.0),
+                Arguments.of(Arrays.asList(0.0, -1.0), 0.0),
+                Arguments.of(Arrays.asList(0.0, 1.0), 0.0),
+                Arguments.of(Arrays.asList(32.0, 32.0), 1024.0)
         );
     }
 }

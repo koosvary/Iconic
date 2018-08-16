@@ -48,7 +48,7 @@ public class SearchModel implements Runnable {
 
         ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(
                 10,
-                datasetModel.getDataManager().getFeatureSize()
+                datasetModel.getDataManager().getFeatureSize() - 1
         );
 
         // Add in the functions the chromosomes can use

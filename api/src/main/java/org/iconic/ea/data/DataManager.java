@@ -10,6 +10,7 @@ import java.util.*;
  * TODO: generify this - DataManager => NumericDataManager / StringDataManager / PictureDataManager
  */
 public class DataManager<T> {
+
     private String fileName;
     private List<String> sampleHeaders;
     private List<String> expectedOutputHeaders;
@@ -29,6 +30,35 @@ public class DataManager<T> {
              log.error("Bad File: {}", () -> fileName);
              log.error("Exception: {}", ex);
         }
+    }
+
+    public void saveDatasetToFile(File fileName) throws IOException {
+        FileWriter fileWriter = null;
+
+        try{
+            fileWriter = new FileWriter(fileName);
+            for(int i = 0; i < sampleSize; i++){
+                List<Number> currentRow = getSampleRow(i);
+                for(int j = 0; j < currentRow.size()-1; j ++) {
+                    fileWriter.append(String.valueOf(currentRow.get(j)));
+                    fileWriter.append(",");
+                }
+                fileWriter.append(String.valueOf(currentRow.get(currentRow.size()-1)));
+                fileWriter.append(System.getProperty("line.separator"));
+            }
+        } catch (Exception ex){
+            log.error("Error when saving file. File: {}", () -> fileName);
+            log.error("Exception: {}", ex);
+        } finally{
+            try{
+                fileWriter.flush();
+                fileWriter.close();
+            } catch (IOException ex){
+                log.error("Error when closing FileWriter. File: {}", () -> fileName);
+                log.error("Exception: {}", ex);
+            }
+        }
+
     }
 
     private void importData(String fileName) throws IOException {
@@ -52,32 +82,36 @@ public class DataManager<T> {
 
         // Check the file isn't empty
         if (!sc.hasNextLine()) {
-             log.error("The input file is empty");
+            log.error("The input file is empty");
             return;
         }
 
         // Get the first line from the datafile
         String line = getNextLineFromDataFile(sc);
 
+        // Assume the delimiter is a comma, and set feature size
+        String[] split = line.split(",");
+        featureSize = split.length;
+
+        // Try to determine if the datafile contains a header row
+        for (String header : split) {
+            try {
+                Double.parseDouble(header);
+            } catch (NumberFormatException e) {
+                containsHeader = true;
+                break;
+            }
+        }
+
         if (containsHeader) {
             // Update the headers
-            // Assume the delimiter is a comma
-            Collections.addAll(sampleHeaders, line.split(","));
+            Collections.addAll(sampleHeaders, split);
             log.error(sampleHeaders);
-            // Update the feature size
-            featureSize = sampleHeaders.size();
 
-            // Read in the next line for later (needed because the
-            // !containsHeader route already reads in the next line)
+            // Read in the next line for later (needed because the `else` block already reads in the next line)
             line = getNextLineFromDataFile(sc);
         } else {
             // Generate all the header names such as: A, B, C, ..., Z, AA, BB, etc
-            String[] sampleValues = line.split(",");
-
-            // Update the feature size
-            featureSize = sampleValues.length;
-
-            // Generate the header names
             for (int i = 0; i < featureSize; i++) {
                 sampleHeaders.add(intToHeader(i));
             }
@@ -169,8 +203,16 @@ public class DataManager<T> {
         return dataset;
     }
 
-    public List<T> getSampleRow(int row) {
-        return null;
+    public List<Number> getSampleRow(int row) {
+        List<Number> samples = new ArrayList<>();
+
+        for (String header : sampleHeaders) {
+            FeatureClass<Number> fc = dataset.get(header);
+            Number value = fc.getSampleValue(row);
+            samples.add(value);
+        }
+
+        return samples;
     }
 
     public ArrayList<Number> getSampleColumn(int column) {
@@ -199,6 +241,8 @@ public class DataManager<T> {
 
     public List<String> getSampleHeaders() { return sampleHeaders; }
 
+    // Replaces all data within a header column, identified by headerIndex
+    // e.g. updating stored data after normalisation
     public void setSampleColumn(int headerIndex, ArrayList<Number> values) {
         for (int i = 0; i < sampleSize; i++) {
             Number value = values.get(i);
@@ -206,6 +250,8 @@ public class DataManager<T> {
         }
     }
 
+    // Resets all data within a header column, identified by headerIndex, to
+    // the original data entered by the user
     public void resetSampleColumn(int headerIndex) {
         for (int i=0; i < sampleSize; i++) {
             dataset.get(sampleHeaders.get(headerIndex)).resetModifiedSample(i);

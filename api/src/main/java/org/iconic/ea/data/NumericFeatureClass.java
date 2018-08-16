@@ -1,7 +1,7 @@
 package org.iconic.ea.data;
 
 import org.iconic.ea.data.preprocessing.Normalise;
-import org.iconic.ea.data.preprocessing.Smooth;
+import org.iconic.ea.data.preprocessing.Offset;
 
 public class NumericFeatureClass extends FeatureClass<Number> {
     public NumericFeatureClass(boolean output) {
