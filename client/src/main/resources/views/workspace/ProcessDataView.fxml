@@ -46,11 +46,9 @@
                 <VBox prefWidth="${screen.visualBounds.width*0.66}" spacing="5">
                     <padding><Insets top="10" bottom="10" left="10" right="10"/></padding>
 
-                    <Separator/>
                     <CheckBox fx:id="cbSmoothData" text="Smooth data points of (x)"/>
 
-                    <!-- "managed" variable essentially sets the height of the HBox to 0 instead of just being "invisible" but still there -->
-                    <VBox fx:id="vbSmoothData">
+                    <VBox fx:id="vbSmoothData" visible="false" managed="false">
                         <HBox>
                             <Label text="Smoothness:"><padding><Insets left="25" right="25"/></padding></Label>
                             <Slider value="50" showTickLabels="true" showTickMarks="true"/>
@@ -62,7 +60,7 @@
                     <Separator/>
 
                     <CheckBox fx:id="cbHandleMissingValues" text="Handle missing values of (x)"/>
-                    <VBox fx:id="vbHandleMissingValues">
+                    <VBox fx:id="vbHandleMissingValues" visible="false" managed="false">
                         <HBox>
                             <Label text="Method:"><padding><Insets left="25" right="10"/></padding></Label>
                             <ComboBox promptText="Choose Method">
@@ -82,7 +80,7 @@
                     <Separator/>
 
                     <CheckBox fx:id="cbRemoveOutliers" text="Remove outliers of (x)"/>
-                    <VBox fx:id="vbRemoveOutliers">
+                    <VBox fx:id="vbRemoveOutliers" visible="false" managed="false">
                         <HBox>
                             <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
                             <TextField text="0"/>
@@ -95,7 +93,7 @@
                     <Separator/>
 
                     <CheckBox fx:id="cbNormalise" text="Normalise scale and offset of (x)" onAction="#normalizeDatasetFeature"/>
-                    <VBox fx:id="vbNormalise">
+                    <VBox fx:id="vbNormalise" visible="false" managed="false">
                         <HBox>
                             <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
                             <TextField fx:id="tfNormaliseMin" text="0" onAction="#normalizeDatasetFeature"/>
@@ -108,7 +106,12 @@
                     <Separator/>
 
                     <CheckBox fx:id="cbFilter" text="Filter data of (x)"/>
-                    <Separator/>
+                    <VBox fx:id="vbFilter" visible="false" managed="false">
+                        <HBox>
+                            <Label text="Only include values equal to:"><padding><Insets left="25" right="10"/></padding></Label>
+                            <TextField text="1"/>
+                        </HBox>
+                    </VBox>
                 </VBox>
             </HBox>
         </VBox>

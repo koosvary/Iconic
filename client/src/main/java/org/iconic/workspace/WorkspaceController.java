@@ -27,6 +27,7 @@ import org.iconic.project.search.SearchService;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * <p>
@@ -69,6 +70,8 @@ public class WorkspaceController implements Initializable {
     private VBox vbNormalise;
     @FXML
     private CheckBox cbFilter;
+    @FXML
+    private VBox vbFilter;
     @FXML
     private TextField tfNormaliseMin;
     @FXML
@@ -118,6 +121,7 @@ public class WorkspaceController implements Initializable {
         addListenerToHideElement(cbHandleMissingValues, vbHandleMissingValues);
         addListenerToHideElement(cbRemoveOutliers, vbRemoveOutliers);
         addListenerToHideElement(cbNormalise, vbNormalise);
+        addListenerToHideElement(cbFilter, vbFilter);
     }
 
     private void addListenerToHideElement(CheckBox cb, VBox vb) {
@@ -188,6 +192,9 @@ public class WorkspaceController implements Initializable {
     public void featureSelected(int selectedIndex) {
         // Update lcDataView
         if (lcDataView != null) {
+            // Stores the currently selected header in the lvFeatures list
+            String selectedHeader = "";
+
             // defining a series
             XYChart.Series<Number, Number> series = new XYChart.Series<>();
 
@@ -196,14 +203,22 @@ public class WorkspaceController implements Initializable {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
             if (dataManager.isPresent() && selectedIndex >= 0) {
-//                List<Double> values = dataManager.get().getSampleColumn(selectedIndex);
+                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
-//                for (int sample = 0; sample < values.size(); sample++) {
-//                    double value = values.get(sample);
-//                    series.getData().add(new XYChart.Data<>(sample, value));
-//                }
+                for (int sample = 0; sample < values.size(); sample++) {
+                    double value = values.get(sample).doubleValue();
+                    series.getData().add(new XYChart.Data<>(sample, value));
+                }
+
+                selectedHeader = String.valueOf(dataManager.get().getSampleHeaders().get(selectedIndex));
             }
             lcDataView.getData().add(series);
+
+            cbSmoothData.setText("Smooth data points of (" + selectedHeader + ")");
+            cbHandleMissingValues.setText("Handle missing values of (" + selectedHeader + ")");
+            cbRemoveOutliers.setText("Remove outliers of (" + selectedHeader + ")");
+            cbNormalise.setText("Normalise scale and offset of (" + selectedHeader + ")");
+            cbFilter.setText("Filter data of (" + selectedHeader + ")");
         }
     }
 
