@@ -1,5 +1,6 @@
 package org.iconic.ea.chromosome.cartesian;
 
+import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.LinearChromosome;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
@@ -10,6 +11,7 @@ import java.util.*;
  * {@inheritDoc}
  * <p>A chromosome that encodes a graph.</p>
  */
+@Log4j2
 public class CartesianChromosome<T> extends Chromosome<T> implements LinearChromosome<Integer>, Cloneable {
     private Map<Integer, List<Integer>> phenome;
     private List<Integer> outputs;
@@ -150,7 +152,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
      */
     public Map<Integer, List<Integer>> getActiveNodes(int inputs, List<Integer> genome, List<Integer> outputs,
                                                List<FunctionalPrimitive<T, T>> primitives) {
-        final int numNodes = (genome.size() - inputs) / (getMaxArity() + 1);
+        final int numNodes = getNumberOfNodes();
         final Map<Integer, List<Integer>> activeNodes = new HashMap<>();
 
         // Find the active nodes for every output and store them in the map
@@ -169,7 +171,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
             // In descending order, go through each non-input node and activate all of its children
             for (int i = (numNodes - 1) + inputs; i >= inputs; --i) {
                 // Find the index of the node within the genome
-                final int index = (getMaxArity() + 1) * i - inputs - getMaxArity();
+                final int index = nodeToIndex(i, inputs, getMaxArity());
 
                 // Only activate its children if the node is active
                 if (isActive.get(i)) {

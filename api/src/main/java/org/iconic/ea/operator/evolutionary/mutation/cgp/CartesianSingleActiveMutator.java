@@ -77,9 +77,11 @@ public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromos
                                     mutant.getGenome().get(index)
                             ).getArity()
                     ) + 1;
+
                     final int newConnection = getRandomConnection(
-                            index, mutant.getRows(), mutant.getLevelsBack(), mutant.getInputs()
+                            mutateNodeIndex, mutant.getRows(), mutant.getLevelsBack(), mutant.getInputs()
                     );
+
                     //we then set that connection to a new randomConnection that fits in the constraints of CGP
                     mutant.getGenome().set(index + connectionToChange, newConnection);
                 }

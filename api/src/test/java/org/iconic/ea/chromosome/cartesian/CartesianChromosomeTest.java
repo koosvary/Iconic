@@ -2,7 +2,9 @@ package org.iconic.ea.chromosome.cartesian;
 
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.operator.primitive.*;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -172,5 +174,23 @@ public class CartesianChromosomeTest {
 
         // Number of inputs, genome, outputs, primitives, samples, expected
         return Stream.of(Arguments.of(2, genome, outputs, primitives, activeNodes, samples, expected));
+    }
+
+    @Disabled
+    @RepeatedTest(10000)
+    @DisplayName("Brute force testing of findActiveNodes")
+    void findActiveNodesBruteForceTest() {
+        List<FunctionalPrimitive<Double, Double>> primitives = new ArrayList<>();
+        primitives.add(new Addition());
+        primitives.add(new Subtraction());
+        primitives.add(new Sin());
+
+        CartesianChromosomeFactory<Double> supplier = new CartesianChromosomeFactory<>(
+                3, 10, 10, 10, 10
+        );
+        supplier.addFunction(primitives);
+
+        final CartesianChromosome<Double> c = supplier.getChromosome();
+        c.getActiveNodes(c.getInputs(), c.getGenome(), c.getOutputs(), primitives);
     }
 }
