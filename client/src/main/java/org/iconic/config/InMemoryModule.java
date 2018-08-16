@@ -3,6 +3,8 @@ package org.iconic.config;
 import com.google.inject.AbstractModule;
 import org.iconic.project.ProjectService;
 import org.iconic.project.TransientProjectService;
+import org.iconic.project.definition.DefineSearchController;
+import org.iconic.project.definition.DefineSearchService;
 import org.iconic.project.search.SearchService;
 import org.iconic.project.search.TransientSearchService;
 import org.iconic.workspace.DefaultWorkspaceService;
@@ -24,5 +26,6 @@ public class InMemoryModule extends AbstractModule {
         bind(ProjectService.class).to(TransientProjectService.class);
         bind(SearchService.class).to(TransientSearchService.class);
         bind(WorkspaceService.class).to(DefaultWorkspaceService.class);
+        bind(DefineSearchService.class).to(DefineSearchController.class);
     }
 }
