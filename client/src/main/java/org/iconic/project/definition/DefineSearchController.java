@@ -10,7 +10,7 @@ import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 
 import java.net.URL;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -80,7 +80,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
             String functionStr = functionDefinitions.get(datasetID);
             if(functionStr == null)
             {
-                ArrayList<String> headers = dataset.get().getSampleHeaders();
+                List<String> headers = dataset.get().getSampleHeaders();
 
                 if(!headers.isEmpty())
                 {
@@ -103,7 +103,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         }
     }
 
-    private String generateDefaultFunction(ArrayList<String> headers)
+    private String generateDefaultFunction(List<String> headers)
     {
         // Get the last value in arraylist to get the target variable
         String functionResultStr = "(" + headers.get(headers.size() - 1) + ")";
