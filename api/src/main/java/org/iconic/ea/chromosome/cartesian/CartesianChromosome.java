@@ -11,7 +11,7 @@ import java.util.*;
  * <p>A chromosome that encodes a graph.</p>
  */
 public class CartesianChromosome<T> extends Chromosome<T> implements LinearChromosome<Integer>, Cloneable {
-    private Map<Integer, List<Integer>> phenomes;
+    private Map<Integer, List<Integer>> phenome;
     private List<Integer> outputs;
     private List<Integer> genome;
     private List<FunctionalPrimitive<T, T>> primitives;
@@ -46,7 +46,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         assert (outputs.size() > 0);
 
         this.outputs = outputs;
-        this.phenomes = new HashMap<>();
+        this.phenome = new HashMap<>();
         this.genome = genome;
 
         // Create a comparator for calculating the maximum arity
@@ -66,13 +66,22 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
+     * <p>Returns the number of nodes in this chromosome's genome</p>
+     *
+     * @return the number of nodes in the chromosome's genome
+     */
+    public int getNumberOfNodes() {
+        return (getGenome().size() - getInputs()) / (getMaxArity() + 1);
+    }
+
+    /**
      *
      * @param node
      * @param inputs
      * @param maxArity
      * @return
      */
-    static int nodeToIndex(int node, int inputs, int maxArity) {
+    static public int nodeToIndex(int node, int inputs, int maxArity) {
         return (node < inputs) ? node : (maxArity + 1) * (node - inputs) + inputs;
     }
 
@@ -188,19 +197,11 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         return activeNodes;
     }
 
-    public List<Integer> getOutputs() {
-        return outputs;
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
     public List<Map<Integer, T>> evaluate(List<List<T>> input) {
-        if (isChanged()) {
-            setPhenomes(getActiveNodes(getInputs(), getGenome(), getOutputs(), getPrimitives()));
-        }
-
         List<Map<Integer, T>> calculatedValues = new ArrayList<>(input.size());
 
         for (final List<T> sample: input) {
@@ -246,12 +247,32 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         setChanged(true);
     }
 
-    public void setPhenomes(Map<Integer, List<Integer>> phenomes) {
-        this.phenomes = phenomes;
+    public List<Integer> getOutputs() {
+        return outputs;
+    }
+
+    /**
+     * <p>Sets the outputs of this chromosome to the specified value</p>
+     *
+     * @param outputs The new outputs of the chromosome
+     */
+    private void setOutputs(List<Integer> outputs) {
+        this.outputs = new LinkedList<>();
+        this.outputs.addAll(outputs);
+
+        setChanged(true);
+    }
+
+    public void setPhenome(Map<Integer, List<Integer>> phenome) {
+        this.phenome = phenome;
     }
 
     public Map<Integer, List<Integer>> getPhenome() {
-        return phenomes;
+        if (isChanged()) {
+            setPhenome(getActiveNodes(getInputs(), getGenome(), getOutputs(), getPrimitives()));
+        }
+
+        return phenome;
     }
 
     public int getColumns() {
@@ -284,6 +305,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         );
 
         clone.setGenome(getGenome());
+        clone.setOutputs(getOutputs());
 
         return clone;
     }
