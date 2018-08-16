@@ -23,11 +23,14 @@ import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.SearchModel;
 import org.iconic.project.search.SearchService;
+import org.iconic.ea.data.preprocessing.Normalise;
+import org.iconic.ea.data.preprocessing.Smooth;
 
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.*;
+import java.util.ArrayList;
 
 /**
  * <p>
@@ -230,23 +233,25 @@ public class WorkspaceController implements Initializable {
                 Optional<DataManager<Double>> dataManager = getDataManager();
 
                 if (cbNormalise.isSelected() && dataManager.isPresent()) {
-//                    List<Double> values = dataManager.get().getSampleColumn(selectedIndex);
+                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
                     try {
                         double min = Double.parseDouble(tfNormaliseMin.getText());
                         double max = Double.parseDouble(tfNormaliseMax.getText());
 
                         if (min < max) {
-//                            values = Normalise.apply(values, min, max);
+                            Normalise.apply();
 
-//                            dataManager.get().setSampleColumn(selectedIndex, values);
+                            //dataManager.get().setSampleColumn(selectedIndex, values);
                         }
                     } catch (Exception e) {
                         log.error("Min and Max values must be a Number");
                     }
                 }
                 // Otherwise reset the sample column
-//                else dataManager.ifPresent(doubleDataManager -> doubleDataManager.resetSampleColumn(selectedIndex));
+//                else {
+//                    dataManager.ifPresent(doubleDataManager -> doubleDataManager.resetSampleColumn(selectedIndex));
+//                }
 
                 featureSelected(selectedIndex);
             }

@@ -23,7 +23,7 @@ public class Smooth extends Preprocessor<Number>{
      * @param values the array that will be smoothed
      */
     @Override
-    public void apply(ArrayList<Number> values) {
+    public ArrayList<Number> apply(ArrayList<Number> values) {
         ArrayList<Number> newValues = new ArrayList<>();
 
         for (int i = 0; i < values.size(); i++) {
@@ -56,6 +56,8 @@ public class Smooth extends Preprocessor<Number>{
         for (int i = 0; i < values.size(); i++) {
             values.set(i, newValues.get(i));
         }
+
+        return newValues;
     }
 
     /**

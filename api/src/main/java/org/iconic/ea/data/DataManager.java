@@ -198,4 +198,11 @@ public class DataManager<T> {
     }
 
     public List<String> getSampleHeaders() { return sampleHeaders; }
+
+    public void setSampleColumn(int column, ArrayList<Number> values) {
+        for (int i = 0; i < sampleSize; i++) {
+            Number value = values.get(i);
+            dataset.get(sampleHeaders.get(column)).updateModifiedSamples(i, value);
+        }
+    }
 }

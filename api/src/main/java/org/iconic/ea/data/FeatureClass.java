@@ -54,4 +54,8 @@ public abstract class FeatureClass<T> {
     public void setOutput(boolean value) {
         this.output = value;
     }
+
+    public void updateModifiedSamples(int index, T value) {
+        modifiedSamples.set(index, value);
+    }
 }
