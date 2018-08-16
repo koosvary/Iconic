@@ -1,5 +1,6 @@
 package org.iconic.ea.operator.primitive;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -15,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Test class for {@link org.iconic.ea.operator.primitive.Root}
  * @author Scott Walker
  */
+@Disabled
 class RootTest {
     @DisplayName("Test root using doubles")
     @MethodSource("doubleListProvider")
