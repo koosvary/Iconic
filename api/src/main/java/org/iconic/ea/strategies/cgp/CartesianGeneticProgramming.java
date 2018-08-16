@@ -31,12 +31,12 @@ public class CartesianGeneticProgramming<T> extends EvolutionaryAlgorithm<Cartes
 		final CartesianChromosome<T> bestCandidate = population
 				.stream().min(comparator).get();
 
-		for(int populationIndex = 1; populationIndex < population.size(); populationIndex++){
-			CartesianChromosome<T> c = population.get(populationIndex);
-			population.set(populationIndex, mutate(c));
-		}
+		population.set(0, bestCandidate);
 
-		return null;
+		for(int populationIndex = 1; populationIndex < population.size(); populationIndex++){
+			population.set(populationIndex, mutate(bestCandidate));
+		}
+		return population;
 	}
 
 	public CartesianChromosome<T> mutate(CartesianChromosome<T> chromosome){
