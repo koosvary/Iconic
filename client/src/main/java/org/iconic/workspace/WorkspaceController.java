@@ -240,8 +240,7 @@ public class WorkspaceController implements Initializable {
                         double max = Double.parseDouble(tfNormaliseMax.getText());
 
                         if (min < max) {
-                            Normalise.apply();
-
+                            Normalise.apply(values, min, max);
                             //dataManager.get().setSampleColumn(selectedIndex, values);
                         }
                     } catch (Exception e) {

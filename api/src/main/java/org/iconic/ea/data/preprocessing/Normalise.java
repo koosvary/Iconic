@@ -3,10 +3,10 @@ package org.iconic.ea.data.preprocessing;
 import java.util.ArrayList;
 
 public class Normalise {
-    //private static Number oldMin, oldMax, newMin, newMax;
+    private static Number oldMin, oldMax;
 
-    public static int apply(/*ArrayList<Number> values*/) {
-        /*oldMin = values.get(0);
+    public static ArrayList<Number> apply(ArrayList<Number> values, Number newMin, Number newMax) {
+        oldMin = values.get(0);
         oldMax = values.get(0);
 
         for (Number value : values) {
@@ -17,14 +17,14 @@ public class Normalise {
             if (value.doubleValue() > oldMax.doubleValue()) {
                 oldMax = value;
             }
-}
+        }
 
         for (int i = 0; i < values.size(); i++) {
-        Number value = map(values.get(i), oldMin, oldMax, newMin, newMax);
-        values.set(i, value);
-        }*/
+            Number value = map(values.get(i), oldMin, oldMax, newMin, newMax);
+            values.set(i, value);
+        }
 
-        return 0;
+        return values;
     }
 
     private static double map(Number value, Number oldMin, Number oldMax, Number newMin, Number newMax) {
@@ -33,6 +33,4 @@ public class Normalise {
                 * (newMax.doubleValue() - newMin.doubleValue()))
                 / (oldMax.doubleValue() - oldMin.doubleValue());
     }
-
-    //public void setRange(Number newMin, Number newMax) { this.newMin = newMin; this.newMax = newMax; }
 }
