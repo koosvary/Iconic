@@ -38,16 +38,16 @@ public class Client {
         final String inputFile = client.getArgs().getInput();
 
         if (!"".equals(inputFile) && !inputFile.isEmpty()) {
-            final DataManager<Double> dm = new DataManager<>(Double.class, inputFile);
+            final DataManager<Double> dm = new DataManager<>(inputFile);
 
             int featureSize = dm.getFeatureSize();
             int sampleSize = dm.getSampleSize();
 
-            log.info("Feature Size: {}", () -> featureSize);
+            log.info("Feature Size: {}", () -> featureSize - 1);
             log.info("Sample Size: {}", () -> sampleSize);
 
             // Create a supplier for Gene Expression Programming chromosomes
-            ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(10, featureSize);
+            ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(10, featureSize - 1);
 
             // Add in the functions the chromosomes can use
             supplier.addFunction(Arrays.asList(
@@ -66,9 +66,9 @@ public class Client {
 
             // Add in the objectives the algorithm should aim for
             gep.addObjective(
-                    new DefaultObjective<>(
-                            new MeanSquaredError(), dm.getSamples())
-            );
+                    new DefaultObjective<Double>(
+                            new MeanSquaredError(), dm
+            ));
 
 //            log.info("Function Primitives used: {}", supplier::getFunctions);
 

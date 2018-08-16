@@ -19,14 +19,12 @@ import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.ea.data.DataManager;
-import org.iconic.ea.data.preprocessing.Normalise;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.SearchModel;
 import org.iconic.project.search.SearchService;
 
 import java.net.URL;
-import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -198,12 +196,12 @@ public class WorkspaceController implements Initializable {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
             if (dataManager.isPresent() && selectedIndex >= 0) {
-                List<Double> values = dataManager.get().getSampleColumn(selectedIndex);
+//                List<Double> values = dataManager.get().getSampleColumn(selectedIndex);
 
-                for (int sample = 0; sample < values.size(); sample++) {
-                    double value = values.get(sample);
-                    series.getData().add(new XYChart.Data<>(sample, value));
-                }
+//                for (int sample = 0; sample < values.size(); sample++) {
+//                    double value = values.get(sample);
+//                    series.getData().add(new XYChart.Data<>(sample, value));
+//                }
             }
             lcDataView.getData().add(series);
         }
@@ -217,23 +215,23 @@ public class WorkspaceController implements Initializable {
                 Optional<DataManager<Double>> dataManager = getDataManager();
 
                 if (cbNormalise.isSelected() && dataManager.isPresent()) {
-                    List<Double> values = dataManager.get().getSampleColumn(selectedIndex);
+//                    List<Double> values = dataManager.get().getSampleColumn(selectedIndex);
 
                     try {
                         double min = Double.parseDouble(tfNormaliseMin.getText());
                         double max = Double.parseDouble(tfNormaliseMax.getText());
 
                         if (min < max) {
-                            values = Normalise.apply(values, min, max);
+//                            values = Normalise.apply(values, min, max);
 
-                            dataManager.get().setSampleColumn(selectedIndex, values);
+//                            dataManager.get().setSampleColumn(selectedIndex, values);
                         }
                     } catch (Exception e) {
                         log.error("Min and Max values must be a Number");
                     }
                 }
                 // Otherwise reset the sample column
-                else dataManager.ifPresent(doubleDataManager -> doubleDataManager.resetSampleColumn(selectedIndex));
+//                else dataManager.ifPresent(doubleDataManager -> doubleDataManager.resetSampleColumn(selectedIndex));
 
                 featureSelected(selectedIndex);
             }

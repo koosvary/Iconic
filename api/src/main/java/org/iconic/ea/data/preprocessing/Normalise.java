@@ -1,26 +1,41 @@
 package org.iconic.ea.data.preprocessing;
 
+import java.util.ArrayList;
 
-import java.util.List;
+public class Normalise extends Preprocessor<Number>{
+    private Number oldMin, oldMax, newMin, newMax;
 
-public class Normalise {
+    /**
+     *
+     * @param values
+     */
+    @Override
+    public void apply(ArrayList<Number> values) {
+        oldMin = values.get(0);
+        oldMax = values.get(0);
 
-    public static List<Double> apply(List<Double> values, double newMin, double newMax) {
-        double oldMin = values.get(0);
-        double oldMax = values.get(0);
+        for (Number value : values) {
+            if (value.doubleValue() < oldMin.doubleValue()) {
+                oldMin = value;
+            }
 
-        for (double value : values) {
-            oldMin = Math.min(oldMin, value);
-            oldMax = Math.max(oldMax, value);
+            if (value.doubleValue() > oldMax.doubleValue()) {
+                oldMax = value;
+            }
         }
 
-        for (int i = 0; i < values.size(); i++)
-            values.set(i, map(values.get(i), oldMin, oldMax, newMin, newMax));
-
-        return values;
+        for (int i = 0; i < values.size(); i++) {
+            Number value = map(values.get(i), oldMin, oldMax, newMin, newMax);
+            values.set(i, value);
+        }
     }
 
-    private static double map(double value, double oldMin, double oldMax, double newMin, double newMax) {
-        return newMin + ((value - oldMin) * (newMax - newMin)) / (oldMax - oldMin);
+    private double map(Number value, Number oldMin, Number oldMax, Number newMin, Number newMax) {
+        return newMin.doubleValue() +
+                ((value.doubleValue() - oldMin.doubleValue())
+                * (newMax.doubleValue() - newMin.doubleValue()))
+                / (oldMax.doubleValue() - oldMin.doubleValue());
     }
+
+    public void setRange(Number newMin, Number newMax) { this.newMin = newMin; this.newMax = newMax; }
 }

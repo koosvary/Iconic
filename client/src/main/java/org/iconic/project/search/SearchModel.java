@@ -74,7 +74,7 @@ public class SearchModel implements Runnable {
         // Add in the objectives the algorithm should aim for
         ea.addObjective(
                 new DefaultObjective<>(
-                        new MeanSquaredError(), datasetModel.getDataManager().getSamples())
+                        new MeanSquaredError(), datasetModel.getDataManager())
         );
     }
 
