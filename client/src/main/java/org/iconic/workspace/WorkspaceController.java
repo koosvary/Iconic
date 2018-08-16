@@ -145,10 +145,11 @@ public class WorkspaceController implements Initializable {
     public void startSearch(ActionEvent actionEvent) {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
-        log.info("Function for use: " + defineSearchService.getFunction());
-
         // Check that there's an active dataset before starting the search
         if (item instanceof DatasetModel) {
+            // TODO(Meyer): Use the function defined to determine what data is used, and what to calculate to
+            log.info("Function for use: " + defineSearchService.getFunction());
+
             DatasetModel dataset = (DatasetModel) item;
             SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
 
