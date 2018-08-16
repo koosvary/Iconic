@@ -55,7 +55,11 @@ public abstract class FeatureClass<T> {
         this.output = value;
     }
 
-    public void updateModifiedSamples(int index, T value) {
+    public void updateModifiedSample(int index, T value) {
         modifiedSamples.set(index, value);
+    }
+
+    public void resetModifiedSample(int index) {
+        modifiedSamples.set(index, originalSamples.get(index));
     }
 }

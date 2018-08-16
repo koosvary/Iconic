@@ -217,6 +217,7 @@ public class WorkspaceController implements Initializable {
             }
             lcDataView.getData().add(series);
 
+            // Updates the selected header in the transformation text fields
             cbSmoothData.setText("Smooth data points of (" + selectedHeader + ")");
             cbHandleMissingValues.setText("Handle missing values of (" + selectedHeader + ")");
             cbRemoveOutliers.setText("Remove outliers of (" + selectedHeader + ")");
@@ -240,17 +241,17 @@ public class WorkspaceController implements Initializable {
                         double max = Double.parseDouble(tfNormaliseMax.getText());
 
                         if (min < max) {
-                            Normalise.apply(values, min, max);
-                            //dataManager.get().setSampleColumn(selectedIndex, values);
+                            values = Normalise.apply(values, min, max);
+                            dataManager.get().setSampleColumn(selectedIndex, values);
                         }
                     } catch (Exception e) {
                         log.error("Min and Max values must be a Number");
                     }
                 }
                 // Otherwise reset the sample column
-//                else {
-//                    dataManager.ifPresent(doubleDataManager -> doubleDataManager.resetSampleColumn(selectedIndex));
-//                }
+                else if (dataManager.isPresent()) {
+                    dataManager.get().resetSampleColumn(selectedIndex);
+                }
 
                 featureSelected(selectedIndex);
             }
