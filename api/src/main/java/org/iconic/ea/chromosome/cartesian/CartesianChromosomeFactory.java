@@ -140,7 +140,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
 
             // Add connections within the node
             for (int j = 1; j <= getMaxArity(); ++j) {
-                final int connectionGene = getRandomConnection(i - numInputs, numRows, levelsBack);
+                final int connectionGene = getRandomConnection(i - numInputs, numRows, levelsBack, numInputs);
                 genome.add(connectionGene);
             }
         }
@@ -167,8 +167,8 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
      *
      * @return the largest address in the graph that can be connected to for chromosomes constructed by the factory
      */
-    private int getAddressUpperBound(int numFeatures, int numColumns, int numRows) {
-        return numFeatures + getGraphSize(numColumns, numRows);
+    public int getAddressUpperBound(int numInputs, int numColumns, int numRows) {
+        return numInputs + getGraphSize(numColumns, numRows);
     }
 
     /**
@@ -177,7 +177,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
      * @param numPrimitives The number of primitives available
      * @return the index of a random primitive
      */
-    private int getRandomPrimitive(int numPrimitives) {
+    public int getRandomPrimitive(int numPrimitives) {
         assert (numPrimitives > 0);
         return ThreadLocalRandom.current().nextInt(numPrimitives);
     }
@@ -188,9 +188,10 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
      * @param index      The index of the originating node
      * @param numRows    The number of rows in the graph
      * @param levelsBack The maximum levels back that the originating node is permitted to connect to
+     * @param numInputs  The number of inputs
      * @return the index of a random primitive
      */
-    private int getRandomConnection(int index, int numRows, int levelsBack) {
+    public int getRandomConnection(int index, int numRows, int levelsBack, int numInputs) {
         final int column = index / numRows;
         final int upperBound = numInputs + column * numRows;
 

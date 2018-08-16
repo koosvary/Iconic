@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 
 public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R> {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ExpressionChromosome<R> apply(final List<FunctionalPrimitive<R, R>> functionalPrimitives,
                                          final ExpressionChromosome<R> chromosome) {
