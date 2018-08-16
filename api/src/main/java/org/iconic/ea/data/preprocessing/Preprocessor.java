@@ -9,7 +9,7 @@ public abstract class Preprocessor<T> {
         enabled = false;
     }
 
-    public abstract ArrayList<T> apply(ArrayList<T> values);
+    public abstract void apply(ArrayList<T> values);
 
     /**
      * <p>Sets whether or not this preprocessor should be used to the provided value</p>
