@@ -3,38 +3,40 @@ package org.iconic.ea.data;
 import lombok.extern.log4j.Log4j2;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 @Log4j2
+/**
+ * TODO: generify this - DataManager => NumericDataManager / StringDataManager / PictureDataManager
+ */
 public class DataManager<T> {
-    private final Class<T> clazz;
-    private static String fileName;
-    private List<List<T>> samples, originalSamples;
-    private static ArrayList<String> sampleHeader;
-    private static ArrayList<String> sampleDescription;
-    private static int featureSize;
-    private static int sampleSize;
+    private String fileName;
+    private List<String> sampleHeaders;
+    private List<String> expectedOutputHeaders;
+    private HashMap<String, FeatureClass<Number>> dataset;
+    private int featureSize;
+    private int sampleSize;
+    private boolean containsHeader = false;
 
-    public DataManager(Class<T> clazz, String fileName) {
-        this.clazz = clazz;
-        DataManager.fileName = fileName;
+    public DataManager(String fileName) {
+        this.fileName = fileName;
+        expectedOutputHeaders = new ArrayList<>();
+        sampleHeaders = new ArrayList<>();
 
         try {
-            importData(fileName);
+            importData(this.fileName);
         } catch (IOException ex) {
-            log.error("Bad File: {}", () -> fileName);
-            log.error("Exception: {}", ex);
+             log.error("Bad File: {}", () -> fileName);
+             log.error("Exception: {}", ex);
         }
     }
 
     private void importData(String fileName) throws IOException {
-        DataManager.fileName = fileName;
-        log.traceEntry();
-        featureSize = 0;
+        this.fileName = fileName;
         sampleSize = 0;
-        boolean headerRow = true;
+        dataset = new HashMap<>();
+
+        // log.traceEntry();
 
         // Check if the file is on the classpath, otherwise check outside
         InputStream resource = Thread.currentThread()
@@ -45,121 +47,168 @@ public class DataManager<T> {
                 ? new BufferedReader(new FileReader(fileName))
                 : new BufferedReader(new InputStreamReader(resource));
 
-        samples = new ArrayList<>();
-        originalSamples = new ArrayList<>();
-        sampleHeader = new ArrayList<>();
-
-        // Sometimes data is given as a String like "Boy, Girl", this ArrayList keeps track of all the strings and returns the
-        // index value of a string variable. This will ensure all data is in a numerical format.
-        ArrayList<String> stringValues = new ArrayList<>();
 
         Scanner sc = new Scanner(reader);
 
-        // Scan through the input file one line a time
-        while (sc.hasNextLine()) {
-            String line = sc.nextLine();
+        // Check the file isn't empty
+        if (!sc.hasNextLine()) {
+             log.error("The input file is empty");
+            return;
+        }
 
-            // Ensure the line isn't blank
-            if (!"".equals(line)) {
-                // Split the line values separated by a ","
-                String[] values = line.split(",");
+        // Get the first line from the datafile
+        String line = getNextLineFromDataFile(sc);
 
-                // Track the number of features
-                if (featureSize == 0) {
-                    featureSize = values.length;
-                }
+        if (containsHeader) {
+            // Update the headers
+            // Assume the delimiter is a comma
+            Collections.addAll(sampleHeaders, line.split(","));
+            log.error(sampleHeaders);
+            // Update the feature size
+            featureSize = sampleHeaders.size();
 
-                // currentValues holds all the collected values in a double format
-                ArrayList<T> currentValues = new ArrayList<>();
+            // Read in the next line for later (needed because the
+            // !containsHeader route already reads in the next line)
+            line = getNextLineFromDataFile(sc);
+        } else {
+            // Generate all the header names such as: A, B, C, ..., Z, AA, BB, etc
+            String[] sampleValues = line.split(",");
 
-                // Loop through all the collected values
-                for (String value : values) {
-                    if (headerRow) {
-                        sampleHeader.add(value);
-                    } else {
-                        // If the value is already in a double format then instantly add it into the array
-                        try {
-                            if (clazz.isAssignableFrom(String.class)) {
-                                currentValues.add((T) (value));
-                            } else if (clazz.isAssignableFrom(Integer.class)) {
-                                currentValues.add((T) Integer.valueOf(value));
-                            } else if (clazz.isAssignableFrom(Boolean.class)) {
-                                currentValues.add((T) Boolean.valueOf(value));
-                            } else if (clazz.isAssignableFrom(Double.class)) {
-                                currentValues.add((T) Double.valueOf(value));
-                            } else {
-                                throw new IllegalArgumentException("Bad type.");
-                            }
-                        }
-                        // If the value collected is a string value then...
-                        catch (NumberFormatException nfe) {
-                            log.error("DataManager importData  Trying to cast the input to <T>");
-                        }
-                    }
-                }
+            // Update the feature size
+            featureSize = sampleValues.length;
 
-                if (headerRow)
-                    headerRow = false;
-
-                // At the end of each line being read in, add that array into the ArrayList for storage
-                if (!currentValues.isEmpty()) {
-                    // Track the sample size
-                    sampleSize++;
-                    samples.add(currentValues);
-                    originalSamples.add((List<T>)currentValues.clone());
-                }
+            // Generate the header names
+            for (int i = 0; i < featureSize; i++) {
+                sampleHeaders.add(intToHeader(i));
             }
         }
+
+        // Set the last column by default as the expected output
+        expectedOutputHeaders.add(sampleHeaders.get(featureSize - 1));
+
+        // Create a list of all features
+        ArrayList<FeatureClass<Number>> featureClasses = new ArrayList<>(featureSize);
+
+        for (String aSampleHeader : sampleHeaders) {
+            if (expectedOutputHeaders.contains(aSampleHeader)) {
+                featureClasses.add(new NumericFeatureClass(true));
+            } else {
+                featureClasses.add(new NumericFeatureClass(false));
+            }
+        }
+
+        // Scan through the input file one line a time
+        do {
+            if (line == null) {
+                break;
+            }
+
+            sampleSize++;
+
+            // Assume the delimiter is a comma
+            String[] values = line.split(",");
+
+            // Parse the string values to a double and add to FeatureClass
+            for (int i = 0; i < values.length; i++) {
+                Double value = Double.parseDouble(values[i]);
+                featureClasses.get(i).addSampleValue(value);
+            }
+
+            line = getNextLineFromDataFile(sc);
+        } while (line != null);
+
+        // Add all the feature classes to the map
+        for (int i = 0; i < featureSize; i++) {
+            dataset.put(sampleHeaders.get(i), featureClasses.get(i));
+        }
+
         sc.close();
-        log.info("DataManager importData - Successfully Imported Dataset");
+        // log.info("Successfully Imported Dataset");
     }
 
-    public List<List<T>> getSamples() {
-        return samples;
+    private String getNextLineFromDataFile(Scanner sc) {
+        if (!sc.hasNextLine())
+            return null;
+
+        // Read in the next line of the file
+        String line = sc.nextLine();
+
+        // While there are comments or empty lines in the file, read next line
+        while(line.startsWith("#") || line.equals("")) {
+            if (sc.hasNextLine()) {
+                line = sc.nextLine();
+            } else {
+                // log.error("The data file is empty");
+                return null;
+            }
+        }
+
+        return line;
+    }
+
+    // Takes an int value and converts it into the excel format for a header
+    // Example (0 = A, 1 = B, 26 = AA, 27 = AB)
+    public String intToHeader(int num) {
+        StringBuilder name = new StringBuilder();
+        do {
+            char letter = (char) (65 + num % 26);
+            name.insert(0, letter);
+            if (num < 26)
+                break;
+            num /= 26;
+            num -= 1;
+        } while (num >= 0);
+        return name.toString();
+    }
+
+    public void applyPreProcessing() {
+        dataset.forEach((key, value) -> value.applyPreProcessing());
+    }
+
+    public HashMap<String, FeatureClass<Number>> getDataset() {
+        return dataset;
     }
 
     public List<T> getSampleRow(int row) {
-        return samples.get(row);
+        return null;
     }
 
-    public List<T> getSampleColumn(int column) {
-        List<T> values = new ArrayList<>();
+    public ArrayList<Number> getSampleColumn(int column) {
+        String columnName = sampleHeaders.get(column);
 
-        for (List<T> row : samples)
-            values.add(row.get(column));
-
-        return values;
+        return getSampleColumn(columnName);
     }
 
-    public T getInputVariable(int sample, int index) {
-        return samples.get(sample).get(index);
+    public ArrayList<Number> getSampleColumn(String columnName) {
+        FeatureClass<Number> featureClass = dataset.get(columnName);
+
+        return featureClass.getSamples();
+    }
+
+    public Number getSampleVariable(String headerName, int row) {
+        return dataset.get(headerName).getSampleValue(row);
     }
 
     public int getFeatureSize() {
-        return featureSize - 1;
+        return featureSize;
     }
 
     public int getSampleSize() {
         return sampleSize;
     }
 
-    /**
-     * Loop through all samples and reset the current value back to the origninal.
-     * Used when preprocessing methods are deactivated.
-     *
-     * @param column
-     */
-    public void resetSampleColumn(int column) {
-        for (int i = 0; i < sampleSize; i++)
-            samples.get(i).set(column, originalSamples.get(i).get(column));
+    public List<String> getSampleHeaders() { return sampleHeaders; }
+
+    public void setSampleColumn(int headerIndex, ArrayList<Number> values) {
+        for (int i = 0; i < sampleSize; i++) {
+            Number value = values.get(i);
+            dataset.get(sampleHeaders.get(headerIndex)).updateModifiedSample(i, value);
+        }
     }
 
-    public ArrayList<String> getSampleHeaders() { return sampleHeader; }
-
-    public void setSampleColumn(int column, List<T> values) {
-        for (int i = 0; i < sampleSize; i++) {
-            T value = values.get(i);
-            samples.get(i).set(column, value);
+    public void resetSampleColumn(int headerIndex) {
+        for (int i=0; i < sampleSize; i++) {
+            dataset.get(sampleHeaders.get(headerIndex)).resetModifiedSample(i);
         }
     }
 }
