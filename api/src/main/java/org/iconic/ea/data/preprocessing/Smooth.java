@@ -3,8 +3,8 @@ package org.iconic.ea.data.preprocessing;
 import java.util.ArrayList;
 import java.lang.*;
 
-public class Smooth extends Preprocessor<Number>{
-    private int N = 2; // N is the number of neighboring data points on either side of the value
+public class Smooth {
+    private static int N = 2; // N is the number of neighboring data points on either side of the value
 
     /**
      * <p>
@@ -22,8 +22,7 @@ public class Smooth extends Preprocessor<Number>{
      *
      * @param values the array that will be smoothed
      */
-    @Override
-    public ArrayList<Number> apply(ArrayList<Number> values) {
+    public static ArrayList<Number> apply(ArrayList<Number> values) {
         ArrayList<Number> newValues = new ArrayList<>();
 
         for (int i = 0; i < values.size(); i++) {
@@ -67,5 +66,7 @@ public class Smooth extends Preprocessor<Number>{
      *
      * @param neighbourSize the number of neighbours on either side of each point to be used for smoothing
      */
-    public void setNeighbourSize(int neighbourSize) { this.N = neighbourSize; }
+    public void setNeighbourSize(int neighbourSize) {
+        this.N = neighbourSize;
+    }
 }

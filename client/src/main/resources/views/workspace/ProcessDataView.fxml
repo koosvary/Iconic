@@ -46,15 +46,10 @@
                 <VBox prefWidth="${screen.visualBounds.width*0.66}" spacing="5">
                     <padding><Insets top="10" bottom="10" left="10" right="10"/></padding>
 
-                    <CheckBox fx:id="cbSmoothData" text="Smooth data points of (x)"/>
-
+                    <CheckBox fx:id="cbSmoothData" text="Smooth data points of (x)" onAction="#smoothDatasetFeature"/>
                     <VBox fx:id="vbSmoothData" visible="false" managed="false">
                         <HBox>
-                            <Label text="Smoothness:"><padding><Insets left="25" right="25"/></padding></Label>
-                            <Slider value="50" showTickLabels="true" showTickMarks="true"/>
-                            <TextField text="50%">
-                            </TextField>
-                            <Button text="Choose Automatically"/>
+                            <Button text="Smooth Automatically" onAction="#smoothDatasetFeature"/>
                         </HBox>
                     </VBox>
                     <Separator/>

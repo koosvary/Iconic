@@ -258,6 +258,29 @@ public class WorkspaceController implements Initializable {
         }
     }
 
+    public void smoothDatasetFeature() {
+        if (lvFeatures != null) {
+            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+
+            if (selectedIndex != -1) {
+                Optional<DataManager<Double>> dataManager = getDataManager();
+
+                if (cbSmoothData.isSelected() && dataManager.isPresent()) {
+                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+
+                    values = Smooth.apply(values);
+                    dataManager.get().setSampleColumn(selectedIndex, values);
+                }
+                // Otherwise reset the sample column
+                else if (dataManager.isPresent()) {
+                    dataManager.get().resetSampleColumn(selectedIndex);
+                }
+
+                featureSelected(selectedIndex);
+            }
+        }
+    }
+
     /**
      * Updates the workspace to match the current active dataset.
      */
