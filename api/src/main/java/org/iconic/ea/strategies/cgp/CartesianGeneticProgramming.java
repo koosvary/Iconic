@@ -57,8 +57,11 @@ public class CartesianGeneticProgramming<T> extends EvolutionaryAlgorithm<Cartes
 		}
 
 		final Comparator<Chromosome<T>> comparator = Comparator.comparing(Chromosome::getFitness);
+        CartesianChromosome<T> bestChild = children
+                .stream().min(comparator).get();
 
-		return children
-				.stream().min(comparator).get();
+		return (bestChild.getFitness() <= chromosome.getFitness())
+                ? bestChild
+                : chromosome;
 	}
 }
