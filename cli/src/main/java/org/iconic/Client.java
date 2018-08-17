@@ -4,15 +4,14 @@ import com.beust.jcommander.JCommander;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
-import org.iconic.ea.chromosome.expression.ExpressionChromosome;
-import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
+import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
+import org.iconic.ea.chromosome.cartesian.CartesianChromosomeFactory;
 import org.iconic.ea.data.DataManager;
-import org.iconic.ea.strategies.gep.GeneExpressionProgramming;
-import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
-import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
+import org.iconic.ea.operator.evolutionary.mutation.cgp.CartesianSingleActiveMutator;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.operator.primitive.*;
+import org.iconic.ea.strategies.cgp.CartesianGeneticProgramming;
 import org.iconic.io.ArgsConverterFactory;
 
 import java.util.Arrays;
@@ -47,7 +46,9 @@ public class Client {
             log.info("Sample Size: {}", () -> sampleSize);
 
             // Create a supplier for Gene Expression Programming chromosomes
-            ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(10, featureSize - 1);
+            CartesianChromosomeFactory<Double> supplier = new CartesianChromosomeFactory<>(
+                    1, featureSize - 1, 5, 5, 5
+            );
 
             // Add in the functions the chromosomes can use
             supplier.addFunction(Arrays.asList(
@@ -56,28 +57,28 @@ public class Client {
             ));
 
             // Create an evolutionary algorithm using Gene Expression Programming
-            EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> gep = new GeneExpressionProgramming<>(supplier);
-            gep.setCrossoverProbability(client.getArgs().getCrossoverProbability());
-            gep.setMutationProbability(client.getArgs().getMutationProbability());
+            EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea =
+                    new CartesianGeneticProgramming<>(supplier);
+            ea.setCrossoverProbability(client.getArgs().getCrossoverProbability());
+            ea.setMutationProbability(client.getArgs().getMutationProbability());
 
             // Add in the evolutionary operators the algorithm can use
-            gep.addCrossover(new SimpleExpressionCrossover<>());
-            gep.addMutator(new ExpressionMutator<>());
+            ea.addMutator(new CartesianSingleActiveMutator<>());
 
             // Add in the objectives the algorithm should aim for
-            gep.addObjective(
-                    new DefaultObjective<Double>(
+            ea.addObjective(
+                    new DefaultObjective<>(
                             new MeanSquaredError(), dm
             ));
 
 //            log.info("Function Primitives used: {}", supplier::getFunctions);
 
             final Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
-            gep.initialisePopulation(client.getArgs().getPopulation(), dm.getFeatureSize());
-            List<ExpressionChromosome<Double>> population = gep.getChromosomes();
+            ea.initialisePopulation(client.getArgs().getPopulation(), dm.getFeatureSize());
+            List<CartesianChromosome<Double>> population = ea.getChromosomes();
 
             for (int i = 0; i < client.getArgs().getGenerations(); ++i) {
-                gep.evolve(population);
+                ea.evolve(population);
 
                 Chromosome<Double> bestCandidate = population
                         .stream().min(comparator).get();

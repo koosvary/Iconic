@@ -5,6 +5,7 @@ import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosomeFactory;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -43,10 +44,21 @@ public class CartesianGeneticProgramming<T> extends EvolutionaryAlgorithm<Cartes
 		assert (getMutators().size() > 0);
 		assert (getObjectives().size() > 0);
 
-		CartesianChromosome<T> child = getMutator(0).apply(
-				chromosomeFactory.getFunctionalPrimitives(),
-				chromosome
-		);
-		return child;
+		final int lambda = 4;
+
+		List<CartesianChromosome<T>> children = new ArrayList<>(lambda);
+
+		for (int i = 0; i < lambda; ++i) {
+			CartesianChromosome<T> child = getMutator(0).apply(
+					chromosomeFactory.getFunctionalPrimitives(),
+					chromosome
+			);
+			children.add(child);
+		}
+
+		final Comparator<Chromosome<T>> comparator = Comparator.comparing(Chromosome::getFitness);
+
+		return children
+				.stream().min(comparator).get();
 	}
 }
