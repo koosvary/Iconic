@@ -11,31 +11,33 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AdditionTest {
+/**
+ * Test class for {@link org.iconic.ea.operator.primitive.Addition}
+ * @author Jasbir Shah
+ */
+class AdditionTest {
     @DisplayName("Test addition using doubles")
     @MethodSource("doubleListProvider")
     @ParameterizedTest
     void addDoublesTest(final List<Double> args, final double expected) {
         final FunctionalPrimitive<Double, Double> add = new Addition();
-        final double delta = 0.001d;
+        final double delta = 0.001;
         final double actual = add.apply(args);
 
         assertEquals(expected, actual, delta);
     }
 
     /**
-     * <p>
-     * Returns a stream of double n-tuples, where the last member of the tuple is the sum of all the preceeding
-     * members
-     * </p>
+     * <p>Returns a stream of double n-tuples, where the last member of the tuple is the sum of all the preceeding
+     * members</p>
      *
      * @return a stream of double n-tuples
      */
     private static Stream<Arguments> doubleListProvider() {
         return Stream.of(
-                Arguments.of(Arrays.asList(1.d, -1.d), 0.d),
-                Arguments.of(Arrays.asList(0.d, -1.d), -1.d),
-                Arguments.of(Arrays.asList(0.d, 1.d), 1.d)
+                Arguments.of(Arrays.asList(1.0, -1.0), 0.0),
+                Arguments.of(Arrays.asList(0.0, -1.0), -1.0),
+                Arguments.of(Arrays.asList(0.0, 1.0), 1.0)
         );
     }
 }

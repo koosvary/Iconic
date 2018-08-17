@@ -3,6 +3,8 @@ package org.iconic.ea.chromosome.cartesian;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.LinearChromosome;
+import org.iconic.ea.data.DataManager;
+import org.iconic.ea.data.FeatureClass;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.*;
@@ -203,12 +205,24 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
      * {@inheritDoc}
      */
     @Override
-    public List<Map<Integer, T>> evaluate(List<List<T>> input) {
-        List<Map<Integer, T>> calculatedValues = new ArrayList<>(input.size());
+    public List<Map<Integer, T>> evaluate(final DataManager<T> dataManager) {
+        List<String> headers = dataManager.getSampleHeaders();
+        int numSamples = dataManager.getSampleSize();
+        List<Map<Integer, T>> calculatedValues = new ArrayList<>(numSamples);
 
-        for (final List<T> sample: input) {
+        for (int i = 0; i < numSamples; ++i) {
+            List<T> row = new LinkedList<>();
+
+            for (String header : headers) {
+                FeatureClass<Number> feature = dataManager.getDataset().get(header);
+
+                row.add(
+                        (T) feature.getSampleValue(i)
+                );
+            }
+
             final Map<Integer, T> output = generateOutput(
-                    getPhenome(), getGenome(), getInputs(), getOutputs(), getPrimitives(), sample
+                    getPhenome(), getGenome(), getInputs(), getOutputs(), getPrimitives(), row
             );
 
             calculatedValues.add(output);

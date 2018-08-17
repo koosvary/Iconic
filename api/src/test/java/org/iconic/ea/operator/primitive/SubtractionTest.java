@@ -11,33 +11,36 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SubtractionTest {
+/**
+ * Test class for {@link org.iconic.ea.operator.primitive.Subtraction}
+ * @author Jasbir Shah
+ */
+class SubtractionTest {
     @DisplayName("Test subtraction using doubles")
     @MethodSource("doubleListProvider")
     @ParameterizedTest
     void subtractDoublesTest(final List<Double> args, final double expected) {
         final FunctionalPrimitive<Double, Double> subtract = new Subtraction();
-        final double delta = 0.001d;
+        final double delta = 0.001;
         final double actual = subtract.apply(args);
 
         assertEquals(expected, actual, delta);
     }
 
     /**
-     * <p>
-     * Returns a stream of double n-tuples, where the last member of the tuple is the sum of all the preceeding
-     * members
-     * </p>
+     * <p>Returns a stream of double n-tuples, where the last member is the subraction of
+     * all numbers in the list (a - b - c - d - ...)</p>
      *
      * @return a stream of double n-tuples
      */
     private static Stream<Arguments> doubleListProvider() {
         return Stream.of(
-                Arguments.of(Arrays.asList(1.d, 1.d), 0.d),
-                Arguments.of(Arrays.asList(1.d, -1.d), 2.d),
-                Arguments.of(Arrays.asList(0.d, -1.d), 1.d),
-                Arguments.of(Arrays.asList(0.d, 1.d), -1.d),
-                Arguments.of(Arrays.asList(87.d, 27.d, 9.8d, 4.d, 28.d, 93.d, 92.d, 63.d, 55.d, 30.d, -105.3d), -209.5d)
+                Arguments.of(Arrays.asList(1.0, 1.0), 0.0),
+                Arguments.of(Arrays.asList(1.0, -1.0), 2.0),
+                Arguments.of(Arrays.asList(0.0, -1.0), 1.0),
+                Arguments.of(Arrays.asList(0.0, 1.0), -1.0),
+                Arguments.of(Arrays.asList(87.0, 27.0, 9.8, 4.0, 28.0, 93.0, 92.0, 63.0, 55.0, 30.0, -105.3), -209.5d),
+                Arguments.of(Arrays.asList(10.0, 1.0, 2.0, 3.0, 4.0), 0.0)
         );
     }
 }

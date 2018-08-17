@@ -1,9 +1,12 @@
 package org.iconic.ea.chromosome.expression;
 
+import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.LinearChromosome;
 import org.iconic.ea.chromosome.TreeChromosome;
 import org.iconic.ea.chromosome.graph.Node;
+import org.iconic.ea.data.DataManager;
+import org.iconic.ea.data.FeatureClass;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -12,6 +15,7 @@ import java.util.stream.Collectors;
  * {@inheritDoc}
  * <p>A chromosome that encodes an expression tree.</p>
  */
+@Log4j2
 public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromosome<T>, LinearChromosome<Node<T>>, Cloneable {
     private List<Node<T>> genome;
     private Node<T> root;
@@ -90,13 +94,24 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
      * {@inheritDoc}
      */
     @Override
-    public List<Map<Integer, T>> evaluate(List<List<T>> input) {
-        List<Map<Integer, T>> calculatedValues = new ArrayList<>(input.size());
+    public List<Map<Integer, T>> evaluate(final DataManager<T> dataManager) {
+        List<Map<Integer, T>> calculatedValues = new LinkedList<>();
+        List<String> headers = dataManager.getSampleHeaders();
+        int numSamples = dataManager.getSampleSize();
 
-        // Calculate the output for each sample
-        for (int i = 0; i < input.size(); ++i) {
+        for (int i = 0; i < numSamples; ++i) {
             Map<Integer, T> output = new HashMap<>();
-            List<T> row = input.get(i);
+
+            List<T> row = new LinkedList<>();
+
+            for (String header : headers) {
+                FeatureClass<Number> feature = dataManager.getDataset().get(header);
+
+                row.add(
+                        (T) feature.getSampleValue(i)
+                );
+            }
+
             output.put(i, getRoot().apply(row));
             calculatedValues.add(output);
         }
