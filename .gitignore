@@ -43,3 +43,7 @@ gradle-app.setting
 *.iml
 *.ipr
 *.iws
+
+api/out
+cli/out
+client/out
