@@ -4,6 +4,40 @@
 
 ## What's New
 
+### Release Notes - 0.2.0 - August 17th, 2018
+
+#### Improvements
+
+* “Input Data” screen has been overhauled
+  * Datasets now display as a spreadsheet
+  * This spreadsheet is editable and updates automatically in local memory
+  * Edited dataset can be exported to a file
+  * Will prompt to create a new project when loading dataset if one doesn’t exist
+  * Will alert the user to select a project when importing a dataset, if one exists and is not selected
+* Under the hood changes to the data structure used to store and process datasets in memory
+* Improved support for header rows in the dataset
+  * If the first line of the dataset contains all strings, it is assumed to be a header row.
+* This is a temporary workaround and is due to change
+  * Otherwise, it is assumed there is no header row and default headers will be given
+    * Default headers follow the A-Z, AA-ZZ format
+* Data normalisation and smoothing have been updated to work with new data structure
+  * Other pre-processing features to come
+  * The smoothing function by default takes the 2 neighbours on either side of the current value and takes the average of those numbers, which becomes the new value for that index. This continues for all values in the feature and updates values once complete
+* Target Expression now updates when a dataset is loaded
+  * Displays in the form of y=f(x,w,…,z)
+    * Where y is the last feature in the dataset
+    * x,w,…,z are each of the other features
+  * This is a GUI change only, which represents the default target expression used by the search
+    * The GUI and API are unlinked in this respect. The target expression still cannot be customized in the search
+    * This will be fixed in the next release
+* A variety of new building blocks for expressions have been added under the hood.
+  * A list of these should be available soon
+  * These are not currently functional in the GUI
+
+
+#### Fixes
+* “Load Dataset” button now working
+
 ### Release Notes - 0.1.0 - May 28th, 2018
 
 #### Improvements
@@ -16,6 +50,8 @@
 
 * The back end has changed so much practically everything's been
 fixed in some way. Or at least broken more nicely.
+
+## Building
 
 ### Compiling
 
