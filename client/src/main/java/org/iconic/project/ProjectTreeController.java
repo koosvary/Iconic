@@ -211,8 +211,7 @@ public class ProjectTreeController implements Initializable {
                     val newProject = project.toBuilder().dataset(dataset).build();
 
                     getWorkspaceService().setActiveWorkspaceItem(null);
-                    getProjectService().getProjects().remove(project);
-                    getProjectService().getProjects().add(newProject);
+                    getProjectService().getProjects().set(getProjectService().getProjects().indexOf(project),(ProjectModel) newProject);
                     getWorkspaceService().setActiveWorkspaceItem(newProject);
                 }
             }
@@ -244,8 +243,7 @@ public class ProjectTreeController implements Initializable {
                             if (!name.trim().equals(project.getLabel())) {
                                 val newProject = project.toBuilder().name(name).build();
                                 getWorkspaceService().setActiveWorkspaceItem(null);
-                                getProjectService().getProjects().remove(project);
-                                getProjectService().getProjects().add(newProject);
+                                getProjectService().getProjects().set(getProjectService().getProjects().indexOf(project),(ProjectModel) newProject);
                                 getWorkspaceService().setActiveWorkspaceItem(newProject);
                             }
                         }

@@ -21,12 +21,17 @@ import lombok.val;
 import org.iconic.ea.data.DataManager;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
+import org.iconic.project.definition.DefineSearchService;
 import org.iconic.project.search.SearchModel;
 import org.iconic.project.search.SearchService;
+import org.iconic.ea.data.preprocessing.Normalise;
+import org.iconic.ea.data.preprocessing.Smooth;
 
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.*;
+import java.util.ArrayList;
 
 /**
  * <p>
@@ -38,8 +43,9 @@ import java.util.ResourceBundle;
  */
 @Log4j2
 public class WorkspaceController implements Initializable {
-    private final WorkspaceService workspaceService;
     private final SearchService searchService;
+    private final WorkspaceService workspaceService;
+    private final DefineSearchService defineSearchService;
 
     @FXML
     private Button btnSearch;
@@ -70,9 +76,13 @@ public class WorkspaceController implements Initializable {
     @FXML
     private CheckBox cbFilter;
     @FXML
+    private VBox vbFilter;
+    @FXML
     private TextField tfNormaliseMin;
     @FXML
     private TextField tfNormaliseMax;
+    @FXML
+    private TextField tfTargetExpression;
 
 
     @Getter(AccessLevel.PRIVATE)
@@ -88,9 +98,10 @@ public class WorkspaceController implements Initializable {
      * </p>
      */
     @Inject
-    public WorkspaceController(final WorkspaceService workspaceService, final SearchService searchService) {
-        this.workspaceService = workspaceService;
+    public WorkspaceController(final WorkspaceService workspaceService, final SearchService searchService, final DefineSearchService defineSearchService) {
+        this.defineSearchService = defineSearchService;
         this.searchService = searchService;
+        this.workspaceService = workspaceService;
         this.defaultName = "";
         this.defaultWelcomeMessage = "Select a dataset on the left to get started.";
 
@@ -118,6 +129,7 @@ public class WorkspaceController implements Initializable {
         addListenerToHideElement(cbHandleMissingValues, vbHandleMissingValues);
         addListenerToHideElement(cbRemoveOutliers, vbRemoveOutliers);
         addListenerToHideElement(cbNormalise, vbNormalise);
+        addListenerToHideElement(cbFilter, vbFilter);
     }
 
     private void addListenerToHideElement(CheckBox cb, VBox vb) {
@@ -140,6 +152,9 @@ public class WorkspaceController implements Initializable {
 
         // Check that there's an active dataset before starting the search
         if (item instanceof DatasetModel) {
+            // TODO(Meyer): Use the function defined to determine what data is used, and what to calculate to
+            log.info("Function for use: " + defineSearchService.getFunction());
+
             DatasetModel dataset = (DatasetModel) item;
             SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
 
@@ -188,6 +203,9 @@ public class WorkspaceController implements Initializable {
     public void featureSelected(int selectedIndex) {
         // Update lcDataView
         if (lcDataView != null) {
+            // Stores the currently selected header in the lvFeatures list
+            String selectedHeader = "";
+
             // defining a series
             XYChart.Series<Number, Number> series = new XYChart.Series<>();
 
@@ -196,14 +214,23 @@ public class WorkspaceController implements Initializable {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
             if (dataManager.isPresent() && selectedIndex >= 0) {
-//                List<Double> values = dataManager.get().getSampleColumn(selectedIndex);
+                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
-//                for (int sample = 0; sample < values.size(); sample++) {
-//                    double value = values.get(sample);
-//                    series.getData().add(new XYChart.Data<>(sample, value));
-//                }
+                for (int sample = 0; sample < values.size(); sample++) {
+                    double value = values.get(sample).doubleValue();
+                    series.getData().add(new XYChart.Data<>(sample, value));
+                }
+
+                selectedHeader = String.valueOf(dataManager.get().getSampleHeaders().get(selectedIndex));
             }
             lcDataView.getData().add(series);
+
+            // Updates the selected header in the transformation text fields
+            cbSmoothData.setText("Smooth data points of (" + selectedHeader + ")");
+            cbHandleMissingValues.setText("Handle missing values of (" + selectedHeader + ")");
+            cbRemoveOutliers.setText("Remove outliers of (" + selectedHeader + ")");
+            cbNormalise.setText("Normalise scale and offset of (" + selectedHeader + ")");
+            cbFilter.setText("Filter data of (" + selectedHeader + ")");
         }
     }
 
@@ -215,23 +242,47 @@ public class WorkspaceController implements Initializable {
                 Optional<DataManager<Double>> dataManager = getDataManager();
 
                 if (cbNormalise.isSelected() && dataManager.isPresent()) {
-//                    List<Double> values = dataManager.get().getSampleColumn(selectedIndex);
+                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
                     try {
                         double min = Double.parseDouble(tfNormaliseMin.getText());
                         double max = Double.parseDouble(tfNormaliseMax.getText());
 
                         if (min < max) {
-//                            values = Normalise.apply(values, min, max);
-
-//                            dataManager.get().setSampleColumn(selectedIndex, values);
+                            values = Normalise.apply(values, min, max);
+                            dataManager.get().setSampleColumn(selectedIndex, values);
                         }
                     } catch (Exception e) {
                         log.error("Min and Max values must be a Number");
                     }
                 }
                 // Otherwise reset the sample column
-//                else dataManager.ifPresent(doubleDataManager -> doubleDataManager.resetSampleColumn(selectedIndex));
+                else if (dataManager.isPresent()) {
+                    dataManager.get().resetSampleColumn(selectedIndex);
+                }
+
+                featureSelected(selectedIndex);
+            }
+        }
+    }
+
+    public void smoothDatasetFeature() {
+        if (lvFeatures != null) {
+            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+
+            if (selectedIndex != -1) {
+                Optional<DataManager<Double>> dataManager = getDataManager();
+
+                if (cbSmoothData.isSelected() && dataManager.isPresent()) {
+                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+
+                    values = Smooth.apply(values);
+                    dataManager.get().setSampleColumn(selectedIndex, values);
+                }
+                // Otherwise reset the sample column
+                else if (dataManager.isPresent()) {
+                    dataManager.get().resetSampleColumn(selectedIndex);
+                }
 
                 featureSelected(selectedIndex);
             }
