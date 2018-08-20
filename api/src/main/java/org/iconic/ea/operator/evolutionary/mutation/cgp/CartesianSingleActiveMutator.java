@@ -14,7 +14,6 @@ import java.util.concurrent.ThreadLocalRandom;
  * <p>This class implements single active gene mutation which randomly selects genes from the child genotype and mutates them
  * When it has mutated an active gene, it stops mutating and returns the child</p>
  */
-
 public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromosome<R>, R> {
 
     /**
@@ -79,8 +78,14 @@ public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromos
                     ) + 1;
 
                     final int newConnection = getRandomConnection(
-                            mutateNodeIndex, mutant.getRows(), mutant.getLevelsBack(), mutant.getInputs()
+                            mutateNodeIndex - mutant.getInputs(),
+                            mutant.getRows(),
+                            mutant.getLevelsBack(),
+                            mutant.getInputs()
                     );
+
+                    // Ensure new connections are valid
+                    assert !(newConnection >= mutant.getNumberOfNodes() + mutant.getInputs());
 
                     //we then set that connection to a new randomConnection that fits in the constraints of CGP
                     mutant.getGenome().set(index + connectionToChange, newConnection);
@@ -115,7 +120,9 @@ public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromos
             );
         }
 
-        return ThreadLocalRandom.current().nextInt(0, upperBound);
+        final int connection = ThreadLocalRandom.current().nextInt(0, upperBound);
+
+        return connection;
     }
 
     /**
