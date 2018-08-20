@@ -92,11 +92,12 @@ public class SearchModel implements Runnable {
 
         while (isRunning()) {
             try {
-                ea.initialisePopulation(populationSize, getDatasetModel().getDataManager().getFeatureSize());
+                ea.initialisePopulation(populationSize);
 
                 ExpressionChromosome<Double> bestCandidate = ea.getChromosomes()
                         .stream().min(comparator).get();
 
+                setUpdates("\nStarting..." + getUpdates());
                 for (int i = 0; i < numGenerations && isRunning(); ++i) {
                     List<ExpressionChromosome<Double>> oldPopulation = ea.getChromosomes();
                     List<ExpressionChromosome<Double>> newPopulation = ea.evolve(oldPopulation);
@@ -106,24 +107,29 @@ public class SearchModel implements Runnable {
                             .stream().min(comparator).get();
 
                     // Only add a new plot point if the fitness value improves
-                    if (bestCandidate.getFitness() > newBestCandidate.getFitness()) {
+                    boolean newCandidate = bestCandidate.getFitness() > newBestCandidate.getFitness();
+
+                    if (newCandidate) {
                         getPlots().getData().add(new XYChart.Data<>(i + 1, newBestCandidate.getFitness()));
                     }
 
                     bestCandidate = newBestCandidate;
 
                     final String generation = "\nGeneration: " + (i + 1);
-                    final String candidate = "\n\tBest candidate: " + bestCandidate.toString();
+                    final String candidate = "\n\tNew Best candidate: " + bestCandidate.toString();
                     final String fitness = "\n\tFitness: " + bestCandidate.getFitness();
 
                     // Append the current generation's best results in front of the list of updates
-                    setUpdates(
-                            generation + candidate + fitness + getUpdates()
-                    );
+                    if (newCandidate) {
+                        setUpdates(
+                                generation + candidate + fitness + getUpdates()
+                        );
+                    }
 
                     log.info(generation + candidate + fitness);
                 }
 
+                setUpdates("\nFinished!" + getUpdates());
                 setRunning(false);
             } catch (Exception ex) {
                 log.error("{}: ", ex::getMessage);

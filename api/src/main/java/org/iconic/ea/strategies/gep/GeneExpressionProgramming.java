@@ -19,7 +19,7 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
         this.chromosomeFactory = chromosomeFactory;
     }
 
-    public void initialisePopulation(int populationSize, int numFeatures) {
+    public void initialisePopulation(int populationSize) {
         for (int i = 0; i < populationSize; i++) {
             Chromosome<T> chromosome = getChromosomeFactory().getChromosome();
             getObjective(0).apply(chromosome);

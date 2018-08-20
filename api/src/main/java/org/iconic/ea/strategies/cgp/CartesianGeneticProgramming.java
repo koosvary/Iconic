@@ -18,11 +18,11 @@ public class CartesianGeneticProgramming<T> extends EvolutionaryAlgorithm<Cartes
 	}
 
 	@Override
-	public void initialisePopulation(int populationSize, int numFeatures){
+	public void initialisePopulation(int populationSize){
 		for (int i = 0; i < populationSize; i++) {
-			Chromosome<T> chromosome = chromosomeFactory.getChromosome();
+			CartesianChromosome<T> chromosome = chromosomeFactory.getChromosome();
 			getObjective(0).apply(chromosome);
-			getChromosomes().add((CartesianChromosome<T>) chromosome);
+			getChromosomes().add(chromosome);
 		}
 	}
 
@@ -43,9 +43,10 @@ public class CartesianGeneticProgramming<T> extends EvolutionaryAlgorithm<Cartes
 	public CartesianChromosome<T> mutate(CartesianChromosome<T> chromosome){
 		assert (getMutators().size() > 0);
 		assert (getObjectives().size() > 0);
-
 		final int lambda = 4;
+        final Comparator<Chromosome<T>> comparator = Comparator.comparing(Chromosome::getFitness);
 
+        // Generate a pool of mutants
 		List<CartesianChromosome<T>> children = new ArrayList<>(lambda);
 
 		for (int i = 0; i < lambda; ++i) {
@@ -53,14 +54,16 @@ public class CartesianGeneticProgramming<T> extends EvolutionaryAlgorithm<Cartes
 					chromosomeFactory.getFunctionalPrimitives(),
 					chromosome
 			);
+			getObjective(0).apply(child);
 			children.add(child);
 		}
 
-		final Comparator<Chromosome<T>> comparator = Comparator.comparing(Chromosome::getFitness);
+		// Select the best mutant
         CartesianChromosome<T> bestChild = children
                 .stream().min(comparator).get();
 
-		return (bestChild.getFitness() <= chromosome.getFitness())
+		// If they're equal to or better than the parent, replace the parent with the mutant
+        return (bestChild.getFitness() <= chromosome.getFitness())
                 ? bestChild
                 : chromosome;
 	}
