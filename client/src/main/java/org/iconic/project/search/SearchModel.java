@@ -53,8 +53,14 @@ public class SearchModel implements Runnable {
 
         // Add in the functions the chromosomes can use
         supplier.addFunction(Arrays.asList(
-                new Addition(), new Subtraction(), new Multiplication(), new Division(),
-                new Power(), new Root(), new Sin(), new Cos(), new Tan()
+                new AbsoluteValue(), new Addition(), new And(), new ArcCos(), new ArcSin(),
+                new ArcTan(), new Ceiling(), new Cos(), new Division(), new EqualTo(),
+                new Exponential(), new Floor(), new GaussianFunction(), new GreaterThan(),
+                new GreaterThanOrEqual(), new IfThenElse(), new LessThan(), new LessThanOrEqual(),
+                new LogisticFunction(), new Maximum(), new Minimum(), new Modulo(), new Multiplication(),
+                new NaturalLog(), new Negation(), new Not(), new Or(), new Power(), new Root(),
+                new SignFunction(), new Sin(), new SquareRoot(), new StepFunction(), new Subtraction(),
+                new Tan(), new Tanh(), new TwoArcTan(), new Xor()
         ));
 
         this.plots = new XYChart.Series<>();
