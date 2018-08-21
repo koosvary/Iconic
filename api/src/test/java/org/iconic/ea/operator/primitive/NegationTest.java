@@ -5,30 +5,28 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static java.lang.Double.NEGATIVE_INFINITY;
 import static java.lang.Double.NaN;
-import static java.lang.Double.POSITIVE_INFINITY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Test class for {@link NaturalLog}
+ * Test class for {@link Negation}
  *
  * @author Jack Newley
  */
 
-public class NaturalLogTest {
-    @DisplayName("Test NaturalLog using doubles")
+public class NegationTest {
+    @DisplayName("Test Negation using doubles")
     @MethodSource("doubleListProvider")
     @ParameterizedTest
     void addDoublesTest(final List<Double> args, final double expected) {
-        final FunctionalPrimitive<Double, Double> naturalLog = new NaturalLog();
+        final FunctionalPrimitive<Double, Double> negation = new Negation();
         final double delta = 0.001d;
-        final double actual = naturalLog.apply(args);
+        final double actual = negation.apply(args);
         assertEquals(expected, actual, delta);
     }
 
@@ -41,10 +39,9 @@ public class NaturalLogTest {
      */
     private static Stream<Arguments> doubleListProvider() {
         return Stream.of(
-                Arguments.of(Collections.singletonList(2.d), 0.6931471805599453),
-                Arguments.of(Collections.singletonList(0.d), NEGATIVE_INFINITY),
-                Arguments.of(Collections.singletonList(Double.POSITIVE_INFINITY), Double.POSITIVE_INFINITY),
-                Arguments.of(Collections.singletonList(-1.d), NaN)
+                Arguments.of(Collections.singletonList(2.d), -2.d),
+                Arguments.of(Collections.singletonList(Double.POSITIVE_INFINITY), NEGATIVE_INFINITY),
+                Arguments.of(Collections.singletonList(-1.d), 1.d)
 
         );
     }

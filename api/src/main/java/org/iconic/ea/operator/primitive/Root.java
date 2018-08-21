@@ -11,13 +11,10 @@ public class Root extends ArithmeticPrimitive<Number> {
                         return Math.pow(args.get(0), 1 / args.get(1));
                     } else if (args.get(0) < 0 - delta) {
                         double result = Math.pow(abs(args.get(0)), 1 / args.get(1));
-                        if (args.get(1) % 2 == 0) {
-                            return result;
-                        } else {
-                            return -result;
-                        }
+
+                        return (args.get(1) % 2 == 0) ? result : -result;
                     }
-                    return Double.POSITIVE_INFINITY;
+                    return Double.NaN;
                 },
                 2, "ROOT"
         );
