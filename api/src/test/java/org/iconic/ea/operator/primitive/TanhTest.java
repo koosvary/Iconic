@@ -38,9 +38,11 @@ public class TanhTest {
      */
     private static Stream<Arguments> doubleListProvider() {
         return Stream.of(
-                Arguments.of(Arrays.asList(10.d), 1.d),
+                Arguments.of(Arrays.asList(Double.POSITIVE_INFINITY), 1.d),
+                Arguments.of(Arrays.asList(Double.NEGATIVE_INFINITY), -1.d),
                 Arguments.of(Arrays.asList(0.d), 0.d),
-                Arguments.of(Arrays.asList(-1.d), 0.d)
+                Arguments.of(Arrays.asList(-1.d), -0.76159),
+                Arguments.of(Arrays.asList(2.d), 0.96402)
         );
     }
 }
