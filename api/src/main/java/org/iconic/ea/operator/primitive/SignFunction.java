@@ -6,7 +6,7 @@ public class SignFunction extends ArithmeticPrimitive<Number> {
     public SignFunction() {
         super(
                 args -> Math.signum(args.get(0)),
-                1, "sgn"
+                1, "SGN"
         );
     }
 }

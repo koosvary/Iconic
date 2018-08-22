@@ -4,7 +4,7 @@ public class Exponential extends ArithmeticPrimitive<Number> {
     public Exponential() {
         super(
                 args -> Math.exp(args.get(0)),
-                1, "e^"
+                1, "EXP"
         );
     }
 }
