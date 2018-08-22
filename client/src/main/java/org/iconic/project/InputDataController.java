@@ -78,15 +78,37 @@ public class InputDataController implements Initializable {
         Optional<DataManager<Double>> dataManager = getDataManager();
         int rowCount = dataManager.get().getSampleSize();
         int columnCount = dataManager.get().getFeatureSize();
-        GridBase grid = new GridBase(rowCount, columnCount);
 
         ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
-        for (int row = 0; row < grid.getRowCount(); ++row) {
+        int row = 0;
+        if(dataManager.get().containsHeader()){
+            final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
+            for (int column = 0; column < columnCount; ++column) {
+                String cellContents = String.valueOf(dataManager.get().getSampleHeaders().get(column));
+                SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
+                int finalColumn = column;
+                nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+                    try{
+                        String newHeader = String.valueOf(newValue);
+                        updateProjectHeaders(finalColumn,newHeader);
+                    }catch (Exception e) {
+                        //handle exception here
+                        nextCell.setItem(oldValue);
+                    }
+                });
+                list.add(nextCell);
+            }
+            rows.add(list);
+            row++;
+            rowCount++;
+        }
+        GridBase grid = new GridBase(rowCount, columnCount);
+        for(int cellRow = 0; cellRow < dataManager.get().getSampleSize(); cellRow++){
             final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
             for (int column = 0; column < grid.getColumnCount(); ++column) {
-                String cellContents = String.valueOf(dataManager.get().getSampleRow(row).get(column));
+                String cellContents = String.valueOf(dataManager.get().getSampleRow(cellRow).get(column));
                 SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
-                int changedRow = row;
+                int changedRow = cellRow;
                 int changedColumn = column;
                 nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
                     try{
@@ -100,6 +122,7 @@ public class InputDataController implements Initializable {
                 list.add(nextCell);
             }
             rows.add(list);
+            row++;
         }
         grid.setRows(rows);
 
@@ -109,6 +132,11 @@ public class InputDataController implements Initializable {
     private void updateProjectDataset(int row, int column, Number newValue){
         Optional<DataManager<Double>> dataManager = getDataManager();
         dataManager.get().getSampleColumn(column).set(row,newValue);
+    }
+
+    private void updateProjectHeaders(int column, String newValue){
+        Optional<DataManager<Double>> dataManager = getDataManager();
+        dataManager.get().updateHeaderAtIndex(column,newValue);
     }
 
     private Optional<DataManager<Double>> getDataManager() {
