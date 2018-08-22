@@ -7,6 +7,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import lombok.val;
@@ -28,12 +29,15 @@ public class InputDataController implements Initializable {
 
     @FXML
     private SpreadsheetView spreadsheet;
+    @FXML
+    private Button btnImportDataset;
+    @FXML
+    private Button btnExportDataset;
 
     @Inject
     public InputDataController(final ProjectService projectService, final WorkspaceService workspaceService) {
         this.projectService = projectService;
         this.workspaceService = workspaceService;
-
 
         // Update the workspace whenever the active dataset changes
         InvalidationListener selectionChangedListener = observable -> updateWorkspace();
@@ -49,6 +53,7 @@ public class InputDataController implements Initializable {
         }
         else{
             fillSpreadsheetByRow();
+            spreadsheet.setVisible(true);
         }
     }
 
@@ -56,10 +61,16 @@ public class InputDataController implements Initializable {
 
     private void clearUI() {
         spreadsheet.setGrid(new GridBase(0,0));
+        spreadsheet.setVisible(false);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        //Binds the visibility of the spreadsheet to the export dataset button
+        spreadsheet.managedProperty().bind(spreadsheet.visibleProperty());
+        btnExportDataset.managedProperty().bind(btnExportDataset.visibleProperty());
+        btnExportDataset.visibleProperty().bind(spreadsheet.visibleProperty());
+
         updateWorkspace();
     }
 
@@ -144,7 +155,7 @@ public class InputDataController implements Initializable {
         // Show the file dialog over the parent window
         File f = fileChooser.showSaveDialog(spreadsheet.getScene().getWindow());
 
-        if(f != null){
+        if(f != null && getDataManager().isPresent()){
             getDataManager().get().saveDatasetToFile(f);
         }
     }
