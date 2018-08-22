@@ -6,7 +6,7 @@ public class Tanh extends ArithmeticPrimitive<Number> {
     public Tanh() {
         super(
                 args -> Math.tanh(args.get(0)),
-                1, "gauss"
+                1, "TANH"
         );
     }
 }
