@@ -117,11 +117,12 @@ public class WorkspaceController implements Initializable {
 
         if (lvFeatures != null) {
             // lvFeatures - One of the items in the list is selected and the other objects need to be updates
-            lvFeatures.getSelectionModel().selectedItemProperty()
-                    .addListener((observable, oldValue, newValue) -> {
+            lvFeatures.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                        enablePreprocessingCheckboxes();
+
                         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
                         featureSelected(selectedIndex);
-                    });
+            });
         }
 
         // A quick way to add a listener for the checkboxes
@@ -130,6 +131,7 @@ public class WorkspaceController implements Initializable {
         addListenerToHideElement(cbRemoveOutliers, vbRemoveOutliers);
         addListenerToHideElement(cbNormalise, vbNormalise);
         addListenerToHideElement(cbFilter, vbFilter);
+
     }
 
     private void addListenerToHideElement(CheckBox cb, VBox vb) {
@@ -200,7 +202,7 @@ public class WorkspaceController implements Initializable {
      *
      * @param selectedIndex The item index that was selected in the ListView
      */
-    public void featureSelected(int selectedIndex) {
+    private void featureSelected(int selectedIndex) {
         // Update lcDataView
         if (lcDataView != null) {
             // Stores the currently selected header in the lvFeatures list
@@ -220,17 +222,12 @@ public class WorkspaceController implements Initializable {
                     double value = values.get(sample).doubleValue();
                     series.getData().add(new XYChart.Data<>(sample, value));
                 }
-
-                selectedHeader = String.valueOf(dataManager.get().getSampleHeaders().get(selectedIndex));
             }
             lcDataView.getData().add(series);
 
-            // Updates the selected header in the transformation text fields
-            cbSmoothData.setText("Smooth data points of (" + selectedHeader + ")");
-            cbHandleMissingValues.setText("Handle missing values of (" + selectedHeader + ")");
-            cbRemoveOutliers.setText("Remove outliers of (" + selectedHeader + ")");
-            cbNormalise.setText("Normalise scale and offset of (" + selectedHeader + ")");
-            cbFilter.setText("Filter data of (" + selectedHeader + ")");
+            // Updates the preprocessing methods text fields to reflect the respective header
+            selectedHeader = String.valueOf(dataManager.get().getSampleHeaders().get(selectedIndex));
+            updatePreprocessingTextFields(selectedHeader);
         }
     }
 
@@ -351,7 +348,23 @@ public class WorkspaceController implements Initializable {
                 lvFeatures.getItems().clear();
             }
         }
+    }
 
+    private void updatePreprocessingTextFields(String selectedHeader) {
+        // Updates the selected header in the transformation text fields
+        cbSmoothData.setText("Smooth data points of (" + selectedHeader + ")");
+        cbHandleMissingValues.setText("Handle missing values of (" + selectedHeader + ")");
+        cbRemoveOutliers.setText("Remove outliers of (" + selectedHeader + ")");
+        cbNormalise.setText("Normalise scale and offset of (" + selectedHeader + ")");
+        cbFilter.setText("Filter data of (" + selectedHeader + ")");
+    }
+
+    private void enablePreprocessingCheckboxes() {
+        cbSmoothData.setDisable(false);
+        cbHandleMissingValues.setDisable(false);
+        cbRemoveOutliers.setDisable(false);
+        cbNormalise.setDisable(false);
+        cbFilter.setDisable(false);
     }
 
     private void clearUI() {
