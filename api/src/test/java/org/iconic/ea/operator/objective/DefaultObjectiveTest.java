@@ -34,12 +34,12 @@ class DefaultObjectiveTest {
     private Chromosome<Double> chromosome;
 
     /**
-     * The setup method to run before EVERY test is started. (Not once overall)
+     * <p>The setup method to run before EVERY test is started. (Not once overall)</p>
      */
     @BeforeEach
     void setUp() {
         // We can also mock objects in-line.
-        DataManager<Double> dataManager = mock(DataManager.class);
+        @SuppressWarnings("unchecked") DataManager<Double> dataManager = mock(DataManager.class);
         // We have to define our lists before using them in a thenReturn() statement.
         List<Double> results = new LinkedList<>();
         results.addAll(Arrays.asList(1.0, 2.0, 3.0, 4.0));
