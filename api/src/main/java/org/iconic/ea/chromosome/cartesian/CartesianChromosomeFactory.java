@@ -9,8 +9,8 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * {@inheritDoc}
  *
- * <P>Chromosomes constructed by this factory form a graph, where the number of levels back determines
- * the maximum number of columns back that any node in the graph can connect to.</P>
+ * <p>Chromosomes constructed by this factory form a graph, where the number of levels back determines
+ * the maximum number of columns back that any node in the graph can connect to.</p>
  *
  * @param <T> The type class of the data to pass through the chromosome
  * TODO: incorporate references to J. Miller's textbook
@@ -75,7 +75,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
      * @param numRows    The number of rows to encode
      * @return the encoded tail of the chromosome
      */
-    public List<Integer> encodeTail(int numOutputs, int numInputs, int numColumns, int numRows) {
+     private List<Integer> encodeTail(int numOutputs, int numInputs, int numColumns, int numRows) {
         List<Integer> outputs = new ArrayList<>(numOutputs);
 
         for (int i = 0; i < numOutputs; ++i) {
@@ -124,8 +124,14 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
      * @param levelsBack    The maximum levels back a node is permitted to connect to
      * @return the encoded body of the chromosome
      */
-    public List<Integer> encodeBody(int numInputs, int numPrimitives, int numColumns, int numRows, int levelsBack) {
-        final int numGenes = numInputs + getGraphSize(numColumns, numRows) * (getMaxArity() + 1);
+    private List<Integer> encodeBody(int numInputs, int numPrimitives, int numColumns, int numRows, int levelsBack) {
+        // Use in-built math operations to prevent overflow/underflow
+        final int numGenes =
+                Math.multiplyExact(
+                        Math.addExact(numInputs, getGraphSize(numColumns, numRows)),
+                        Math.addExact(getMaxArity(), 1)
+                );
+
         List<Integer> genome = new ArrayList<>(numGenes);
 
         // Add inputs
@@ -167,8 +173,8 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
      *
      * @return the largest address in the graph that can be connected to for chromosomes constructed by the factory
      */
-    public int getAddressUpperBound(int numInputs, int numColumns, int numRows) {
-        return numInputs + getGraphSize(numColumns, numRows);
+    private int getAddressUpperBound(int numInputs, int numColumns, int numRows) {
+        return Math.addExact(numInputs, getGraphSize(numColumns, numRows));
     }
 
     /**
@@ -177,7 +183,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
      * @param numPrimitives The number of primitives available
      * @return the index of a random primitive
      */
-    public int getRandomPrimitive(int numPrimitives) {
+    private int getRandomPrimitive(int numPrimitives) {
         assert (numPrimitives > 0);
         return ThreadLocalRandom.current().nextInt(numPrimitives);
     }
@@ -191,13 +197,14 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
      * @param numInputs  The number of inputs
      * @return the index of a random primitive
      */
-    public int getRandomConnection(int index, int numRows, int levelsBack, int numInputs) {
+    private int getRandomConnection(int index, int numRows, int levelsBack, int numInputs) {
         final int column = index / numRows;
-        final int upperBound = numInputs + column * numRows;
+        final int upperBound = Math.addExact(numInputs, Math.multiplyExact(column, numRows));
 
         if (column >= levelsBack) {
             return ThreadLocalRandom.current().nextInt(
-                    numInputs + (column - levelsBack) * numRows, upperBound
+                    Math.addExact(numInputs, Math.multiplyExact(Math.subtractExact(column, levelsBack), numRows)),
+                    upperBound
             );
         }
 
@@ -211,7 +218,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
      *
      * @return the number of outputs supported by chromosomes constructed by the factory
      */
-    public int getNumOutputs() {
+    private int getNumOutputs() {
         return numOutputs;
     }
 
@@ -220,7 +227,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
      *
      * @return the number of features that can be expressed by chromosomes constructed by the factory
      */
-    public int getNumInputs() {
+    private int getNumInputs() {
         return numInputs;
     }
 
@@ -229,7 +236,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
      *
      * @return the number of columns within chromosomes constructed by the factory
      */
-    public int getColumns() {
+    private int getColumns() {
         return columns;
     }
 
@@ -238,7 +245,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
      *
      * @return the number of rows within chromosomes constructed by the factory
      */
-    public int getRows() {
+    private int getRows() {
         return rows;
     }
 
@@ -247,7 +254,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
      *
      * @return the number of levels back adhered to by chromosomes constructed by the factory
      */
-    public int getLevelsBack() {
+    private int getLevelsBack() {
         return levelsBack;
     }
 }
