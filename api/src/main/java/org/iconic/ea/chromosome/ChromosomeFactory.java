@@ -2,8 +2,8 @@ package org.iconic.ea.chromosome;
 
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>
@@ -14,11 +14,12 @@ import java.util.List;
  * @param <R> The type class of the data to pass through the chromosome
  */
 public abstract class ChromosomeFactory<T extends Chromosome<R>, R> {
-    protected final List<FunctionalPrimitive<R, R>> functionalPrimitives;
+    protected final SortedMap<String, FunctionalPrimitive<R, R>> functionalPrimitives;
     private int maxArity;
+    private AtomicInteger mapIndex = new AtomicInteger(0);
 
     protected ChromosomeFactory() {
-        functionalPrimitives = new LinkedList<>();
+        functionalPrimitives = new TreeMap<>();
         this.maxArity = 0;
     }
 
@@ -30,7 +31,7 @@ public abstract class ChromosomeFactory<T extends Chromosome<R>, R> {
     public abstract T getChromosome();
 
     public List<FunctionalPrimitive<R, R>> getFunctionalPrimitives() {
-        return functionalPrimitives;
+        return new LinkedList<>(functionalPrimitives.values());
     }
 
     public FunctionalPrimitive<R, R> getFunction(int i) {
@@ -40,7 +41,10 @@ public abstract class ChromosomeFactory<T extends Chromosome<R>, R> {
     public void addFunction(List<FunctionalPrimitive<R, R>> functions) {
         assert (functions.size() > 0);
 
-        getFunctionalPrimitives().addAll(functions);
+        for(FunctionalPrimitive f : functions
+        ){
+            functionalPrimitives.put(f.getSymbol(),f);
+        }
     }
 
     /**

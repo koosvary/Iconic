@@ -57,7 +57,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
         assert (numPrimitives > 0);
 
         return new CartesianChromosome<>(
-                functionalPrimitives, getNumInputs(), getColumns(), getRows(), getLevelsBack(),
+                getFunctionalPrimitives(), getNumInputs(), getColumns(), getRows(), getLevelsBack(),
                 encodeTail(getNumOutputs(), getNumInputs(), getColumns(), getRows()),
                 encodeBody(getNumInputs(), numPrimitives, getColumns(), getRows(), getLevelsBack())
         );
