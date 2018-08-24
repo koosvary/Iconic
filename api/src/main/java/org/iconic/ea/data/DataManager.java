@@ -1,6 +1,7 @@
 package org.iconic.ea.data;
 
 import lombok.extern.log4j.Log4j2;
+import org.iconic.ea.data.preprocessing.Transformation;
 
 import java.io.*;
 import java.util.*;
@@ -14,6 +15,7 @@ public class DataManager<T> {
     private String fileName;
     private List<String> sampleHeaders;
     private List<String> expectedOutputHeaders;
+    private List<Transformation> transformations;
     private HashMap<String, FeatureClass<Number>> dataset;
     private int featureSize;
     private int sampleSize;
@@ -23,6 +25,7 @@ public class DataManager<T> {
         this.fileName = fileName;
         expectedOutputHeaders = new ArrayList<>();
         sampleHeaders = new ArrayList<>();
+        transformations = new ArrayList<>();
 
         try {
             importData(this.fileName);
@@ -256,5 +259,9 @@ public class DataManager<T> {
         for (int i=0; i < sampleSize; i++) {
             dataset.get(sampleHeaders.get(headerIndex)).resetModifiedSample(i);
         }
+    }
+
+    public List<Transformation> getTransformations() {
+        return transformations;
     }
 }

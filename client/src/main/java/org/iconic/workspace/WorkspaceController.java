@@ -19,6 +19,8 @@ import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.ea.data.DataManager;
+import org.iconic.ea.data.preprocessing.TransformType;
+import org.iconic.ea.data.preprocessing.Transformation;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.definition.DefineSearchService;
@@ -118,10 +120,12 @@ public class WorkspaceController implements Initializable {
         if (lvFeatures != null) {
             // lvFeatures - One of the items in the list is selected and the other objects need to be updates
             lvFeatures.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                        enablePreprocessingCheckboxes();
+                        enablePreprocessingCheckBoxes();
 
                         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
                         featureSelected(selectedIndex);
+
+                        updateCheckBoxes(selectedIndex);
             });
         }
 
@@ -131,7 +135,6 @@ public class WorkspaceController implements Initializable {
         addListenerToHideElement(cbRemoveOutliers, vbRemoveOutliers);
         addListenerToHideElement(cbNormalise, vbNormalise);
         addListenerToHideElement(cbFilter, vbFilter);
-
     }
 
     private void addListenerToHideElement(CheckBox cb, VBox vb) {
@@ -226,8 +229,10 @@ public class WorkspaceController implements Initializable {
             lcDataView.getData().add(series);
 
             // Updates the preprocessing methods text fields to reflect the respective header
-            selectedHeader = String.valueOf(dataManager.get().getSampleHeaders().get(selectedIndex));
-            updatePreprocessingTextFields(selectedHeader);
+            if (dataManager.isPresent()) {
+                selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+                updatePreprocessingTextFields(selectedHeader);
+            }
         }
     }
 
@@ -252,6 +257,11 @@ public class WorkspaceController implements Initializable {
                     } catch (Exception e) {
                         log.error("Min and Max values must be a Number");
                     }
+
+                    String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+
+                    Transformation transformation = new Transformation(selectedHeader, TransformType.Normalised);
+                    dataManager.get().getTransformations().add(transformation);
                 }
                 // Otherwise reset the sample column
                 else if (dataManager.isPresent()) {
@@ -275,6 +285,11 @@ public class WorkspaceController implements Initializable {
 
                     values = Smooth.apply(values);
                     dataManager.get().setSampleColumn(selectedIndex, values);
+
+                    String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+
+                    Transformation transformation = new Transformation(selectedHeader, TransformType.Smoothed);
+                    dataManager.get().getTransformations().add(transformation);
                 }
                 // Otherwise reset the sample column
                 else if (dataManager.isPresent()) {
@@ -359,12 +374,63 @@ public class WorkspaceController implements Initializable {
         cbFilter.setText("Filter data of (" + selectedHeader + ")");
     }
 
-    private void enablePreprocessingCheckboxes() {
+    private void updateCheckBoxes(int selectedIndex) {
+        clearCheckBoxes();
+
+        Optional<DataManager<Double>> dataManager = getDataManager();
+
+        if (dataManager.isPresent()) {
+            List<Transformation> transformations = dataManager.get().getTransformations();
+            String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+
+            if (transformations != null) {
+                for (int i = 0; i < transformations.size(); i++) {
+                    if (transformations.get(i).getHeader().equals(selectedHeader)) {
+                        enableCheckBox(transformations.get(i).getTransform());
+                    }
+                }
+            }
+        }
+    }
+
+    private void enableCheckBox(TransformType transform) {
+        switch (transform) {
+            case Smoothed:
+                cbSmoothData.setSelected(true);
+                break;
+
+            case MissingValuesHandled:
+                cbHandleMissingValues.setSelected(true);
+                break;
+
+            case OutliersRemoved:
+                cbRemoveOutliers.setSelected(true);
+                break;
+
+            case Normalised:
+                cbNormalise.setSelected(true);
+                break;
+
+            case Filtered:
+                cbFilter.setSelected(true);
+                break;
+        }
+    }
+
+    private void enablePreprocessingCheckBoxes() {
         cbSmoothData.setDisable(false);
         cbHandleMissingValues.setDisable(false);
         cbRemoveOutliers.setDisable(false);
         cbNormalise.setDisable(false);
         cbFilter.setDisable(false);
+    }
+
+    private void clearCheckBoxes() {
+        cbSmoothData.setSelected(false);
+        cbHandleMissingValues.setSelected(false);
+        cbRemoveOutliers.setSelected(false);
+        cbNormalise.setSelected(false);
+        cbFilter.setSelected(false);
     }
 
     private void clearUI() {
