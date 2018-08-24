@@ -120,11 +120,14 @@ public class WorkspaceController implements Initializable {
         if (lvFeatures != null) {
             // lvFeatures - One of the items in the list is selected and the other objects need to be updates
             lvFeatures.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                        // Once a feature is selected, the pre-processing checkboxes are enabled
                         enablePreprocessingCheckBoxes();
 
+                        // Update the data view and pre-processing text fields
                         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
                         featureSelected(selectedIndex);
 
+                        // Update the respective checkboxes of the selected feature
                         updateCheckBoxes(selectedIndex);
             });
         }
@@ -200,8 +203,8 @@ public class WorkspaceController implements Initializable {
     }
 
     /**
-     * Updates the lcDataView with new dataset values and toggles all the features that are being
-     * used by this feature such as: smoothing, normalised, etc.
+     * Updates the lcDataView with new dataset values and the pre-processing checkboxes text
+     * fields to reflect the currently selected feature.
      *
      * @param selectedIndex The item index that was selected in the ListView
      */
@@ -236,6 +239,9 @@ public class WorkspaceController implements Initializable {
         }
     }
 
+    /**
+     * Applies a normalisation transform to the current dataset stored in the DataManager.
+     */
     public void normalizeDatasetFeature() {
         if (lvFeatures != null) {
             int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
@@ -258,8 +264,11 @@ public class WorkspaceController implements Initializable {
                         log.error("Min and Max values must be a Number");
                     }
 
+                    // Retrieves the header string of the currently selected feature
                     String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
 
+                    // Creates a new transformation object, storing the feature that was transformed and
+                    // the type of transformation
                     Transformation transformation = new Transformation(selectedHeader, TransformType.Normalised);
                     dataManager.get().getTransformations().add(transformation);
                 }
@@ -273,6 +282,9 @@ public class WorkspaceController implements Initializable {
         }
     }
 
+    /**
+     * Applies a smoothing transform to the current dataset stored in the DataManager.
+     */
     public void smoothDatasetFeature() {
         if (lvFeatures != null) {
             int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
@@ -286,8 +298,11 @@ public class WorkspaceController implements Initializable {
                     values = Smooth.apply(values);
                     dataManager.get().setSampleColumn(selectedIndex, values);
 
+                    // Retrieves the header string of the currently selected feature
                     String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
 
+                    // Creates a new transformation object, storing the feature that was transformed and
+                    // the type of transformation
                     Transformation transformation = new Transformation(selectedHeader, TransformType.Smoothed);
                     dataManager.get().getTransformations().add(transformation);
                 }
@@ -365,6 +380,12 @@ public class WorkspaceController implements Initializable {
         }
     }
 
+    /**
+     * Updates the pre-processing checkboxes to reflect the currently selected header.
+     * This method is called each time a new feature is selected in lvFeatures.
+     *
+     * @param selectedHeader The string value of the currently selected header
+     */
     private void updatePreprocessingTextFields(String selectedHeader) {
         // Updates the selected header in the transformation text fields
         cbSmoothData.setText("Smooth data points of (" + selectedHeader + ")");
@@ -374,6 +395,13 @@ public class WorkspaceController implements Initializable {
         cbFilter.setText("Filter data of (" + selectedHeader + ")");
     }
 
+    /**
+     * Updates the pre-processing checkboxes to be either selected (ticked) or not selected (unticked)
+     * based upon a list of previously applied transformations.
+     * This method is called each time a new feature is selected in lvFeatures.
+     *
+     * @param selectedIndex The integer corresponding to the currently selected feature
+     */
     private void updateCheckBoxes(int selectedIndex) {
         clearCheckBoxes();
 
@@ -393,6 +421,12 @@ public class WorkspaceController implements Initializable {
         }
     }
 
+    /**
+     * Takes a transformation type as input and selects the checkbox corresponding with that
+     * transformation type.
+     *
+     * @param transform The type of a previous transform
+     */
     private void enableCheckBox(TransformType transform) {
         switch (transform) {
             case Smoothed:
@@ -417,6 +451,10 @@ public class WorkspaceController implements Initializable {
         }
     }
 
+    /**
+     * Enabled all pre-processing checkboxes so that the user can interact with them.
+     * This method is called once a feature is selected.
+     */
     private void enablePreprocessingCheckBoxes() {
         cbSmoothData.setDisable(false);
         cbHandleMissingValues.setDisable(false);
@@ -425,6 +463,10 @@ public class WorkspaceController implements Initializable {
         cbFilter.setDisable(false);
     }
 
+    /**
+     * Resets all checkboxes to an unselected state.
+     * This method is called before checkboxes are updated to reflect previous transformations.
+     */
     private void clearCheckBoxes() {
         cbSmoothData.setSelected(false);
         cbHandleMissingValues.setSelected(false);
@@ -433,6 +475,9 @@ public class WorkspaceController implements Initializable {
         cbFilter.setSelected(false);
     }
 
+    /**
+     * Clears the search graphs.
+     */
     private void clearUI() {
         // Make sure the UI element actually exists
         if (lcDataView != null) {
