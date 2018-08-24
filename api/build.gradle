@@ -38,3 +38,7 @@ jar {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
+
+test {
+    useJUnitPlatform()
+}
