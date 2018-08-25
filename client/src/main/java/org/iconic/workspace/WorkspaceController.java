@@ -2,6 +2,8 @@ package org.iconic.workspace;
 
 import com.google.inject.Inject;
 import javafx.beans.InvalidationListener;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -29,7 +31,9 @@ import org.iconic.project.search.SearchService;
 import org.iconic.ea.data.preprocessing.Normalise;
 import org.iconic.ea.data.preprocessing.Smooth;
 
+import java.awt.*;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.*;
@@ -48,6 +52,10 @@ public class WorkspaceController implements Initializable {
     private final SearchService searchService;
     private final WorkspaceService workspaceService;
     private final DefineSearchService defineSearchService;
+    // A flag which determines whether the pre-processing checkboxes are disabled by the user
+    // or reset within this class. It's used to avoid firing the changeListener's changed()
+    // event when manually enabling/disabling checkboxes.
+    private boolean resetCheckboxFlag = false;
 
     @FXML
     private Button btnSearch;
@@ -133,21 +141,53 @@ public class WorkspaceController implements Initializable {
         }
 
         // A quick way to add a listener for the checkboxes
-        addListenerToHideElement(cbSmoothData, vbSmoothData);
-        addListenerToHideElement(cbHandleMissingValues, vbHandleMissingValues);
-        addListenerToHideElement(cbRemoveOutliers, vbRemoveOutliers);
-        addListenerToHideElement(cbNormalise, vbNormalise);
-        addListenerToHideElement(cbFilter, vbFilter);
+        addChangeListener(cbSmoothData, vbSmoothData);
+        addChangeListener(cbHandleMissingValues, vbHandleMissingValues);
+        addChangeListener(cbRemoveOutliers, vbRemoveOutliers);
+        addChangeListener(cbNormalise, vbNormalise);
+        addChangeListener(cbFilter, vbFilter);
     }
 
-    private void addListenerToHideElement(CheckBox cb, VBox vb) {
-        if (cb != null)
-            cb.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                if (vb != null) {
-                    vb.setManaged(newValue);
-                    vb.setVisible(newValue);
+    /**
+     * Adds a ChangeListener to the pre-processing checkboxes to fire the changed() event when the user
+     * selects or deselects an option.
+     *
+     * @param checkbox
+     * @param vbox
+     */
+    private void addChangeListener(CheckBox checkbox, VBox vbox) {
+        if (checkbox != null) {
+            checkbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+                @Override
+                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                    if (!resetCheckboxFlag) {
+                        if (newValue) {
+                            // Checkbox has been selected
+                        } else {
+                            // Checkbox has been unselected
+
+                            Optional<DataManager<Double>> dataManager = getDataManager();
+
+                            if (dataManager.isPresent()) {
+                                // String value of the currently selected feature
+                                String selectedHeader = lvFeatures.getSelectionModel().getSelectedItem();
+                                // Transform type of the current checkbox
+                                TransformType transformType = convertCheckBoxToTransformType(checkbox);
+
+                                // Removes the transformation from the stored list based on its header and transformType
+                                dataManager.get().removeTransformation(selectedHeader, transformType);
+                            }
+                        }
+
+                        // Shows or hides the checkboxes options based on whether it is selected or not
+                        if (vbox != null) {
+                            vbox.setManaged(newValue);
+                            vbox.setVisible(newValue);
+                        }
+                    }
                 }
             });
+        }
     }
 
     /**
@@ -428,6 +468,8 @@ public class WorkspaceController implements Initializable {
      * @param transform The type of a previous transform
      */
     private void enableCheckBox(TransformType transform) {
+        resetCheckboxFlag = true;
+
         switch (transform) {
             case Smoothed:
                 cbSmoothData.setSelected(true);
@@ -449,6 +491,8 @@ public class WorkspaceController implements Initializable {
                 cbFilter.setSelected(true);
                 break;
         }
+
+        resetCheckboxFlag = false;
     }
 
     /**
@@ -464,15 +508,43 @@ public class WorkspaceController implements Initializable {
     }
 
     /**
+     * Given one of the five pre-processing checkboxes, this method determines its corresponding TransformType.
+     *
+     * @param checkbox The checkbox that has been selected
+     * @return The corresponding TransformType
+     */
+    private TransformType convertCheckBoxToTransformType(CheckBox checkbox) {
+        if (checkbox == cbSmoothData) {
+            return TransformType.Smoothed;
+        }
+        else if (checkbox == cbHandleMissingValues) {
+            return TransformType.MissingValuesHandled;
+        }
+        else if (checkbox == cbRemoveOutliers) {
+            return TransformType.OutliersRemoved;
+        }
+        else if (checkbox == cbNormalise) {
+            return TransformType.Normalised;
+        }
+        else {
+            return TransformType.Filtered;
+        }
+    }
+
+    /**
      * Resets all checkboxes to an unselected state.
      * This method is called before checkboxes are updated to reflect previous transformations.
      */
     private void clearCheckBoxes() {
+        resetCheckboxFlag = true;
+
         cbSmoothData.setSelected(false);
         cbHandleMissingValues.setSelected(false);
         cbRemoveOutliers.setSelected(false);
         cbNormalise.setSelected(false);
         cbFilter.setSelected(false);
+
+        resetCheckboxFlag = false;
     }
 
     /**
