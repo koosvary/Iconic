@@ -161,14 +161,21 @@ public class WorkspaceController implements Initializable {
                 @Override
                 public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                     if (!resetCheckboxFlag) {
-                        if (newValue) {
-                            // Checkbox has been selected
-                            System.out.println("Checkbox ticked.");
-                        } else {
-                            // Checkbox has been unselected
-                            System.out.println("Checkbox unticked");
+                        Optional<DataManager<Double>> dataManager = getDataManager();
 
-                            removeExistingTransform(checkbox);
+                        if (dataManager.isPresent()) {
+                            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+                            String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+
+                            if (newValue) {
+                                // Checkbox has been selected
+                                addNewTransform(selectedHeader, convertCheckBoxToTransformType(checkbox));
+                            } else {
+                                // Checkbox has been unselected
+                                removeExistingTransform(checkbox);
+                            }
+
+                            updateModifiedText(selectedIndex, selectedHeader);
                         }
                     }
 
@@ -179,6 +186,31 @@ public class WorkspaceController implements Initializable {
                     }
                 }
             });
+        }
+    }
+
+    /**
+     * Called after a checkbox has been selected. A check is done to determine whether the feature
+     * has been modified. If so, a 'modified' keyword is appended to the header and the feature list
+     * is updated.
+     *
+     * @param selectedIndex Index of currently selected feature
+     * @param selectedHeader Header of currently selected feature
+     */
+    private void updateModifiedText(int selectedIndex, String selectedHeader) {
+        Optional<DataManager<Double>> dataManager = getDataManager();
+        ObservableList items = lvFeatures.getItems();
+
+        if (dataManager.isPresent()) {
+            String newHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+
+            if (dataManager.get().getDataset().get(selectedHeader).isModified()) {
+                newHeader += " modified";
+            }
+
+            items.set(selectedIndex, newHeader);
+
+            lvFeatures.setItems(items);
         }
     }
 
@@ -295,11 +327,6 @@ public class WorkspaceController implements Initializable {
                     } catch (Exception e) {
                         log.error("Min and Max values must be a Number");
                     }
-
-                    // Retrieves the header string of the currently selected feature
-                    String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
-
-                    addNewTransform(selectedHeader, TransformType.Normalised);
                 }
                 // Otherwise reset the sample column
                 else if (dataManager.isPresent()) {
@@ -326,11 +353,6 @@ public class WorkspaceController implements Initializable {
 
                     values = Smooth.apply(values);
                     dataManager.get().setSampleColumn(selectedIndex, values);
-
-                    // Retrieves the header string of the currently selected feature
-                    String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
-
-                    addNewTransform(selectedHeader, TransformType.Smoothed);
                 }
                 // Otherwise reset the sample column
                 else if (dataManager.isPresent()) {
@@ -342,6 +364,12 @@ public class WorkspaceController implements Initializable {
         }
     }
 
+    /**
+     * Adds a new transformation to the FeatureClass list
+     *
+     * @param header Used to identify the specific FeatureClass and header of the new transformation
+     * @param transformType Used to define the transform type of the new transformation
+     */
     private void addNewTransform(String header, TransformType transformType) {
         Optional<DataManager<Double>> dataManager = getDataManager();
 
@@ -355,6 +383,11 @@ public class WorkspaceController implements Initializable {
         }
     }
 
+    /**
+     * Removes an existing transformation after a pre-processing checkbox has been deselected
+     *
+     * @param checkbox Identifies the type of transform to be removed
+     */
     private void removeExistingTransform(CheckBox checkbox) {
         Optional<DataManager<Double>> dataManager = getDataManager();
 
