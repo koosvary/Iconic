@@ -163,27 +163,19 @@ public class WorkspaceController implements Initializable {
                     if (!resetCheckboxFlag) {
                         if (newValue) {
                             // Checkbox has been selected
+                            System.out.println("Checkbox ticked.");
                         } else {
                             // Checkbox has been unselected
+                            System.out.println("Checkbox unticked");
 
-                            Optional<DataManager<Double>> dataManager = getDataManager();
-
-                            if (dataManager.isPresent()) {
-                                // String value of the currently selected feature
-                                String selectedHeader = lvFeatures.getSelectionModel().getSelectedItem();
-                                // Transform type of the current checkbox
-                                TransformType transformType = convertCheckBoxToTransformType(checkbox);
-
-                                // Removes the transformation from the stored list based on its header and transformType
-                                dataManager.get().removeTransformation(selectedHeader, transformType);
-                            }
+                            removeExistingTransform(checkbox);
                         }
+                    }
 
-                        // Shows or hides the checkboxes options based on whether it is selected or not
-                        if (vbox != null) {
-                            vbox.setManaged(newValue);
-                            vbox.setVisible(newValue);
-                        }
+                    // Shows or hides the checkboxes options based on whether it is selected or not
+                    if (vbox != null) {
+                        vbox.setManaged(newValue);
+                        vbox.setVisible(newValue);
                     }
                 }
             });
@@ -307,10 +299,7 @@ public class WorkspaceController implements Initializable {
                     // Retrieves the header string of the currently selected feature
                     String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
 
-                    // Creates a new transformation object, storing the feature that was transformed and
-                    // the type of transformation
-                    Transformation transformation = new Transformation(selectedHeader, TransformType.Normalised);
-                    dataManager.get().getTransformations().add(transformation);
+                    addNewTransform(selectedHeader, TransformType.Normalised);
                 }
                 // Otherwise reset the sample column
                 else if (dataManager.isPresent()) {
@@ -341,10 +330,7 @@ public class WorkspaceController implements Initializable {
                     // Retrieves the header string of the currently selected feature
                     String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
 
-                    // Creates a new transformation object, storing the feature that was transformed and
-                    // the type of transformation
-                    Transformation transformation = new Transformation(selectedHeader, TransformType.Smoothed);
-                    dataManager.get().getTransformations().add(transformation);
+                    addNewTransform(selectedHeader, TransformType.Smoothed);
                 }
                 // Otherwise reset the sample column
                 else if (dataManager.isPresent()) {
@@ -352,6 +338,34 @@ public class WorkspaceController implements Initializable {
                 }
 
                 featureSelected(selectedIndex);
+            }
+        }
+    }
+
+    private void addNewTransform(String header, TransformType transformType) {
+        Optional<DataManager<Double>> dataManager = getDataManager();
+
+        // Creates a new transformation object, storing the feature that was transformed and
+        // the type of transformation
+        Transformation newTransformation = new Transformation(header, transformType);
+
+        if (dataManager.isPresent()) {
+            dataManager.get().getDataset().get(header).addTransformation(newTransformation);
+            dataManager.get().getDataset().get(header).setModified(true);
+        }
+    }
+
+    private void removeExistingTransform(CheckBox checkbox) {
+        Optional<DataManager<Double>> dataManager = getDataManager();
+
+        if (dataManager.isPresent()) {
+            String selectedHeader = dataManager.get().getSampleHeaders().get(lvFeatures.getSelectionModel().getSelectedIndex());
+            TransformType transformType = convertCheckBoxToTransformType(checkbox);
+
+            dataManager.get().getDataset().get(selectedHeader).removeTransformation(transformType);
+
+            if (dataManager.get().getDataset().get(selectedHeader).getTransformations().size() == 0) {
+                dataManager.get().getDataset().get(selectedHeader).setModified(false);
             }
         }
     }
@@ -437,7 +451,7 @@ public class WorkspaceController implements Initializable {
 
     /**
      * Updates the pre-processing checkboxes to be either selected (ticked) or not selected (unticked)
-     * based upon a list of previously applied transformations.
+     * based upon a list of applied transformations.
      * This method is called each time a new feature is selected in lvFeatures.
      *
      * @param selectedIndex The integer corresponding to the currently selected feature
@@ -448,14 +462,13 @@ public class WorkspaceController implements Initializable {
         Optional<DataManager<Double>> dataManager = getDataManager();
 
         if (dataManager.isPresent()) {
-            List<Transformation> transformations = dataManager.get().getTransformations();
             String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
 
-            if (transformations != null) {
-                for (int i = 0; i < transformations.size(); i++) {
-                    if (transformations.get(i).getHeader().equals(selectedHeader)) {
-                        enableCheckBox(transformations.get(i).getTransform());
-                    }
+            if (dataManager.get().getDataset().get(selectedHeader).isModified()) {
+                List<Transformation> transformations = dataManager.get().getDataset().get(selectedHeader).getTransformations();
+
+                for (int i=0; i < transformations.size(); i++) {
+                    enableCheckBox(transformations.get(i).getTransform());
                 }
             }
         }

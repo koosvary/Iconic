@@ -1,8 +1,6 @@
 package org.iconic.ea.data;
 
 import lombok.extern.log4j.Log4j2;
-import org.iconic.ea.data.preprocessing.TransformType;
-import org.iconic.ea.data.preprocessing.Transformation;
 
 import java.io.*;
 import java.util.*;
@@ -16,7 +14,6 @@ public class DataManager<T> {
     private String fileName;
     private List<String> sampleHeaders;
     private List<String> expectedOutputHeaders;
-    private List<Transformation> transformations;
     private HashMap<String, FeatureClass<Number>> dataset;
     private int featureSize;
     private int sampleSize;
@@ -26,7 +23,6 @@ public class DataManager<T> {
         this.fileName = fileName;
         expectedOutputHeaders = new ArrayList<>();
         sampleHeaders = new ArrayList<>();
-        transformations = new ArrayList<>();
 
         try {
             importData(this.fileName);
@@ -221,7 +217,6 @@ public class DataManager<T> {
 
     public ArrayList<Number> getSampleColumn(int column) {
         String columnName = sampleHeaders.get(column);
-
         return getSampleColumn(columnName);
     }
 
@@ -259,28 +254,6 @@ public class DataManager<T> {
     public void resetSampleColumn(int headerIndex) {
         for (int i=0; i < sampleSize; i++) {
             dataset.get(sampleHeaders.get(headerIndex)).resetModifiedSample(i);
-        }
-    }
-
-    public List<Transformation> getTransformations() {
-        return transformations;
-    }
-
-    /**
-     * Removes a transformation from the stored list given a header string and TransformType.
-     *
-     * @param header String used to identify the feature that was transformed.
-     * @param transformType Enum used to identify the type of transformation.
-     */
-    public void removeTransformation(String header, TransformType transformType) {
-        for (int i=0; i < transformations.size(); i++) {
-            Transformation currTransformation = transformations.get(i);
-
-            if (currTransformation.getHeader().equals(header)
-                    && currTransformation.getTransform().equals(transformType)) {
-                transformations.remove(i);
-                break;
-            }
         }
     }
 }
