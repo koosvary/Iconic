@@ -1,6 +1,5 @@
 package org.iconic.ea.chromosome.cartesian;
 
-import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.LinearChromosome;
 import org.iconic.ea.data.DataManager;
@@ -11,9 +10,13 @@ import java.util.*;
 
 /**
  * {@inheritDoc}
- * <p>A chromosome that encodes a graph.</p>
+ * <p>Cartesian chromosomes encodes a graph and can have different graph dimensions, controlled by
+ * the number of columns, rows, and the amount of connectivity between nodes.</p>
+ *
+ * <p>This implementation of a cartesian chromosome is based on feed-forward Cartesian Genetic Programming.
+ * Cycles in the graph are prevented by restricting nodes in the graph such that they can only connect to
+ * preceding nodes. The genome is linearly encoded and can support multiple outputs.</p>
  */
-@Log4j2
 public class CartesianChromosome<T> extends Chromosome<T> implements LinearChromosome<Integer>, Cloneable {
     private Map<Integer, List<Integer>> phenome;
     private List<Integer> outputs;
@@ -25,12 +28,13 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     private final int maxArity;
 
     /**
-     * <p>Constructs a new cartesian chromosome with the provided head length, tail length, and number of inputs</p>
+     * <p>Constructs a new cartesian chromosome with the provided number of inputs, columns, rows, and
+     * maximum number of levels back that those nodes may connect to</p>
      *
      * @param numInputs  The number of inputs that may be expressed by the chromosome
-     * @param columns    The number of columns
-     * @param rows       The number of rows
-     * @param levelsBack The
+     * @param columns    The number of columns in the chromosome
+     * @param rows       The number of rows in the chromosome
+     * @param levelsBack The maximum number of levels back that nodes may connect to
      */
     public CartesianChromosome(
             List<FunctionalPrimitive<T, T>> primitives,
@@ -79,17 +83,28 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * @param node
-     * @param inputs
-     * @param maxArity
-     * @return
+     * <p>Converts the node at the provided position in the graph to an index within the entire genome</p>
+     *
+     * @param node     the position of the node to produce an index for
+     * @param inputs   the number of inputs in the chromosome the node belongs to
+     * @param maxArity the maximum arity of the chromosome the node belongs to
+     * @return         the index of the node within its genome
      */
     static public int nodeToIndex(int node, int inputs, int maxArity) {
         return (node < inputs) ? node : (maxArity + 1) * (node - inputs) + inputs;
     }
 
+
     /**
      * <p>Generates the output of all active nodes in this chromosome</p>
+     *
+     * @param activeNodes the active nodes in the chromosome to evaluate grouped by output node
+     * @param genome      the genome of the chromosome
+     * @param inputs      the number of inputs in the chromosome
+     * @param outputs     the outputs in the chromosome
+     * @param primitives  the primitives available to the chromosome
+     * @param samples     the samples to use for generating the output
+     * @return a result for every output based on the provided samples
      */
     protected Map<Integer, T> generateOutput(Map<Integer, List<Integer>> activeNodes, List<Integer> genome,
                                              int inputs, List<Integer> outputs,
@@ -99,23 +114,30 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         Map<Integer, T> results = new HashMap<>();
         Map<Integer, T> allActiveNodes = new TreeMap<>();
 
+        // Flatten the map of active nodes as we no longer care what output, each node is associated with.
+        // Each key in the new map is the node's position and the value is its evaluated result
         for (List<Integer> nodes : activeNodes.values()) {
             for (Integer node : nodes) {
                 allActiveNodes.put(node, null);
             }
         }
 
+        // The chromosome will produce one result for every output
+        // all outputs will eventually (must) produce a result
         for (Integer output : outputs) {
             allActiveNodes.put(output, null);
         }
 
+        // Preallocate the map with the input values
         for (int i = 0; i < inputs; ++i) {
             allActiveNodes.put(i, samples.get(i));
         }
 
+        // For every active node calculate its output
         for (Integer node : allActiveNodes.keySet()) {
             final int index = nodeToIndex(node, inputs, getMaxArity());
 
+            // If the node isn't null, don't bother recalculating it
             if (allActiveNodes.get(node) == null) {
                 final int functionGene = genome.get(index);
                 final FunctionalPrimitive<T, T> f = primitives.get(functionGene);
@@ -129,12 +151,13 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
                     );
                 }
 
-                // Calculate the output
+                // Calculate the output - this works because we start from the inputs and work our
+                // way up to the outputs; the preceding nodes are always calculated first
                 allActiveNodes.put(node, f.apply(params));
             }
         }
 
-        // Store the final output
+        // Store the final output in a single list
         for (Integer output : outputs) {
             results.put(output, allActiveNodes.get(output));
         }
@@ -145,9 +168,9 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     /**
      * <p>Returns the active nodes for each output in the genome, a.k.a. the phenotype</p>
      *
-     * @param inputs     The number of inputs
-     * @param genome     The genome
-     * @param outputs    The outputs
+     * @param inputs     The number of inputs in the chromosome
+     * @param genome     The genome of the chromosome
+     * @param outputs    The outputs of the chromosome
      * @param primitives The primitives used in the genome
      * @return an ordered list of active nodes sorted by their respective output node
      */
@@ -205,21 +228,27 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
      */
     @Override
     public List<Map<Integer, T>> evaluate(final DataManager<T> dataManager) {
-        List<String> headers = dataManager.getSampleHeaders();
-        int numSamples = dataManager.getSampleSize();
-        List<Map<Integer, T>> calculatedValues = new ArrayList<>(numSamples);
+        // Fetch all labels so we can access each sample by column later on
+        final List<String> headers = dataManager.getSampleHeaders();
+        final int numSamples = dataManager.getSampleSize();
+        // Store the calculates values in a map, where each key is an output node
+        final List<Map<Integer, T>> calculatedValues = new ArrayList<>(numSamples);
 
+        // For every sample put together a row and evaluate it
         for (int i = 0; i < numSamples; ++i) {
             List<T> row = new LinkedList<>();
 
+            // Labels *must* be in order for this to work correctly
             for (String header : headers) {
                 FeatureClass<Number> feature = dataManager.getDataset().get(header);
 
+                //noinspection unchecked
                 row.add(
                         (T) feature.getSampleValue(i)
                 );
             }
 
+            // Using the row as input, calculate the output it produces
             final Map<Integer, T> output = generateOutput(
                     getPhenome(), getGenome(), getInputs(), getOutputs(), getPrimitives(), row
             );
@@ -288,7 +317,6 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     @Override
     public String toString() {
         StringBuilder outputBuilder = new StringBuilder();
-        log.info(this::getPhenome);
 
         // For each output
         getOutputs().forEach(output -> {
@@ -299,18 +327,6 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         });
 
         return outputBuilder.toString();
-    }
-
-    public int getMaxArity() {
-        return maxArity;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<Integer> getGenome() {
-        return genome;
     }
 
     /**
@@ -325,10 +341,6 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         setChanged(true);
     }
 
-    public List<Integer> getOutputs() {
-        return outputs;
-    }
-
     /**
      * <p>Sets the outputs of this chromosome to the specified value</p>
      *
@@ -341,11 +353,22 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         setChanged(true);
     }
 
-    public void setPhenome(Map<Integer, List<Integer>> phenome) {
+    /**
+     * <p>Sets the phenome of this chromosome to the specified value</p>
+     *
+     * @param phenome The new phenome of the chromosome
+     */
+    private void setPhenome(Map<Integer, List<Integer>> phenome) {
         this.phenome = phenome;
     }
 
+    /**
+     * <p>Returns the phenome of this chromosome</p>
+     *
+     * @return the phenome of the chromosome
+     */
     public Map<Integer, List<Integer>> getPhenome() {
+        // Ensure that the most up-to-date phenome is returned
         if (isChanged()) {
             setPhenome(getActiveNodes(getInputs(), getGenome(), getOutputs(), getPrimitives()));
         }
@@ -353,22 +376,74 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         return phenome;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Integer> getGenome() {
+        return genome;
+    }
+
+    /**
+     * <p>Returns the maximum arity of the primitives available to this chromosome</p>
+     *
+     * @return the maximum arity of the primitive set used by the chromosome
+     */
+    public int getMaxArity() {
+        return maxArity;
+    }
+
+
+    /**
+     * <p>Returns the number of outputs used by this chromosome</p>
+     *
+     * @return the number of outputs used by the chromosome
+     */
+    public List<Integer> getOutputs() {
+        return outputs;
+    }
+
+    /**
+     * <p>Returns the number of columns used by this chromosome</p>
+     *
+     * @return the number of columns used by the chromosome
+     */
     public int getColumns() {
         return columns;
     }
 
+    /**
+     * <p>Returns the number of rows used by this chromosome</p>
+     *
+     * @return the number of rows used by the chromosome
+     */
     public int getRows() {
         return rows;
     }
 
+    /**
+     * <p>Returns the maximum number of levels back that nodes in this chromosome may connect to</p>
+     *
+     * @return the maximum number of levels back used by the chromosome
+     */
     public int getLevelsBack() {
         return levelsBack;
     }
 
+    /**
+     * <p>Returns the primitives available to this chromosome</p>
+     *
+     * @return the primitives available to the chromosome
+     */
     public List<FunctionalPrimitive<T, T>> getPrimitives() {
         return primitives;
     }
 
+    /**
+     * <p>Sets the primitives available to this chromosome to the provided value</p>
+     *
+     * @param primitives The new primitive set to make available to the chromosome
+     */
     public void setPrimitives(List<FunctionalPrimitive<T, T>> primitives) {
         this.primitives = primitives;
     }
