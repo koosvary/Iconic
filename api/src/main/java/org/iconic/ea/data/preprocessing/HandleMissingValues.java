@@ -2,6 +2,7 @@ package org.iconic.ea.data.preprocessing;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class HandleMissingValues extends Preprocessor<Number> {
 
@@ -34,7 +35,7 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * {@inheritDoc}
      */
     @Override
-    public void apply(ArrayList<Number> values) {
+    public void apply(List<Number> values) {
         switch (mode) {
             case COPY_PREVIOUS_ROW:
                 copyPreviousRow(values);
@@ -58,7 +59,7 @@ public class HandleMissingValues extends Preprocessor<Number> {
     }
 
     // TODO - Decide how this function will work with all other feature classes
-    private void ignoreRow(ArrayList<Number> values) {
+    private void ignoreRow(List<Number> values) {
     }
 
     /**
@@ -76,7 +77,7 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * </p>
      * @param values The ArrayList to perform the function on.
      */
-    private void copyPreviousRow(ArrayList<Number> values) {
+    private void copyPreviousRow(List<Number> values) {
         // Loop through all values in the array
         for (int i = 0; i < values.size(); i++) {
             // The currentIndex is equal to i - 1 (with wrapping)
@@ -115,9 +116,9 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * </p>
      * @param values The ArrayList to perform the function on.
      */
-    private void mean(ArrayList<Number> values) {
+    private void mean(List<Number> values) {
         // Create a list to track all the null value indexes
-        ArrayList<Integer> indexesToReplace = new ArrayList<>();
+        List<Integer> indexesToReplace = new ArrayList<>();
         double mean;
         double sum = 0; // Used to track the total sum value of the array
         int count = 0;  // used to track how many elements have values.
@@ -153,8 +154,8 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * </p>
      * @param values The ArrayList to perform the function on.
      */
-    private void median(ArrayList<Number> values) {
-        ArrayList<Double> doubleValues = new ArrayList<>();
+    private void median(List<Number> values) {
+        List<Double> doubleValues = new ArrayList<>();
         double medianValue;
 
         for (Number v : values) {
@@ -191,7 +192,7 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * @param values The ArrayList to perform the function on.
      * @param replacement The replacement value to use
      */
-    private void replaceMissingWith(ArrayList<Number> values, double replacement) {
+    private void replaceMissingWith(List<Number> values, double replacement) {
         for (int i = 0; i < values.size(); i++) {
             if (values.get(i) == null) {
                 values.set(i, replacement);
