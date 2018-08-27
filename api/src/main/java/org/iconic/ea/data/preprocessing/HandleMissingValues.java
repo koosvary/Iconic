@@ -46,13 +46,13 @@ public class HandleMissingValues extends Preprocessor<Number> {
                 median(values);
                 break;
             case ZERO:
-                zero(values);
+                replaceMissingWith(values, 0);
                 break;
             case ONE:
-                one(values);
+                replaceMissingWith(values, 1);
                 break;
             case NUMERICAL:
-                numericalValue(values);
+                replaceMissingWith(values, numericalValueReplacement);
                 break;
         }
     }
@@ -186,43 +186,15 @@ public class HandleMissingValues extends Preprocessor<Number> {
 
     /**
      * <p>
-     * Changes all null values within the ArrayList to the numerical value of "0"
+     * Changes all null values within the ArrayList to the numerical value supplied
      * </p>
      * @param values The ArrayList to perform the function on.
+     * @param replacement The replacement value to use
      */
-    private void zero(ArrayList<Number> values) {
+    private void replaceMissingWith(ArrayList<Number> values, double replacement) {
         for (int i = 0; i < values.size(); i++) {
             if (values.get(i) == null) {
-                values.set(i, 0);
-            }
-        }
-    }
-
-    /**
-     * <p>
-     * Changes all null values within the ArrayList to the numerical value of "1"
-     * </p>
-     * @param values The ArrayList to perform the function on.
-     */
-    private void one(ArrayList<Number> values) {
-        for (int i = 0; i < values.size(); i++) {
-            if (values.get(i) == null) {
-                values.set(i, 1);
-            }
-        }
-    }
-
-    /**
-     * <p>
-     * Changes all null values within the ArrayList to the numericalValueReplacement which is set through the function:
-     * "setNumericalValueReplacement(double value)"
-     * </p>
-     * @param values The ArrayList to perform the function on.
-     */
-    private void numericalValue(ArrayList<Number> values) {
-        for (int i = 0; i < values.size(); i++) {
-            if (values.get(i) == null) {
-                values.set(i, numericalValueReplacement);
+                values.set(i, replacement);
             }
         }
     }
