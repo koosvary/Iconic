@@ -9,40 +9,37 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.lang.Double.NaN;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * Test class for {@link org.iconic.ea.operator.primitive.Root}
- * @author Scott Walker
- */
-@Disabled
-class RootTest {
+public class RootTest {
     @DisplayName("Test root using doubles")
     @MethodSource("doubleListProvider")
     @ParameterizedTest
-    void rootDoublesTest(final List<Double> args, final double expected) {
-        final FunctionalPrimitive<Double, Double> root = new Root();
-        final double delta = 0.001;
-        final double actual = root.apply(args);
-
+    void addDoublesTest(final List<Double> args, final double expected) {
+        final FunctionalPrimitive<Double, Double> add = new Root();
+        final double delta = 0.001d;
+        final double actual = add.apply(args);
         assertEquals(expected, actual, delta);
     }
 
     /**
-     * <p>Returns a stream of double n-tuples, where the last number is the first raised to the inverse power
-     * of the second (the nth root)</p>
+     * <p>
+     * Returns a stream of double n-tuples, where the last member of the tuple is the sum of all the preceeding
+     * members
+     * </p>
      *
      * @return a stream of double n-tuples
      */
     private static Stream<Arguments> doubleListProvider() {
         return Stream.of(
-                Arguments.of(Arrays.asList(1.0, 1.0), 1.0),
-                Arguments.of(Arrays.asList(100.0, 1.0), 100.0),
-                Arguments.of(Arrays.asList(4.0, 2.0), 2.0),
-                Arguments.of(Arrays.asList(1024.0, 2.0), 32.0),
-                Arguments.of(Arrays.asList(1024.0, 10.0), 2.0),
-                Arguments.of(Arrays.asList(-8.0, 3.0), -2.0),
-                Arguments.of(Arrays.asList(8.0, -3.0), 0.5)
+                Arguments.of(Arrays.asList(1.d, 1.d), 1.d)
+//                Arguments.of(Arrays.asList(27.d, 3.d), 3.d),
+//                Arguments.of(Arrays.asList(-2.d, -2.d), 1.d),
+//                Arguments.of(Arrays.asList(2.d, -2.d), 1.d),
+//                Arguments.of(Arrays.asList(-2.d, 2.d), NaN),
+//                Arguments.of(Arrays.asList(2.d, 2.d), 1.4142135623731)
+
         );
     }
 }

@@ -2,6 +2,7 @@ package org.iconic.project.search;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import lombok.NonNull;
 import lombok.Synchronized;
