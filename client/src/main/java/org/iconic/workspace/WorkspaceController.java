@@ -160,7 +160,7 @@ public class WorkspaceController implements Initializable {
 
             // If there's no search already being performed on the dataset, start a new one
             if (search == null) {
-                SearchModel newSearch = new SearchModel(dataset);
+                SearchModel newSearch = defineSearchService.getSearchModel(dataset);
                 getSearchService().searchesProperty().put(dataset.getId(), newSearch);
                 Thread thread = new Thread(getSearchService().searchesProperty().get(dataset.getId()));
                 thread.start();
