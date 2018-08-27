@@ -3,25 +3,41 @@ package org.iconic.ea.data.preprocessing;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class HandleMissingValues extends Preprocessor<Number>{
-    public enum Mode {IGNOREROW, COPYPREVIOUSROW, MEAN, MEDIAN, ZERO, ONE, NUMERICAL};
+public class HandleMissingValues extends Preprocessor<Number> {
+
+    public enum Mode { IGNOREROW, COPYPREVIOUSROW, MEAN, MEDIAN, ZERO, ONE, NUMERICAL}
+
     private Mode mode = Mode.ONE;
+
     private double numericalValueReplacement = 0;
 
     @Override
     public void apply(ArrayList<Number> values) {
-        switch(mode) {
-            case COPYPREVIOUSROW: copyPreviousRow(values); break;
-            case MEAN: mean(values); break;
-            case MEDIAN: median(values); break;
-            case ZERO: zero(values); break;
-            case ONE: one(values); break;
-            case NUMERICAL: numericalValue(values); break;
+        switch (mode) {
+            case COPYPREVIOUSROW:
+                copyPreviousRow(values);
+                break;
+            case MEAN:
+                mean(values);
+                break;
+            case MEDIAN:
+                median(values);
+                break;
+            case ZERO:
+                zero(values);
+                break;
+            case ONE:
+                one(values);
+                break;
+            case NUMERICAL:
+                numericalValue(values);
+                break;
         }
     }
 
     // TODO - Decide how this function will work with all other feature classes
-    private void ignoreRow(ArrayList<Number> values) {}
+    private void ignoreRow(ArrayList<Number> values) {
+    }
 
     /**
      * <p>
@@ -57,7 +73,7 @@ public class HandleMissingValues extends Preprocessor<Number>{
 
             // Once an index has been found != null, loop forwards from that point to i updating each value
             // to the previous value
-            while(currentIndex != i) {
+            while (currentIndex != i) {
                 // Index to replace is currentIndex + 1 (with wrapping)
                 int index = (values.size() + currentIndex + 1) % values.size();
 
@@ -113,7 +129,6 @@ public class HandleMissingValues extends Preprocessor<Number>{
      * {2, 3, 4, 5}. Because the size of the array is even, The median values are 3 and 4. The median value will be set
      * to (3 + 4) / 2 = 3.5, and thus the original array will be updated to now look like -> {5, 3.5, 2, 4, 3}
      * </p>
-     *
      * @param values the ArrayList to perform the function on.
      */
     private void median(ArrayList<Number> values) {
@@ -147,12 +162,10 @@ public class HandleMissingValues extends Preprocessor<Number>{
         }
     }
 
-
     /**
      * <p>
      * Changes all null values within the ArrayList to the numerical value of "0"
      * </p>
-     *
      * @param values the ArrayList to perform the function on.
      */
     private void zero(ArrayList<Number> values) {
@@ -167,7 +180,6 @@ public class HandleMissingValues extends Preprocessor<Number>{
      * <p>
      * Changes all null values within the ArrayList to the numerical value of "1"
      * </p>
-     *
      * @param values the ArrayList to perform the function on.
      */
     private void one(ArrayList<Number> values) {
@@ -183,7 +195,6 @@ public class HandleMissingValues extends Preprocessor<Number>{
      * Changes all null values within the ArrayList to the numericalValueReplacement which is set through the function:
      * "setNumericalValueReplacement(double value)"
      * </p>
-     *
      * @param values the ArrayList to perform the function on.
      */
     private void numericalValue(ArrayList<Number> values) {
@@ -194,6 +205,10 @@ public class HandleMissingValues extends Preprocessor<Number>{
         }
     }
 
+    public Mode getMode() {
+        return mode;
+    }
+
     /**
      * <p>
      * Mode refers to which method will be used when dealing with missing values that occur within a List of values.
@@ -202,26 +217,31 @@ public class HandleMissingValues extends Preprocessor<Number>{
      * COPYPREVIOUSROW: If a missing value occurs, use the first non-empty value.
      * MEAN: If a missing value occurs, use the mean value of all elements in the array.
      * MEDIAN: If a missing value occurs, use the median value of the array, if the size of the array is odd use the
-     *          average of the two middle indexes.
+     * average of the two middle indexes.
      * ZERO: If a missing value occurs, replace it's value with the numerical value of "0".
      * ONE: If a missing value occurs, replace it's value with the numerical value of "1".
      * NUMERICAL: If a missing value occurs, replace it's value with the numerical value set by the user.
      * </p>
      * @param mode sets the method to be used when dealing with missing values.
      */
-    public void setMode(Mode mode) { this.mode = mode; }
-
-
-    public Mode getMode() { return mode; }
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
 
     public String getModeToString() {
-        switch(mode) {
-            case COPYPREVIOUSROW: return "Copy Previous Row";
-            case MEAN: return "Mean";
-            case MEDIAN: return "Median";
-            case ZERO: return "Zero";
-            case ONE: return "One";
-            case NUMERICAL: return "Numerical";
+        switch (mode) {
+            case COPYPREVIOUSROW:
+                return "Copy Previous Row";
+            case MEAN:
+                return "Mean";
+            case MEDIAN:
+                return "Median";
+            case ZERO:
+                return "Zero";
+            case ONE:
+                return "One";
+            case NUMERICAL:
+                return "Numerical";
         }
         return null;
     }
@@ -237,5 +257,7 @@ public class HandleMissingValues extends Preprocessor<Number>{
      * </p>
      * @param value defines the number to be used when replacing the null values of an array.
      */
-    public void setNumericalValueReplacement(double value) { this.numericalValueReplacement = value; }
+    public void setNumericalValueReplacement(double value) {
+        this.numericalValueReplacement = value;
+    }
 }
