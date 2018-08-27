@@ -211,6 +211,21 @@ public class HandleMissingValues extends Preprocessor<Number>{
      */
     public void setMode(Mode mode) { this.mode = mode; }
 
+
+    public Mode getMode() { return mode; }
+
+    public String getModeToString() {
+        switch(mode) {
+            case COPYPREVIOUSROW: return "Copy Previous Row";
+            case MEAN: return "Mean";
+            case MEDIAN: return "Median";
+            case ZERO: return "Zero";
+            case ONE: return "One";
+            case NUMERICAL: return "Numerical";
+        }
+        return null;
+    }
+
     /**
      * <p>
      * Sets a custom value to be used with the numericalValue() function which replaces all null value elements within
