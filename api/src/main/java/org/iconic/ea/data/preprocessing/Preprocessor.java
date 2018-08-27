@@ -1,6 +1,6 @@
 package org.iconic.ea.data.preprocessing;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Preprocessor<T> {
     private boolean enabled;
@@ -9,7 +9,7 @@ public abstract class Preprocessor<T> {
         enabled = false;
     }
 
-    public abstract void apply(ArrayList<T> values);
+    public abstract void apply(List<T> values);
 
     /**
      * <p>Sets whether or not this preprocessor should be used to the provided value</p>
