@@ -5,16 +5,38 @@ import java.util.Collections;
 
 public class HandleMissingValues extends Preprocessor<Number> {
 
-    public enum Mode { IGNOREROW, COPYPREVIOUSROW, MEAN, MEDIAN, ZERO, ONE, NUMERICAL}
+    /**
+     * The method to be used when dealing with missing values that occur within a List of values.
+     */
+    public enum Mode {
+        /** Ignore the entire row of data from the tests. */
+        IGNORE_ROW,
+        /** Use the first non-empty value. */
+        COPY_PREVIOUS_ROW,
+        /** Use the mean value of all elements in the array. */
+        MEAN,
+        /** Use the median value of the array, if the size of the array is odd use the average of the two middle indexes. */
+        MEDIAN,
+        /** Replace it's value with the numerical value of "0". */
+        ZERO,
+        /** Replace it's value with the numerical value of "1". */
+        ONE,
+        /** Replace it's value with the numerical value set by the user. */
+        NUMERICAL
+    }
 
+    /** Mode we're currently using */
     private Mode mode = Mode.ONE;
-
+    /** Replacement value, if needed */
     private double numericalValueReplacement = 0;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void apply(ArrayList<Number> values) {
         switch (mode) {
-            case COPYPREVIOUSROW:
+            case COPY_PREVIOUS_ROW:
                 copyPreviousRow(values);
                 break;
             case MEAN:
@@ -52,7 +74,7 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * with the value 2. Now that a non-null value has been found, all values from that point will be updated.
      * {2, 2, 2, 2} will be the final output
      * </p>
-     * @param values the ArrayList to perform the function on.
+     * @param values The ArrayList to perform the function on.
      */
     private void copyPreviousRow(ArrayList<Number> values) {
         // Loop through all values in the array
@@ -91,7 +113,7 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * Given an ArrayList of values, all null values that occur in this list will be changed into the mean of the list.
      * All null values are ignored when calculating the mean.
      * </p>
-     * @param values the ArrayList to perform the function on.
+     * @param values The ArrayList to perform the function on.
      */
     private void mean(ArrayList<Number> values) {
         // Create a list to track all the null value indexes
@@ -129,7 +151,7 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * {2, 3, 4, 5}. Because the size of the array is even, The median values are 3 and 4. The median value will be set
      * to (3 + 4) / 2 = 3.5, and thus the original array will be updated to now look like -> {5, 3.5, 2, 4, 3}
      * </p>
-     * @param values the ArrayList to perform the function on.
+     * @param values The ArrayList to perform the function on.
      */
     private void median(ArrayList<Number> values) {
         ArrayList<Double> doubleValues = new ArrayList<>();
@@ -166,7 +188,7 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * <p>
      * Changes all null values within the ArrayList to the numerical value of "0"
      * </p>
-     * @param values the ArrayList to perform the function on.
+     * @param values The ArrayList to perform the function on.
      */
     private void zero(ArrayList<Number> values) {
         for (int i = 0; i < values.size(); i++) {
@@ -180,7 +202,7 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * <p>
      * Changes all null values within the ArrayList to the numerical value of "1"
      * </p>
-     * @param values the ArrayList to perform the function on.
+     * @param values The ArrayList to perform the function on.
      */
     private void one(ArrayList<Number> values) {
         for (int i = 0; i < values.size(); i++) {
@@ -195,7 +217,7 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * Changes all null values within the ArrayList to the numericalValueReplacement which is set through the function:
      * "setNumericalValueReplacement(double value)"
      * </p>
-     * @param values the ArrayList to perform the function on.
+     * @param values The ArrayList to perform the function on.
      */
     private void numericalValue(ArrayList<Number> values) {
         for (int i = 0; i < values.size(); i++) {
@@ -205,45 +227,20 @@ public class HandleMissingValues extends Preprocessor<Number> {
         }
     }
 
+    /**
+     * <p>Get the mode we're using</p>
+     * @return Mode
+     */
     public Mode getMode() {
         return mode;
     }
 
     /**
-     * <p>
-     * Mode refers to which method will be used when dealing with missing values that occur within a List of values.
-     * Currently supported modes include:
-     * IGNOREROW: If a missing value occurs, ignore the entire row of data from the tests.
-     * COPYPREVIOUSROW: If a missing value occurs, use the first non-empty value.
-     * MEAN: If a missing value occurs, use the mean value of all elements in the array.
-     * MEDIAN: If a missing value occurs, use the median value of the array, if the size of the array is odd use the
-     * average of the two middle indexes.
-     * ZERO: If a missing value occurs, replace it's value with the numerical value of "0".
-     * ONE: If a missing value occurs, replace it's value with the numerical value of "1".
-     * NUMERICAL: If a missing value occurs, replace it's value with the numerical value set by the user.
-     * </p>
-     * @param mode sets the method to be used when dealing with missing values.
+     * <p>Set the mode we're using</p>
+     * @param mode Sets the method to be used when dealing with missing values.
      */
     public void setMode(Mode mode) {
         this.mode = mode;
-    }
-
-    public String getModeToString() {
-        switch (mode) {
-            case COPYPREVIOUSROW:
-                return "Copy Previous Row";
-            case MEAN:
-                return "Mean";
-            case MEDIAN:
-                return "Median";
-            case ZERO:
-                return "Zero";
-            case ONE:
-                return "One";
-            case NUMERICAL:
-                return "Numerical";
-        }
-        return null;
     }
 
     /**
@@ -255,7 +252,7 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * <p>
      * by default the value is set to "0"
      * </p>
-     * @param value defines the number to be used when replacing the null values of an array.
+     * @param value Defines the number to be used when replacing the null values of an array.
      */
     public void setNumericalValueReplacement(double value) {
         this.numericalValueReplacement = value;
