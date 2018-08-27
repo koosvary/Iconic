@@ -2,7 +2,6 @@ package org.iconic.project.search;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import lombok.NonNull;
 import lombok.Synchronized;
@@ -32,7 +31,6 @@ import java.util.*;
  */
 @Log4j2
 public class SearchModel implements Runnable {
-    //The only thing is im not sure where to put this, or if we can do some reflection type process to automatically get this list
     private static final FunctionalPrimitive[] FUNCTIONAL_PRIMITIVES = {new AbsoluteValue(), new Addition(), new And(), new ArcCos(), new ArcSin(),
             new ArcTan(), new Ceiling(), new Cos(), new Division(), new EqualTo(),
             new Exponential(), new Floor(), new GaussianFunction(), new GreaterThan(),
