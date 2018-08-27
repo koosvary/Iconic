@@ -231,11 +231,74 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
+     * <p>Returns a human-readable representation of a node in this chromosome</p>
+     *
+     * @param node       the node to format
+     * @param inputs     the number of inputs in the chromosome
+     * @param maxArity   the maximum arity of the chromosome
+     * @param primitives the primitives available to the chromosome
+     * @return a human-readable representation of a node in the chromosome
+     */
+    private StringBuilder formatNode(final int node, final int inputs, final int maxArity,
+                                     final List<FunctionalPrimitive<T, T>> primitives
+    ) {
+        final StringBuilder outputBuilder = new StringBuilder();
+        final int index = nodeToIndex(node, inputs, maxArity);
+
+        // FOr now just print F + the input number for input nodes
+        // TODO: change to feature labels
+        if (index < inputs) {
+            outputBuilder.append("F").append(node);
+        }
+        // Any other node is treated as a function node
+        else {
+            final int functionGene = genome.get(index);
+            final FunctionalPrimitive<?, ?> primitive = primitives.get(functionGene);
+            final int arity = primitive.getArity();
+            final String leftBracket = " ( ";
+            final String rightBracket = " ) ";
+            final String symbol = primitive.getSymbol();
+
+            // Start by printing the symbol and enclosing the parameters with the delimiters
+            outputBuilder.append(symbol).append(leftBracket);
+            // Only append the number of children that will actually be used
+            for (int i = 1; i <= arity; ++i) {
+                final int connectionGene = genome.get(index + i);
+
+                // Recursively append its children
+                outputBuilder.append(
+                        formatNode(connectionGene, inputs, maxArity, primitives)
+                );
+
+                // Append a comma, but only if it's not the last parameter
+                if (i != arity) {
+                    outputBuilder.append(", ");
+                }
+            }
+            outputBuilder.append(rightBracket);
+        }
+        return outputBuilder;
+    }
+
+    /**
      * {@inheritDoc}
+     *
+     * <p>The string returned is a human-readable representation of this chromosome's phenotype</p>
      */
     @Override
     public String toString() {
-        return getGenome().toString();
+        StringBuilder outputBuilder = new StringBuilder();
+        log.info(this::getPhenome);
+
+        // For each output
+        getOutputs().forEach(output -> {
+            // Append its phenotype
+            outputBuilder
+                    .append("\nOutput = ")
+                    .append(formatNode(output, getInputs(), getMaxArity(), getPrimitives()));
+        });
+
+        return outputBuilder.toString();
     }
 
     public int getMaxArity() {
