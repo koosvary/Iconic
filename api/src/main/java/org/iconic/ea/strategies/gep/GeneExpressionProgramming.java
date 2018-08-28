@@ -1,4 +1,4 @@
-package org.iconic.ea.gep;
+package org.iconic.ea.strategies.gep;
 
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
@@ -19,7 +19,7 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
         this.chromosomeFactory = chromosomeFactory;
     }
 
-    public void initialisePopulation(int populationSize, int numFeatures) {
+    public void initialisePopulation(int populationSize) {
         for (int i = 0; i < populationSize; i++) {
             Chromosome<T> chromosome = getChromosomeFactory().getChromosome();
             getObjective(0).apply(chromosome);

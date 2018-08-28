@@ -5,7 +5,9 @@ import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.operator.objective.error.ErrorFunction;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@inheritDoc}
@@ -31,9 +33,17 @@ public class DefaultObjective<T> extends ErrorBasedObjective<T> {
      */
     @Override
     public double apply(final Chromosome<T> c) {
-        List<Double> results = (List<Double>) c.evaluate(getDataManager());
-        final double fitness = getLambda().apply(results, (List<Double>) getExpectedResults());
+        List<Map<Integer, T>> results = c.evaluate(getDataManager());
+        List<Double> summedResults = new ArrayList<>(results.size());
+
+        // Convert results into a list with each output summed
+        results.forEach(result -> summedResults.add(
+                result.values().stream().mapToDouble(i -> (Double) i).sum()
+        ));
+
+        final double fitness = getLambda().apply(summedResults, (List<Double>) getExpectedResults());
         c.setFitness(fitness);
+
         return fitness;
     }
 }

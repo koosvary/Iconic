@@ -5,6 +5,7 @@ import org.iconic.ea.operator.evolutionary.mutation.Mutator;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -18,7 +19,6 @@ public abstract class Chromosome<T> {
     private boolean changed;
     private double fitness;
     private final int numFeatures;
-    private final List<Mutator<Chromosome<T>, T>> mutators;
 
     /**
      * <p>
@@ -29,7 +29,6 @@ public abstract class Chromosome<T> {
      */
     public Chromosome(final int numFeatures) {
         this.changed = true;
-        this.mutators = new LinkedList<>();
         this.numFeatures = numFeatures;
     }
 
@@ -95,23 +94,9 @@ public abstract class Chromosome<T> {
      * </p>
      *
      * @param input The input samples to evaluate
-     * @return A list of outputs, one for each input sample
+     * @return A list of outputs, one for each input sample, referenced by output id
      */
-    public abstract List<T> evaluate(final DataManager<T> input);
-
-    /**
-     * <p>
-     * Returns the mutators used by this chromosome.
-     * </p>
-     *
-     * @return the mutators used by the chromosome
-     */
-    protected final List<Mutator<Chromosome<T>, T>> getMutators() {
-        List<Mutator<Chromosome<T>, T>> copy = new LinkedList<>();
-        copy.addAll(mutators);
-
-        return copy;
-    }
+    public abstract List<Map<Integer, T>> evaluate(final DataManager<T> input);
 
     /**
      * <p>
@@ -120,19 +105,7 @@ public abstract class Chromosome<T> {
      *
      * @return the number of features the chromosome can express
      */
-    public int getNumFeatures() {
+    public int getInputs() {
         return numFeatures;
-    }
-
-    /**
-     * <p>
-     * Adds the provided mutator to this chromosome.
-     * </p>
-     *
-     * @param mutator The mutator to add to the chromosome
-     * @see org.iconic.ea.operator.evolutionary.mutation.Mutator
-     */
-    public void addMutator(Mutator<Chromosome<T>, T> mutator) {
-        getMutators().add(mutator);
     }
 }
