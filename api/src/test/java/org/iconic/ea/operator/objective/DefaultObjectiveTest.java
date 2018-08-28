@@ -39,10 +39,13 @@ class DefaultObjectiveTest {
     @BeforeEach
     void setUp() {
         // We can also mock objects in-line.
-        @SuppressWarnings("unchecked") DataManager<Double> dataManager = mock(DataManager.class);
+        @SuppressWarnings("unchecked")
+        DataManager<Double> dataManager = mock(DataManager.class);
+
         // We have to define our lists before using them in a thenReturn() statement.
         List<Double> results = new LinkedList<>();
         results.addAll(Arrays.asList(1.0, 2.0, 3.0, 4.0));
+
         // Similarly, set all the data we need for it prior to setting it.
         NumericFeatureClass features = new NumericFeatureClass(true);
         features.addSampleValue(2.0);
@@ -51,10 +54,12 @@ class DefaultObjectiveTest {
         features.addSampleValue(8.0);
         HashMap<String, FeatureClass<Number>> dataset = new HashMap<>();
         dataset.put("A", features);
+
         // Set the mocks we require.
         // NOTE: Explicitly define anything you want to use in thenReturn() as its OWN variable. Mockito is strict.
         when(chromosome.evaluate(dataManager)).thenReturn(results);
         when(dataManager.getDataset()).thenReturn(dataset); // When we call dataManager.getDataset(), return the one we defined.
+
         // Create the defaultObjective we will use for each test.
         // We would expect to ALSO mock out lambda, but for the sake of this I am showing not everything has to be mocked.
         ErrorFunction lambda = new MeanSquaredError();
