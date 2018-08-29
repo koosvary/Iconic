@@ -2,6 +2,8 @@ package org.iconic.project.definition;
 
 import com.google.inject.Inject;
 import javafx.beans.InvalidationListener;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
@@ -45,7 +47,9 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     }
 
     @Override
-    public void initialize(URL location, ResourceBundle resources) {}
+    public void initialize(URL location, ResourceBundle resources) {
+        tfTargetExpression.focusedProperty().addListener(focusListener);
+    }
 
     @Override
     public String getFunction()
@@ -129,5 +133,21 @@ public class DefineSearchController implements Initializable, DefineSearchServic
             return Optional.empty();
         }
     }
+
+    private ChangeListener<Boolean> focusListener = new ChangeListener<Boolean>() {
+        @Override
+        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+            if (!newValue) {
+                // Get the data from the definition field, send it to the data manager to parse
+                Optional<DataManager<Double>> dataset = getDataManager();
+
+                String functionDefinition = tfTargetExpression.getText();
+
+                if(dataset.isPresent()) {
+                    dataset.get().defineFunction(functionDefinition);
+                }
+            }
+        }
+    };
 }
 ;

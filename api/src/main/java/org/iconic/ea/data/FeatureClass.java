@@ -8,12 +8,15 @@ import java.util.Set;
 
 public abstract class FeatureClass<T> {
     private boolean output;
+    private boolean active;
+
     private ArrayList<T> originalSamples, modifiedSamples;
     private Set<Preprocessor<T>> preprocessors;
     // TODO - Add in the pre-processing features
 
     protected FeatureClass(boolean output) {
         this.output = output;
+        this.active = true;
         this.originalSamples = new ArrayList<>();
         this.modifiedSamples = new ArrayList<>();
         this.preprocessors = new HashSet<>();
@@ -47,12 +50,24 @@ public abstract class FeatureClass<T> {
         this.preprocessors = preprocessors;
     }
 
+    // Returns true if the feature is the objective value to calculate towards
     public boolean isOutput() {
         return output;
     }
 
+    // Sets whether the feature is the objective value
     public void setOutput(boolean value) {
         this.output = value;
+    }
+
+    // Returns true if the feature was found in the function definition
+    public boolean isActive() {
+        return active;
+    }
+
+    // Set to true if the feature was found in the function definition
+    public void setActive(boolean value) {
+        this.active = value;
     }
 
     public void updateModifiedSample(int index, T value) {

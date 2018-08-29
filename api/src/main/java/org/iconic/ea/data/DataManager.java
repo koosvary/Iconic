@@ -27,8 +27,8 @@ public class DataManager<T> {
         try {
             importData(this.fileName);
         } catch (IOException ex) {
-             log.error("Bad File: {}", () -> fileName);
-             log.error("Exception: {}", ex);
+            log.error("Bad File: {}", () -> fileName);
+            log.error("Exception: {}", ex);
         }
     }
 
@@ -256,5 +256,63 @@ public class DataManager<T> {
         for (int i=0; i < sampleSize; i++) {
             dataset.get(sampleHeaders.get(headerIndex)).resetModifiedSample(i);
         }
+    }
+
+    // Sets the 'output' and 'active' states of the features
+    public void defineFunction(String function)
+    {
+        String outputFeaturesStr = cleanParentheses(function.split("=")[0]);
+
+        // Removes first 'f' as that's for the function definition (like in "y = f(x)")
+        String activeFeaturesStr = cleanParentheses(function.split("=")[1].replaceFirst("f", ""));
+
+        // NOTE(Meyer): This particular part may need fixing when we start doing multi-objective stuff
+        //              Assuming only one for now, even with the for loop.
+        // Get all the output features and set them to be output variables
+        String[] outputFeatures = outputFeaturesStr.split(",");
+        List<String> outputFeatureList = new ArrayList<>();
+        for (String feature : outputFeatures) {
+            outputFeatureList.add(cleanParentheses(feature));
+        }
+
+        // Get all the active features and set so they can be used in searched
+        String[] activeFeatures = activeFeaturesStr.split(",");
+        List<String> activeFeatureList = new ArrayList<>();
+        for (String feature : activeFeatures) {
+            activeFeatureList.add(cleanParentheses(feature));
+        }
+
+        for(String header : sampleHeaders)
+        {
+            FeatureClass fClass = dataset.get(header);
+            fClass.setOutput(false);
+            fClass.setActive(false);
+
+            if(outputFeatureList.contains(header))
+            {
+                fClass.setOutput(true);
+            }
+            else if(activeFeatureList.contains(header))
+            {
+                fClass.setActive(true);
+            }
+        }
+    }
+
+    // Removes the encapsulating parenthesis from a string, and trims it.
+    private String cleanParentheses(String featureName)
+    {
+        // Replace the first instance of open parenthesis
+        featureName = featureName.replaceFirst("\\(", "");
+
+        // Find the last instance of closing parenthesis and split, keeping first half
+        int index = featureName.lastIndexOf(")");
+        if(index > 0) {
+            featureName = featureName.substring(0, index);
+        }
+
+        featureName = featureName.trim();
+
+        return featureName;
     }
 }
