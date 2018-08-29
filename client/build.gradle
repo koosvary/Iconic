@@ -3,11 +3,13 @@ apply plugin: 'javafx-gradle-plugin'
 buildscript {
     dependencies {
         classpath group: 'de.dynamicfiles.projects.gradle.plugins', name: 'javafx-gradle-plugin', version: '8.8.2'
+        classpath group: 'eu.appsatori', name: 'gradle-fatjar-plugin', version: '0.3'
     }
-    
+
     repositories {
         mavenLocal()
         mavenCentral()
+        jcenter()
     }
 }
 
@@ -21,4 +23,14 @@ dependencies {
 jfx {
     mainClass = 'org.iconic.Bootstrapper'
     vendor = 'Iconic'
+}
+
+task fatJar(type: Jar) {
+    baseName = project.name + '-bundled'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+    manifest {
+        attributes 'Implementation-Title': 'Iconic', 'Implementation-Version': version
+        attributes 'Main-Class': 'org.iconic.Bootstrapper'
+    }
 }
