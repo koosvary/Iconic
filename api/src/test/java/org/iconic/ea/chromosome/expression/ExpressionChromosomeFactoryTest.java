@@ -48,7 +48,7 @@ public class ExpressionChromosomeFactoryTest {
         // Chromosomes produced by the factory should always have the same parameters as the factory
         assertAll("parameters",
                 () -> assertEquals(c.getHeadLength(), headLength),
-                () -> assertEquals(c.getNumFeatures(), numFeatures)
+                () -> assertEquals(c.getInputs(), numFeatures)
         );
     }
 

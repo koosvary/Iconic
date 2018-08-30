@@ -1,6 +1,6 @@
 package org.iconic.ea.data.preprocessing;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class Offset extends Preprocessor<Number>{
     private Number offset;
@@ -13,7 +13,7 @@ public class Offset extends Preprocessor<Number>{
      * @param values the array that will be transformed.
      */
     @Override
-    public void apply(ArrayList<Number> values) {
+    public void apply(List<Number> values) {
         for (int i = 0; i < values.size(); i++) {
             Double value = values.get(i).doubleValue() + offset.doubleValue();
             values.set(i, value);
