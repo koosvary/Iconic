@@ -9,13 +9,13 @@ import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
-import org.iconic.ea.strategies.gep.GeneExpressionProgramming;
 import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
 import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.operator.primitive.*;
+import org.iconic.ea.strategies.gep.GeneExpressionProgramming;
 import org.iconic.project.dataset.DatasetModel;
 
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import java.util.List;
  * </p>
  */
 @Log4j2
-public class SearchModel implements Runnable {
+public class SearchExecutor implements Runnable {
     private final XYChart.Series<Number, Number> plots;
     private final DatasetModel datasetModel;
     private final ObjectProperty<String> updates;
@@ -43,7 +43,7 @@ public class SearchModel implements Runnable {
      *
      * @param datasetModel The dataset to perform the search on
      */
-    public SearchModel(@NonNull final DatasetModel datasetModel) {
+    public SearchExecutor(@NonNull final DatasetModel datasetModel) {
         this.datasetModel = datasetModel;
 
         ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(

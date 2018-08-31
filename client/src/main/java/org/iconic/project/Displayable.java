@@ -1,6 +1,5 @@
 package org.iconic.project;
 
-import java.net.URI;
 import java.util.Optional;
 
 /**
@@ -15,9 +14,9 @@ public interface Displayable {
     String getLabel();
 
     /**
-     * <p>Returns the URI to the icon for for this object if present</p>
+     * <p>Returns the icon for for this object if present</p>
      *
-     * @return The URI of the object's icon if present
+     * @return The icon of the object if present
      */
-    Optional<URI> getIcon();
+    Optional<Enum<?>> getIcon();
 }

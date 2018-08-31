@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.geometry.Insets?>
-
+<?import javafx.scene.text.Text?>
 <?import org.controlsfx.control.spreadsheet.SpreadsheetView?>
-<Tab text="   Input Data" closable="false"
-     xmlns="http://javafx.com/javafx"
-     xmlns:fx="http://javafx.com/fxml"
-     fx:controller="org.iconic.project.InputDataController">
+<?import org.iconic.control.WorkspaceTab?>
+<WorkspaceTab text="   Input Data" closable="false" tabType="DATASET"
+              xmlns="http://javafx.com/javafx"
+              xmlns:fx="http://javafx.com/fxml"
+              fx:controller="org.iconic.project.InputDataController">
     <graphic>
         <ImageView fitWidth="24" fitHeight="24">
             <image>
@@ -42,4 +43,4 @@
             <TextField fx:id="txtOutputFilePath" promptText="{Default = Dataset Directory}" />
         </HBox>
     </VBox>
-</Tab>
+</WorkspaceTab>

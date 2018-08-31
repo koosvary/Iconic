@@ -4,34 +4,33 @@ import com.google.inject.Inject;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
+import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.data.DataManager;
+import org.iconic.ea.data.preprocessing.Normalise;
+import org.iconic.ea.data.preprocessing.Smooth;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.definition.DefineSearchService;
-import org.iconic.project.search.SearchModel;
+import org.iconic.project.search.SearchConfigurationModel;
+import org.iconic.project.search.SearchExecutor;
 import org.iconic.project.search.SearchService;
-import org.iconic.ea.data.preprocessing.Normalise;
-import org.iconic.ea.data.preprocessing.Smooth;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.*;
-import java.util.ArrayList;
 
 /**
  * <p>
@@ -47,6 +46,20 @@ public class WorkspaceController implements Initializable {
     private final WorkspaceService workspaceService;
     private final DefineSearchService defineSearchService;
 
+    @FXML
+    private TabPane tbpWorkspace;
+    @FXML
+    private Tab tbInputDataView;
+    @FXML
+    private Tab tbProcessDataView;
+    @FXML
+    private Tab tbDefineSearchView;
+    @FXML
+    private Tab tbStartSearchView;
+    @FXML
+    private Tab tbResultsView;
+    @FXML
+    private Tab tbReportView;
     @FXML
     private Button btnSearch;
     @FXML
@@ -83,7 +96,6 @@ public class WorkspaceController implements Initializable {
     private TextField tfNormaliseMax;
     @FXML
     private TextField tfTargetExpression;
-
 
     @Getter(AccessLevel.PRIVATE)
     private final String defaultName;
@@ -156,11 +168,11 @@ public class WorkspaceController implements Initializable {
             log.info("Function for use: " + defineSearchService.getFunction());
 
             DatasetModel dataset = (DatasetModel) item;
-            SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
+            SearchExecutor search = getSearchService().searchesProperty().get(dataset.getId());
 
             // If there's no search already being performed on the dataset, start a new one
             if (search == null) {
-                SearchModel newSearch = new SearchModel(dataset);
+                SearchExecutor newSearch = new SearchExecutor(dataset);
                 getSearchService().searchesProperty().put(dataset.getId(), newSearch);
                 Thread thread = new Thread(getSearchService().searchesProperty().get(dataset.getId()));
                 thread.start();
@@ -257,8 +269,8 @@ public class WorkspaceController implements Initializable {
                     }
                 }
                 // Otherwise reset the sample column
-                else if (dataManager.isPresent()) {
-                    dataManager.get().resetSampleColumn(selectedIndex);
+                else {
+                    dataManager.ifPresent(dm -> dm.resetSampleColumn(selectedIndex));
                 }
 
                 featureSelected(selectedIndex);
@@ -280,8 +292,8 @@ public class WorkspaceController implements Initializable {
                     dataManager.get().setSampleColumn(selectedIndex, values);
                 }
                 // Otherwise reset the sample column
-                else if (dataManager.isPresent()) {
-                    dataManager.get().resetSampleColumn(selectedIndex);
+                else {
+                    dataManager.ifPresent(dm -> dm.resetSampleColumn(selectedIndex));
                 }
 
                 featureSelected(selectedIndex);
@@ -290,15 +302,26 @@ public class WorkspaceController implements Initializable {
     }
 
     /**
-     * Updates the workspace to match the current active dataset.
+     * <p>Update the workspace to match the current active item</p>
      */
     private void updateWorkspace() {
         val item = getWorkspaceService().getActiveWorkspaceItem();
 
-        // If no dataset is selected clear the UI
+        // If no dataset is selected clear the UI of dataset related elements
+        // TODO: if a search is selected, do not clear the results
         if (!(item instanceof DatasetModel)) {
             clearUI();
         }
+
+        if (item instanceof DatasetModel) {
+            updateAvailableTabs(WorkspaceTab.TabType.DATASET);
+        } else if (item instanceof SearchConfigurationModel) {
+            updateAvailableTabs(WorkspaceTab.TabType.SEARCH);
+        } else {
+//            updateAvailableTabs(WorkspaceTab.TabType.OTHER);
+        }
+        // Otherwise a dataset is selected, so we need to ensure that any non-dataset related UI elements
+        // are disabled, and vice-versa
 
         // Make sure that all the UI elements actually exist
         if (btnSearch != null && btnStopSearch != null) {
@@ -306,7 +329,7 @@ public class WorkspaceController implements Initializable {
             if (item instanceof DatasetModel) {
                 DatasetModel dataset = (DatasetModel) item;
                 // Check if a search on the current active dataset is being performed
-                SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
+                SearchExecutor search = getSearchService().searchesProperty().get(dataset.getId());
 
                 // If there's no search...
                 if (search == null) {
@@ -351,15 +374,61 @@ public class WorkspaceController implements Initializable {
                 lvFeatures.getItems().clear();
             }
         }
-
     }
 
+    /**
+     * <p>Update the tabs that are available for selection based on the provided tab type</p>
+     *
+     * @param availableTabs The tab types to enable, tabs of other types will be disabled
+     */
+    private void updateAvailableTabs(WorkspaceTab.TabType availableTabs) {
+        if (tbpWorkspace != null) {
+            tbpWorkspace.getTabs().forEach(tab -> {
+                WorkspaceTab wTab = (WorkspaceTab) tab;
+                if (wTab.getTabType().equals(availableTabs)) {
+                    tab.setDisable(false);
+                } else {
+                    tab.setDisable(true);
+                }
+            });
+
+            // If the current selected tab is disabled, change the user's
+            // selection to the first enabled tab if available
+            updateTabSelection();
+        }
+    }
+
+    /**
+     * <p>Update the tab selection model if the user has a disabled tab selected</p>
+     *
+     * <p>The selection model will default to the first enabled tab if available, otherwise no tab will be selected</p>
+     */
+    private void updateTabSelection() {
+        SingleSelectionModel<Tab> selectionModel = tbpWorkspace.getSelectionModel();
+        Tab selectedTab = selectionModel.getSelectedItem();
+
+        if (selectedTab.isDisable()) {
+            // Clear the user's selection if their selected tab is disabled
+            selectionModel.clearSelection();
+            FilteredList<Tab> filteredTabs = tbpWorkspace.getTabs().filtered(Tab::isDisable);
+
+            if (filteredTabs.size() > 0) {
+                Tab newSelection = filteredTabs.get(0);
+                tbpWorkspace.getSelectionModel().select(newSelection);
+            }
+        }
+    }
+
+    /**
+     * <p>Clear all context-specific UI data</p>
+     */
     private void clearUI() {
-        // Make sure the UI element actually exists
+        // Reset the data view chart
         if (lcDataView != null) {
             lcDataView.getData().clear();
         }
 
+        // Reset the search process chart
         if (lcSearchProgress != null) {
             lcSearchProgress.getData().clear();
         }

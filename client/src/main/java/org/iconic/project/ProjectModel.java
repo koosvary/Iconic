@@ -7,9 +7,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
+import org.controlsfx.glyphfont.FontAwesome;
 import org.iconic.project.dataset.DatasetModel;
+import org.iconic.project.search.SearchConfigurationModel;
 
-import java.net.URI;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,14 +25,19 @@ import java.util.Optional;
 public class ProjectModel implements Cloneable, Displayable {
     private final ObjectProperty<String> name;
     private final ObservableList<DatasetModel> datasets;
+    private final ObservableList<SearchConfigurationModel> searchConfigurations;
 
     /**
      * <p>Constructs a new ProjectModel with the provided name and datasets.</p>
      *
-     * @param name The name of the project
+     * @param name     The name of the project
      * @param datasets The datasets associated with the project
      */
-    private ProjectModel(@NonNull final String name, @NonNull final List<DatasetModel> datasets) {
+    private ProjectModel(@NonNull final String name,
+                         @NonNull final List<DatasetModel> datasets,
+                         @NonNull final List<SearchConfigurationModel> searchConfigurations
+
+    ) {
         // Make sure the name isn't empty
         if (name.isEmpty()) {
             log.error("Attempted to create a project with an empty name");
@@ -39,11 +45,20 @@ public class ProjectModel implements Cloneable, Displayable {
         }
 
         this.name = new SimpleObjectProperty<>(name);
+
+        // Create an observable list of datasets that can be stored within the project
         this.datasets = FXCollections.observableArrayList(dataset -> new Observable[]{
                 dataset.absolutePathProperty(), dataset.nameProperty()
         });
 
         this.datasets.addAll(datasets);
+
+        // Create an observable list of search configurations that can be stored within the project
+        this.searchConfigurations = FXCollections.observableArrayList(config -> new Observable[]{
+                config.nameProperty()
+        });
+
+        this.searchConfigurations.addAll(searchConfigurations);
     }
 
     /**
@@ -56,7 +71,7 @@ public class ProjectModel implements Cloneable, Displayable {
     }
 
     /**
-     * Returns the name of this project
+     * <p>Returns the name of this project</p>
      *
      * @return the name of the project
      */
@@ -80,19 +95,27 @@ public class ProjectModel implements Cloneable, Displayable {
      * @return
      */
     @Override
-    public Optional<URI> getIcon() {
-        return Optional.empty();
+    public Optional<Enum<?>> getIcon() {
+        return Optional.of(FontAwesome.Glyph.FOLDER);
     }
 
     /**
-     * <p>
-     * Returns the datasets associated with this project
-     * </p>
+     * <p>Returns the datasets associated with this project</p>
      *
      * @return The datasets associated with the project
      */
     public final ObservableList<DatasetModel> getDatasets() {
         return datasets;
+    }
+
+
+    /**
+     * <p>Returns the search configurations associated with this project</p>
+     *
+     * @return The search configurations associated with the project
+     */
+    public final ObservableList<SearchConfigurationModel> getSearchConfigurations() {
+        return searchConfigurations;
     }
 
     /**
@@ -119,7 +142,10 @@ public class ProjectModel implements Cloneable, Displayable {
      * @return A ProjectModel builder based on the calling ProjectModel
      */
     public Builder toBuilder() {
-        return new Builder().name(getLabel()).datasets(getDatasets());
+        return new Builder()
+                .name(getLabel())
+                .datasets(getDatasets())
+                .searchConfigurations(getSearchConfigurations());
     }
 
     /**
@@ -128,6 +154,7 @@ public class ProjectModel implements Cloneable, Displayable {
     public static class Builder {
         private String name;
         private List<DatasetModel> datasets;
+        private List<SearchConfigurationModel> searchConfigurations;
 
         /**
          * Constructs a new builder with no name and no datasets
@@ -135,6 +162,7 @@ public class ProjectModel implements Cloneable, Displayable {
         private Builder() {
             this.name = "";
             this.datasets = new LinkedList<>();
+            this.searchConfigurations = new LinkedList<>();
         }
 
         /**
@@ -171,12 +199,34 @@ public class ProjectModel implements Cloneable, Displayable {
         }
 
         /**
+         * <p>Adds the provided search configuration to the project that will be constructed</p>
+         *
+         * @param searchConfiguration The search configuration to construct the project with
+         * @return The builder instance
+         */
+        public Builder searchConfiguration(@NonNull final SearchConfigurationModel searchConfiguration) {
+            this.searchConfigurations.add(searchConfiguration);
+            return this;
+        }
+
+        /**
+         * <p>Adds the provided search configurations to the project that will be constructed</p>
+         *
+         * @param searchConfigurations The search configurations to construct the project with
+         * @return The builder instance
+         */
+        public Builder searchConfigurations(@NonNull final Collection<SearchConfigurationModel> searchConfigurations) {
+            this.searchConfigurations.addAll(searchConfigurations);
+            return this;
+        }
+
+        /**
          * <p>Returns the project constructed by this builder instance</p>
          *
          * @return A new project
          */
         public ProjectModel build() {
-            return new ProjectModel(name, datasets);
+            return new ProjectModel(name, datasets, searchConfigurations);
         }
     }
 }
