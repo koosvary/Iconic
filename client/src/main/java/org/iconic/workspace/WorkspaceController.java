@@ -83,13 +83,15 @@ public class WorkspaceController implements Initializable {
     @FXML
     private VBox vbNormalise;
     @FXML
-    private CheckBox cbFilter;
+    private CheckBox cbOffset;
     @FXML
-    private VBox vbFilter;
+    private VBox vbOffset;
     @FXML
     private TextField tfNormaliseMin;
     @FXML
     private TextField tfNormaliseMax;
+    @FXML
+    private TextField tfOffsetValue;
     @FXML
     private TextField tfTargetExpression;
 
@@ -144,6 +146,7 @@ public class WorkspaceController implements Initializable {
         addCheckBoxChangeListener(cbHandleMissingValues, vbHandleMissingValues);
         addCheckBoxChangeListener(cbRemoveOutliers, vbRemoveOutliers);
         addCheckBoxChangeListener(cbNormalise, vbNormalise);
+        addCheckBoxChangeListener(cbOffset, vbOffset);
 
         addComboBoxChangeListener(cbHandleMissingValuesOptions, cbHandleMissingValues);
     }
@@ -399,7 +402,7 @@ public class WorkspaceController implements Initializable {
             if (selectedIndex != -1) {
                 Optional<DataManager<Double>> dataManager = getDataManager();
 
-                if (cbHandleMissingValues.isSelected() && dataManager.isPresent()) {
+                if (cbRemoveOutliers.isSelected() && dataManager.isPresent()) {
                     ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
                     //values = RemoveOutliers.apply(values);
@@ -440,6 +443,40 @@ public class WorkspaceController implements Initializable {
                         }
                     } catch (Exception e) {
                         log.error("Min and Max values must be a Number");
+                    }
+                }
+                // Otherwise reset the sample column
+                else if (dataManager.isPresent()) {
+                    dataManager.get().resetSampleColumn(selectedIndex);
+                }
+
+                featureSelected(selectedIndex);
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    public void offsetDatasetFeature() {
+        if (lvFeatures != null) {
+            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+
+            if (selectedIndex != -1) {
+                Optional<DataManager<Double>> dataManager = getDataManager();
+
+                if (cbOffset.isSelected() && dataManager.isPresent()) {
+                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+
+                    try {
+                        double offset = Double.parseDouble(tfOffsetValue.getText());
+                        System.out.println("Offset value: " + offset);
+
+                        values = Offset.apply(values, offset);
+                        dataManager.get().setSampleColumn(selectedIndex, values);
+
+                    } catch (Exception e) {
+                        log.error("Offset value must be a Number");
                     }
                 }
                 // Otherwise reset the sample column
@@ -567,7 +604,7 @@ public class WorkspaceController implements Initializable {
         cbHandleMissingValues.setText("Handle missing values of (" + selectedHeader + ")");
         cbRemoveOutliers.setText("Remove outliers of (" + selectedHeader + ")");
         cbNormalise.setText("Normalise scale and offset of (" + selectedHeader + ")");
-        cbFilter.setText("Filter data of (" + selectedHeader + ")");
+        cbOffset.setText("Offset values of (" + selectedHeader + ")");
     }
 
     /**
@@ -621,8 +658,8 @@ public class WorkspaceController implements Initializable {
                 cbNormalise.setSelected(true);
                 break;
 
-            case Filtered:
-                cbFilter.setSelected(true);
+            case Offset:
+                cbOffset.setSelected(true);
                 break;
         }
 
@@ -638,7 +675,7 @@ public class WorkspaceController implements Initializable {
         cbHandleMissingValues.setDisable(false);
         cbRemoveOutliers.setDisable(false);
         cbNormalise.setDisable(false);
-        cbFilter.setDisable(false);
+        cbOffset.setDisable(false);
     }
 
     /**
@@ -661,7 +698,7 @@ public class WorkspaceController implements Initializable {
             return TransformType.Normalised;
         }
         else {
-            return TransformType.Filtered;
+            return TransformType.Offset;
         }
     }
 
@@ -704,7 +741,7 @@ public class WorkspaceController implements Initializable {
         cbHandleMissingValues.setSelected(false);
         cbRemoveOutliers.setSelected(false);
         cbNormalise.setSelected(false);
-        cbFilter.setSelected(false);
+        cbOffset.setSelected(false);
 
         resetCheckboxFlag = false;
     }

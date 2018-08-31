@@ -8,5 +8,5 @@ public enum TransformType {
     MissingValuesHandled,
     OutliersRemoved,
     Normalised,
-    Filtered
+    Offset
 }

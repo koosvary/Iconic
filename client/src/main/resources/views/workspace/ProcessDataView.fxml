@@ -100,11 +100,11 @@
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbFilter" text="Filter data" disable="true"/>
-                    <VBox fx:id="vbFilter" visible="false" managed="false">
+                    <CheckBox fx:id="cbOffset" text="Offset data" onAction="#offsetDatasetFeature" disable="true"/>
+                    <VBox fx:id="vbOffset" visible="false" managed="false">
                         <HBox>
-                            <Label text="Only include values equal to:"><padding><Insets left="25" right="10"/></padding></Label>
-                            <TextField text="1"/>
+                            <Label text="Offset values by:"><padding><Insets left="25" right="10"/></padding></Label>
+                            <TextField fx:id="tfOffsetValue" text="0" onAction="#offsetDatasetFeature"/>
                         </HBox>
                     </VBox>
                 </VBox>
