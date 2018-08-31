@@ -189,6 +189,13 @@ public class WorkspaceController implements Initializable {
         }
     }
 
+    /**
+     * Adds a ChangeListener to the handle missing values combo box in order to detect when a user
+     * selects a new option. It then performs the handle missing values pre-processing.
+     *
+     * @param combobox The selected combo box
+     * @param checkbox The selected check box to identify the transformType
+     */
     private void addComboBoxChangeListener(ComboBox combobox, CheckBox checkbox) {
         if (combobox != null) {
             cbHandleMissingValuesOptions.getSelectionModel().selectFirst();
@@ -329,7 +336,8 @@ public class WorkspaceController implements Initializable {
     }
 
     /**
-     * Applies a smoothing transform to the current dataset stored in the DataManager.
+     * Gets the current values from the DataManager, applies the Smooth classes functionality to said values,
+     * and then stores the new values in DataManager.
      */
     public void smoothDatasetFeature() {
         if (lvFeatures != null) {
@@ -355,7 +363,8 @@ public class WorkspaceController implements Initializable {
     }
 
     /**
-     *
+     * Gets the current values from the DataManager, applies the HandleMissingValues classes functionality to
+     * said values, and then stores the new values in DataManager.
      */
     public void handleMissingValuesOfDatasetFeature() {
         if (lvFeatures != null) {
@@ -382,8 +391,34 @@ public class WorkspaceController implements Initializable {
         }
     }
 
+    // TODO: once RemoveOutliers class is finished
+    public void removeOutliersInDatasetFeature() {
+        if (lvFeatures != null) {
+            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+
+            if (selectedIndex != -1) {
+                Optional<DataManager<Double>> dataManager = getDataManager();
+
+                if (cbHandleMissingValues.isSelected() && dataManager.isPresent()) {
+                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+
+                    //values = RemoveOutliers.apply(values);
+
+                    dataManager.get().setSampleColumn(selectedIndex, values);
+                }
+                // Otherwise reset the sample column
+                else if (dataManager.isPresent()) {
+                    dataManager.get().resetSampleColumn(selectedIndex);
+                }
+
+                featureSelected(selectedIndex);
+            }
+        }
+    }
+
     /**
-     * Applies a normalisation transform to the current dataset stored in the DataManager.
+     * Gets the current values from the DataManager, applies the Normalise classes functionality to said values,
+     * and then stores the new values in DataManager.
      */
     public void normalizeDatasetFeature() {
         if (lvFeatures != null) {
@@ -631,9 +666,9 @@ public class WorkspaceController implements Initializable {
     }
 
     /**
+     *  Converts a handle missing values combo box index into the respective HandleMissingValues.Mode type.
      *
-     *
-     * @param index
+     * @param index Identifies the currently selected option in the combo box.
      */
     private Mode convertComboBoxIndexToMode(int index) {
         switch (index) {

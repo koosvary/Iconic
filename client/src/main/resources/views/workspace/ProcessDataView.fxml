@@ -74,7 +74,7 @@
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbRemoveOutliers" text="Remove outliers" disable="true"/>
+                    <CheckBox fx:id="cbRemoveOutliers" text="Remove outliers" onAction="#removeOutliersInDatasetFeature" disable="true"/>
                     <VBox fx:id="vbRemoveOutliers" visible="false" managed="false">
                         <HBox>
                             <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
