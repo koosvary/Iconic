@@ -54,15 +54,15 @@
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbHandleMissingValues" text="Handle missing values" disable="true"/>
+                    <CheckBox fx:id="cbHandleMissingValues" text="Handle missing values" onAction="#handleMissingValuesOfDatasetFeature" disable="true"/>
                     <VBox fx:id="vbHandleMissingValues" visible="false" managed="false">
                         <HBox>
                             <Label text="Method:"><padding><Insets left="25" right="10"/></padding></Label>
-                            <ComboBox promptText="Choose Method">
+                            <ComboBox fx:id="cbHandleMissingValuesOptions">
                                 <items>
                                     <FXCollections fx:factory="observableArrayList">
-                                        <String fx:value="Ignore entire row" />
-                                        <String fx:value="Copy Values from the previous row" />
+                                        <!-- Option removed until copyPreviousRow method is fixed
+                                        <String fx:value="Copy values from the previous row" /> -->
                                         <String fx:value="Set to the mean value" />
                                         <String fx:value="Set to the median value" />
                                         <String fx:value="Set to 0" />

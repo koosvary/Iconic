@@ -11,9 +11,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import lombok.AccessLevel;
@@ -21,15 +20,13 @@ import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.ea.data.DataManager;
-import org.iconic.ea.data.preprocessing.TransformType;
-import org.iconic.ea.data.preprocessing.Transformation;
+import org.iconic.ea.data.preprocessing.*;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.definition.DefineSearchService;
 import org.iconic.project.search.SearchModel;
 import org.iconic.project.search.SearchService;
-import org.iconic.ea.data.preprocessing.Normalise;
-import org.iconic.ea.data.preprocessing.Smooth;
+import org.iconic.ea.data.preprocessing.HandleMissingValues.Mode;
 
 import java.awt.*;
 import java.net.URL;
@@ -75,6 +72,8 @@ public class WorkspaceController implements Initializable {
     private CheckBox cbHandleMissingValues;
     @FXML
     private VBox vbHandleMissingValues;
+    @FXML
+    private ComboBox<String> cbHandleMissingValuesOptions;
     @FXML
     private CheckBox cbRemoveOutliers;
     @FXML
@@ -141,11 +140,12 @@ public class WorkspaceController implements Initializable {
         }
 
         // A quick way to add a listener for the checkboxes
-        addChangeListener(cbSmoothData, vbSmoothData);
-        addChangeListener(cbHandleMissingValues, vbHandleMissingValues);
-        addChangeListener(cbRemoveOutliers, vbRemoveOutliers);
-        addChangeListener(cbNormalise, vbNormalise);
-        addChangeListener(cbFilter, vbFilter);
+        addCheckBoxChangeListener(cbSmoothData, vbSmoothData);
+        addCheckBoxChangeListener(cbHandleMissingValues, vbHandleMissingValues);
+        addCheckBoxChangeListener(cbRemoveOutliers, vbRemoveOutliers);
+        addCheckBoxChangeListener(cbNormalise, vbNormalise);
+
+        addComboBoxChangeListener(cbHandleMissingValuesOptions, cbHandleMissingValues);
     }
 
     /**
@@ -155,7 +155,7 @@ public class WorkspaceController implements Initializable {
      * @param checkbox
      * @param vbox
      */
-    private void addChangeListener(CheckBox checkbox, VBox vbox) {
+    private void addCheckBoxChangeListener(CheckBox checkbox, VBox vbox) {
         if (checkbox != null) {
             checkbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
                 @Override
@@ -189,6 +189,31 @@ public class WorkspaceController implements Initializable {
         }
     }
 
+    private void addComboBoxChangeListener(ComboBox combobox, CheckBox checkbox) {
+        if (combobox != null) {
+            cbHandleMissingValuesOptions.getSelectionModel().selectFirst();
+
+            combobox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+                @Override
+                public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                    Optional<DataManager<Double>> dataManager = getDataManager();
+
+                    if (dataManager.isPresent()) {
+                        removeExistingTransform(checkbox);
+                        handleMissingValuesOfDatasetFeature();
+
+                        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+                        String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+
+                        addNewTransform(selectedHeader, convertCheckBoxToTransformType(checkbox));
+
+                        updateModifiedText(selectedIndex, selectedHeader);
+                    }
+                }
+            });
+        }
+    }
+
     /**
      * Called after a checkbox has been selected. A check is done to determine whether the feature
      * has been modified. If so, a 'modified' keyword is appended to the header and the feature list
@@ -205,7 +230,7 @@ public class WorkspaceController implements Initializable {
             String newHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
 
             if (dataManager.get().getDataset().get(selectedHeader).isModified()) {
-                newHeader += " modified";
+                newHeader += "    modified";
             }
 
             items.set(selectedIndex, newHeader);
@@ -304,6 +329,60 @@ public class WorkspaceController implements Initializable {
     }
 
     /**
+     * Applies a smoothing transform to the current dataset stored in the DataManager.
+     */
+    public void smoothDatasetFeature() {
+        if (lvFeatures != null) {
+            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+
+            if (selectedIndex != -1) {
+                Optional<DataManager<Double>> dataManager = getDataManager();
+
+                if (cbSmoothData.isSelected() && dataManager.isPresent()) {
+                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+
+                    values = Smooth.apply(values);
+                    dataManager.get().setSampleColumn(selectedIndex, values);
+                }
+                // Otherwise reset the sample column
+                else if (dataManager.isPresent()) {
+                    dataManager.get().resetSampleColumn(selectedIndex);
+                }
+
+                featureSelected(selectedIndex);
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    public void handleMissingValuesOfDatasetFeature() {
+        if (lvFeatures != null) {
+            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+
+            if (selectedIndex != -1) {
+                Optional<DataManager<Double>> dataManager = getDataManager();
+
+                if (cbHandleMissingValues.isSelected() && dataManager.isPresent()) {
+                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+
+                    Mode mode = convertComboBoxIndexToMode(cbHandleMissingValuesOptions.getSelectionModel().getSelectedIndex());
+
+                    values = HandleMissingValues.apply(values, mode);
+                    dataManager.get().setSampleColumn(selectedIndex, values);
+                }
+                // Otherwise reset the sample column
+                else if (dataManager.isPresent()) {
+                    dataManager.get().resetSampleColumn(selectedIndex);
+                }
+
+                featureSelected(selectedIndex);
+            }
+        }
+    }
+
+    /**
      * Applies a normalisation transform to the current dataset stored in the DataManager.
      */
     public void normalizeDatasetFeature() {
@@ -327,32 +406,6 @@ public class WorkspaceController implements Initializable {
                     } catch (Exception e) {
                         log.error("Min and Max values must be a Number");
                     }
-                }
-                // Otherwise reset the sample column
-                else if (dataManager.isPresent()) {
-                    dataManager.get().resetSampleColumn(selectedIndex);
-                }
-
-                featureSelected(selectedIndex);
-            }
-        }
-    }
-
-    /**
-     * Applies a smoothing transform to the current dataset stored in the DataManager.
-     */
-    public void smoothDatasetFeature() {
-        if (lvFeatures != null) {
-            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
-
-            if (selectedIndex != -1) {
-                Optional<DataManager<Double>> dataManager = getDataManager();
-
-                if (cbSmoothData.isSelected() && dataManager.isPresent()) {
-                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
-
-                    values = Smooth.apply(values);
-                    dataManager.get().setSampleColumn(selectedIndex, values);
                 }
                 // Otherwise reset the sample column
                 else if (dataManager.isPresent()) {
@@ -574,6 +627,34 @@ public class WorkspaceController implements Initializable {
         }
         else {
             return TransformType.Filtered;
+        }
+    }
+
+    /**
+     *
+     *
+     * @param index
+     */
+    private Mode convertComboBoxIndexToMode(int index) {
+        switch (index) {
+            /* Can be re-added once copyPreviousRow is fixed
+            case 0:
+                return Mode.COPY_PREVIOUS_ROW;*/
+
+            case 0:
+                return Mode.MEAN;
+
+            case 1:
+                return Mode.MEDIAN;
+
+            case 2:
+                return Mode.ZERO;
+
+            case 3:
+                return Mode.ONE;
+
+            default:
+                return Mode.ONE;
         }
     }
 
