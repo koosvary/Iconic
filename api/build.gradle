@@ -10,15 +10,16 @@ compileTestJava {
 }
 
 dependencies {
+    compile group: 'org.apache.commons', name: 'commons-math3', version: '3.6.1'
     testCompileOnly group: 'org.apiguardian', name: 'apiguardian-api', version: '1.0.0'
     testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.1.0'
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.11.0'
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.21.0'
     testCompile group: 'org.mockito', name: 'mockito-junit-jupiter', version: '2.21.0'
     testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.1.0'
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.1.0'
 }
 
-version = '0.2.0'
+version = '0.3.0'
 
 jar {
     baseName = 'iconic-api'
@@ -37,4 +38,8 @@ jar {
     from {
         configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
+}
+
+test {
+    useJUnitPlatform()
 }

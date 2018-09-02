@@ -2,6 +2,7 @@ package org.iconic.ea.data.preprocessing;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class HandleMissingValues {
 
@@ -54,7 +55,7 @@ public class HandleMissingValues {
     }
 
     // TODO - Decide how this function will work with all other feature classes
-    private void ignoreRow(ArrayList<Number> values) {
+    private void ignoreRow(List<Number> values) {
     }
 
     /**
@@ -115,7 +116,7 @@ public class HandleMissingValues {
      */
     private static ArrayList<Number> mean(ArrayList<Number> values) {
         // Create a list to track all the null value indexes
-        ArrayList<Integer> indexesToReplace = new ArrayList<>();
+        List<Integer> indexesToReplace = new ArrayList<>();
         double mean;
         double sum = 0; // Used to track the total sum value of the array
         int count = 0;  // used to track how many elements have values.
