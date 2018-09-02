@@ -95,7 +95,6 @@ public class WorkspaceController implements Initializable {
     @FXML
     private TextField tfTargetExpression;
 
-
     @Getter(AccessLevel.PRIVATE)
     private final String defaultName;
 
@@ -394,7 +393,7 @@ public class WorkspaceController implements Initializable {
         }
     }
 
-    // TODO: once RemoveOutliers class is finished
+    // TODO: once RemoveOutliers class has been implemented
     public void removeOutliersInDatasetFeature() {
         if (lvFeatures != null) {
             int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
@@ -456,7 +455,8 @@ public class WorkspaceController implements Initializable {
     }
 
     /**
-     *
+     * Gets the current values from the DataManager, applies the Offset classes functionality to said values,
+     * and then stores the new values in DataManager.
      */
     public void offsetDatasetFeature() {
         if (lvFeatures != null) {
@@ -603,7 +603,7 @@ public class WorkspaceController implements Initializable {
         cbSmoothData.setText("Smooth data points of (" + selectedHeader + ")");
         cbHandleMissingValues.setText("Handle missing values of (" + selectedHeader + ")");
         cbRemoveOutliers.setText("Remove outliers of (" + selectedHeader + ")");
-        cbNormalise.setText("Normalise scale and offset of (" + selectedHeader + ")");
+        cbNormalise.setText("Normalise scale of (" + selectedHeader + ")");
         cbOffset.setText("Offset values of (" + selectedHeader + ")");
     }
 

@@ -87,7 +87,7 @@
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbNormalise" text="Normalise scale and offset" onAction="#normalizeDatasetFeature" disable="true"/>
+                    <CheckBox fx:id="cbNormalise" text="Normalise scale" onAction="#normalizeDatasetFeature" disable="true"/>
                     <VBox fx:id="vbNormalise" visible="false" managed="false">
                         <HBox>
                             <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
