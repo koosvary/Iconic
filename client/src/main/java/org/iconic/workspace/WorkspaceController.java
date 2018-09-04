@@ -307,33 +307,32 @@ public class WorkspaceController implements Initializable {
      * @param selectedIndex The item index that was selected in the ListView
      */
     private void featureSelected(int selectedIndex) {
-        // Update lcDataView
-        if (lcDataView != null) {
-            // Stores the currently selected header in the lvFeatures list
-            String selectedHeader = "";
+        // We're updating lcDataView
+        if (lcDataView == null) {
+            return;
+        }
 
-            // defining a series
-            XYChart.Series<Number, Number> series = new XYChart.Series<>();
+        // Defining a series
+        XYChart.Series<Number, Number> series = new XYChart.Series<>();
 
-            // populating the series with data
-            lcDataView.getData().clear();
-            Optional<DataManager<Double>> dataManager = getDataManager();
+        // Populating the series with data
+        lcDataView.getData().clear();
+        Optional<DataManager<Double>> dataManager = getDataManager();
 
-            if (dataManager.isPresent() && selectedIndex >= 0) {
-                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+        if (dataManager.isPresent() && selectedIndex >= 0) {
+            ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
-                for (int sample = 0; sample < values.size(); sample++) {
-                    double value = values.get(sample).doubleValue();
-                    series.getData().add(new XYChart.Data<>(sample, value));
-                }
+            for (int sample = 0; sample < values.size(); sample++) {
+                double value = values.get(sample).doubleValue();
+                series.getData().add(new XYChart.Data<>(sample, value));
             }
-            lcDataView.getData().add(series);
+        }
+        lcDataView.getData().add(series);
 
-            // Updates the preprocessing methods text fields to reflect the respective header
-            if (dataManager.isPresent()) {
-                selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
-                updatePreprocessingTextFields(selectedHeader);
-            }
+        // Updates the pre-processing methods text fields to reflect the respective header
+        if (dataManager.isPresent() && selectedIndex >= 0) {
+            String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+            updatePreprocessingTextFields(selectedHeader);
         }
     }
 
@@ -462,7 +461,7 @@ public class WorkspaceController implements Initializable {
         if (lvFeatures != null) {
             int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
 
-            if (selectedIndex != -1) {
+            if (selectedIndex >= 0) {
                 Optional<DataManager<Double>> dataManager = getDataManager();
 
                 if (cbOffset.isSelected() && dataManager.isPresent()) {
@@ -619,14 +618,14 @@ public class WorkspaceController implements Initializable {
 
         Optional<DataManager<Double>> dataManager = getDataManager();
 
-        if (dataManager.isPresent()) {
+        if (dataManager.isPresent() && selectedIndex >= 0) {
             String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
 
             if (dataManager.get().getDataset().get(selectedHeader).isModified()) {
                 List<Transformation> transformations = dataManager.get().getDataset().get(selectedHeader).getTransformations();
 
-                for (int i=0; i < transformations.size(); i++) {
-                    enableCheckBox(transformations.get(i).getTransform());
+                for (Transformation transform : transformations) {
+                    enableCheckBox(transform.getTransform());
                 }
             }
         }
@@ -723,8 +722,6 @@ public class WorkspaceController implements Initializable {
                 return Mode.ZERO;
 
             case 3:
-                return Mode.ONE;
-
             default:
                 return Mode.ONE;
         }
