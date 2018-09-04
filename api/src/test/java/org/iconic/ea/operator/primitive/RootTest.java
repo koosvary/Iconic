@@ -12,6 +12,10 @@ import java.util.stream.Stream;
 import static java.lang.Double.NaN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * Test class for {@link org.iconic.ea.operator.primitive.Root}
+ * @author Scott Walker
+ */
 public class RootTest {
     @DisplayName("Test root using doubles")
     @MethodSource("doubleListProvider")
@@ -33,13 +37,13 @@ public class RootTest {
      */
     private static Stream<Arguments> doubleListProvider() {
         return Stream.of(
-                Arguments.of(Arrays.asList(1.d, 1.d), 1.d)
-//                Arguments.of(Arrays.asList(27.d, 3.d), 3.d),
-//                Arguments.of(Arrays.asList(-2.d, -2.d), 1.d),
-//                Arguments.of(Arrays.asList(2.d, -2.d), 1.d),
-//                Arguments.of(Arrays.asList(-2.d, 2.d), NaN),
-//                Arguments.of(Arrays.asList(2.d, 2.d), 1.4142135623731)
-
+                Arguments.of(Arrays.asList(1.0, 1.0), 1.0),
+                Arguments.of(Arrays.asList(100.0, 1.0), 100.0),
+                Arguments.of(Arrays.asList(4.0, 2.0), 2.0),
+                Arguments.of(Arrays.asList(1024.0, 2.0), 32.0),
+                Arguments.of(Arrays.asList(1024.0, 10.0), 2.0),
+                Arguments.of(Arrays.asList(-8.0, 3.0), -2.0),
+                Arguments.of(Arrays.asList(8.0, -3.0), 0.5)
         );
     }
 }
