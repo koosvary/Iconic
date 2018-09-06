@@ -83,7 +83,9 @@ public class Client {
             ea.initialisePopulation(client.getArgs().getPopulation());
             List<CartesianChromosome<Double>> population = ea.getChromosomes();
             Chromosome<Double> bestCandidate = population.stream().min(comparator).get();
-
+            int currentGen = 0;
+            long time = System.currentTimeMillis();
+            long oldTime = System.currentTimeMillis();
             // Start the evolutionary loop
             for (int i = 0; i < generations; ++i) {
                 final int percent = intToPercent(i, generations);
@@ -94,11 +96,20 @@ public class Client {
 
                 // Pretty-print a summarised progress indicator
                 StringBuilder out = new StringBuilder();
+
+                if(i == 0)
+                    time = System.currentTimeMillis()-time;
                 out.append("\r")
                         .append("Progress: ").append(percent).append("%")
                         // And include the current best fitness
-                        .append("\t|\tFitness: ").append(bestCandidate.getFitness());
-
+                        .append("\t|\tFitness: ").append(bestCandidate.getFitness())
+                        .append("\t|\tGeneration: ").append(currentGen)
+                        .append("\t|\tTime: ").append(time + " ");
+                if(i%100 == 0){
+                    currentGen = i;
+                    time += System.currentTimeMillis()-oldTime;
+                    oldTime = System.currentTimeMillis();
+                }
                 System.out.print(out);
             }
 
@@ -106,6 +117,7 @@ public class Client {
             log.info("\n\tBest candidate: {}\n\tFitness: {}",
                     bestCandidate.toString(), bestCandidate.getFitness()
             );
+            System.out.println("y = " +((CartesianChromosome<Double>) bestCandidate).getExpression());
         }
     }
 

@@ -329,6 +329,39 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         return outputBuilder.toString();
     }
 
+    public String getExpression(){
+        Map<Integer, List<Integer>> nodes = getPhenome();
+        String[] expressions = new String[genome.size()+getOutputs().size()];
+        Set<Integer> keysSet = nodes.keySet();
+        Integer[] keys = keysSet.toArray(new Integer[0]);
+        List<Integer> actualNodes = null;
+        String alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for(int i = 0; i < getInputs(); i++){
+                expressions[i] =  String.valueOf(alph.charAt(i));
+        }
+        for(int i = 0; i < getOutputs().size(); i++){
+            actualNodes = nodes.get(keys[i]);
+            for(int j = 0; j < actualNodes.size(); j++){
+                final int index = nodeToIndex(actualNodes.get(j), getInputs(), maxArity);
+                if(index < getInputs())
+                    continue;
+                final int functionGene = genome.get(index);
+                final FunctionalPrimitive<?, ?> primitive = primitives.get(functionGene);
+                final int arity = primitive.getArity();
+                if(arity == 1){
+                    final int connectionGene = genome.get(index + 1);
+                    expressions[index] = "(" + primitive.getSymbol() + "(" + expressions[nodeToIndex(connectionGene, getInputs(), maxArity)] + "))";
+                }
+                else{
+                    final int fConnectionGene = genome.get(index + 1);
+                    final int sConnectionGene = genome.get(index + 2);
+                    expressions[index] = "(" + expressions[nodeToIndex(fConnectionGene, getInputs(), maxArity)] + primitive.getSymbol() + expressions[nodeToIndex(sConnectionGene, getInputs(), maxArity)] + ")";
+                }
+            }
+        }
+        return expressions[nodeToIndex(actualNodes.get(actualNodes.size()-1), getInputs(), maxArity)];
+    }
+
     /**
      * <p>Sets the genome of this chromosome to the specified value</p>
      *
