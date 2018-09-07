@@ -158,37 +158,39 @@ public class WorkspaceController implements Initializable {
      * @param vbox
      */
     private void addCheckBoxChangeListener(CheckBox checkbox, VBox vbox) {
-        if (checkbox != null) {
-            checkbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-                @Override
-                public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                    if (!resetCheckboxFlag) {
-                        Optional<DataManager<Double>> dataManager = getDataManager();
+        if (checkbox == null) {
+            return;
+        }
+        
+        checkbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (!resetCheckboxFlag) {
+                    Optional<DataManager<Double>> dataManager = getDataManager();
 
-                        if (dataManager.isPresent()) {
-                            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
-                            String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+                    if (dataManager.isPresent()) {
+                        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+                        String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
 
-                            if (newValue) {
-                                // Checkbox has been selected
-                                addNewTransform(selectedHeader, convertCheckBoxToTransformType(checkbox));
-                            } else {
-                                // Checkbox has been unselected
-                                removeExistingTransform(checkbox);
-                            }
-
-                            updateModifiedText(selectedIndex, selectedHeader);
+                        if (newValue) {
+                            // Checkbox has been selected
+                            addNewTransform(selectedHeader, convertCheckBoxToTransformType(checkbox));
+                        } else {
+                            // Checkbox has been unselected
+                            removeExistingTransform(checkbox);
                         }
-                    }
 
-                    // Shows or hides the checkboxes options based on whether it is selected or not
-                    if (vbox != null) {
-                        vbox.setManaged(newValue);
-                        vbox.setVisible(newValue);
+                        updateModifiedText(selectedIndex, selectedHeader);
                     }
                 }
-            });
-        }
+
+                // Shows or hides the checkboxes options based on whether it is selected or not
+                if (vbox != null) {
+                    vbox.setManaged(newValue);
+                    vbox.setVisible(newValue);
+                }
+            }
+        });
     }
 
     /**
@@ -199,28 +201,29 @@ public class WorkspaceController implements Initializable {
      * @param checkbox The selected check box to identify the transformType
      */
     private void addComboBoxChangeListener(ComboBox combobox, CheckBox checkbox) {
-        if (combobox != null) {
-            cbHandleMissingValuesOptions.getSelectionModel().selectFirst();
-
-            combobox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-                @Override
-                public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                    Optional<DataManager<Double>> dataManager = getDataManager();
-
-                    if (dataManager.isPresent()) {
-                        removeExistingTransform(checkbox);
-                        handleMissingValuesOfDatasetFeature();
-
-                        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
-                        String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
-
-                        addNewTransform(selectedHeader, convertCheckBoxToTransformType(checkbox));
-
-                        updateModifiedText(selectedIndex, selectedHeader);
-                    }
-                }
-            });
+        if (combobox == null) {
+            return;
         }
+
+        cbHandleMissingValuesOptions.getSelectionModel().selectFirst();
+        combobox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                Optional<DataManager<Double>> dataManager = getDataManager();
+
+                if (dataManager.isPresent()) {
+                    removeExistingTransform(checkbox);
+                    handleMissingValuesOfDatasetFeature();
+
+                    int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+                    String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+
+                    addNewTransform(selectedHeader, convertCheckBoxToTransformType(checkbox));
+
+                    updateModifiedText(selectedIndex, selectedHeader);
+                }
+            }
+        });
     }
 
     /**
@@ -341,25 +344,26 @@ public class WorkspaceController implements Initializable {
      * and then stores the new values in DataManager.
      */
     public void smoothDatasetFeature() {
-        if (lvFeatures != null) {
-            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (lvFeatures == null) {
+            return;
+        }
 
-            if (selectedIndex != -1) {
-                Optional<DataManager<Double>> dataManager = getDataManager();
+        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (selectedIndex != -1) {
+            Optional<DataManager<Double>> dataManager = getDataManager();
 
-                if (cbSmoothData.isSelected() && dataManager.isPresent()) {
-                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+            if (cbSmoothData.isSelected() && dataManager.isPresent()) {
+                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
-                    values = Smooth.apply(values);
-                    dataManager.get().setSampleColumn(selectedIndex, values);
-                }
-                // Otherwise reset the sample column
-                else if (dataManager.isPresent()) {
-                    dataManager.get().resetSampleColumn(selectedIndex);
-                }
-
-                featureSelected(selectedIndex);
+                values = Smooth.apply(values);
+                dataManager.get().setSampleColumn(selectedIndex, values);
             }
+            // Otherwise reset the sample column
+            else if (dataManager.isPresent()) {
+                dataManager.get().resetSampleColumn(selectedIndex);
+            }
+
+            featureSelected(selectedIndex);
         }
     }
 
@@ -368,52 +372,54 @@ public class WorkspaceController implements Initializable {
      * said values, and then stores the new values in DataManager.
      */
     public void handleMissingValuesOfDatasetFeature() {
-        if (lvFeatures != null) {
-            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (lvFeatures == null) {
+            return;
+        }
 
-            if (selectedIndex != -1) {
-                Optional<DataManager<Double>> dataManager = getDataManager();
+        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (selectedIndex != -1) {
+            Optional<DataManager<Double>> dataManager = getDataManager();
 
-                if (cbHandleMissingValues.isSelected() && dataManager.isPresent()) {
-                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+            if (cbHandleMissingValues.isSelected() && dataManager.isPresent()) {
+                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
-                    Mode mode = convertComboBoxIndexToMode(cbHandleMissingValuesOptions.getSelectionModel().getSelectedIndex());
+                Mode mode = convertComboBoxIndexToMode(cbHandleMissingValuesOptions.getSelectionModel().getSelectedIndex());
 
-                    values = HandleMissingValues.apply(values, mode);
-                    dataManager.get().setSampleColumn(selectedIndex, values);
-                }
-                // Otherwise reset the sample column
-                else if (dataManager.isPresent()) {
-                    dataManager.get().resetSampleColumn(selectedIndex);
-                }
-
-                featureSelected(selectedIndex);
+                values = HandleMissingValues.apply(values, mode);
+                dataManager.get().setSampleColumn(selectedIndex, values);
             }
+            // Otherwise reset the sample column
+            else if (dataManager.isPresent()) {
+                dataManager.get().resetSampleColumn(selectedIndex);
+            }
+
+            featureSelected(selectedIndex);
         }
     }
 
     // TODO: once RemoveOutliers class has been implemented
     public void removeOutliersInDatasetFeature() {
-        if (lvFeatures != null) {
-            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (lvFeatures == null) {
+            return;
+        }
 
-            if (selectedIndex != -1) {
-                Optional<DataManager<Double>> dataManager = getDataManager();
+        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (selectedIndex != -1) {
+            Optional<DataManager<Double>> dataManager = getDataManager();
 
-                if (cbRemoveOutliers.isSelected() && dataManager.isPresent()) {
-                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+            if (cbRemoveOutliers.isSelected() && dataManager.isPresent()) {
+                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
-                    //values = RemoveOutliers.apply(values);
+                //values = RemoveOutliers.apply(values);
 
-                    dataManager.get().setSampleColumn(selectedIndex, values);
-                }
-                // Otherwise reset the sample column
-                else if (dataManager.isPresent()) {
-                    dataManager.get().resetSampleColumn(selectedIndex);
-                }
-
-                featureSelected(selectedIndex);
+                dataManager.get().setSampleColumn(selectedIndex, values);
             }
+            // Otherwise reset the sample column
+            else if (dataManager.isPresent()) {
+                dataManager.get().resetSampleColumn(selectedIndex);
+            }
+
+            featureSelected(selectedIndex);
         }
     }
 
@@ -422,34 +428,35 @@ public class WorkspaceController implements Initializable {
      * and then stores the new values in DataManager.
      */
     public void normalizeDatasetFeature() {
-        if (lvFeatures != null) {
-            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (lvFeatures == null) {
+            return;
+        }
 
-            if (selectedIndex != -1) {
-                Optional<DataManager<Double>> dataManager = getDataManager();
+        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (selectedIndex != -1) {
+            Optional<DataManager<Double>> dataManager = getDataManager();
 
-                if (cbNormalise.isSelected() && dataManager.isPresent()) {
-                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+            if (cbNormalise.isSelected() && dataManager.isPresent()) {
+                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
-                    try {
-                        double min = Double.parseDouble(tfNormaliseMin.getText());
-                        double max = Double.parseDouble(tfNormaliseMax.getText());
+                try {
+                    double min = Double.parseDouble(tfNormaliseMin.getText());
+                    double max = Double.parseDouble(tfNormaliseMax.getText());
 
-                        if (min < max) {
-                            values = Normalise.apply(values, min, max);
-                            dataManager.get().setSampleColumn(selectedIndex, values);
-                        }
-                    } catch (Exception e) {
-                        log.error("Min and Max values must be a Number");
+                    if (min < max) {
+                        values = Normalise.apply(values, min, max);
+                        dataManager.get().setSampleColumn(selectedIndex, values);
                     }
+                } catch (Exception e) {
+                    log.error("Min and Max values must be a Number");
                 }
-                // Otherwise reset the sample column
-                else if (dataManager.isPresent()) {
-                    dataManager.get().resetSampleColumn(selectedIndex);
-                }
-
-                featureSelected(selectedIndex);
             }
+            // Otherwise reset the sample column
+            else if (dataManager.isPresent()) {
+                dataManager.get().resetSampleColumn(selectedIndex);
+            }
+
+            featureSelected(selectedIndex);
         }
     }
 
@@ -458,33 +465,34 @@ public class WorkspaceController implements Initializable {
      * and then stores the new values in DataManager.
      */
     public void offsetDatasetFeature() {
-        if (lvFeatures != null) {
-            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (lvFeatures == null) {
+            return;
+        }
 
-            if (selectedIndex >= 0) {
-                Optional<DataManager<Double>> dataManager = getDataManager();
+        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (selectedIndex >= 0) {
+            Optional<DataManager<Double>> dataManager = getDataManager();
 
-                if (cbOffset.isSelected() && dataManager.isPresent()) {
-                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+            if (cbOffset.isSelected() && dataManager.isPresent()) {
+                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
-                    try {
-                        double offset = Double.parseDouble(tfOffsetValue.getText());
-                        System.out.println("Offset value: " + offset);
+                try {
+                    double offset = Double.parseDouble(tfOffsetValue.getText());
+                    System.out.println("Offset value: " + offset);
 
-                        values = Offset.apply(values, offset);
-                        dataManager.get().setSampleColumn(selectedIndex, values);
+                    values = Offset.apply(values, offset);
+                    dataManager.get().setSampleColumn(selectedIndex, values);
 
-                    } catch (Exception e) {
-                        log.error("Offset value must be a Number");
-                    }
+                } catch (Exception e) {
+                    log.error("Offset value must be a Number");
                 }
-                // Otherwise reset the sample column
-                else if (dataManager.isPresent()) {
-                    dataManager.get().resetSampleColumn(selectedIndex);
-                }
-
-                featureSelected(selectedIndex);
             }
+            // Otherwise reset the sample column
+            else if (dataManager.isPresent()) {
+                dataManager.get().resetSampleColumn(selectedIndex);
+            }
+
+            featureSelected(selectedIndex);
         }
     }
 
