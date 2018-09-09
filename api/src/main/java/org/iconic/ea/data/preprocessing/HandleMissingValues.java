@@ -74,6 +74,7 @@ public class HandleMissingValues {
      * @param values The ArrayList to perform the function on.
      */
     private static ArrayList<Number> copyPreviousRow(ArrayList<Number> values) {
+        printValues(values);
         // Loop through all values in the array
         for (int i = 0; i < values.size(); i++) {
             // The currentIndex is equal to i - 1 (with wrapping)
@@ -103,7 +104,7 @@ public class HandleMissingValues {
                 currentIndex = (values.size() + currentIndex + 1) % values.size();
             }
         }
-
+        printValues(values);
         return values;
     }
 
