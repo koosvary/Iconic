@@ -716,20 +716,18 @@ public class WorkspaceController implements Initializable {
      */
     private Mode convertComboBoxIndexToMode(int index) {
         switch (index) {
-            /* Can be re-added once copyPreviousRow is fixed
             case 0:
-                return Mode.COPY_PREVIOUS_ROW;*/
-
-            case 0:
-                return Mode.MEAN;
+                return Mode.COPY_PREVIOUS_ROW;
 
             case 1:
-                return Mode.MEDIAN;
+                return Mode.MEAN;
 
             case 2:
-                return Mode.ZERO;
+                return Mode.MEDIAN;
 
             case 3:
+                return Mode.ZERO;
+
             default:
                 return Mode.ONE;
         }

@@ -61,8 +61,7 @@
                             <ComboBox fx:id="cbHandleMissingValuesOptions">
                                 <items>
                                     <FXCollections fx:factory="observableArrayList">
-                                        <!-- Option removed until copyPreviousRow method is fixed
-                                        <String fx:value="Copy values from the previous row" /> -->
+                                        <String fx:value="Copy values from the previous row" />
                                         <String fx:value="Set to the mean value" />
                                         <String fx:value="Set to the median value" />
                                         <String fx:value="Set to 0" />
