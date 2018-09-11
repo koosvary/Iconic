@@ -21,9 +21,6 @@ import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.preprocessing.*;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.definition.DefineSearchService;
-import org.iconic.project.search.SearchModel;
-import org.iconic.project.search.SearchService;
 import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
@@ -32,9 +29,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+/**
+ * A controller class for handling the ProcessData view.
+ *
+ * The ProcessDataController provides a bridge between applying pre-processing options from the GUI and updating
+ * the modified data within the DataManager.
+ */
 @Log4j2
 public class ProcessDataController implements Initializable {
-    private final SearchService searchService;
     private final WorkspaceService workspaceService;
 
     // A flag which determines whether the pre-processing checkboxes are disabled by the user
@@ -57,19 +59,16 @@ public class ProcessDataController implements Initializable {
 
     /**
      * <p>
-     * Constructs a new ProcessDataController that attaches an invalidation listener onto the search and workspace
-     * services.
+     * Constructs a new ProcessDataController that attaches an invalidation listener onto the workspace service.
      * </p>
      */
     @Inject
-    public ProcessDataController(final WorkspaceService workspaceService, final SearchService searchService) {
-        this.searchService = searchService;
+    public ProcessDataController(final WorkspaceService workspaceService) {
         this.workspaceService = workspaceService;
 
         // Update the workspace whenever the active dataset changes
         InvalidationListener selectionChangedListener = observable -> updateWorkspace();
         getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedListener);
-        getSearchService().searchesProperty().addListener(selectionChangedListener);
     }
 
     @Override
@@ -105,8 +104,8 @@ public class ProcessDataController implements Initializable {
      * Adds a ChangeListener to the pre-processing checkboxes to fire the changed() event when the user
      * selects or deselects an option.
      *
-     * @param checkbox
-     * @param vbox
+     * @param checkbox The selected checkbox
+     * @param vbox The pre-processing parameters to be enabled when a checkbox is selected
      */
     private void addCheckBoxChangeListener(CheckBox checkbox, VBox vbox) {
         if (checkbox == null) {
@@ -626,6 +625,9 @@ public class ProcessDataController implements Initializable {
         }
     }
 
+    /**
+     * Returns the DataManager object which stores original and modified datasets.
+     */
     private Optional<DataManager<Double>> getDataManager() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
@@ -646,16 +648,5 @@ public class ProcessDataController implements Initializable {
      */
     private WorkspaceService getWorkspaceService() {
         return workspaceService;
-    }
-
-    /**
-     * <p>
-     * Returns the search service of this controller
-     * </p>
-     *
-     * @return the search service of the controller
-     */
-    private SearchService getSearchService() {
-        return searchService;
     }
 }

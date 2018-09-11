@@ -2,39 +2,15 @@ package org.iconic.workspace;
 
 import com.google.inject.Inject;
 import javafx.beans.InvalidationListener;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.XYChart;
-import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import org.iconic.ea.data.DataManager;
-import org.iconic.ea.data.preprocessing.*;
-import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.definition.DefineSearchService;
-import org.iconic.project.search.SearchModel;
-import org.iconic.project.search.SearchService;
-import org.iconic.ea.data.preprocessing.HandleMissingValues.Mode;
 
-import java.awt.*;
 import java.net.URL;
-import java.util.List;
-import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.*;
-import java.util.ArrayList;
 
 /**
  * <p>
@@ -46,18 +22,7 @@ import java.util.ArrayList;
  */
 @Log4j2
 public class WorkspaceController implements Initializable {
-    private final SearchService searchService;
     private final WorkspaceService workspaceService;
-    private final DefineSearchService defineSearchService;
-
-    @FXML
-    private Button btnSearch;
-    @FXML
-    private Button btnStopSearch;
-    @FXML
-    private LineChart<Number, Number> lcSearchProgress;
-    @FXML
-    private TextField tfTargetExpression;
 
     @Getter(AccessLevel.PRIVATE)
     private final String defaultName;
@@ -67,14 +32,11 @@ public class WorkspaceController implements Initializable {
 
     /**
      * <p>
-     * Constructs a new WorkspaceController that attaches an invalidation listener onto the search and workspace
-     * services.
+     * Constructs a new WorkspaceController that attaches an invalidation listener onto the workspace service.
      * </p>
      */
     @Inject
-    public WorkspaceController(final WorkspaceService workspaceService, final SearchService searchService, final DefineSearchService defineSearchService) {
-        this.defineSearchService = defineSearchService;
-        this.searchService = searchService;
+    public WorkspaceController(final WorkspaceService workspaceService) {
         this.workspaceService = workspaceService;
         this.defaultName = "";
         this.defaultWelcomeMessage = "Select a dataset on the left to get started.";
@@ -82,64 +44,11 @@ public class WorkspaceController implements Initializable {
         // Update the workspace whenever the active dataset changes
         InvalidationListener selectionChangedListener = observable -> updateWorkspace();
         getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedListener);
-        getSearchService().searchesProperty().addListener(selectionChangedListener);
     }
 
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
         updateWorkspace();
-    }
-
-    /**
-     * Starts a search using the currently selected dataset.
-     *
-     * @param actionEvent The action that triggered this event
-     */
-    public void startSearch(ActionEvent actionEvent) {
-        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
-
-        // Check that there's an active dataset before starting the search
-        if (item instanceof DatasetModel) {
-            // TODO(Meyer): Use the function defined to determine what data is used, and what to calculate to
-            log.info("Function for use: " + defineSearchService.getFunction());
-
-            DatasetModel dataset = (DatasetModel) item;
-            SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
-
-            // If there's no search already being performed on the dataset, start a new one
-            if (search == null) {
-                SearchModel newSearch = defineSearchService.getSearchModel(dataset);
-                getSearchService().searchesProperty().put(dataset.getId(), newSearch);
-                Thread thread = new Thread(getSearchService().searchesProperty().get(dataset.getId()));
-                thread.start();
-            }
-            // Otherwise stop the current search
-            else {
-//              TODO implement pause functionality
-                stopSearch(actionEvent);
-            }
-        }
-    }
-
-    /**
-     * Stops the current search.
-     *
-     * @param actionEvent The action that triggered this event
-     */
-    public void stopSearch(ActionEvent actionEvent) {
-        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
-
-        // Check that there's an active dataset before starting the search
-        if (item instanceof DatasetModel) {
-            val dataset = (DatasetModel) item;
-            val search = getSearchService().searchesProperty().get(dataset.getId());
-
-            lcSearchProgress.getData().clear();
-            lcSearchProgress.getData().add(search.getPlots());
-
-            search.stop();
-            getSearchService().searchesProperty().remove(dataset.getId());
-        }
     }
 
     /**
@@ -152,61 +61,13 @@ public class WorkspaceController implements Initializable {
         if (!(item instanceof DatasetModel)) {
             clearUI();
         }
-
-        // Make sure that all the UI elements actually exist
-        if (btnSearch != null && btnStopSearch != null) {
-            // If the selected item is a dataset
-            if (item instanceof DatasetModel) {
-                DatasetModel dataset = (DatasetModel) item;
-                // Check if a search on the current active dataset is being performed
-                SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
-
-                // If there's no search...
-                if (search == null) {
-                    btnSearch.setText("Start Search");
-                    btnSearch.setDisable(false);
-                    btnStopSearch.setDisable(true);
-                    btnStopSearch.setVisible(false);
-                }
-                // Otherwise...
-                else {
-                    btnSearch.setText("Pause");
-                    btnSearch.setDisable(true);
-                    btnStopSearch.setDisable(false);
-                    btnStopSearch.setVisible(true);
-                }
-            }
-            // Otherwise if no interesting project item is selected
-            else {
-                // Display some default messages
-                btnSearch.setText("Start Search");
-                btnStopSearch.setVisible(false);
-                // And disable the search buttons
-                btnSearch.setDisable(true);
-                btnStopSearch.setDisable(true);
-            }
-        }
     }
 
     /**
      * Clears the search graphs.
      */
     private void clearUI() {
-        // Make sure the UI element actually exists
-        if (lcSearchProgress != null) {
-            lcSearchProgress.getData().clear();
-        }
-    }
-
-    private Optional<DataManager<Double>> getDataManager() {
-        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
-
-        if (item instanceof DatasetModel) {
-            DatasetModel dataset = (DatasetModel) item;
-            return Optional.of(dataset.getDataManager());
-        } else {
-            return Optional.empty();
-        }
+        // To add later
     }
 
     /**
@@ -218,16 +79,5 @@ public class WorkspaceController implements Initializable {
      */
     private WorkspaceService getWorkspaceService() {
         return workspaceService;
-    }
-
-    /**
-     * <p>
-     * Returns the search service of this controller
-     * </p>
-     *
-     * @return the search service of the controller
-     */
-    private SearchService getSearchService() {
-        return searchService;
     }
 }
