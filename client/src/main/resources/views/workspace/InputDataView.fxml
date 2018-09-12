@@ -26,6 +26,12 @@
 
         <HBox>
             <padding><Insets top="5" bottom="5"/></padding>
+            <Button fx:id="btnCreateDataset" text="Create Dataset" onAction="#createDataset"/>
+            <Label><padding><Insets left="5" right="5"/></padding></Label>
+        </HBox>
+
+        <HBox>
+            <padding><Insets top="5" bottom="5"/></padding>
             <Button fx:id="btnImportDataset" text="Import Dataset" onAction="#importDataset"/>
             <Label><padding><Insets left="5" right="5"/></padding></Label>
         </HBox>

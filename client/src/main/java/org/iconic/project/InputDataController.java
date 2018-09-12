@@ -78,9 +78,38 @@ public class InputDataController implements Initializable {
         Optional<DataManager<Double>> dataManager = getDataManager();
         int rowCount = dataManager.get().getSampleSize();
         int columnCount = dataManager.get().getFeatureSize();
-
+        GridBase grid;
+        if(dataManager.get().containsHeader()){
+            grid = new GridBase(rowCount+2, columnCount);
+        }
+        else{
+            grid = new GridBase(rowCount+1, columnCount);
+        }
         ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
+        ObservableList<String> rowHeaders = FXCollections.observableArrayList();
         int row = 0;
+
+        //Creates a row above the data for adding a column description
+        ObservableList<SpreadsheetCell> infoList = FXCollections.observableArrayList();
+        for (int column = 0; column < columnCount; ++column) {
+            String cellContents = "Enter variable description here.";
+            SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
+            int finalColumn = column;
+            nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+                try{
+                    String newHeader = String.valueOf(newValue);
+                    updateProjectHeaders(finalColumn,newHeader);
+                }catch (Exception e) {
+                    //handle exception here
+                    nextCell.setItem(oldValue);
+                }
+            });
+            infoList.add(nextCell);
+        }
+        rows.add(infoList);
+        rowHeaders.add("info");
+        row++;
+
         if(dataManager.get().containsHeader()){
             final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
             for (int column = 0; column < columnCount; ++column) {
@@ -90,7 +119,7 @@ public class InputDataController implements Initializable {
                 nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
                     try{
                         String newHeader = String.valueOf(newValue);
-                        updateProjectHeaders(finalColumn,newHeader);
+                        updateVariableDescriptions(finalColumn,newHeader);
                     }catch (Exception e) {
                         //handle exception here
                         nextCell.setItem(oldValue);
@@ -99,10 +128,9 @@ public class InputDataController implements Initializable {
                 list.add(nextCell);
             }
             rows.add(list);
+            rowHeaders.add("name");
             row++;
-            rowCount++;
         }
-        GridBase grid = new GridBase(rowCount, columnCount);
         for(int cellRow = 0; cellRow < dataManager.get().getSampleSize(); cellRow++){
             final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
             for (int column = 0; column < grid.getColumnCount(); ++column) {
@@ -122,11 +150,14 @@ public class InputDataController implements Initializable {
                 list.add(nextCell);
             }
             rows.add(list);
+            rowHeaders.add(String.valueOf(cellRow+1));
+//            grid.getColumnHeaders().set(row,String.valueOf(cellRow));
             row++;
         }
         grid.setRows(rows);
-
+        grid.getRowHeaders().setAll(rowHeaders);
         spreadsheet.setGrid(grid);
+        spreadsheet.setRowHeaderWidth(50);
     }
 
     private void updateProjectDataset(int row, int column, Number newValue){
@@ -137,6 +168,12 @@ public class InputDataController implements Initializable {
     private void updateProjectHeaders(int column, String newValue){
         Optional<DataManager<Double>> dataManager = getDataManager();
         dataManager.get().updateHeaderAtIndex(column,newValue);
+    }
+
+    private void updateVariableDescriptions(int column, String newValue){
+        Optional<DataManager<Double>> dataManager = getDataManager();
+        //TODO @JackR Implement column descriptions stored within datamanager as below
+        //dataManager.get().updateDescriptionAtIndex(column,newValue);
     }
 
     private Optional<DataManager<Double>> getDataManager() {
@@ -170,6 +207,9 @@ public class InputDataController implements Initializable {
      */
     private ProjectService getProjectService() {
         return projectService;
+    }
+
+    public void createDataset(ActionEvent actionEvent) throws IOException {
     }
 
     public void saveDataset(ActionEvent actionEvent) throws IOException {
