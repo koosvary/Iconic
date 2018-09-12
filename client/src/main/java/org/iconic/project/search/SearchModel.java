@@ -2,6 +2,7 @@ package org.iconic.project.search;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import lombok.NonNull;
 import lombok.Synchronized;
@@ -9,18 +10,17 @@ import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
+import org.iconic.ea.strategies.gep.GeneExpressionProgramming;
 import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
-import org.iconic.ea.gep.GeneExpressionProgramming;
 import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.operator.primitive.*;
+import org.iconic.project.BlockDisplay;
 import org.iconic.project.dataset.DatasetModel;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>
@@ -32,30 +32,45 @@ import java.util.List;
  */
 @Log4j2
 public class SearchModel implements Runnable {
+    private static final FunctionalPrimitive[] FUNCTIONAL_PRIMITIVES = {new AbsoluteValue(), new Addition(), new And(), new ArcCos(), new ArcSin(),
+            new ArcTan(), new Ceiling(), new Cos(), new Division(), new EqualTo(),
+            new Exponential(), new Floor(), new GaussianFunction(), new GreaterThan(),
+            new GreaterThanOrEqual(), new IfThenElse(), new LessThan(), new LessThanOrEqual(),
+            new LogisticFunction(), new Maximum(), new Minimum(), new Modulo(), new Multiplication(),
+            new NaturalLog(), new Negation(), new Not(), new Or(), new Power(), new Root(),
+            new SignFunction(), new Sin(), new SquareRoot(), new StepFunction(), new Subtraction(),
+            new Tan(), new Tanh(), new TwoArcTan(), new Xor()};
+
     private final XYChart.Series<Number, Number> plots;
     private final DatasetModel datasetModel;
     private final ObjectProperty<String> updates;
     private EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> ea;
     private boolean running;
+    private ArrayList<BlockDisplay> blockDisplays;
+
 
     /**
-     * Constructs a new search model with tne provided dataset.
+     * Constructs a new search model with the provided dataset.
      *
      * @param datasetModel The dataset to perform the search on
      */
-    public SearchModel(@NonNull final DatasetModel datasetModel) {
-        this.datasetModel = datasetModel;
+    public SearchModel(@NonNull final DatasetModel datasetModel, ArrayList<BlockDisplay> blockDisplays) {
 
+        this.blockDisplays = new ArrayList<>(blockDisplays);
+        this.datasetModel = datasetModel;
         ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(
                 10,
                 datasetModel.getDataManager().getFeatureSize() - 1
         );
 
-        // Add in the functions the chromosomes can use
-        supplier.addFunction(Arrays.asList(
-                new Addition(), new Subtraction(), new Multiplication(), new Division(),
-                new Power(), new Root(), new Sin(), new Cos(), new Tan()
-        ));
+        List<FunctionalPrimitive<Double, Double>> enabledPrimitives = new ArrayList<>(this.blockDisplays.size());
+        for (int i = 0; i < this.blockDisplays.size(); i++) {
+            if (this.blockDisplays.get(i).isEnabled()) {
+                enabledPrimitives.add(getFunctionalPrimitives()[i]);
+            }
+        }
+
+        supplier.addFunction(enabledPrimitives);
 
         this.plots = new XYChart.Series<>();
         this.updates = new SimpleObjectProperty<>(null);
@@ -73,9 +88,9 @@ public class SearchModel implements Runnable {
 
         // Add in the objectives the algorithm should aim for
         ea.addObjective(
-            new DefaultObjective<>(
-                new MeanSquaredError(), datasetModel.getDataManager()
-            )
+                new DefaultObjective<>(
+                        new MeanSquaredError(), datasetModel.getDataManager()
+                )
         );
     }
 
@@ -88,15 +103,17 @@ public class SearchModel implements Runnable {
 
         final int populationSize = 100;
         final int numGenerations = 500;
+
         Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
 
         while (isRunning()) {
             try {
-                ea.initialisePopulation(populationSize, getDatasetModel().getDataManager().getFeatureSize());
+                ea.initialisePopulation(populationSize);
 
                 ExpressionChromosome<Double> bestCandidate = ea.getChromosomes()
                         .stream().min(comparator).get();
 
+                setUpdates("\nStarting..." + getUpdates());
                 for (int i = 0; i < numGenerations && isRunning(); ++i) {
                     List<ExpressionChromosome<Double>> oldPopulation = ea.getChromosomes();
                     List<ExpressionChromosome<Double>> newPopulation = ea.evolve(oldPopulation);
@@ -106,30 +123,36 @@ public class SearchModel implements Runnable {
                             .stream().min(comparator).get();
 
                     // Only add a new plot point if the fitness value improves
-                    if (bestCandidate.getFitness() > newBestCandidate.getFitness()) {
+                    boolean newCandidate = bestCandidate.getFitness() > newBestCandidate.getFitness();
+
+                    if (newCandidate) {
                         getPlots().getData().add(new XYChart.Data<>(i + 1, newBestCandidate.getFitness()));
                     }
 
                     bestCandidate = newBestCandidate;
 
                     final String generation = "\nGeneration: " + (i + 1);
-                    final String candidate = "\n\tBest candidate: " + bestCandidate.toString();
+                    final String candidate = "\n\tNew Best candidate: " + bestCandidate.toString();
                     final String fitness = "\n\tFitness: " + bestCandidate.getFitness();
 
                     // Append the current generation's best results in front of the list of updates
-                    setUpdates(
-                            generation + candidate + fitness + getUpdates()
-                    );
+                    if (newCandidate) {
+                        setUpdates(
+                                generation + candidate + fitness + getUpdates()
+                        );
+                    }
 
                     log.info(generation + candidate + fitness);
                 }
 
+                setUpdates("\nFinished!" + getUpdates());
                 setRunning(false);
             } catch (Exception ex) {
                 log.error("{}: ", ex::getMessage);
                 Arrays.stream(ex.getStackTrace()).forEach(log::error);
             }
         }
+
 
     }
 
@@ -179,5 +202,9 @@ public class SearchModel implements Runnable {
 
     public XYChart.Series<Number, Number> getPlots() {
         return plots;
+    }
+
+    public static FunctionalPrimitive[] getFunctionalPrimitives() {
+        return FUNCTIONAL_PRIMITIVES;
     }
 }

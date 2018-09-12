@@ -2,6 +2,8 @@ package org.iconic.workspace;
 
 import com.google.inject.Inject;
 import javafx.beans.InvalidationListener;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -9,9 +11,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.*;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import lombok.AccessLevel;
@@ -19,15 +20,17 @@ import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.ea.data.DataManager;
+import org.iconic.ea.data.preprocessing.*;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.definition.DefineSearchService;
 import org.iconic.project.search.SearchModel;
 import org.iconic.project.search.SearchService;
-import org.iconic.ea.data.preprocessing.Normalise;
-import org.iconic.ea.data.preprocessing.Smooth;
+import org.iconic.ea.data.preprocessing.HandleMissingValues.Mode;
 
+import java.awt.*;
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.*;
@@ -46,6 +49,10 @@ public class WorkspaceController implements Initializable {
     private final SearchService searchService;
     private final WorkspaceService workspaceService;
     private final DefineSearchService defineSearchService;
+    // A flag which determines whether the pre-processing checkboxes are disabled by the user
+    // or reset within this class. It's used to avoid firing the changeListener's changed()
+    // event when manually enabling/disabling checkboxes.
+    private boolean resetCheckboxFlag = false;
 
     @FXML
     private Button btnSearch;
@@ -66,6 +73,8 @@ public class WorkspaceController implements Initializable {
     @FXML
     private VBox vbHandleMissingValues;
     @FXML
+    private ComboBox<String> cbHandleMissingValuesOptions;
+    @FXML
     private CheckBox cbRemoveOutliers;
     @FXML
     private VBox vbRemoveOutliers;
@@ -74,16 +83,17 @@ public class WorkspaceController implements Initializable {
     @FXML
     private VBox vbNormalise;
     @FXML
-    private CheckBox cbFilter;
+    private CheckBox cbOffset;
     @FXML
-    private VBox vbFilter;
+    private VBox vbOffset;
     @FXML
     private TextField tfNormaliseMin;
     @FXML
     private TextField tfNormaliseMax;
     @FXML
+    private TextField tfOffsetValue;
+    @FXML
     private TextField tfTargetExpression;
-
 
     @Getter(AccessLevel.PRIVATE)
     private final String defaultName;
@@ -117,29 +127,128 @@ public class WorkspaceController implements Initializable {
 
         if (lvFeatures != null) {
             // lvFeatures - One of the items in the list is selected and the other objects need to be updates
-            lvFeatures.getSelectionModel().selectedItemProperty()
-                    .addListener((observable, oldValue, newValue) -> {
+            lvFeatures.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                        // Once a feature is selected, the pre-processing checkboxes are enabled
+                        enablePreprocessingCheckBoxes();
+
+                        // Update the data view and pre-processing text fields
                         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
                         featureSelected(selectedIndex);
-                    });
+
+                        // Update the respective checkboxes of the selected feature
+                        updateCheckBoxes(selectedIndex);
+            });
         }
 
         // A quick way to add a listener for the checkboxes
-        addListenerToHideElement(cbSmoothData, vbSmoothData);
-        addListenerToHideElement(cbHandleMissingValues, vbHandleMissingValues);
-        addListenerToHideElement(cbRemoveOutliers, vbRemoveOutliers);
-        addListenerToHideElement(cbNormalise, vbNormalise);
-        addListenerToHideElement(cbFilter, vbFilter);
+        addCheckBoxChangeListener(cbSmoothData, vbSmoothData);
+        addCheckBoxChangeListener(cbHandleMissingValues, vbHandleMissingValues);
+        addCheckBoxChangeListener(cbRemoveOutliers, vbRemoveOutliers);
+        addCheckBoxChangeListener(cbNormalise, vbNormalise);
+        addCheckBoxChangeListener(cbOffset, vbOffset);
+
+        addComboBoxChangeListener(cbHandleMissingValuesOptions, cbHandleMissingValues);
     }
 
-    private void addListenerToHideElement(CheckBox cb, VBox vb) {
-        if (cb != null)
-            cb.selectedProperty().addListener((observable, oldValue, newValue) -> {
-                if (vb != null) {
-                    vb.setManaged(newValue);
-                    vb.setVisible(newValue);
+    /**
+     * Adds a ChangeListener to the pre-processing checkboxes to fire the changed() event when the user
+     * selects or deselects an option.
+     *
+     * @param checkbox
+     * @param vbox
+     */
+    private void addCheckBoxChangeListener(CheckBox checkbox, VBox vbox) {
+        if (checkbox == null) {
+            return;
+        }
+        
+        checkbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                if (!resetCheckboxFlag) {
+                    Optional<DataManager<Double>> dataManager = getDataManager();
+
+                    if (dataManager.isPresent()) {
+                        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+                        String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+
+                        if (newValue) {
+                            // Checkbox has been selected
+                            addNewTransform(selectedHeader, convertCheckBoxToTransformType(checkbox));
+                        } else {
+                            // Checkbox has been unselected
+                            removeExistingTransform(checkbox);
+                        }
+
+                        updateModifiedText(selectedIndex, selectedHeader);
+                    }
                 }
-            });
+
+                // Shows or hides the checkboxes options based on whether it is selected or not
+                if (vbox != null) {
+                    vbox.setManaged(newValue);
+                    vbox.setVisible(newValue);
+                }
+            }
+        });
+    }
+
+    /**
+     * Adds a ChangeListener to the handle missing values combo box in order to detect when a user
+     * selects a new option. It then performs the handle missing values pre-processing.
+     *
+     * @param combobox The selected combo box
+     * @param checkbox The selected check box to identify the transformType
+     */
+    private void addComboBoxChangeListener(ComboBox combobox, CheckBox checkbox) {
+        if (combobox == null) {
+            return;
+        }
+
+        cbHandleMissingValuesOptions.getSelectionModel().selectFirst();
+        combobox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+            @Override
+            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+                Optional<DataManager<Double>> dataManager = getDataManager();
+
+                if (dataManager.isPresent()) {
+                    removeExistingTransform(checkbox);
+                    handleMissingValuesOfDatasetFeature();
+
+                    int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+                    String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+
+                    addNewTransform(selectedHeader, convertCheckBoxToTransformType(checkbox));
+
+                    updateModifiedText(selectedIndex, selectedHeader);
+                }
+            }
+        });
+    }
+
+    /**
+     * Called after a checkbox has been selected. A check is done to determine whether the feature
+     * has been modified. If so, a 'modified' keyword is appended to the header and the feature list
+     * is updated.
+     *
+     * @param selectedIndex Index of currently selected feature
+     * @param selectedHeader Header of currently selected feature
+     */
+    private void updateModifiedText(int selectedIndex, String selectedHeader) {
+        Optional<DataManager<Double>> dataManager = getDataManager();
+        ObservableList items = lvFeatures.getItems();
+
+        if (dataManager.isPresent()) {
+            String newHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+
+            if (dataManager.get().getDataset().get(selectedHeader).isModified()) {
+                newHeader += "    modified";
+            }
+
+            items.set(selectedIndex, newHeader);
+
+            lvFeatures.setItems(items);
+        }
     }
 
     /**
@@ -160,7 +269,7 @@ public class WorkspaceController implements Initializable {
 
             // If there's no search already being performed on the dataset, start a new one
             if (search == null) {
-                SearchModel newSearch = new SearchModel(dataset);
+                SearchModel newSearch = defineSearchService.getSearchModel(dataset);
                 getSearchService().searchesProperty().put(dataset.getId(), newSearch);
                 Thread thread = new Thread(getSearchService().searchesProperty().get(dataset.getId()));
                 thread.start();
@@ -195,96 +304,233 @@ public class WorkspaceController implements Initializable {
     }
 
     /**
-     * Updates the lcDataView with new dataset values and toggles all the features that are being
-     * used by this feature such as: smoothing, normalised, etc.
+     * Updates the lcDataView with new dataset values and the pre-processing checkboxes text
+     * fields to reflect the currently selected feature.
      *
      * @param selectedIndex The item index that was selected in the ListView
      */
-    public void featureSelected(int selectedIndex) {
-        // Update lcDataView
-        if (lcDataView != null) {
-            // Stores the currently selected header in the lvFeatures list
-            String selectedHeader = "";
+    private void featureSelected(int selectedIndex) {
+        // We're updating lcDataView
+        if (lcDataView == null) {
+            return;
+        }
 
-            // defining a series
-            XYChart.Series<Number, Number> series = new XYChart.Series<>();
+        // Defining a series
+        XYChart.Series<Number, Number> series = new XYChart.Series<>();
 
-            // populating the series with data
-            lcDataView.getData().clear();
+        // Populating the series with data
+        lcDataView.getData().clear();
+        Optional<DataManager<Double>> dataManager = getDataManager();
+
+        if (dataManager.isPresent() && selectedIndex >= 0) {
+            ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+
+            for (int sample = 0; sample < values.size(); sample++) {
+                double value = values.get(sample).doubleValue();
+                series.getData().add(new XYChart.Data<>(sample, value));
+            }
+        }
+        lcDataView.getData().add(series);
+
+        // Updates the pre-processing methods text fields to reflect the respective header
+        if (dataManager.isPresent() && selectedIndex >= 0) {
+            String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+            updatePreprocessingTextFields(selectedHeader);
+        }
+    }
+
+    /**
+     * Gets the current values from the DataManager, applies the Smooth classes functionality to said values,
+     * and then stores the new values in DataManager.
+     */
+    public void smoothDatasetFeature() {
+        if (lvFeatures == null) {
+            return;
+        }
+
+        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (selectedIndex != -1) {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
-            if (dataManager.isPresent() && selectedIndex >= 0) {
+            if (cbSmoothData.isSelected() && dataManager.isPresent()) {
                 ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
-                for (int sample = 0; sample < values.size(); sample++) {
-                    double value = values.get(sample).doubleValue();
-                    series.getData().add(new XYChart.Data<>(sample, value));
-                }
-
-                selectedHeader = String.valueOf(dataManager.get().getSampleHeaders().get(selectedIndex));
+                values = Smooth.apply(values);
+                dataManager.get().setSampleColumn(selectedIndex, values);
             }
-            lcDataView.getData().add(series);
+            // Otherwise reset the sample column
+            else if (dataManager.isPresent()) {
+                dataManager.get().resetSampleColumn(selectedIndex);
+            }
 
-            // Updates the selected header in the transformation text fields
-            cbSmoothData.setText("Smooth data points of (" + selectedHeader + ")");
-            cbHandleMissingValues.setText("Handle missing values of (" + selectedHeader + ")");
-            cbRemoveOutliers.setText("Remove outliers of (" + selectedHeader + ")");
-            cbNormalise.setText("Normalise scale and offset of (" + selectedHeader + ")");
-            cbFilter.setText("Filter data of (" + selectedHeader + ")");
+            featureSelected(selectedIndex);
         }
     }
 
+    /**
+     * Gets the current values from the DataManager, applies the HandleMissingValues classes functionality to
+     * said values, and then stores the new values in DataManager.
+     */
+    public void handleMissingValuesOfDatasetFeature() {
+        if (lvFeatures == null) {
+            return;
+        }
+
+        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (selectedIndex != -1) {
+            Optional<DataManager<Double>> dataManager = getDataManager();
+
+            if (cbHandleMissingValues.isSelected() && dataManager.isPresent()) {
+                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+
+                Mode mode = convertComboBoxIndexToMode(cbHandleMissingValuesOptions.getSelectionModel().getSelectedIndex());
+
+                values = HandleMissingValues.apply(values, mode);
+                dataManager.get().setSampleColumn(selectedIndex, values);
+            }
+            // Otherwise reset the sample column
+            else if (dataManager.isPresent()) {
+                dataManager.get().resetSampleColumn(selectedIndex);
+            }
+
+            featureSelected(selectedIndex);
+        }
+    }
+
+    // TODO: once RemoveOutliers class has been implemented
+    public void removeOutliersInDatasetFeature() {
+        if (lvFeatures == null) {
+            return;
+        }
+
+        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (selectedIndex != -1) {
+            Optional<DataManager<Double>> dataManager = getDataManager();
+
+            if (cbRemoveOutliers.isSelected() && dataManager.isPresent()) {
+                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+
+                //values = RemoveOutliers.apply(values);
+
+                dataManager.get().setSampleColumn(selectedIndex, values);
+            }
+            // Otherwise reset the sample column
+            else if (dataManager.isPresent()) {
+                dataManager.get().resetSampleColumn(selectedIndex);
+            }
+
+            featureSelected(selectedIndex);
+        }
+    }
+
+    /**
+     * Gets the current values from the DataManager, applies the Normalise classes functionality to said values,
+     * and then stores the new values in DataManager.
+     */
     public void normalizeDatasetFeature() {
-        if (lvFeatures != null) {
-            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (lvFeatures == null) {
+            return;
+        }
 
-            if (selectedIndex != -1) {
-                Optional<DataManager<Double>> dataManager = getDataManager();
+        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (selectedIndex != -1) {
+            Optional<DataManager<Double>> dataManager = getDataManager();
 
-                if (cbNormalise.isSelected() && dataManager.isPresent()) {
-                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+            if (cbNormalise.isSelected() && dataManager.isPresent()) {
+                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
-                    try {
-                        double min = Double.parseDouble(tfNormaliseMin.getText());
-                        double max = Double.parseDouble(tfNormaliseMax.getText());
+                try {
+                    double min = Double.parseDouble(tfNormaliseMin.getText());
+                    double max = Double.parseDouble(tfNormaliseMax.getText());
 
-                        if (min < max) {
-                            values = Normalise.apply(values, min, max);
-                            dataManager.get().setSampleColumn(selectedIndex, values);
-                        }
-                    } catch (Exception e) {
-                        log.error("Min and Max values must be a Number");
+                    if (min < max) {
+                        values = Normalise.apply(values, min, max);
+                        dataManager.get().setSampleColumn(selectedIndex, values);
                     }
+                } catch (Exception e) {
+                    log.error("Min and Max values must be a Number");
                 }
-                // Otherwise reset the sample column
-                else if (dataManager.isPresent()) {
-                    dataManager.get().resetSampleColumn(selectedIndex);
-                }
-
-                featureSelected(selectedIndex);
             }
+            // Otherwise reset the sample column
+            else if (dataManager.isPresent()) {
+                dataManager.get().resetSampleColumn(selectedIndex);
+            }
+
+            featureSelected(selectedIndex);
         }
     }
 
-    public void smoothDatasetFeature() {
-        if (lvFeatures != null) {
-            int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+    /**
+     * Gets the current values from the DataManager, applies the Offset classes functionality to said values,
+     * and then stores the new values in DataManager.
+     */
+    public void offsetDatasetFeature() {
+        if (lvFeatures == null) {
+            return;
+        }
 
-            if (selectedIndex != -1) {
-                Optional<DataManager<Double>> dataManager = getDataManager();
+        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+        if (selectedIndex >= 0) {
+            Optional<DataManager<Double>> dataManager = getDataManager();
 
-                if (cbSmoothData.isSelected() && dataManager.isPresent()) {
-                    ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+            if (cbOffset.isSelected() && dataManager.isPresent()) {
+                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
-                    values = Smooth.apply(values);
+                try {
+                    double offset = Double.parseDouble(tfOffsetValue.getText());
+                    System.out.println("Offset value: " + offset);
+
+                    values = Offset.apply(values, offset);
                     dataManager.get().setSampleColumn(selectedIndex, values);
-                }
-                // Otherwise reset the sample column
-                else if (dataManager.isPresent()) {
-                    dataManager.get().resetSampleColumn(selectedIndex);
-                }
 
-                featureSelected(selectedIndex);
+                } catch (Exception e) {
+                    log.error("Offset value must be a Number");
+                }
+            }
+            // Otherwise reset the sample column
+            else if (dataManager.isPresent()) {
+                dataManager.get().resetSampleColumn(selectedIndex);
+            }
+
+            featureSelected(selectedIndex);
+        }
+    }
+
+    /**
+     * Adds a new transformation to the FeatureClass list
+     *
+     * @param header Used to identify the specific FeatureClass and header of the new transformation
+     * @param transformType Used to define the transform type of the new transformation
+     */
+    private void addNewTransform(String header, TransformType transformType) {
+        Optional<DataManager<Double>> dataManager = getDataManager();
+
+        // Creates a new transformation object, storing the feature that was transformed and
+        // the type of transformation
+        Transformation newTransformation = new Transformation(header, transformType);
+
+        if (dataManager.isPresent()) {
+            dataManager.get().getDataset().get(header).addTransformation(newTransformation);
+            dataManager.get().getDataset().get(header).setModified(true);
+        }
+    }
+
+    /**
+     * Removes an existing transformation after a pre-processing checkbox has been deselected
+     *
+     * @param checkbox Identifies the type of transform to be removed
+     */
+    private void removeExistingTransform(CheckBox checkbox) {
+        Optional<DataManager<Double>> dataManager = getDataManager();
+
+        if (dataManager.isPresent()) {
+            String selectedHeader = dataManager.get().getSampleHeaders().get(lvFeatures.getSelectionModel().getSelectedIndex());
+            TransformType transformType = convertCheckBoxToTransformType(checkbox);
+
+            dataManager.get().getDataset().get(selectedHeader).removeTransformation(transformType);
+
+            if (dataManager.get().getDataset().get(selectedHeader).getTransformations().size() == 0) {
+                dataManager.get().getDataset().get(selectedHeader).setModified(false);
             }
         }
     }
@@ -351,9 +597,163 @@ public class WorkspaceController implements Initializable {
                 lvFeatures.getItems().clear();
             }
         }
-
     }
 
+    /**
+     * Updates the pre-processing checkboxes to reflect the currently selected header.
+     * This method is called each time a new feature is selected in lvFeatures.
+     *
+     * @param selectedHeader The string value of the currently selected header
+     */
+    private void updatePreprocessingTextFields(String selectedHeader) {
+        // Updates the selected header in the transformation text fields
+        cbSmoothData.setText("Smooth data points of (" + selectedHeader + ")");
+        cbHandleMissingValues.setText("Handle missing values of (" + selectedHeader + ")");
+        cbRemoveOutliers.setText("Remove outliers of (" + selectedHeader + ")");
+        cbNormalise.setText("Normalise scale of (" + selectedHeader + ")");
+        cbOffset.setText("Offset values of (" + selectedHeader + ")");
+    }
+
+    /**
+     * Updates the pre-processing checkboxes to be either selected (ticked) or not selected (unticked)
+     * based upon a list of applied transformations.
+     * This method is called each time a new feature is selected in lvFeatures.
+     *
+     * @param selectedIndex The integer corresponding to the currently selected feature
+     */
+    private void updateCheckBoxes(int selectedIndex) {
+        clearCheckBoxes();
+
+        Optional<DataManager<Double>> dataManager = getDataManager();
+
+        if (dataManager.isPresent() && selectedIndex >= 0) {
+            String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+
+            if (dataManager.get().getDataset().get(selectedHeader).isModified()) {
+                List<Transformation> transformations = dataManager.get().getDataset().get(selectedHeader).getTransformations();
+
+                for (Transformation transform : transformations) {
+                    enableCheckBox(transform.getTransform());
+                }
+            }
+        }
+    }
+
+    /**
+     * Takes a transformation type as input and selects the checkbox corresponding with that
+     * transformation type.
+     *
+     * @param transform The type of a previous transform
+     */
+    private void enableCheckBox(TransformType transform) {
+        resetCheckboxFlag = true;
+
+        switch (transform) {
+            case Smoothed:
+                cbSmoothData.setSelected(true);
+                break;
+
+            case MissingValuesHandled:
+                cbHandleMissingValues.setSelected(true);
+                break;
+
+            case OutliersRemoved:
+                cbRemoveOutliers.setSelected(true);
+                break;
+
+            case Normalised:
+                cbNormalise.setSelected(true);
+                break;
+
+            case Offset:
+                cbOffset.setSelected(true);
+                break;
+        }
+
+        resetCheckboxFlag = false;
+    }
+
+    /**
+     * Enabled all pre-processing checkboxes so that the user can interact with them.
+     * This method is called once a feature is selected.
+     */
+    private void enablePreprocessingCheckBoxes() {
+        cbSmoothData.setDisable(false);
+        cbHandleMissingValues.setDisable(false);
+        cbRemoveOutliers.setDisable(false);
+        cbNormalise.setDisable(false);
+        cbOffset.setDisable(false);
+    }
+
+    /**
+     * Given one of the five pre-processing checkboxes, this method determines its corresponding TransformType.
+     *
+     * @param checkbox The checkbox that has been selected
+     * @return The corresponding TransformType
+     */
+    private TransformType convertCheckBoxToTransformType(CheckBox checkbox) {
+        if (checkbox == cbSmoothData) {
+            return TransformType.Smoothed;
+        }
+        else if (checkbox == cbHandleMissingValues) {
+            return TransformType.MissingValuesHandled;
+        }
+        else if (checkbox == cbRemoveOutliers) {
+            return TransformType.OutliersRemoved;
+        }
+        else if (checkbox == cbNormalise) {
+            return TransformType.Normalised;
+        }
+        else {
+            return TransformType.Offset;
+        }
+    }
+
+    /**
+     *  Converts a handle missing values combo box index into the respective HandleMissingValues.Mode type.
+     *
+     * @param index Identifies the currently selected option in the combo box.
+     */
+    private Mode convertComboBoxIndexToMode(int index) {
+        switch (index) {
+            /* Can be re-added once copyPreviousRow is fixed
+            case 0:
+                return Mode.COPY_PREVIOUS_ROW;*/
+
+            case 0:
+                return Mode.MEAN;
+
+            case 1:
+                return Mode.MEDIAN;
+
+            case 2:
+                return Mode.ZERO;
+
+            case 3:
+            default:
+                return Mode.ONE;
+        }
+    }
+
+    /**
+     * Resets all checkboxes to an unselected state.
+     * This method is called before checkboxes are updated to reflect previous transformations.
+     */
+    private void clearCheckBoxes() {
+        resetCheckboxFlag = true;
+
+        cbSmoothData.setSelected(false);
+        cbHandleMissingValues.setSelected(false);
+        cbRemoveOutliers.setSelected(false);
+        cbNormalise.setSelected(false);
+        cbOffset.setSelected(false);
+
+        resetCheckboxFlag = false;
+    }
+
+    /**
+     * Clears the search graphs.
+     */
     private void clearUI() {
         // Make sure the UI element actually exists
         if (lcDataView != null) {

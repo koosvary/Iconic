@@ -4,15 +4,14 @@ import com.beust.jcommander.JCommander;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
-import org.iconic.ea.chromosome.expression.ExpressionChromosome;
-import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
+import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
+import org.iconic.ea.chromosome.cartesian.CartesianChromosomeFactory;
 import org.iconic.ea.data.DataManager;
-import org.iconic.ea.gep.GeneExpressionProgramming;
-import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
-import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
+import org.iconic.ea.operator.evolutionary.mutation.cgp.CartesianSingleActiveMutator;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.operator.primitive.*;
+import org.iconic.ea.strategies.cgp.CartesianGeneticProgramming;
 import org.iconic.io.ArgsConverterFactory;
 
 import java.util.Arrays;
@@ -21,6 +20,7 @@ import java.util.List;
 
 @Log4j2
 public class Client {
+    /** Parses an array of strings as tokens to be converted by a provided factory */
     private final JCommander argParser;
     private final ArgsConverterFactory args;
 
@@ -37,17 +37,25 @@ public class Client {
         // Check if the user passed in an input file
         final String inputFile = client.getArgs().getInput();
 
-        if (!"".equals(inputFile) && !inputFile.isEmpty()) {
+        // Don't do anything if they didn't
+        if (inputFile != null && !inputFile.isEmpty()) {
             final DataManager<Double> dm = new DataManager<>(inputFile);
 
+            // Collect all relevant parameters for convenience
             int featureSize = dm.getFeatureSize();
             int sampleSize = dm.getSampleSize();
+            int outputs = client.getArgs().getOutputs();
+            int columns = client.getArgs().getColumns();
+            int rows = client.getArgs().getRows();
+            int levelsBack = client.getArgs().getLevelsBack();
 
             log.info("Feature Size: {}", () -> featureSize - 1);
             log.info("Sample Size: {}", () -> sampleSize);
 
             // Create a supplier for Gene Expression Programming chromosomes
-            ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(10, featureSize - 1);
+            CartesianChromosomeFactory<Double> supplier = new CartesianChromosomeFactory<>(
+                    outputs, featureSize - 1, columns, rows, levelsBack
+            );
 
             // Add in the functions the chromosomes can use
             supplier.addFunction(Arrays.asList(
@@ -56,35 +64,48 @@ public class Client {
             ));
 
             // Create an evolutionary algorithm using Gene Expression Programming
-            EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> gep = new GeneExpressionProgramming<>(supplier);
-            gep.setCrossoverProbability(client.getArgs().getCrossoverProbability());
-            gep.setMutationProbability(client.getArgs().getMutationProbability());
+            EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea =
+                    new CartesianGeneticProgramming<>(supplier);
+            ea.setCrossoverProbability(client.getArgs().getCrossoverProbability());
+            ea.setMutationProbability(client.getArgs().getMutationProbability());
 
             // Add in the evolutionary operators the algorithm can use
-            gep.addCrossover(new SimpleExpressionCrossover<>());
-            gep.addMutator(new ExpressionMutator<>());
+            ea.addMutator(new CartesianSingleActiveMutator<>());
 
             // Add in the objectives the algorithm should aim for
-            gep.addObjective(
-                    new DefaultObjective<Double>(
+            ea.addObjective(
+                    new DefaultObjective<>(
                             new MeanSquaredError(), dm
-            ));
+                    ));
 
-//            log.info("Function Primitives used: {}", supplier::getFunctions);
-
+            final int generations = client.getArgs().getGenerations();
             final Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
-            gep.initialisePopulation(client.getArgs().getPopulation(), dm.getFeatureSize());
-            List<ExpressionChromosome<Double>> population = gep.getChromosomes();
+            ea.initialisePopulation(client.getArgs().getPopulation());
+            List<CartesianChromosome<Double>> population = ea.getChromosomes();
+            Chromosome<Double> bestCandidate = population.stream().min(comparator).get();
 
-            for (int i = 0; i < client.getArgs().getGenerations(); ++i) {
-                gep.evolve(population);
+            // Start the evolutionary loop
+            for (int i = 0; i < generations; ++i) {
+                final int percent = intToPercent(i, generations);
 
-                Chromosome<Double> bestCandidate = population
-                        .stream().min(comparator).get();
+                population = ea.evolve(population);
+                // Retrieve the individual with the best fitness
+                bestCandidate = population.stream().min(comparator).get();
 
-                log.info("\n\tGeneration: {}\n\tBest candidate: {}\n\tFitness: {}",
-                        i + 1, bestCandidate.toString(), bestCandidate.getFitness());
+                // Pretty-print a summarised progress indicator
+                StringBuilder out = new StringBuilder();
+                out.append("\r")
+                        .append("Progress: ").append(percent).append("%")
+                        // And include the current best fitness
+                        .append("\t|\tFitness: ").append(bestCandidate.getFitness());
+
+                System.out.print(out);
             }
+
+            // When it ends print out the actual genome of the best candidate
+            log.info("\n\tBest candidate: {}\n\tFitness: {}",
+                    bestCandidate.toString(), bestCandidate.getFitness()
+            );
         }
     }
 
@@ -105,7 +126,23 @@ public class Client {
         return argParser;
     }
 
+    /**
+     * <p>Return the ArgsConverterFactory of this Client</p>
+     *
+     * @return the ArgsConverterFactory of the client
+     */
     private ArgsConverterFactory getArgs() {
         return args;
+    }
+
+    /**
+     * <p>Converts the provided progress into a percentage of the provided total</p>
+     *
+     * @param progress the current progress
+     * @param total    the total
+     * @return the current progress as a percentage of the total
+     */
+    private static int intToPercent(final int progress, final int total) {
+        return (progress * 100) / total;
     }
 }
