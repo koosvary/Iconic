@@ -217,7 +217,6 @@ public class DataManager<T> {
 
     public ArrayList<Number> getSampleColumn(int column) {
         String columnName = sampleHeaders.get(column);
-
         return getSampleColumn(columnName);
     }
 

@@ -2,128 +2,74 @@
 
 <?import javafx.collections.FXCollections?>
 <?import javafx.geometry.*?>
-<?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<?import org.iconic.control.WorkspaceTab?>
-<?import org.iconic.project.*?>
 <?import java.lang.*?>
 <WorkspaceTab text="   Define Search" tabType="SEARCH"
               xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
               fx:controller="org.iconic.project.definition.DefineSearchController">
-    <graphic>
+	<graphic>
         <ImageView fitWidth="24" fitHeight="24">
-            <image>
-                <Image url="@/images/file.png"/>
-            </image>
+            <Image url="@/images/file.png"/>
         </ImageView>
-    </graphic>
-
-    <VBox>
-        <padding>
-            <Insets topRightBottomLeft="25"/>
-        </padding>
-        <HBox>
-            <Label text="Target Expression:">
-                <padding>
-                    <Insets left="20" right="20"/>
-                </padding>
-                <font>
-                    <Font size="16.0"/>
-                </font>
-            </Label>
-
-            <TextField fx:id="tfTargetExpression" text="y = f(x)"/>
-        </HBox>
-
-        <HBox>
-            <padding>
-                <Insets top="25" left="20"/>
-            </padding>
-            <TableView>
-                <columns>
-                    <TableColumn text="Enabled">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="enabled"/>
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn text="Name">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="name"/>
-                        </cellValueFactory>
-                    </TableColumn>
-                    <TableColumn text="Complexity">
-                        <cellValueFactory>
-                            <PropertyValueFactory property="complexity"/>
-                        </cellValueFactory>
-                    </TableColumn>
-                </columns>
-                <items>
-                    <FXCollections fx:factory="observableArrayList">
-                        <BlockDisplay enabled="" name="+" complexity="1"/>
-                        <BlockDisplay enabled="" name="-" complexity="1"/>
-                        <BlockDisplay enabled="" name="/" complexity="2"/>
-                        <BlockDisplay enabled="" name="*" complexity="2"/>
-                        <BlockDisplay enabled="" name="Sin" complexity="3"/>
-                        <BlockDisplay enabled="" name="Cos" complexity="3"/>
-                        <BlockDisplay enabled="" name="Tan" complexity="4"/>
-                    </FXCollections>
-                </items>
-            </TableView>
-
-            <Label>
-                <padding>
-                    <Insets left="20" right="20"/>
-                </padding>
-            </Label>
-
-            <ListView/>
-        </HBox>
-
-        <HBox>
-            <padding>
-                <Insets top="25"/>
-            </padding>
-            <Label text="Error metric:">
-                <padding>
-                    <Insets left="20" right="20"/>
-                </padding>
-                <font>
-                    <Font size="16.0"/>
-                </font>
-            </Label>
-
-            <ComboBox value="Absolute error (default)">
-                <items>
-                    <FXCollections fx:factory="observableArrayList">
-                        <String fx:value="Absolute error (default)"/>
-                        <String fx:value="Squared error"/>
-                        <String fx:value="Mean Squared Error (MSE)"/>
-                        <String fx:value="Root Mean Squared Error (RMSE)"/>
-                        <String fx:value="Maximum error"/>
-                        <String fx:value="Median error"/>
-                    </FXCollections>
-                </items>
-            </ComboBox>
-        </HBox>
-
-        <HBox>
-            <padding>
-                <Insets top="25"/>
-            </padding>
-            <Label text="Base Solutions:">
-                <padding>
-                    <Insets left="20" right="20"/>
-                </padding>
-                <font>
-                    <Font size="16.0"/>
-                </font>
-            </Label>
-
-            <TextField/>
-        </HBox>
-    </VBox>
-</WorkspaceTab>
+	</graphic>
+	
+	<VBox>
+		<padding><Insets topRightBottomLeft="25"/></padding>
+		<HBox>
+			<Label text="Target Expression:">
+				<padding><Insets left="20" right="20"/></padding>
+				<font>
+					<Font size="16.0"/>
+				</font>
+			</Label>
+			
+			<TextField fx:id="tfTargetExpression" text="y = f(x)"/>
+		</HBox>
+		
+		<HBox>
+			<padding><Insets top="25" left="20"/></padding>
+			<TableView fx:id="blockDisplayTableView"/>
+			
+			<Label><padding><Insets left="20" right="20"/></padding></Label>
+		</HBox>
+		
+		<HBox>
+			<padding><Insets top="25"/></padding>
+			<Label text="Error metric:">
+				<padding><Insets left="20" right="20"/></padding>
+				<font>
+					<Font size="16.0"/>
+				</font>
+			</Label>
+		
+			<ComboBox value="Absolute error (default)">
+				<items>
+					<FXCollections fx:factory="observableArrayList">
+						<String fx:value="Absolute error (default)"/>
+						<String fx:value="Squared error"/>
+						<String fx:value="Mean Squared Error (MSE)"/>
+						<String fx:value="Root Mean Squared Error (RMSE)"/>
+						<String fx:value="Maximum error"/>
+						<String fx:value="Median error"/>
+					</FXCollections>
+				</items>
+			</ComboBox>
+		</HBox>
+		
+		<HBox>
+			<padding><Insets top="25"/></padding>
+			<Label text="Base Solutions:">
+				<padding><Insets left="20" right="20"/></padding>
+				<font>
+					<Font size="16.0"/>
+				</font>
+			</Label>
+			
+			<TextField/>
+		</HBox>
+	</VBox>
+</Tab>

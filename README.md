@@ -4,10 +4,30 @@
 
 ## What's New
 
+### Release Notes - 0.3.0 - August 31st, 2018
+
+#### Improvements
+* Abstract our Evolutionary Algorithm class to handle both GEP and CGP
+* Implement CGP for use with the command line interface (CLI)
+* The client can now be compiled into a single stand-alone jar by executing the gradle task `fatjar`
+* The client output will only update when a solution with a better fitness is found, to allow for better readability
+* More unit test classes under the hood
+* API functionality to handle missing values, **this is not in use yet**.
+  * Different modes for handling these values are:
+    * Ignore the row
+    * Copy the previous rows value
+    * Take the mean value from the set
+    * Take the median value
+    * Use a zero
+    * Use a one
+    * Use a specifically set value
+
+#### Fixes
+* Executing gradle build tasks now run all the tests
+
 ### Release Notes - 0.2.0 - August 17th, 2018
 
 #### Improvements
-
 * “Input Data” screen has been overhauled
   * Datasets now display as a spreadsheet
   * This spreadsheet is editable and updates automatically in local memory
@@ -41,13 +61,11 @@
 ### Release Notes - 0.1.0 - May 28th, 2018
 
 #### Improvements
-
 * Gene Expression Programming is now in, if a few decades late.
 * A new and improved user interface! Still no isomorphism.
 * A much better build process, we're done with Batch scripts.
 
 #### Fixes
-
 * The back end has changed so much practically everything's been
 fixed in some way. Or at least broken more nicely.
 
