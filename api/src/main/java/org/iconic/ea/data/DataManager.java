@@ -258,7 +258,8 @@ public class DataManager<T> {
         }
     }
 
-    // Sets the 'output' and 'active' states of the features
+    // Reads in the function specified by user,
+    // sets the 'output' and 'active' states of the features
     public void defineFunction(String function)
     {
         String outputFeaturesStr = cleanParentheses(function.split("=")[0]);
@@ -290,6 +291,7 @@ public class DataManager<T> {
 
             if(outputFeatureList.contains(header))
             {
+                fClass.setActive(true);
                 fClass.setOutput(true);
             }
             else if(activeFeatureList.contains(header))

@@ -106,9 +106,12 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
             for (String header : headers) {
                 FeatureClass<Number> feature = dataManager.getDataset().get(header);
 
-                row.add(
-                        (T) feature.getSampleValue(i)
-                );
+                if(feature.isActive())
+                {
+                    row.add(
+                            (T) feature.getSampleValue(i)
+                    );
+                }
             }
 
             T output = getRoot().apply(row);

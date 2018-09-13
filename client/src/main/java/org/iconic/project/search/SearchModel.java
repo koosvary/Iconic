@@ -10,6 +10,7 @@ import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
+import org.iconic.ea.data.FeatureClass;
 import org.iconic.ea.gep.GeneExpressionProgramming;
 import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
@@ -46,9 +47,21 @@ public class SearchModel implements Runnable {
     public SearchModel(@NonNull final DatasetModel datasetModel) {
         this.datasetModel = datasetModel;
 
+        int numFeatures = 0;
+        List<String> headers = datasetModel.getDataManager().getSampleHeaders();
+
+        for (String header : headers) {
+            FeatureClass<Number> feature = datasetModel.getDataManager().getDataset().get(header);
+
+            if(feature.isActive())
+            {
+                numFeatures++;
+            }
+        }
+
         ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(
                 10,
-                datasetModel.getDataManager().getFeatureSize() - 1
+                numFeatures - 1
         );
 
         // Add in the functions the chromosomes can use
