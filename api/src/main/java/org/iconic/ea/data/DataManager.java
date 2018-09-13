@@ -222,6 +222,15 @@ public class DataManager<T> {
         return samples;
     }
 
+    public void addRow(List<Number> numbers) {
+        sampleSize++;
+        for(int i = 0; i < sampleHeaders.size(); i ++){
+            String header = sampleHeaders.get(i);
+            FeatureClass<Number> fc = dataset.get(header);
+            fc.addSampleValue(numbers.get(i));
+        }
+    }
+
     public ArrayList<Number> getSampleColumn(int column) {
         String columnName = sampleHeaders.get(column);
         return getSampleColumn(columnName);

@@ -1,13 +1,17 @@
 package org.iconic.project;
 
 import javafx.beans.InvalidationListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import lombok.val;
@@ -20,12 +24,16 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class InputDataController implements Initializable {
     private final ProjectService projectService;
     private final WorkspaceService workspaceService;
+
+    private ScrollBar bar;
 
     @FXML
     private SpreadsheetView spreadsheet;
@@ -56,8 +64,6 @@ public class InputDataController implements Initializable {
             spreadsheet.setVisible(true);
         }
     }
-
-
 
     private void clearUI() {
         spreadsheet.setGrid(new GridBase(0,0));
@@ -151,13 +157,83 @@ public class InputDataController implements Initializable {
             }
             rows.add(list);
             rowHeaders.add(String.valueOf(cellRow+1));
-//            grid.getColumnHeaders().set(row,String.valueOf(cellRow));
             row++;
         }
         grid.setRows(rows);
         grid.getRowHeaders().setAll(rowHeaders);
         spreadsheet.setGrid(grid);
         spreadsheet.setRowHeaderWidth(50);
+        bar = getVerticalScrollbar(spreadsheet);
+        bar.valueProperty().addListener(this::scrolled);
+    }
+
+    private ScrollBar getVerticalScrollbar(SpreadsheetView table) {
+        ScrollBar result = null;
+        for (Node n : table.lookupAll(".scroll-bar")) {
+            if (n instanceof ScrollBar) {
+                ScrollBar bar = (ScrollBar) n;
+                if (bar.getOrientation().equals(Orientation.VERTICAL)) {
+                    result = bar;
+                }
+            }
+        }
+        return result;
+    }
+
+
+    private void scrolled(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+        double value = newValue.doubleValue();
+        ScrollBar bar = getVerticalScrollbar(spreadsheet);
+        //If the scroll bar is at the bottom add a new row
+        if (value == bar.getMax() && value != bar.getMin()) {
+            double targetValue = value * spreadsheet.getGrid().getRows().size();
+            spreadsheetAddRow();
+            bar.setValue(targetValue / spreadsheet.getGrid().getRows().size());
+        }
+    }
+
+    /**
+     * Adds a new row to a given SpreadsheetView's Grid on runtime, preserving all it's cells values.
+     */
+    private void spreadsheetAddRow() {
+        Grid oldGrid = spreadsheet.getGrid();
+
+        int newRowPos = oldGrid.getRowCount();
+        ObservableList<String> rowHeaders = oldGrid.getRowHeaders();
+        ObservableList<ObservableList<SpreadsheetCell>> rows = oldGrid.getRows();
+        List<Number> numbers = new ArrayList<>();
+
+        final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
+        for (int column = 0; column < oldGrid.getColumnCount(); ++column) {
+            String cellContents = "0.0";
+            SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(newRowPos, column, 1, 1, cellContents);
+            int changedColumn = column;
+            nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+                try{
+                    Number newNumber = Double.parseDouble(String.valueOf(newValue));
+                    updateProjectDataset(newRowPos,changedColumn,newNumber);
+                }catch (Exception e) {
+                    //handle exception here
+                    nextCell.setItem(oldValue);
+                }
+            });
+            list.add(nextCell);
+            numbers.add(Double.parseDouble(cellContents));
+        }
+        // Adds the new row to the rows set
+        rows.add(list);
+        rowHeaders.add(String.valueOf(newRowPos+1));
+        // Updates the Grid rows
+        oldGrid.getRowHeaders().setAll(rowHeaders);
+        spreadsheet.setGrid(oldGrid);
+
+        //Updates the dataset
+        addRowToDataset(numbers);
+    }
+
+    private void addRowToDataset(List<Number> newNumbers){
+        Optional<DataManager<Double>> dataManager = getDataManager();
+        dataManager.get().addRow(newNumbers);
     }
 
     private void updateProjectDataset(int row, int column, Number newValue){
