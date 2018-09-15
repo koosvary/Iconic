@@ -10,10 +10,8 @@ public class SolutionStorage<T> {
     private HashMap<Integer, List<ExpressionChromosome<T>>> solutions = new HashMap<>();
 
     /**
-     * <p>
      * Given a list of new solutions, loop through the entire list and compare the fitness of each solution with the
      * current best solution of the same size. If the fitness is better, add it to the end of the list.
-     * </p>
      * @param newSolutions A list of solutions to be compared
      */
     public void evaluate(List<ExpressionChromosome<T>> newSolutions) {
@@ -41,32 +39,8 @@ public class SolutionStorage<T> {
             // If the current solution has a better fitness then the best fitness with the same size, add it to the list
             if (fitness < sameSizeBestFitness) {
                 sameSizeSolutions.add(0, solution);
+                //updateController(); // TODO This would be the best spot to update the results view
             }
-        }
-    }
-
-    // TODO remove
-    public void displayResults() {
-        // Iterate through the hashmap
-        Set set = solutions.entrySet();
-        Iterator iterator = set.iterator();
-
-        log.info("Hashmap Size: " + solutions.size());
-
-        // Print out the size and fitness of the best solution
-        while(iterator.hasNext()) {
-            // Get the list of solutions from each key
-            Map.Entry mentry = (Map.Entry) iterator.next();
-            List<ExpressionChromosome<T>> solutions = (List<ExpressionChromosome<T>>) mentry.getValue();
-
-            // Get the best solution from that list
-            ExpressionChromosome<T> bestSolution = solutions.get(solutions.size() - 1);
-
-            // Get the important data
-            int solutionSize = bestSolution.getSize();
-            double solutionFitness = bestSolution.getFitness();
-
-            log.info("Size: " + solutionSize + ", Fitness: " + solutionFitness + ", Solution: " + bestSolution);
         }
     }
 

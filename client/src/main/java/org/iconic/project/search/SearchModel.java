@@ -121,8 +121,7 @@ public class SearchModel implements Runnable {
                     ea.setChromosomes(newPopulation);
 
                     // Evaluate the new population of solutions and store the best ones
-                    solutionStorage.evaluate(newPopulation);    // TODO - Choose what solutions get stored
-                    solutionStorage.displayResults();   // TODO - Remove this later, currently just used to show output
+                    solutionStorage.evaluate(newPopulation); // TODO - Choose what solutions get stored
 
                     ExpressionChromosome<Double> newBestCandidate = ea.getChromosomes()
                             .stream().min(comparator).get();

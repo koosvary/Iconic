@@ -5,7 +5,11 @@ import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.util.converter.DoubleStringConverter;
+import javafx.util.converter.IntegerStringConverter;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.project.Displayable;
@@ -29,6 +33,8 @@ public class ResultsController implements Initializable {
 
     private final WorkspaceService workspaceService;
     private final SearchService searchService;
+
+    private SolutionStorage<Double> storage;
 
     @FXML
     private TableView<ResultDisplay> solutionsTableView;
@@ -58,21 +64,26 @@ public class ResultsController implements Initializable {
     /**
      * Updates the workspace to match the current active dataset.
      */
-    private void updateWorkspace() {
+    public void updateWorkspace() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
-        // If no dataset is selected clear the UI
+        // If no dataset, stop what you're doing.
         if (!(item instanceof DatasetModel)) {
-            clearUI();
+            // TODO clear the UI?
             return;
         }
 
         DatasetModel dataset = (DatasetModel) item;
         SearchModel search = getSearchModel(dataset);
-        if (search == null) {
+        if (search != null) {
+            // If a search is running, use that current one for results. Else use the last search
+            storage = search.getSolutionStorage();
+        }
+
+        if (storage == null) {
+            // No storage? No worries
             return;
         }
-        SolutionStorage<Double> storage = search.getSolutionStorage();
 
         List<ResultDisplay> resultDisplays = new ArrayList<>();
         for (Map.Entry<Integer, List<ExpressionChromosome<Double>>> entry : storage.getSolutions().entrySet()) {
@@ -80,16 +91,31 @@ public class ResultsController implements Initializable {
             resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.toString()));
         }
 
-        solutionsTableView.setItems(FXCollections.observableArrayList());
+        // Add all the results as FX observables
+        solutionsTableView.setItems(FXCollections.observableArrayList(resultDisplays));
+
+        TableColumn<ResultDisplay, Integer> sizeCol = new TableColumn<>("Size");
+        TableColumn<ResultDisplay, Double> fitnessCol = new TableColumn<>("Fitness");
+        TableColumn<ResultDisplay, String> solutionCol = new TableColumn<>("Solution");
+
+        // Set conversion factories for data types into string
+        sizeCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        fitnessCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+
+        // Set where the values come from
+        sizeCol.setCellValueFactory(cellData -> cellData.getValue().sizeProperty().asObject());
+        fitnessCol.setCellValueFactory(cellData -> cellData.getValue().fitProperty().asObject());
+        solutionCol.setCellValueFactory(cellData -> cellData.getValue().solutionProperty());
+
+        // Set the columns to be these ones
+        solutionsTableView.getColumns().setAll(sizeCol, fitnessCol, solutionCol);
     }
 
     /**
-     * Clears the search graphs.
+     * Get search model given a dataset
+     * @param dataset DatasetModel to use
+     * @return Search model for that dataset, or null if no search is running
      */
-    private void clearUI() {
-        // TODO add later
-    }
-
     private SearchModel getSearchModel(DatasetModel dataset) {
         return getSearchService().searchesProperty().get(dataset.getId());
     }
