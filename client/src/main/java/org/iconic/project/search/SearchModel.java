@@ -45,7 +45,7 @@ public class SearchModel implements Runnable {
     private final DatasetModel datasetModel;
     private final ObjectProperty<String> updates;
     private EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> ea;
-    private SolutionStorage solutionStorage = new SolutionStorage();        // Stores the solutions found
+    private SolutionStorage<Double> solutionStorage = new SolutionStorage<>(); // Stores the solutions found
     private boolean running;
     private ArrayList<BlockDisplay> blockDisplays;
 
@@ -180,6 +180,10 @@ public class SearchModel implements Runnable {
      */
     public DatasetModel getDatasetModel() {
         return datasetModel;
+    }
+
+    public SolutionStorage<Double> getSolutionStorage() {
+        return solutionStorage;
     }
 
     @Synchronized

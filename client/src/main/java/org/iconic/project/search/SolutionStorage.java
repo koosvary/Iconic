@@ -29,7 +29,7 @@ public class SolutionStorage<T> {
             // For the first entry, create a new List
             if (sameSizeSolutions == null) {
                 sameSizeSolutions = new ArrayList<>();
-                sameSizeSolutions.add(solution);
+                sameSizeSolutions.add(0, solution);
                 solutions.put(size, sameSizeSolutions);
                 continue;
             }
@@ -40,11 +40,12 @@ public class SolutionStorage<T> {
 
             // If the current solution has a better fitness then the best fitness with the same size, add it to the list
             if (fitness < sameSizeBestFitness) {
-                sameSizeSolutions.add(solution);
+                sameSizeSolutions.add(0, solution);
             }
         }
     }
 
+    // TODO remove
     public void displayResults() {
         // Iterate through the hashmap
         Set set = solutions.entrySet();
@@ -70,11 +71,10 @@ public class SolutionStorage<T> {
     }
 
     /**
-     * <p>
-     * Returns the HashMap containing the lists of the solutions
-     * </p>
-     *
-     * @return the HashMap containing the list of solutions.
+     * Get the HashMap containing the lists of solutions
+     * @return HashMap containing the lists of solutions
      */
-    public HashMap<Integer, List<ExpressionChromosome<T>>> getSolutions() { return solutions; }
+    public HashMap<Integer, List<ExpressionChromosome<T>>> getSolutions() {
+        return solutions;
+    }
 }
