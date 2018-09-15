@@ -229,4 +229,14 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
 
         return clone;
     }
+
+    /**
+     * <p>
+     * Returns the size of the Expression Chromosome.
+     * </p>
+     * @return Returns the size of the chromosome.
+     */
+    public int getSize() {
+        return root.getSize();
+    }
 }
