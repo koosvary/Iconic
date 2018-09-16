@@ -104,7 +104,7 @@ public class InputDataController implements Initializable {
             nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
                 try{
                     String newHeader = String.valueOf(newValue);
-                    updateProjectHeaders(finalColumn,newHeader);
+                    updateVariableDescriptions(finalColumn,newHeader);
                 }catch (Exception e) {
                     //handle exception here
                     nextCell.setItem(oldValue);
@@ -125,7 +125,7 @@ public class InputDataController implements Initializable {
                 nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
                     try{
                         String newHeader = String.valueOf(newValue);
-                        updateVariableDescriptions(finalColumn,newHeader);
+                        updateProjectHeaders(finalColumn,newHeader);
                     }catch (Exception e) {
                         //handle exception here
                         nextCell.setItem(oldValue);
@@ -144,15 +144,7 @@ public class InputDataController implements Initializable {
                 SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
                 int changedRow = cellRow;
                 int changedColumn = column;
-                nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
-                    try{
-                        Number newNumber = Double.parseDouble(String.valueOf(newValue));
-                        updateProjectDataset(changedRow,changedColumn,newNumber);
-                    }catch (Exception e) {
-                        //handle exception here
-                        nextCell.setItem(oldValue);
-                    }
-                });
+                addChangeListenerToCell(nextCell,changedRow,changedColumn);
                 list.add(nextCell);
             }
             rows.add(list);
@@ -241,21 +233,25 @@ public class InputDataController implements Initializable {
                 SpreadsheetCell newCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
                 int changedRow = datasetSize;
                 int changedColumn = column;
-                newCell.itemProperty().addListener((observable, oldValue, newValue) -> {
-                    try{
-                        Number newNumber = Double.parseDouble(String.valueOf(newValue));
-                        updateProjectDataset(changedRow,changedColumn,newNumber);
-                    }catch (Exception e) {
-                        //handle exception here
-                        newCell.setItem(oldValue);
-                    }
-                });
+                addChangeListenerToCell(newCell,changedRow,changedColumn);
                 spreadsheet.getGrid().getRows().get(datasetSize).set(column,newCell);
                 newDataValues.add(Double.parseDouble(cellContents));
             }
             addRowToDataset(newDataValues);
             datasetSize++;
         }
+    }
+
+    private void addChangeListenerToCell(SpreadsheetCell spreadsheetCell, int row, int column){
+        spreadsheetCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+            try{
+                Number newNumber = Double.parseDouble(String.valueOf(newValue));
+                updateProjectDataset(row,column,newNumber);
+            }catch (Exception e) {
+                //handle exception here
+                spreadsheetCell.setItem(oldValue);
+            }
+        });
     }
 
     private void addRowToDataset(List<Number> newNumbers){

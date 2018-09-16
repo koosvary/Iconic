@@ -122,6 +122,7 @@ public class DataManager<T> {
             for (int i = 0; i < featureSize; i++) {
                 sampleHeaders.add(intToHeader(i));
             }
+            containsHeader = true;
         }
 
         // Set the last column by default as the expected output
