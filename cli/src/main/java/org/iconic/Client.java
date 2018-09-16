@@ -14,9 +14,7 @@ import org.iconic.ea.operator.primitive.*;
 import org.iconic.ea.strategies.cgp.CartesianGeneticProgramming;
 import org.iconic.io.ArgsConverterFactory;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 @Log4j2
 public class Client {
@@ -118,6 +116,7 @@ public class Client {
                     bestCandidate.toString(), bestCandidate.getFitness()
             );
             System.out.println("y = " +((CartesianChromosome<Double>) bestCandidate).getExpression());
+            System.out.println(((CartesianChromosome<Double>) bestCandidate).getResults());
         }
     }
 

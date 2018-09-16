@@ -26,6 +26,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     private final int columns;
     private final int levelsBack;
     private final int maxArity;
+	List<Map<Integer, T>> results;
 
     /**
      * <p>Constructs a new cartesian chromosome with the provided number of inputs, columns, rows, and
@@ -56,7 +57,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         this.outputs = outputs;
         this.phenome = new HashMap<>();
         this.genome = genome;
-
+		results = new ArrayList<>();
         // Create a comparator for calculating the maximum arity
         final Comparator<FunctionalPrimitive<T, T>> comparator =
                 Comparator.comparing(FunctionalPrimitive::getArity);
@@ -66,11 +67,11 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
 
         if (max.isPresent()) {
             maxArity = max.get().getArity();
-        } else { // If no max value is present something has gone horribly wrong (how'd it even get here?)
-            throw new IllegalStateException(
-                    "Invalid number of primitives present in chromosome." +
-                            "There should be at least one primitive present.");
-        }
+        } else{ // If no max value is present something has gone horribly wrong (how'd it even get here?)
+			throw new IllegalStateException(
+					"Invalid number of primitives present in chromosome." +
+							"There should be at least one primitive present.");
+		}
     }
 
     /**
@@ -255,11 +256,15 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
 
             calculatedValues.add(output);
         }
-
+		results = new ArrayList<>(calculatedValues);
         return calculatedValues;
     }
 
-    /**
+	public List<Map<Integer, T>> getResults(){
+		return results;
+	}
+
+	/**
      * <p>Returns a human-readable representation of a node in this chromosome</p>
      *
      * @param node       the node to format
