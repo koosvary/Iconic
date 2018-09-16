@@ -201,24 +201,20 @@ public class InputDataController implements Initializable {
         int newRowPos = oldGrid.getRowCount();
         ObservableList<String> rowHeaders = oldGrid.getRowHeaders();
         ObservableList<ObservableList<SpreadsheetCell>> rows = oldGrid.getRows();
-        List<Number> numbers = new ArrayList<>();
 
         final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
         for (int column = 0; column < oldGrid.getColumnCount(); ++column) {
             String cellContents = "0.0";
             SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(newRowPos, column, 1, 1, cellContents);
-            int changedColumn = column;
             nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
                 try{
-                    Number newNumber = Double.parseDouble(String.valueOf(newValue));
-                    updateProjectDataset(newRowPos,changedColumn,newNumber);
+                    addNewRowsFromSpreadsheet(newRowPos);
                 }catch (Exception e) {
                     //handle exception here
                     nextCell.setItem(oldValue);
                 }
             });
             list.add(nextCell);
-            numbers.add(Double.parseDouble(cellContents));
         }
         // Adds the new row to the rows set
         rows.add(list);
@@ -226,9 +222,40 @@ public class InputDataController implements Initializable {
         // Updates the Grid rows
         oldGrid.getRowHeaders().setAll(rowHeaders);
         spreadsheet.setGrid(oldGrid);
+    }
 
-        //Updates the dataset
-        addRowToDataset(numbers);
+    private void addNewRowsFromSpreadsheet(int row){
+        Optional<DataManager<Double>> dataManager = getDataManager();
+        int datasetSize = dataManager.get().getSampleSize();
+        int datasetFeatureSize = dataManager.get().getFeatureSize();
+        int newDatatsetSize = row;
+
+
+        ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
+
+        while(datasetSize<=newDatatsetSize){
+            List<Number> newDataValues = new ArrayList<>();
+            for (int column = 0; column < datasetFeatureSize; ++column) {
+                SpreadsheetCell oldCell = spreadsheet.getGrid().getRows().get(datasetSize).get(column);
+                String cellContents = String.valueOf(oldCell.getItem());
+                SpreadsheetCell newCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
+                int changedRow = datasetSize;
+                int changedColumn = column;
+                newCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+                    try{
+                        Number newNumber = Double.parseDouble(String.valueOf(newValue));
+                        updateProjectDataset(changedRow,changedColumn,newNumber);
+                    }catch (Exception e) {
+                        //handle exception here
+                        newCell.setItem(oldValue);
+                    }
+                });
+                spreadsheet.getGrid().getRows().get(datasetSize).set(column,newCell);
+                newDataValues.add(Double.parseDouble(cellContents));
+            }
+            addRowToDataset(newDataValues);
+            datasetSize++;
+        }
     }
 
     private void addRowToDataset(List<Number> newNumbers){
