@@ -1,5 +1,7 @@
 package org.iconic.project.search;
 
+import com.sun.javafx.collections.ObservableMapWrapper;
+import javafx.collections.ObservableMap;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 
 import java.util.*;
@@ -7,7 +9,8 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public class SolutionStorage<T> {
-    private HashMap<Integer, List<ExpressionChromosome<T>>> solutions = new HashMap<>();
+
+    private ObservableMap<Integer, List<ExpressionChromosome<T>>> solutions = new ObservableMapWrapper<>(new HashMap<>());
 
     /**
      * Given a list of new solutions, loop through the entire list and compare the fitness of each solution with the
@@ -48,7 +51,7 @@ public class SolutionStorage<T> {
      * Get the HashMap containing the lists of solutions
      * @return HashMap containing the lists of solutions
      */
-    public HashMap<Integer, List<ExpressionChromosome<T>>> getSolutions() {
+    public ObservableMap<Integer, List<ExpressionChromosome<T>>> getSolutions() {
         return solutions;
     }
 }

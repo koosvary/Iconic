@@ -1,6 +1,7 @@
 package org.iconic.project.results;
 
 import com.google.inject.Inject;
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -35,6 +36,8 @@ public class ResultsController implements Initializable {
     private final SearchService searchService;
 
     private SolutionStorage<Double> storage;
+    private SearchModel lastSearch;
+    private InvalidationListener selectionChangedListener;
 
     @FXML
     private TableView<ResultDisplay> solutionsTableView;
@@ -48,7 +51,7 @@ public class ResultsController implements Initializable {
         this.searchService = searchService;
 
         // Update the workspace whenever the active dataset changes
-        InvalidationListener selectionChangedListener = observable -> updateWorkspace();
+        selectionChangedListener = observable -> updateWorkspace();
         getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedListener);
         getSearchService().searchesProperty().addListener(selectionChangedListener);
     }
@@ -64,7 +67,7 @@ public class ResultsController implements Initializable {
     /**
      * Updates the workspace to match the current active dataset.
      */
-    public void updateWorkspace() {
+    private synchronized void updateWorkspace() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
         // If no dataset, stop what you're doing.
@@ -75,9 +78,11 @@ public class ResultsController implements Initializable {
 
         DatasetModel dataset = (DatasetModel) item;
         SearchModel search = getSearchModel(dataset);
-        if (search != null) {
+        if (search != null && search != lastSearch) {
             // If a search is running, use that current one for results. Else use the last search
             storage = search.getSolutionStorage();
+            storage.getSolutions().addListener(selectionChangedListener);
+            lastSearch = search;
         }
 
         if (storage == null) {
@@ -85,6 +90,10 @@ public class ResultsController implements Initializable {
             return;
         }
 
+        Platform.runLater(() -> updateWorkspaceMainThread());
+    }
+
+    private synchronized void updateWorkspaceMainThread() {
         List<ResultDisplay> resultDisplays = new ArrayList<>();
         for (Map.Entry<Integer, List<ExpressionChromosome<Double>>> entry : storage.getSolutions().entrySet()) {
             ExpressionChromosome<Double> result = entry.getValue().get(0);
