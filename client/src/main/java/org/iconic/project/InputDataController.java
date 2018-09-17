@@ -33,10 +33,10 @@ public class InputDataController implements Initializable {
     private final ProjectService projectService;
     private final WorkspaceService workspaceService;
 
-    private ScrollBar bar;
-
     @FXML
     private SpreadsheetView spreadsheet;
+    @FXML
+    private Button btnCreateDataset;
     @FXML
     private Button btnImportDataset;
     @FXML
@@ -78,6 +78,18 @@ public class InputDataController implements Initializable {
         btnExportDataset.visibleProperty().bind(spreadsheet.visibleProperty());
 
         updateWorkspace();
+    }
+
+    //This requires prefHeight of spreadsheet to be set
+    private void addToEmptySpreadsheetView(){
+        double spreadsheetHeight = spreadsheet.getPrefHeight();
+        double cellHeight = spreadsheet.getRowHeight(1);
+        System.out.println(spreadsheetHeight);
+        System.out.println(cellHeight);
+        for(int i = 0; i < spreadsheetHeight; i += cellHeight){
+            System.out.println(i);
+            spreadsheetAddRow();
+        }
     }
 
     private void fillSpreadsheetByRow(){
@@ -155,7 +167,8 @@ public class InputDataController implements Initializable {
         grid.getRowHeaders().setAll(rowHeaders);
         spreadsheet.setGrid(grid);
         spreadsheet.setRowHeaderWidth(50);
-        bar = getVerticalScrollbar(spreadsheet);
+        addToEmptySpreadsheetView();
+        ScrollBar bar = getVerticalScrollbar(spreadsheet);
         bar.valueProperty().addListener(this::scrolled);
     }
 

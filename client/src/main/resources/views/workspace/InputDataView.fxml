@@ -18,8 +18,8 @@
             </image>
         </ImageView>
     </graphic>
-    <VBox>
-        <SpreadsheetView fx:id="spreadsheet" editable="true" showRowHeader="true" showColumnHeader="true"/>
+    <VBox fx:id="inputBox">
+        <SpreadsheetView fx:id="spreadsheet" editable="true" showRowHeader="true" showColumnHeader="true" prefHeight="${inputBox.height*0.4}"/>
 
         <padding><Insets topRightBottomLeft="5"/></padding>
         <Text GridPane.columnIndex="0">Welcome, import a dataset to get started.</Text>
