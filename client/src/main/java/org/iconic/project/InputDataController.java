@@ -1,12 +1,17 @@
 package org.iconic.project;
 
 import javafx.beans.InvalidationListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import lombok.val;
@@ -19,6 +24,8 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -28,12 +35,17 @@ public class InputDataController implements Initializable {
 
     @FXML
     private SpreadsheetView spreadsheet;
+    @FXML
+    private Button btnCreateDataset;
+    @FXML
+    private Button btnImportDataset;
+    @FXML
+    private Button btnExportDataset;
 
     @Inject
     public InputDataController(final ProjectService projectService, final WorkspaceService workspaceService) {
         this.projectService = projectService;
         this.workspaceService = workspaceService;
-
 
         // Update the workspace whenever the active dataset changes
         InvalidationListener selectionChangedListener = observable -> updateWorkspace();
@@ -49,38 +61,83 @@ public class InputDataController implements Initializable {
         }
         else{
             fillSpreadsheetByRow();
+            spreadsheet.setVisible(true);
         }
     }
 
-
-
     private void clearUI() {
         spreadsheet.setGrid(new GridBase(0,0));
+        spreadsheet.setVisible(false);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        //Binds the visibility of the spreadsheet to the export dataset button
+        spreadsheet.managedProperty().bind(spreadsheet.visibleProperty());
+        btnExportDataset.managedProperty().bind(btnExportDataset.visibleProperty());
+        btnExportDataset.visibleProperty().bind(spreadsheet.visibleProperty());
+
         updateWorkspace();
+    }
+
+    //This requires prefHeight of spreadsheet to be set
+    private void addToEmptySpreadsheetView(){
+        double spreadsheetHeight = spreadsheet.getPrefHeight();
+        double cellHeight = spreadsheet.getRowHeight(1);
+        System.out.println(spreadsheetHeight);
+        System.out.println(cellHeight);
+        for(int i = 0; i < spreadsheetHeight; i += cellHeight){
+            System.out.println(i);
+            spreadsheetAddRow();
+        }
     }
 
     private void fillSpreadsheetByRow(){
         Optional<DataManager<Double>> dataManager = getDataManager();
         int rowCount = dataManager.get().getSampleSize();
         int columnCount = dataManager.get().getFeatureSize();
-        GridBase grid = new GridBase(rowCount, columnCount);
-
+        GridBase grid;
+        if(dataManager.get().containsHeader()){
+            grid = new GridBase(rowCount+2, columnCount);
+        }
+        else{
+            grid = new GridBase(rowCount+1, columnCount);
+        }
         ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
-        for (int row = 0; row < grid.getRowCount(); ++row) {
+        ObservableList<String> rowHeaders = FXCollections.observableArrayList();
+        int row = 0;
+
+        //Creates a row above the data for adding a column description
+        ObservableList<SpreadsheetCell> infoList = FXCollections.observableArrayList();
+        for (int column = 0; column < columnCount; ++column) {
+            String cellContents = "Enter variable description here.";
+            SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
+            int finalColumn = column;
+            nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+                try{
+                    String newHeader = String.valueOf(newValue);
+                    updateVariableDescriptions(finalColumn,newHeader);
+                }catch (Exception e) {
+                    //handle exception here
+                    nextCell.setItem(oldValue);
+                }
+            });
+            infoList.add(nextCell);
+        }
+        rows.add(infoList);
+        rowHeaders.add("info");
+        row++;
+
+        if(dataManager.get().containsHeader()){
             final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
-            for (int column = 0; column < grid.getColumnCount(); ++column) {
-                String cellContents = String.valueOf(dataManager.get().getSampleRow(row).get(column));
+            for (int column = 0; column < columnCount; ++column) {
+                String cellContents = String.valueOf(dataManager.get().getSampleHeaders().get(column));
                 SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
-                int changedRow = row;
-                int changedColumn = column;
+                int finalColumn = column;
                 nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
                     try{
-                        Number newNumber = Double.parseDouble(String.valueOf(newValue));
-                        updateProjectDataset(changedRow,changedColumn,newNumber);
+                        String newHeader = String.valueOf(newValue);
+                        updateProjectHeaders(finalColumn,newHeader);
                     }catch (Exception e) {
                         //handle exception here
                         nextCell.setItem(oldValue);
@@ -89,15 +146,146 @@ public class InputDataController implements Initializable {
                 list.add(nextCell);
             }
             rows.add(list);
+            rowHeaders.add("name");
+            row++;
+        }
+        for(int cellRow = 0; cellRow < dataManager.get().getSampleSize(); cellRow++){
+            final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
+            for (int column = 0; column < grid.getColumnCount(); ++column) {
+                String cellContents = String.valueOf(dataManager.get().getSampleRow(cellRow).get(column));
+                SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
+                int changedRow = cellRow;
+                int changedColumn = column;
+                addChangeListenerToCell(nextCell,changedRow,changedColumn);
+                list.add(nextCell);
+            }
+            rows.add(list);
+            rowHeaders.add(String.valueOf(cellRow+1));
+            row++;
         }
         grid.setRows(rows);
-
+        grid.getRowHeaders().setAll(rowHeaders);
         spreadsheet.setGrid(grid);
+        spreadsheet.setRowHeaderWidth(50);
+        addToEmptySpreadsheetView();
+        ScrollBar bar = getVerticalScrollbar(spreadsheet);
+        bar.valueProperty().addListener(this::scrolled);
+    }
+
+    private ScrollBar getVerticalScrollbar(SpreadsheetView table) {
+        ScrollBar result = null;
+        for (Node n : table.lookupAll(".scroll-bar")) {
+            if (n instanceof ScrollBar) {
+                ScrollBar bar = (ScrollBar) n;
+                if (bar.getOrientation().equals(Orientation.VERTICAL)) {
+                    result = bar;
+                }
+            }
+        }
+        return result;
+    }
+
+
+    private void scrolled(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+        double value = newValue.doubleValue();
+        ScrollBar bar = getVerticalScrollbar(spreadsheet);
+        //If the scroll bar is at the bottom add a new row
+        if (value == bar.getMax() && value != bar.getMin()) {
+            double targetValue = value * spreadsheet.getGrid().getRows().size();
+            spreadsheetAddRow();
+            bar.setValue(targetValue / spreadsheet.getGrid().getRows().size());
+        }
+    }
+
+    /**
+     * Adds a new row to a given SpreadsheetView's Grid on runtime, preserving all it's cells values.
+     */
+    private void spreadsheetAddRow() {
+        Grid oldGrid = spreadsheet.getGrid();
+
+        int newRowPos = oldGrid.getRowCount();
+        ObservableList<String> rowHeaders = oldGrid.getRowHeaders();
+        ObservableList<ObservableList<SpreadsheetCell>> rows = oldGrid.getRows();
+
+        final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
+        for (int column = 0; column < oldGrid.getColumnCount(); ++column) {
+            String cellContents = "0.0";
+            SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(newRowPos, column, 1, 1, cellContents);
+            nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+                try{
+                    addNewRowsFromSpreadsheet(newRowPos);
+                }catch (Exception e) {
+                    //handle exception here
+                    nextCell.setItem(oldValue);
+                }
+            });
+            list.add(nextCell);
+        }
+        // Adds the new row to the rows set
+        rows.add(list);
+        rowHeaders.add(String.valueOf(newRowPos+1));
+        // Updates the Grid rows
+        oldGrid.getRowHeaders().setAll(rowHeaders);
+        spreadsheet.setGrid(oldGrid);
+    }
+
+    private void addNewRowsFromSpreadsheet(int row){
+        Optional<DataManager<Double>> dataManager = getDataManager();
+        int datasetSize = dataManager.get().getSampleSize();
+        int datasetFeatureSize = dataManager.get().getFeatureSize();
+        int newDatatsetSize = row;
+
+
+        ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
+
+        while(datasetSize<=newDatatsetSize){
+            List<Number> newDataValues = new ArrayList<>();
+            for (int column = 0; column < datasetFeatureSize; ++column) {
+                SpreadsheetCell oldCell = spreadsheet.getGrid().getRows().get(datasetSize).get(column);
+                String cellContents = String.valueOf(oldCell.getItem());
+                SpreadsheetCell newCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
+                int changedRow = datasetSize;
+                int changedColumn = column;
+                addChangeListenerToCell(newCell,changedRow,changedColumn);
+                spreadsheet.getGrid().getRows().get(datasetSize).set(column,newCell);
+                newDataValues.add(Double.parseDouble(cellContents));
+            }
+            addRowToDataset(newDataValues);
+            datasetSize++;
+        }
+    }
+
+    private void addChangeListenerToCell(SpreadsheetCell spreadsheetCell, int row, int column){
+        spreadsheetCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+            try{
+                Number newNumber = Double.parseDouble(String.valueOf(newValue));
+                updateProjectDataset(row,column,newNumber);
+            }catch (Exception e) {
+                //handle exception here
+                spreadsheetCell.setItem(oldValue);
+            }
+        });
+    }
+
+    private void addRowToDataset(List<Number> newNumbers){
+        Optional<DataManager<Double>> dataManager = getDataManager();
+        dataManager.get().addRow(newNumbers);
     }
 
     private void updateProjectDataset(int row, int column, Number newValue){
         Optional<DataManager<Double>> dataManager = getDataManager();
         dataManager.get().getSampleColumn(column).set(row,newValue);
+    }
+
+    private void updateProjectHeaders(int column, String newValue){
+        Optional<DataManager<Double>> dataManager = getDataManager();
+        dataManager.get().updateHeaderAtIndex(column,newValue);
+    }
+
+    private void updateVariableDescriptions(int column, String newValue){
+        Optional<DataManager<Double>> dataManager = getDataManager();
+        //TODO @JackR Implement column descriptions stored within datamanager as below
+        //dataManager.get().updateDescriptionAtIndex(column,newValue);
     }
 
     private Optional<DataManager<Double>> getDataManager() {
@@ -133,6 +321,9 @@ public class InputDataController implements Initializable {
         return projectService;
     }
 
+    public void createDataset(ActionEvent actionEvent) throws IOException {
+    }
+
     public void saveDataset(ActionEvent actionEvent) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Dataset");
@@ -144,7 +335,7 @@ public class InputDataController implements Initializable {
         // Show the file dialog over the parent window
         File f = fileChooser.showSaveDialog(spreadsheet.getScene().getWindow());
 
-        if(f != null){
+        if(f != null && getDataManager().isPresent()){
             getDataManager().get().saveDatasetToFile(f);
         }
     }
