@@ -115,8 +115,8 @@ public class Client {
             log.info("\n\tBest candidate: {}\n\tFitness: {}",
                     bestCandidate.toString(), bestCandidate.getFitness()
             );
-            System.out.println("y = " +((CartesianChromosome<Double>) bestCandidate).getExpression());
-            System.out.println(((CartesianChromosome<Double>) bestCandidate).getResults());
+            System.out.println("y = " + ((CartesianChromosome<Double>) bestCandidate).getExpression(
+                    bestCandidate.toString(), supplier.getFunctionalPrimitives(),true));
         }
     }
 
