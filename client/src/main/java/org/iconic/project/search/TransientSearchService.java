@@ -4,6 +4,7 @@ import com.google.inject.Singleton;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import lombok.extern.log4j.Log4j2;
+import org.iconic.project.search.io.SearchExecutor;
 
 import java.util.HashMap;
 import java.util.Map;

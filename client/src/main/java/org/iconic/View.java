@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 
@@ -14,7 +15,7 @@ import java.util.ResourceBundle;
  * </p>
  */
 public class View {
-    private final Injector injector;
+    private final Optional<Injector> injector;
     private final FXMLLoader loader;
 
     /**
@@ -28,9 +29,12 @@ public class View {
         final String defaultLocale = "en";
         final String defaultLocaleResource = "localisation.en_au";
 
-        this.injector = injector;
+        this.injector = (injector != null) ? Optional.of(injector) : Optional.empty();
         this.loader = new FXMLLoader(Thread.currentThread().getContextClassLoader().getResource(uri));
-        this.loader.setControllerFactory(getInjector()::getInstance);
+
+        this.injector.ifPresent(i ->
+            this.loader.setControllerFactory(i::getInstance)
+        );
 
         // Provide a localisation resource to use for i18n strings
         if (Locale.getDefault().getLanguage().startsWith(defaultLocale)) {
@@ -58,7 +62,7 @@ public class View {
      *
      * @return the injector of the view
      */
-    public Injector getInjector() {
+    public Optional<Injector> getInjector() {
         return injector;
     }
 

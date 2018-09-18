@@ -1,7 +1,7 @@
 package org.iconic.control;
 
 import javafx.scene.control.TextArea;
-import org.iconic.project.search.SearchExecutor;
+import org.iconic.project.search.io.SearchExecutor;
 
 public class SearchLogTextArea extends TextArea {
     private final SearchExecutor model;

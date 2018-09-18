@@ -1,4 +1,4 @@
-package org.iconic.project.search;
+package org.iconic.project.search.config;
 
 public enum EvolutionaryAlgorithmType {
     GENE_EXPRESSION_PROGRAMMING("Gene Expression Programming"),

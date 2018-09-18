@@ -19,8 +19,8 @@ import lombok.Getter;
 import lombok.val;
 import org.iconic.config.IconService;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.EvolutionaryAlgorithmType;
-import org.iconic.project.search.SearchConfigurationModel;
+import org.iconic.project.search.config.EvolutionaryAlgorithmType;
+import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.workspace.WorkspaceService;
 
 import java.io.File;
@@ -262,7 +262,7 @@ public class ProjectTreeController implements Initializable {
                     ProjectModel newProject = project.toBuilder().dataset(dataset).build();
 
                     getWorkspaceService().setActiveWorkspaceItem(null);
-                    getProjectService().getProjects().set(getProjectService().getProjects().indexOf(project), (ProjectModel) newProject);
+                    getProjectService().getProjects().set(getProjectService().getProjects().indexOf(project), newProject);
                     getWorkspaceService().setActiveWorkspaceItem(newProject);
                 }
             }
@@ -337,7 +337,7 @@ public class ProjectTreeController implements Initializable {
                             // Update the active workspace item to the new project (modified)
                             getWorkspaceService().setActiveWorkspaceItem(null);
                             getProjectService().getProjects()
-                                    .set(getProjectService().getProjects().indexOf(project), (ProjectModel) newProject);
+                                    .set(getProjectService().getProjects().indexOf(project), newProject);
                             getWorkspaceService().setActiveWorkspaceItem(newProject);
                         }
                 );
@@ -368,9 +368,9 @@ public class ProjectTreeController implements Initializable {
                 dialog.showAndWait().ifPresent(
                         name -> {
                             if (!name.trim().equals(project.getLabel())) {
-                                val newProject = project.toBuilder().name(name).build();
+                                ProjectModel newProject = project.toBuilder().name(name).build();
                                 getWorkspaceService().setActiveWorkspaceItem(null);
-                                getProjectService().getProjects().set(getProjectService().getProjects().indexOf(project), (ProjectModel) newProject);
+                                getProjectService().getProjects().set(getProjectService().getProjects().indexOf(project), newProject);
                                 getWorkspaceService().setActiveWorkspaceItem(newProject);
                             }
                         }

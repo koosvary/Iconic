@@ -12,7 +12,7 @@ import javafx.scene.layout.AnchorPane;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.control.SearchLogTextArea;
-import org.iconic.project.search.SearchExecutor;
+import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.project.search.SearchService;
 
 import java.net.URL;

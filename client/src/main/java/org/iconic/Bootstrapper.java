@@ -10,6 +10,7 @@ import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.config.InMemoryModule;
 import org.iconic.project.search.SearchService;
+import org.iconic.views.ViewService;
 
 import java.io.IOException;
 
@@ -24,6 +25,7 @@ import java.io.IOException;
 public class Bootstrapper extends Application {
     private final Injector injector;
     private final SearchService searchService;
+    private final ViewService viewService;
 
     /**
      * <p>
@@ -43,6 +45,7 @@ public class Bootstrapper extends Application {
         super();
         injector = Guice.createInjector(new InMemoryModule());
         searchService = injector.getInstance(SearchService.class);
+        viewService = injector.getInstance(ViewService.class);
     }
 
     /**
@@ -50,16 +53,22 @@ public class Bootstrapper extends Application {
      */
     @Override
     public void start(Stage primaryStage) {
-        // Create the primary stage
+        try {
+
+            // Create the primary stage
         primaryStage.setTitle("- Iconic Workbench");
 
         // Create the root node for placing all the other components
         val root = new BorderPane();
 
         // Load the child UI elements from FXML resources
-        val menuView = new View("views/menu/MenuView.fxml", getInjector());
-        val projectView = new View("views/project/ProjectTreeView.fxml", getInjector());
-        val workspaceView = new View("views/workspace/WorkspaceView.fxml", getInjector());
+        View menuView = new View("views/menu/MenuView.fxml", getInjector());
+        View projectView = new View("views/project/ProjectTreeView.fxml", getInjector());
+        View workspaceView = new View("views/workspace/WorkspaceView.fxml", getInjector());
+
+        getViewService().put("menu", menuView);
+        getViewService().put("project-tree", projectView);
+        getViewService().put("workspace", workspaceView);
 
         try {
             root.setTop(menuView.load());
@@ -69,7 +78,7 @@ public class Bootstrapper extends Application {
             log.debug(ex.getMessage());
         }
 
-        val scene = new Scene(root, 720, 480);
+        Scene scene = new Scene(root, 720, 480);
 
         // Load our stylesheets
         val stylesheet = getClass().getClassLoader().getResource("stylesheet.css");
@@ -78,9 +87,13 @@ public class Bootstrapper extends Application {
             scene.getStylesheets().add(stylesheet.toExternalForm());
         }
 
-        primaryStage.setScene(scene);
-        primaryStage.setMaximized(true);
-        primaryStage.show();
+            primaryStage.setScene(scene);
+            primaryStage.setMaximized(true);
+            primaryStage.show();
+        }
+        catch (Exception ex) {
+            log.error("{}:\n{}", ex::getMessage, ex::getStackTrace);
+        }
     }
 
     @Override
@@ -91,9 +104,7 @@ public class Bootstrapper extends Application {
     }
 
     /**
-     * <p>
-     * Returns the default injector of this bootstrapper
-     * </p>
+     * <p>Returns the default injector of this bootstrapper</p>
      *
      * @return the default injector of the bootstrapper
      */
@@ -102,9 +113,7 @@ public class Bootstrapper extends Application {
     }
 
     /**
-     * <p>
-     * Returns the search service of this bootstrapper
-     * </p>
+     * <p>Returns the search service of this bootstrapper</p>
      *
      * @return the search service of the bootstrapper
      */
@@ -112,4 +121,12 @@ public class Bootstrapper extends Application {
         return searchService;
     }
 
+    /**
+     * <p>Returns the view service of this bootstrapper</p>
+     *
+     * @return the view service of the bootstrapper
+     */
+    public ViewService getViewService() {
+        return viewService;
+    }
 }

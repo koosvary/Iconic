@@ -3,6 +3,7 @@ package org.iconic.project;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 public class BlockDisplay {
     private final SimpleStringProperty name = new SimpleStringProperty("");
@@ -10,6 +11,11 @@ public class BlockDisplay {
     private final SimpleIntegerProperty complexity = new SimpleIntegerProperty(1);
 
     public BlockDisplay() {
+
+    }
+
+    public BlockDisplay(FunctionalPrimitive<?, ?> primitive) {
+        this(true, primitive.getSymbol(), 1);
     }
 
     public BlockDisplay(Boolean enabled, String name, Integer complexity) {

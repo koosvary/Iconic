@@ -3,33 +3,33 @@ package org.iconic.project.definition;
 import com.google.inject.Inject;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
-import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.NumberStringConverter;
 import lombok.extern.log4j.Log4j2;
-
-import java.net.URL;
-import java.util.*;
-
 import org.iconic.ea.data.DataManager;
-import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.iconic.project.BlockDisplay;
 import org.iconic.project.Displayable;
 import org.iconic.project.ProjectService;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.SearchModel;
+import org.iconic.project.search.config.SearchConfigurationModel;
+import org.iconic.project.search.SearchService;
 import org.iconic.workspace.WorkspaceService;
 
+import java.net.URL;
+import java.util.*;
+import java.util.stream.Collectors;
+
 @Log4j2
-public class DefineSearchController implements Initializable, DefineSearchService {
+public class DefineSearchController implements Initializable {
 
     private final ProjectService projectService;
+    private final SearchService searchService;
     private final WorkspaceService workspaceService;
 
     @FXML
@@ -37,29 +37,45 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
     private HashMap<String, String> functionDefinitions;
 
-    private static ArrayList<BlockDisplay> blockDisplays;
+    private List<BlockDisplay> blockDisplays;
 
     @FXML
     private TextField tfTargetExpression;
 
     @Inject
-    public DefineSearchController(final ProjectService projectService, final WorkspaceService workspaceService) {
+    public DefineSearchController(
+            final ProjectService projectService,
+            final SearchService searchService,
+            final WorkspaceService workspaceService
+    ) {
         this.projectService = projectService;
+        this.searchService = searchService;
         this.workspaceService = workspaceService;
         this.functionDefinitions = new HashMap<>();
+        this.blockDisplays = new ArrayList<>();
 
-        InvalidationListener selectionChangedListener = observable -> loadFunction();
+        InvalidationListener loadFunctionListener = observable -> loadFunction();
+        InvalidationListener selectionChangedListener = observable -> updateTab();
+        workspaceService.activeWorkspaceItemProperty().addListener(loadFunctionListener);
         workspaceService.activeWorkspaceItemProperty().addListener(selectionChangedListener);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
-        blockDisplays = new ArrayList<>(SearchModel.getFunctionalPrimitives().length);
-        for (FunctionalPrimitive primitive :
-                SearchModel.getFunctionalPrimitives()) {
-            blockDisplays.add(new BlockDisplay(true, primitive.getSymbol(), 1));
+        if (!(item instanceof SearchConfigurationModel)) {
+            return;
         }
+
+        SearchConfigurationModel searchModel = (SearchConfigurationModel) item;
+
+        // TODO: move primitives to the config model
+        searchModel.getSearchExecutor().ifPresent(searchExecutor ->
+                blockDisplays = searchExecutor.getFunctionalPrimitives().stream()
+                        .map(BlockDisplay::new)
+                        .collect(Collectors.toList())
+        );
 
         blockDisplayTableView.setItems(FXCollections.observableArrayList(blockDisplays));
 
@@ -81,27 +97,14 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         blockDisplayTableView.getColumns().addAll(enabledCol, nameCol, complexityCol);
     }
 
-    @Override
-    public SearchModel getSearchModel(DatasetModel datasetModel) {
-        return new SearchModel(datasetModel, blockDisplays);
-    }
+    private void updateTab() {
+        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
-    @Override
-    public String getFunction() {
-        String functionStr = null;
-
-        Optional<DataManager<Double>> dataset = getDataManager();
-
-        if (dataset.isPresent()) {
-            // Get the ID of the dataset
-            String[] splitString = dataset.toString().split("@");
-            String datasetID = splitString[splitString.length - 1].replace("]", ""); // There's a trailing ']' from the toString
-
-            // Get the dataset, if exists
-            functionStr = functionDefinitions.get(datasetID);
+        if (!(item instanceof SearchConfigurationModel)) {
+            return;
         }
 
-        return functionStr;
+        SearchConfigurationModel search = (SearchConfigurationModel) item;
     }
 
     private void loadFunction() {
@@ -149,7 +152,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     }
 
     private Optional<DataManager<Double>> getDataManager() {
-        Displayable item = workspaceService.getActiveWorkspaceItem();
+        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
         if (item instanceof DatasetModel) {
             DatasetModel dataset = (DatasetModel) item;
@@ -157,5 +160,16 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         } else {
             return Optional.empty();
         }
+    }
+
+    /**
+     * <p>
+     * Returns the workspace service of this controller
+     * </p>
+     *
+     * @return the workspace service of the controller
+     */
+    private WorkspaceService getWorkspaceService() {
+        return workspaceService;
     }
 }

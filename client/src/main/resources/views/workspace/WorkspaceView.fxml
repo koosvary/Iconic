@@ -1,26 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.text.Text?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.geometry.Insets?>
+<?import org.iconic.control.WorkspaceTab?>
 
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.iconic.workspace.WorkspaceController">
     <TabPane fx:id="tbpWorkspace" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" tabClosingPolicy="UNAVAILABLE">
-        <fx:include fx:id="tbInputDataView" source="InputDataView.fxml"/>
+        <fx:include source="InputDataView.fxml"/>
 
-        <fx:include fx:id="tbProcessDataView" source="ProcessDataView.fxml"/>
+        <fx:include source="ProcessDataView.fxml"/>
 
-        <fx:include fx:id="tbDefineSearchView" source="DefineSearchView.fxml"/>
+        <fx:include source="DefineSearchView.fxml"/>
 
-        <fx:include fx:id="tbStartSearchView" source="StartSearchView.fxml"/>
+        <fx:include source="StartSearchView.fxml"/>
 
-        <fx:include fx:id="tbResultsView" source="ResultsView.fxml"/>
+        <fx:include source="ResultsView.fxml"/>
 
-        <fx:include fx:id="tbReportView" source="ReportView.fxml"/>
+        <fx:include source="ReportView.fxml"/>
     </TabPane>
 </AnchorPane>

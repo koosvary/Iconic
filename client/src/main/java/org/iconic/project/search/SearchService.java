@@ -1,6 +1,7 @@
 package org.iconic.project.search;
 
 import javafx.collections.ObservableMap;
+import org.iconic.project.search.io.SearchExecutor;
 
 import java.util.UUID;
 

@@ -1,10 +1,11 @@
-package org.iconic.project.search;
+package org.iconic.project.search.config;
 
 import javafx.beans.property.SimpleStringProperty;
 import lombok.NonNull;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
+import org.iconic.project.search.io.SearchExecutor;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -97,8 +98,8 @@ public class SearchConfigurationModel implements Displayable {
      *
      * @return The search executor associated with the search configuration
      */
-    public SearchExecutor getSearchExecutor() {
-        return searchExecutor;
+    public Optional<SearchExecutor> getSearchExecutor() {
+        return (searchExecutor != null) ? Optional.of(searchExecutor) : Optional.empty();
     }
 
     public void setSearchExecutor(SearchExecutor searchExecutor) {

@@ -1,7 +1,7 @@
 package org.iconic.project.definition;
 
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.SearchModel;
+import org.iconic.project.search.io.SearchExecutor;
 
 
 public interface DefineSearchService {
@@ -21,6 +21,5 @@ public interface DefineSearchService {
      *
      * @return the search model as per settings
      */
-    SearchModel getSearchModel(DatasetModel datasetModel);
-
+    SearchExecutor getSearchModel(DatasetModel datasetModel);
 }

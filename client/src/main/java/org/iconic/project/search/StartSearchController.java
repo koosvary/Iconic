@@ -7,28 +7,34 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.definition.DefineSearchService;
+import org.iconic.project.search.config.SearchConfigurationModel;
+import org.iconic.project.search.io.SearchExecutor;
+import org.iconic.views.ViewService;
 import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 /**
  * A controller class for handling the StartSearch view.
- *
+ * <p>
  * The StartSearchController provides functionality for starting and stopping current searches, whilst
  * also updating GUI information.
  */
 @Log4j2
 public class StartSearchController implements Initializable {
     private final SearchService searchService;
+    private final ViewService viewService;
     private final WorkspaceService workspaceService;
-    private final DefineSearchService defineSearchService;
 
+    @FXML
+    private VBox vbConfiguration;
     @FXML
     private Button btnSearch;
     @FXML
@@ -43,9 +49,13 @@ public class StartSearchController implements Initializable {
      * </p>
      */
     @Inject
-    public StartSearchController(final WorkspaceService workspaceService, final SearchService searchService, final DefineSearchService defineSearchService) {
-        this.defineSearchService = defineSearchService;
+    public StartSearchController(
+            final WorkspaceService workspaceService,
+            final SearchService searchService,
+            final ViewService viewService
+    ) {
         this.searchService = searchService;
+        this.viewService = viewService;
         this.workspaceService = workspaceService;
 
         // Update the workspace whenever the active dataset changes
@@ -63,44 +73,41 @@ public class StartSearchController implements Initializable {
      * Updates the workspace to match the current active dataset.
      */
     private void updateWorkspace() {
-        val item = getWorkspaceService().getActiveWorkspaceItem();
+        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
-        // If no dataset is selected clear the UI
-        if (!(item instanceof DatasetModel)) {
-            clearUI();
+        if (!(item instanceof SearchConfigurationModel)) {
+            return;
         }
+
+        SearchConfigurationModel search = (SearchConfigurationModel) item;
+//
+//        try {
+//            if (search instanceof GepConfigurationModel) {
+//                vbConfiguration.getChildren().clear();
+//                vbConfiguration.getChildren().add(getViewService().getViews().get("gep-config").load());
+//            } else {
+//                vbConfiguration.getChildren().clear();
+//                vbConfiguration.getChildren().add(getViewService().getViews().get("cgp-config").load());
+//            }
+//        } catch (IOException ex) {
+//            // TODO: display error message
+//        }
 
         // Make sure that all the UI elements actually exist
         if (btnSearch != null && btnStopSearch != null) {
-            // If the selected item is a dataset
-            if (item instanceof DatasetModel) {
-                DatasetModel dataset = (DatasetModel) item;
-                // Check if a search on the current active dataset is being performed
-                SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
-
-                // If there's no search...
-                if (search == null) {
-                    btnSearch.setText("Start Search");
-                    btnSearch.setDisable(false);
-                    btnStopSearch.setDisable(true);
-                    btnStopSearch.setVisible(false);
-                }
-                // Otherwise...
-                else {
-                    btnSearch.setText("Pause");
-                    btnSearch.setDisable(true);
-                    btnStopSearch.setDisable(false);
-                    btnStopSearch.setVisible(true);
-                }
-            }
-            // Otherwise if no interesting project item is selected
-            else {
-                // Display some default messages
+            // If there's no search...
+            if (!search.getSearchExecutor().isPresent()) {
                 btnSearch.setText("Start Search");
-                btnStopSearch.setVisible(false);
-                // And disable the search buttons
-                btnSearch.setDisable(true);
+                btnSearch.setDisable(false);
                 btnStopSearch.setDisable(true);
+                btnStopSearch.setVisible(false);
+            }
+            // Otherwise...
+            else {
+                btnSearch.setText("Pause");
+                btnSearch.setDisable(true);
+                btnStopSearch.setDisable(false);
+                btnStopSearch.setVisible(true);
             }
         }
     }
@@ -116,14 +123,14 @@ public class StartSearchController implements Initializable {
         // Check that there's an active dataset before starting the search
         if (item instanceof DatasetModel) {
             // TODO(Meyer): Use the function defined to determine what data is used, and what to calculate to
-            log.info("Function for use: " + defineSearchService.getFunction());
+//            log.info("Function to use: " + defineSearchService.getFunction());
 
             DatasetModel dataset = (DatasetModel) item;
-            SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
+            SearchExecutor search = getSearchService().searchesProperty().get(dataset.getId());
 
             // If there's no search already being performed on the dataset, start a new one
             if (search == null) {
-                SearchModel newSearch = defineSearchService.getSearchModel(dataset);
+                SearchExecutor newSearch = new SearchExecutor(dataset, new ArrayList<>());
                 getSearchService().searchesProperty().put(dataset.getId(), newSearch);
                 Thread thread = new Thread(getSearchService().searchesProperty().get(dataset.getId()));
                 thread.start();
@@ -187,5 +194,9 @@ public class StartSearchController implements Initializable {
      */
     private SearchService getSearchService() {
         return searchService;
+    }
+
+    public ViewService getViewService() {
+        return viewService;
     }
 }
