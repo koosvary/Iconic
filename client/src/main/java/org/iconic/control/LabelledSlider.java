@@ -5,8 +5,9 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
-public class LabelledSlider extends HBox {
+public class LabelledSlider extends VBox {
     private final Slider slider;
     private final Label label;
     private final String slug;
@@ -36,16 +37,15 @@ public class LabelledSlider extends HBox {
         });
 
         label.setLabelFor(slider);
-        label.setPrefWidth(150.f);
 
         setSpacing(10);
         setPrefWidth(400.f);
-        setAlignment(Pos.CENTER_LEFT);
+        setAlignment(Pos.CENTER);
         getChildren().add(label);
         getChildren().add(slider);
     }
 
-    Slider getSlider() {
+    public Slider getSlider() {
         return slider;
     }
 
