@@ -464,4 +464,11 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
 
         return clone;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getSize() {
+        return -1; // TODO
+    }
 }

@@ -37,6 +37,14 @@ public class DataManager<T> {
 
         try{
             fileWriter = new FileWriter(fileName);
+            if(containsHeader){
+                for(int j = 0; j < featureSize-1; j ++) {
+                    fileWriter.append(String.valueOf(sampleHeaders.get(j)));
+                    fileWriter.append(",");
+                }
+                fileWriter.append(String.valueOf(sampleHeaders.get(featureSize-1)));
+                fileWriter.append(System.getProperty("line.separator"));
+            }
             for(int i = 0; i < sampleSize; i++){
                 List<Number> currentRow = getSampleRow(i);
                 for(int j = 0; j < currentRow.size()-1; j ++) {
@@ -106,7 +114,6 @@ public class DataManager<T> {
         if (containsHeader) {
             // Update the headers
             Collections.addAll(sampleHeaders, split);
-            log.error(sampleHeaders);
 
             // Read in the next line for later (needed because the `else` block already reads in the next line)
             line = getNextLineFromDataFile(sc);
@@ -115,6 +122,7 @@ public class DataManager<T> {
             for (int i = 0; i < featureSize; i++) {
                 sampleHeaders.add(intToHeader(i));
             }
+            containsHeader = true;
         }
 
         // Set the last column by default as the expected output
@@ -211,7 +219,16 @@ public class DataManager<T> {
         return samples;
     }
 
-    public List<Number> getSampleColumn(int column) {
+    public void addRow(List<Number> numbers) {
+        sampleSize++;
+        for(int i = 0; i < sampleHeaders.size(); i ++){
+            String header = sampleHeaders.get(i);
+            FeatureClass<Number> fc = dataset.get(header);
+            fc.addSampleValue(numbers.get(i));
+        }
+    }
+
+    public ArrayList<Number> getSampleColumn(int column) {
         String columnName = sampleHeaders.get(column);
         return getSampleColumn(columnName);
     }
@@ -235,4 +252,31 @@ public class DataManager<T> {
     }
 
     public List<String> getSampleHeaders() { return sampleHeaders; }
+
+    // Replaces all data within a header column, identified by headerIndex
+    // e.g. updating stored data after normalisation
+    public void setSampleColumn(int headerIndex, ArrayList<Number> values) {
+        for (int i = 0; i < sampleSize; i++) {
+            Number value = values.get(i);
+            dataset.get(sampleHeaders.get(headerIndex)).updateModifiedSample(i, value);
+        }
+    }
+
+    // Resets all data within a header column, identified by headerIndex, to
+    // the original data entered by the user
+    public void resetSampleColumn(int headerIndex) {
+        for (int i=0; i < sampleSize; i++) {
+            dataset.get(sampleHeaders.get(headerIndex)).resetModifiedSample(i);
+        }
+    }
+
+    public boolean containsHeader() {
+        return containsHeader;
+    }
+
+    public void updateHeaderAtIndex(int index, String newHeader){
+        String oldHeader = sampleHeaders.get(index);
+        sampleHeaders.set(index,newHeader);
+        dataset.put(newHeader,dataset.remove(oldHeader));
+    }
 }
