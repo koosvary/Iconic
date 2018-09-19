@@ -6,7 +6,8 @@
 <?import javafx.stage.Screen?>
 
 <VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml">
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="5">
       <!--fx:controller="org.iconic.project.search.StartSearchController">-->
     <!-- Define the primary screen so we can use percentage based widths -->
     <fx:define>

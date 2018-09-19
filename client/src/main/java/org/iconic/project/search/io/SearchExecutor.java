@@ -32,10 +32,10 @@ import java.util.List;
  */
 @Log4j2
 public class SearchExecutor implements Runnable {
-    private final List<FunctionalPrimitive<Double, Double>> functionalPrimitives;
     private final XYChart.Series<Number, Number> plots;
     private final DatasetModel datasetModel;
     private final ObjectProperty<String> updates;
+    private List<FunctionalPrimitive<Double, Double>> primitives;
     private EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> ea;
     private boolean running;
     private List<BlockDisplay> blockDisplays;
@@ -56,28 +56,10 @@ public class SearchExecutor implements Runnable {
                 datasetModel.getDataManager().getFeatureSize() - 1
         );
 
-        this.functionalPrimitives = new ArrayList<>();
-        this.functionalPrimitives.add(new AbsoluteValue());
-        this.functionalPrimitives.add(new Addition());
-        this.functionalPrimitives.add(new And());
-        this.functionalPrimitives.add(new ArcCos());
-        this.functionalPrimitives.add(new ArcSin());
-        this.functionalPrimitives.add(new ArcTan());
-        this.functionalPrimitives.add(new Ceiling());
-        this.functionalPrimitives.add(new Cos());
-        this.functionalPrimitives.add(new Division());
-//        new EqualTo(),
-//                    new Exponential(), new Floor(), new GaussianFunction(), new GreaterThan(),
-//                    new GreaterThanOrEqual(), new IfThenElse(), new LessThan(), new LessThanOrEqual(),
-//                    new LogisticFunction(), new Maximum(), new Minimum(), new Modulo(), new Multiplication(),
-//                    new NaturalLog(), new Negation(), new Not(), new Or(), new Power(), new Root(),
-//                    new SignFunction(), new Sin(), new SquareRoot(), new StepFunction(), new Subtraction(),
-//                    new Tan(), new Tanh(), new TwoArcTan(), new Xor()
-
         List<FunctionalPrimitive<Double, Double>> enabledPrimitives = new ArrayList<>(this.blockDisplays.size());
         for (int i = 0; i < this.blockDisplays.size(); i++) {
             if (this.blockDisplays.get(i).isEnabled()) {
-                enabledPrimitives.add(getFunctionalPrimitives().get(i));
+                enabledPrimitives.add(getPrimitives().get(i));
             }
         }
 
@@ -215,7 +197,11 @@ public class SearchExecutor implements Runnable {
         return plots;
     }
 
-    public List<FunctionalPrimitive<Double, Double>> getFunctionalPrimitives() {
-        return functionalPrimitives;
+    public List<FunctionalPrimitive<Double, Double>> getPrimitives() {
+        return primitives;
+    }
+
+    public void setPrimitives(List<FunctionalPrimitive<Double, Double>> primitives) {
+        this.primitives = primitives;
     }
 }

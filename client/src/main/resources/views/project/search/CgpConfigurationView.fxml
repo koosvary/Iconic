@@ -6,7 +6,8 @@
 <?import javafx.stage.Screen?>
 
 <VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml">
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="5">
       <!--fx:controller="org.iconic.project.search.StartSearchController">-->
     <!-- Define the primary screen so we can use percentage based widths -->
     <fx:define>
@@ -16,7 +17,7 @@
         <Insets top="10" bottom="10" left="10" right="10"/>
     </padding>
     <TextField promptText="Number of Outputs" />
-    <HBox>
+    <HBox spacing="5" prefWidth="${screen.visualBounds.width*0.5}">
         <TextField promptText="Number of Columns" />
         <TextField promptText="Number of Rows" />
         <TextField promptText="Number of Levels Back" />

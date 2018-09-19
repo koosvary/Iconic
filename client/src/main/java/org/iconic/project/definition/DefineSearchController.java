@@ -3,22 +3,24 @@ package org.iconic.project.definition;
 import com.google.inject.Inject;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.VBox;
+import javafx.util.Callback;
 import javafx.util.converter.NumberStringConverter;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.data.DataManager;
 import org.iconic.project.BlockDisplay;
 import org.iconic.project.Displayable;
+import org.iconic.project.ProjectModel;
 import org.iconic.project.ProjectService;
 import org.iconic.project.dataset.DatasetModel;
+import org.iconic.project.dataset.DatasetService;
 import org.iconic.project.search.SearchService;
 import org.iconic.project.search.config.CgpConfigurationModel;
 import org.iconic.project.search.config.SearchConfigurationModel;
@@ -113,12 +115,9 @@ public class DefineSearchController implements Initializable {
 
         SearchConfigurationModel configModel = (SearchConfigurationModel) item;
 
-        // TODO: move primitives to the config model
-        configModel.getSearchExecutor().ifPresent(searchExecutor ->
-                blockDisplays = searchExecutor.getFunctionalPrimitives().stream()
-                        .map(BlockDisplay::new)
-                        .collect(Collectors.toList())
-        );
+        blockDisplays = configModel.getPrimitives().stream()
+                .map(BlockDisplay::new)
+                .collect(Collectors.toList());
 
         blockDisplayTableView.setItems(FXCollections.observableArrayList(blockDisplays));
 
@@ -131,6 +130,35 @@ public class DefineSearchController implements Initializable {
             node = getConfigViews().get("gep-config");
         }
 
+        // Create a combo box holding all of the available datasets
+        ObservableList<DatasetModel> options = FXCollections.emptyObservableList();
+        Optional<ProjectModel> parent = getProjectService().findParentProject(item);
+
+        if (parent.isPresent()) {
+            options = parent.get().getDatasets();
+        }
+
+        ComboBox<DatasetModel> cbDatasets = new ComboBox<>(options);
+        cbDatasets.setButtonCell(null);
+        cbDatasets.setCellFactory(new Callback<ListView<DatasetModel>, ListCell<DatasetModel>>() {
+            @Override
+            public ListCell<DatasetModel> call(ListView<DatasetModel> param) {
+                return new ListCell<DatasetModel>() {
+                    @Override
+                    protected void updateItem(DatasetModel item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item == null || empty) {
+                            setText("No dataset selected");
+                        } else {
+                            setText(item.getLabel());
+                        }
+                    }
+                };
+            }
+        });
+
+        vbConfiguration.getChildren().add(cbDatasets);
         vbConfiguration.getChildren().add(node);
     }
 
@@ -199,9 +227,7 @@ public class DefineSearchController implements Initializable {
     }
 
     /**
-     * <p>
-     * Returns the workspace service of this controller
-     * </p>
+     * <p>Returns the workspace service of this controller</p>
      *
      * @return the workspace service of the controller
      */
@@ -209,7 +235,16 @@ public class DefineSearchController implements Initializable {
         return workspaceService;
     }
 
-    public Map<String, Node> getConfigViews() {
+    /**
+     * <p>Returns the project service of this controller</p>
+     *
+     * @return the project service of the controller
+     */
+    private ProjectService getProjectService() {
+        return projectService;
+    }
+
+    private Map<String, Node> getConfigViews() {
         return configViews;
     }
 }

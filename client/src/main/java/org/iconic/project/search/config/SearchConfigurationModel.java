@@ -3,14 +3,18 @@ package org.iconic.project.search.config;
 import javafx.beans.property.SimpleStringProperty;
 import lombok.NonNull;
 import org.controlsfx.glyphfont.FontAwesome;
+import org.iconic.ea.operator.primitive.*;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.io.SearchExecutor;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public abstract class SearchConfigurationModel implements Displayable {
+    private final List<FunctionalPrimitive<Double, Double>> primitives;
     private final UUID id;
     private final SimpleStringProperty name;
     private DatasetModel datasetModel;
@@ -24,6 +28,24 @@ public abstract class SearchConfigurationModel implements Displayable {
     public SearchConfigurationModel(@NonNull final String name) {
         this.name = new SimpleStringProperty(name);
         this.id = UUID.randomUUID();
+
+        this.primitives = new ArrayList<>();
+        this.primitives.add(new AbsoluteValue());
+        this.primitives.add(new Addition());
+        this.primitives.add(new And());
+        this.primitives.add(new ArcCos());
+        this.primitives.add(new ArcSin());
+        this.primitives.add(new ArcTan());
+        this.primitives.add(new Ceiling());
+        this.primitives.add(new Cos());
+        this.primitives.add(new Division());
+//        new EqualTo(),
+//                    new Exponential(), new Floor(), new GaussianFunction(), new GreaterThan(),
+//                    new GreaterThanOrEqual(), new IfThenElse(), new LessThan(), new LessThanOrEqual(),
+//                    new LogisticFunction(), new Maximum(), new Minimum(), new Modulo(), new Multiplication(),
+//                    new NaturalLog(), new Negation(), new Not(), new Or(), new Power(), new Root(),
+//                    new SignFunction(), new Sin(), new SquareRoot(), new StepFunction(), new Subtraction(),
+//                    new Tan(), new Tanh(), new TwoArcTan(), new Xor()
     }
 
     /**
@@ -104,5 +126,9 @@ public abstract class SearchConfigurationModel implements Displayable {
 
     public void setSearchExecutor(SearchExecutor searchExecutor) {
         this.searchExecutor = searchExecutor;
+    }
+
+    public List<FunctionalPrimitive<Double, Double>> getPrimitives() {
+        return primitives;
     }
 }
