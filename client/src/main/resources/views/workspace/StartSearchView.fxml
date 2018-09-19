@@ -20,31 +20,29 @@
         <Screen fx:factory="getPrimary" fx:id="screen"/>
     </fx:define>
 
-	<graphic>
-		<ImageView fitWidth="24" fitHeight="24">
-			<image>
-				<Image url="@/images/play-button.png"/>
-			</image>
-		</ImageView>
-	</graphic>
+    <graphic>
+        <ImageView fitWidth="24" fitHeight="24">
+            <image>
+                <Image url="@/images/play-button.png"/>
+            </image>
+        </ImageView>
+    </graphic>
 
     <SplitPane orientation="VERTICAL">
         <items>
             <AnchorPane minHeight="0.0" minWidth="0.0">
                 <VBox>
-                    <VBox fx:id="vbConfiguration">
-                        <HBox>
-                            <padding>
-                                <Insets top="10" bottom="10" left="10" right="10"/>
-                            </padding>
-                            <ButtonBar>
-                                <buttons>
-                                    <Button fx:id="btnSearch" text="%workspace.search" onAction="#startSearch"/>
-                                    <Button fx:id="btnStopSearch" text="%workspace.search.stop" onAction="#stopSearch"/>
-                                </buttons>
-                            </ButtonBar>
-                        </HBox>
-                    </VBox>
+                    <HBox>
+                        <padding>
+                            <Insets top="10" bottom="10" left="10" right="10"/>
+                        </padding>
+                        <ButtonBar>
+                            <buttons>
+                                <Button fx:id="btnSearch" text="%workspace.search" onAction="#startSearch"/>
+                                <Button fx:id="btnStopSearch" text="%workspace.search.stop" onAction="#stopSearch"/>
+                            </buttons>
+                        </ButtonBar>
+                    </HBox>
                     <Separator/>
                     <HBox>
                         <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.33}">
@@ -53,35 +51,41 @@
                             </padding>
                             <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Search Progress">
                                 <font>
-                                    <Font size="18.0" />
+                                    <Font size="18.0"/>
                                 </font>
                             </Text>
                             <ScrollPane fitToWidth="true">
                                 <content>
-                                    <GridPane alignment="CENTER" >
+                                    <GridPane alignment="CENTER">
                                         <columnConstraints>
-                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="30.0" prefWidth="100.0" />
-                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="70.0" prefWidth="100.0" />
+                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="30.0"
+                                                               prefWidth="100.0"/>
+                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="70.0"
+                                                               prefWidth="100.0"/>
                                         </columnConstraints>
                                         <children>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Time" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Time"
+                                                  GridPane.columnIndex="0" GridPane.rowIndex="0">
                                                 <font>
                                                     <Font size="12.0"/>
                                                 </font>
                                             </Text>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="CPU Cores" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="CPU Cores"
+                                                  GridPane.columnIndex="0" GridPane.rowIndex="1">
                                                 <font>
-                                                    <Font size="12.0" />
+                                                    <Font size="12.0"/>
                                                 </font>
                                             </Text>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="0s" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="0s"
+                                                  GridPane.columnIndex="1" GridPane.rowIndex="0">
                                                 <font>
-                                                    <Font size="12.0" />
+                                                    <Font size="12.0"/>
                                                 </font>
                                             </Text>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="0"
+                                                  GridPane.columnIndex="1" GridPane.rowIndex="1">
                                                 <font>
-                                                    <Font size="12.0" />
+                                                    <Font size="12.0"/>
                                                 </font>
                                             </Text>
                                         </children>
@@ -94,7 +98,8 @@
                                 <Insets top="10" bottom="10" left="10" right="10"/>
                             </padding>
                             <AnchorPane>
-                                <ProgressIndicator progress="0.17" AnchorPane.topAnchor="10" AnchorPane.rightAnchor="20"/>
+                                <ProgressIndicator progress="0.17" AnchorPane.topAnchor="10"
+                                                   AnchorPane.rightAnchor="20"/>
                                 <LineChart fx:id="lcSearchProgress" title="%search.progress.chart.title"
                                            AnchorPane.topAnchor="0"
                                            AnchorPane.leftAnchor="0"
