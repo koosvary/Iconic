@@ -228,7 +228,7 @@ public class DataManager<T> {
         }
     }
 
-    public ArrayList<Number> getSampleColumn(int column) {
+    public List<Number> getSampleColumn(int column) {
         String columnName = sampleHeaders.get(column);
         return getSampleColumn(columnName);
     }
@@ -252,23 +252,6 @@ public class DataManager<T> {
     }
 
     public List<String> getSampleHeaders() { return sampleHeaders; }
-
-    // Replaces all data within a header column, identified by headerIndex
-    // e.g. updating stored data after normalisation
-    public void setSampleColumn(int headerIndex, ArrayList<Number> values) {
-        for (int i = 0; i < sampleSize; i++) {
-            Number value = values.get(i);
-            dataset.get(sampleHeaders.get(headerIndex)).updateModifiedSample(i, value);
-        }
-    }
-
-    // Resets all data within a header column, identified by headerIndex, to
-    // the original data entered by the user
-    public void resetSampleColumn(int headerIndex) {
-        for (int i=0; i < sampleSize; i++) {
-            dataset.get(sampleHeaders.get(headerIndex)).resetModifiedSample(i);
-        }
-    }
 
     public boolean containsHeader() {
         return containsHeader;
