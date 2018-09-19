@@ -24,7 +24,6 @@ import org.iconic.project.dataset.DatasetModel;
 import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -71,6 +70,13 @@ public class ProcessDataController implements Initializable {
         getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedListener);
     }
 
+    /**
+     * Initialize is called each time an item is selected in lvFeatures. The checkboxes are updated based
+     * on previously applied preprocessors. A change listener is also attached to each checkbox/combobox.
+     *
+     * @param arg1
+     * @param arg2
+     */
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
         updateWorkspace();
@@ -123,11 +129,11 @@ public class ProcessDataController implements Initializable {
                         String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
 
                         if (newValue) {
-                            // Checkbox has been selected
-                            addNewTransform(selectedHeader, convertCheckBoxToTransformType(checkbox));
+                            // Checkbox has been selected - call the checkboxes corresponding function
+                            convertTransformTypeToFunction(convertCheckBoxToTransformType(checkbox));
                         } else {
-                            // Checkbox has been unselected
-                            removeExistingTransform(checkbox);
+                            // Checkbox has been unselected - remove the checkboxes corresponding preprocessor
+                            removeExistingPreprocessor(checkbox);
                         }
 
                         updateModifiedText(selectedIndex, selectedHeader);
@@ -162,13 +168,13 @@ public class ProcessDataController implements Initializable {
                 Optional<DataManager<Double>> dataManager = getDataManager();
 
                 if (dataManager.isPresent()) {
-                    removeExistingTransform(checkbox);
+                    removeExistingPreprocessor(checkbox);
                     handleMissingValuesOfDatasetFeature();
 
                     int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
                     String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
 
-                    addNewTransform(selectedHeader, convertCheckBoxToTransformType(checkbox));
+                    convertTransformTypeToFunction(convertCheckBoxToTransformType(checkbox));
 
                     updateModifiedText(selectedIndex, selectedHeader);
                 }
@@ -221,7 +227,7 @@ public class ProcessDataController implements Initializable {
         Optional<DataManager<Double>> dataManager = getDataManager();
 
         if (dataManager.isPresent() && selectedIndex >= 0) {
-            ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+            List<Number> values = dataManager.get().getSampleColumn(selectedIndex);
 
             for (int sample = 0; sample < values.size(); sample++) {
                 double value = values.get(sample).doubleValue();
@@ -238,8 +244,8 @@ public class ProcessDataController implements Initializable {
     }
 
     /**
-     * Gets the current values from the DataManager, applies the Smooth classes functionality to said values,
-     * and then stores the new values in DataManager.
+     * Creates a Smooth object which is added to the list of currently active preprocessors.
+     *
      */
     public void smoothDatasetFeature() {
         if (lvFeatures == null) {
@@ -251,14 +257,10 @@ public class ProcessDataController implements Initializable {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
             if (cbSmoothData.isSelected() && dataManager.isPresent()) {
-                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+                Smooth smooth = new Smooth();
+                smooth.setTransformType(TransformType.Smoothed);
 
-                values = Smooth.apply(values);
-                dataManager.get().setSampleColumn(selectedIndex, values);
-            }
-            // Otherwise reset the sample column
-            else if (dataManager.isPresent()) {
-                dataManager.get().resetSampleColumn(selectedIndex);
+                addNewPreprocessor(dataManager.get().getSampleHeaders().get(selectedIndex), smooth);
             }
 
             featureSelected(selectedIndex);
@@ -266,8 +268,8 @@ public class ProcessDataController implements Initializable {
     }
 
     /**
-     * Gets the current values from the DataManager, applies the HandleMissingValues classes functionality to
-     * said values, and then stores the new values in DataManager.
+     * Creates a HandleMissingValues object which is added to the list of currently active preprocessors.
+     *
      */
     public void handleMissingValuesOfDatasetFeature() {
         if (lvFeatures == null) {
@@ -279,16 +281,11 @@ public class ProcessDataController implements Initializable {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
             if (cbHandleMissingValues.isSelected() && dataManager.isPresent()) {
-                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+                HandleMissingValues handleMissingValues = new HandleMissingValues();
+                handleMissingValues.setTransformType(TransformType.MissingValuesHandled);
+                handleMissingValues.setMode(convertComboBoxIndexToMode(cbHandleMissingValuesOptions.getSelectionModel().getSelectedIndex()));
 
-                HandleMissingValues.Mode mode = convertComboBoxIndexToMode(cbHandleMissingValuesOptions.getSelectionModel().getSelectedIndex());
-
-                values = HandleMissingValues.apply(values, mode);
-                dataManager.get().setSampleColumn(selectedIndex, values);
-            }
-            // Otherwise reset the sample column
-            else if (dataManager.isPresent()) {
-                dataManager.get().resetSampleColumn(selectedIndex);
+                addNewPreprocessor(dataManager.get().getSampleHeaders().get(selectedIndex), handleMissingValues);
             }
 
             featureSelected(selectedIndex);
@@ -306,15 +303,7 @@ public class ProcessDataController implements Initializable {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
             if (cbRemoveOutliers.isSelected() && dataManager.isPresent()) {
-                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
-
-                //values = RemoveOutliers.apply(values);
-
-                dataManager.get().setSampleColumn(selectedIndex, values);
-            }
-            // Otherwise reset the sample column
-            else if (dataManager.isPresent()) {
-                dataManager.get().resetSampleColumn(selectedIndex);
+                RemoveOutliers removeOutliers = new RemoveOutliers();
             }
 
             featureSelected(selectedIndex);
@@ -322,8 +311,8 @@ public class ProcessDataController implements Initializable {
     }
 
     /**
-     * Gets the current values from the DataManager, applies the Normalise classes functionality to said values,
-     * and then stores the new values in DataManager.
+     * Creates a Normalise object which is added to the list of currently active preprocessors.
+     *
      */
     public void normalizeDatasetFeature() {
         if (lvFeatures == null) {
@@ -335,23 +324,19 @@ public class ProcessDataController implements Initializable {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
             if (cbNormalise.isSelected() && dataManager.isPresent()) {
-                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
-
                 try {
                     double min = Double.parseDouble(tfNormaliseMin.getText());
                     double max = Double.parseDouble(tfNormaliseMax.getText());
 
                     if (min < max) {
-                        values = Normalise.apply(values, min, max);
-                        dataManager.get().setSampleColumn(selectedIndex, values);
+                        Normalise normalise = new Normalise(min, max);
+                        normalise.setTransformType(TransformType.Normalised);
+
+                        addNewPreprocessor(dataManager.get().getSampleHeaders().get(selectedIndex), normalise);
                     }
                 } catch (Exception e) {
                     log.error("Min and Max values must be a Number");
                 }
-            }
-            // Otherwise reset the sample column
-            else if (dataManager.isPresent()) {
-                dataManager.get().resetSampleColumn(selectedIndex);
             }
 
             featureSelected(selectedIndex);
@@ -359,8 +344,8 @@ public class ProcessDataController implements Initializable {
     }
 
     /**
-     * Gets the current values from the DataManager, applies the Offset classes functionality to said values,
-     * and then stores the new values in DataManager.
+     * Creates an Offset object which is added to the list of currently active preprocessors.
+     *
      */
     public void offsetDatasetFeature() {
         if (lvFeatures == null) {
@@ -372,22 +357,17 @@ public class ProcessDataController implements Initializable {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
             if (cbOffset.isSelected() && dataManager.isPresent()) {
-                ArrayList<Number> values = dataManager.get().getSampleColumn(selectedIndex);
-
                 try {
-                    double offset = Double.parseDouble(tfOffsetValue.getText());
-                    System.out.println("Offset value: " + offset);
+                    double offsetValue = Double.parseDouble(tfOffsetValue.getText());
 
-                    values = Offset.apply(values, offset);
-                    dataManager.get().setSampleColumn(selectedIndex, values);
+                    Offset offset = new Offset(offsetValue);
+                    offset.setTransformType(TransformType.Offset);
+
+                    addNewPreprocessor(dataManager.get().getSampleHeaders().get(selectedIndex), offset);
 
                 } catch (Exception e) {
                     log.error("Offset value must be a Number");
                 }
-            }
-            // Otherwise reset the sample column
-            else if (dataManager.isPresent()) {
-                dataManager.get().resetSampleColumn(selectedIndex);
             }
 
             featureSelected(selectedIndex);
@@ -395,42 +375,36 @@ public class ProcessDataController implements Initializable {
     }
 
     /**
-     * Adds a new transformation to the FeatureClass list
+     * Adds a new preprocessor to the FeatureClass list
      *
-     * @param header Used to identify the specific FeatureClass and header of the new transformation
-     * @param transformType Used to define the transform type of the new transformation
+     * @param header Used to identify the specific FeatureClass which the preprocessor is being applied to
+     * @param preprocessor The new preprocessor object
      */
-    private void addNewTransform(String header, TransformType transformType) {
+    private void addNewPreprocessor(String header, Preprocessor preprocessor) {
         Optional<DataManager<Double>> dataManager = getDataManager();
 
-        // Creates a new transformation object, storing the feature that was transformed and
-        // the type of transformation
-        Transformation newTransformation = new Transformation(header, transformType);
-
         if (dataManager.isPresent()) {
-            dataManager.get().getDataset().get(header).addTransformation(newTransformation);
-            dataManager.get().getDataset().get(header).setModified(true);
+            dataManager.get().getDataset().get(header).addPreprocessor(preprocessor);
         }
     }
 
     /**
-     * Removes an existing transformation after a pre-processing checkbox has been deselected
+     * Removes an existing preprocessor after a pre-processing checkbox has been deselected
      *
      * @param checkbox Identifies the type of transform to be removed
      */
-    private void removeExistingTransform(CheckBox checkbox) {
+    private void removeExistingPreprocessor(CheckBox checkbox) {
         Optional<DataManager<Double>> dataManager = getDataManager();
 
         if (dataManager.isPresent()) {
             String selectedHeader = dataManager.get().getSampleHeaders().get(lvFeatures.getSelectionModel().getSelectedIndex());
             TransformType transformType = convertCheckBoxToTransformType(checkbox);
 
-            dataManager.get().getDataset().get(selectedHeader).removeTransformation(transformType);
-
-            if (dataManager.get().getDataset().get(selectedHeader).getTransformations().size() == 0) {
-                dataManager.get().getDataset().get(selectedHeader).setModified(false);
-            }
+            // Remove selected preprocessor and reapply the other active ones
+            dataManager.get().getDataset().get(selectedHeader).removePreprocessor(transformType);
         }
+
+        featureSelected(lvFeatures.getSelectionModel().getSelectedIndex());
     }
 
     /**
@@ -494,25 +468,25 @@ public class ProcessDataController implements Initializable {
             String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
 
             if (dataManager.get().getDataset().get(selectedHeader).isModified()) {
-                List<Transformation> transformations = dataManager.get().getDataset().get(selectedHeader).getTransformations();
+                List<Preprocessor<Number>> preprocessors = dataManager.get().getDataset().get(selectedHeader).getPreprocessors();
 
-                for (Transformation transform : transformations) {
-                    enableCheckBox(transform.getTransform());
+                for (Preprocessor preprocessor : preprocessors) {
+                    enableCheckBox(preprocessor.getTransformType());
                 }
             }
         }
     }
 
     /**
-     * Takes a transformation type as input and selects the checkbox corresponding with that
+     * Takes a TransformType as input and selects the checkbox corresponding with that
      * transformation type.
      *
-     * @param transform The type of a previous transform
+     * @param transformType The type of a previous transform
      */
-    private void enableCheckBox(TransformType transform) {
+    private void enableCheckBox(TransformType transformType) {
         resetCheckboxFlag = true;
 
-        switch (transform) {
+        switch (transformType) {
             case Smoothed:
                 cbSmoothData.setSelected(true);
                 break;
@@ -538,7 +512,7 @@ public class ProcessDataController implements Initializable {
     }
 
     /**
-     * Enabled all pre-processing checkboxes so that the user can interact with them.
+     * Enables all pre-processing checkboxes so that the user can interact with them.
      * This method is called once a feature is selected.
      */
     private void enablePreprocessingCheckBoxes() {
@@ -570,6 +544,35 @@ public class ProcessDataController implements Initializable {
         }
         else {
             return TransformType.Offset;
+        }
+    }
+
+    /**
+     * Given one of transform types, this method determines its corresponding function.
+     *
+     * @param transformType
+     */
+    private void convertTransformTypeToFunction(TransformType transformType) {
+        switch (transformType) {
+            case Smoothed:
+                smoothDatasetFeature();
+                break;
+
+            case MissingValuesHandled:
+                handleMissingValuesOfDatasetFeature();
+                break;
+
+            case OutliersRemoved:
+                removeOutliersInDatasetFeature();
+                break;
+
+            case Normalised:
+                normalizeDatasetFeature();
+                break;
+
+            case Offset:
+                offsetDatasetFeature();
+                break;
         }
     }
 

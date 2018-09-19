@@ -21,9 +21,10 @@ class OffsetTest {
     @DisplayName("Test offsets")
     @MethodSource("offsetProvider")
     @ParameterizedTest
-    void testOffset(final ArrayList<Number> input, final ArrayList<Number> expected, final double offset) {
+    void testOffset(final ArrayList<Number> input, final ArrayList<Number> expected, final double offsetValue) {
         final double delta = 0.00001;
-        Offset.apply(input, offset);
+        Offset offset = new Offset(offsetValue);
+        offset.apply(input);
 
         assertEquals(input.size(), expected.size());
         for (int i = 0; i < input.size(); i++) {

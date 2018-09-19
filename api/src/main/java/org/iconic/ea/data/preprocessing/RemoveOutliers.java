@@ -1,11 +1,11 @@
 package org.iconic.ea.data.preprocessing;
 
-import java.util.ArrayList;
+import java.util.List;
 
-public class RemoveOutliers {
+public class RemoveOutliers extends Preprocessor<Number> {
     private static Number minCutoff, maxCutoff;
 
-    public static ArrayList<Number> apply(ArrayList<Number> values) {
+    public List<Number> apply(List<Number> values) {
 
         // Remove outliers functionality
 
@@ -18,13 +18,5 @@ public class RemoveOutliers {
 
     public void setMaxCutoff(Number maxCutoff) {
         this.maxCutoff = maxCutoff;
-    }
-
-    public Number getMinCutoff() {
-        return minCutoff;
-    }
-
-    public Number getMaxCutoff() {
-        return maxCutoff;
     }
 }

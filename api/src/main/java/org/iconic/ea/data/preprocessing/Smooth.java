@@ -1,9 +1,10 @@
 package org.iconic.ea.data.preprocessing;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.lang.*;
 
-public class Smooth {
+public class Smooth extends Preprocessor<Number> {
     private static int N = 2; // N is the number of neighboring data points on either side of the value
 
     /**
@@ -22,8 +23,8 @@ public class Smooth {
      *
      * @param values the array that will be smoothed
      */
-    public static ArrayList<Number> apply(ArrayList<Number> values) {
-        ArrayList<Number> newValues = new ArrayList<>();
+    public List<Number> apply(List<Number> values) {
+        List<Number> newValues = new ArrayList<>();
 
         for (int i = 0; i < values.size(); i++) {
             // The index of the lowest span from the point

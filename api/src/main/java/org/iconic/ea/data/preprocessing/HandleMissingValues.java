@@ -1,10 +1,11 @@
 package org.iconic.ea.data.preprocessing;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ArrayList;
 
-public class HandleMissingValues {
+public class HandleMissingValues extends Preprocessor<Number> {
+    private Mode mode;
 
     /**
      * The method to be used when dealing with missing values that occur within a List of values.
@@ -29,7 +30,7 @@ public class HandleMissingValues {
     /** Replacement value, if needed */
     private static double numericalValueReplacement = 0;
 
-    public static ArrayList<Number> apply(ArrayList<Number> values, Mode mode) {
+    public List<Number> apply(List<Number> values) {
         switch (mode) {
             case COPY_PREVIOUS_ROW:
                 copyPreviousRow(values);
@@ -73,7 +74,7 @@ public class HandleMissingValues {
      * </p>
      * @param values The ArrayList to perform the function on.
      */
-    private static ArrayList<Number> copyPreviousRow(ArrayList<Number> values) {
+    private List<Number> copyPreviousRow(List<Number> values) {
         // Loop through all values in the array
         for (int i = 0; i < values.size(); i++) {
             // The currentIndex is equal to i - 1 (with wrapping)
@@ -114,7 +115,7 @@ public class HandleMissingValues {
      * </p>
      * @param values The ArrayList to perform the function on.
      */
-    private static ArrayList<Number> mean(ArrayList<Number> values) {
+    private List<Number> mean(List<Number> values) {
         // Create a list to track all the null value indexes
         List<Integer> indexesToReplace = new ArrayList<>();
         double mean;
@@ -154,8 +155,8 @@ public class HandleMissingValues {
      * </p>
      * @param values The ArrayList to perform the function on.
      */
-    private static ArrayList<Number> median(ArrayList<Number> values) {
-        ArrayList<Double> doubleValues = new ArrayList<>();
+    private List<Number> median(List<Number> values) {
+        List<Double> doubleValues = new ArrayList<>();
         double medianValue;
 
         for (Number v : values) {
@@ -194,7 +195,7 @@ public class HandleMissingValues {
      * @param values The ArrayList to perform the function on.
      * @param replacement The replacement value to use
      */
-    private static ArrayList<Number> replaceMissingWith(ArrayList<Number> values, double replacement) {
+    private List<Number> replaceMissingWith(List<Number> values, double replacement) {
         for (int i = 0; i < values.size(); i++) {
             if (values.get(i) == null) {
                 values.set(i, replacement);
@@ -219,12 +220,16 @@ public class HandleMissingValues {
         this.numericalValueReplacement = value;
     }
 
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
+
     /**
      * DEBUG METHOD: Can be deleted once copyPreviousRow is fixed.
      *
      * @param values
      */
-    private static void printValues(ArrayList<Number> values) {
+    private static void printValues(List<Number> values) {
         String valueString = "";
 
         for (int i=0; i < values.size(); i++) {
