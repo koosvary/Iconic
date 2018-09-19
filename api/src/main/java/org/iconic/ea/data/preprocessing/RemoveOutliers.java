@@ -3,7 +3,7 @@ package org.iconic.ea.data.preprocessing;
 import java.util.List;
 
 public class RemoveOutliers extends Preprocessor<Number> {
-    private static Number minCutoff, maxCutoff;
+    private Number minCutoff, maxCutoff;
 
     public List<Number> apply(List<Number> values) {
 

@@ -5,7 +5,7 @@ import java.util.List;
 import java.lang.*;
 
 public class Smooth extends Preprocessor<Number> {
-    private static int N = 2; // N is the number of neighboring data points on either side of the value
+    private int N = 2; // N is the number of neighboring data points on either side of the value
 
     /**
      * <p>
@@ -49,7 +49,7 @@ public class Smooth extends Preprocessor<Number> {
             }
 
             // Average of the span size
-            newValues.add( 1.0 / (2.0 * span + 1.0) * sum );
+            newValues.add(1.0 / (2.0 * span + 1.0) * sum);
         }
 
         // Update the old values to the new values
