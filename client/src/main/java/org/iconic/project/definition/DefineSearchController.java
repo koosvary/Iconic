@@ -107,6 +107,23 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         return functionStr;
     }
 
+    public void setFunction() {
+        String functionStr = null;
+
+        Optional<DataManager<Double>> dataset = getDataManager();
+
+        if (dataset.isPresent()) {
+            // Get the ID of the dataset
+            String[] splitString = dataset.toString().split("@");
+            String datasetID = splitString[splitString.length - 1].replace("]", ""); // There's a trailing ']' from the toString
+
+            // Get the dataset, if exists
+            functionStr = tfTargetExpression.getText();
+
+            functionDefinitions.put(datasetID, functionStr);
+        }
+    }
+
     private void loadFunction() {
         Optional<DataManager<Double>> dataset = getDataManager();
 
@@ -172,6 +189,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
                 String functionDefinition = tfTargetExpression.getText();
 
                 if(dataset.isPresent()) {
+                    setFunction();
                     dataset.get().defineFunction(functionDefinition);
                 }
             }

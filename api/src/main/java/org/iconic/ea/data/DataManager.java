@@ -290,7 +290,6 @@ public class DataManager<T> {
 
             if(outputFeatureList.contains(header))
             {
-                fClass.setActive(true);
                 fClass.setOutput(true);
             }
             else if(activeFeatureList.contains(header))
