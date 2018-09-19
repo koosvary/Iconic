@@ -87,7 +87,7 @@ public class WorkspaceController implements Initializable {
 
         // If the current selected tab is disabled, change the user's
         // selection to the first enabled tab if available
-        updateTabSelection();
+//        updateTabSelection();
     }
 
     /**
