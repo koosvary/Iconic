@@ -5,11 +5,13 @@ import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.VBox;
 import javafx.util.converter.NumberStringConverter;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.data.DataManager;
@@ -17,10 +19,13 @@ import org.iconic.project.BlockDisplay;
 import org.iconic.project.Displayable;
 import org.iconic.project.ProjectService;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.project.search.SearchService;
+import org.iconic.project.search.config.CgpConfigurationModel;
+import org.iconic.project.search.config.SearchConfigurationModel;
+import org.iconic.views.ViewService;
 import org.iconic.workspace.WorkspaceService;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,7 +35,11 @@ public class DefineSearchController implements Initializable {
 
     private final ProjectService projectService;
     private final SearchService searchService;
+    private final ViewService viewService;
     private final WorkspaceService workspaceService;
+
+    @FXML
+    VBox vbConfiguration;
 
     @FXML
     public TableView<BlockDisplay> blockDisplayTableView;
@@ -42,17 +51,22 @@ public class DefineSearchController implements Initializable {
     @FXML
     private TextField tfTargetExpression;
 
+    final private Map<String, Node> configViews;
+
     @Inject
     public DefineSearchController(
             final ProjectService projectService,
             final SearchService searchService,
+            final ViewService viewService,
             final WorkspaceService workspaceService
     ) {
         this.projectService = projectService;
         this.searchService = searchService;
+        this.viewService = viewService;
         this.workspaceService = workspaceService;
         this.functionDefinitions = new HashMap<>();
         this.blockDisplays = new ArrayList<>();
+        this.configViews = new HashMap<>();
 
         InvalidationListener loadFunctionListener = observable -> loadFunction();
         InvalidationListener selectionChangedListener = observable -> updateTab();
@@ -62,22 +76,13 @@ public class DefineSearchController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
-
-        if (!(item instanceof SearchConfigurationModel)) {
-            return;
+        try {
+            getConfigViews().put("cgp-config", getViewService().getViews().get("cgp-config").load());
+            getConfigViews().put("gep-config", getViewService().getViews().get("gep-config").load());
+        } catch (IOException ex) {
+            // TODO: display error screen to the user
+            log.error("{}: {}", ex::getMessage, ex::getStackTrace);
         }
-
-        SearchConfigurationModel searchModel = (SearchConfigurationModel) item;
-
-        // TODO: move primitives to the config model
-        searchModel.getSearchExecutor().ifPresent(searchExecutor ->
-                blockDisplays = searchExecutor.getFunctionalPrimitives().stream()
-                        .map(BlockDisplay::new)
-                        .collect(Collectors.toList())
-        );
-
-        blockDisplayTableView.setItems(FXCollections.observableArrayList(blockDisplays));
 
         TableColumn<BlockDisplay, String> nameCol = new TableColumn<>("Symbol");
         TableColumn<BlockDisplay, Boolean> enabledCol = new TableColumn<>("Enabled");
@@ -95,6 +100,8 @@ public class DefineSearchController implements Initializable {
         complexityCol.setCellValueFactory(cellData -> cellData.getValue().complexityProperty());
 
         blockDisplayTableView.getColumns().addAll(enabledCol, nameCol, complexityCol);
+
+        updateTab();
     }
 
     private void updateTab() {
@@ -104,7 +111,27 @@ public class DefineSearchController implements Initializable {
             return;
         }
 
-        SearchConfigurationModel search = (SearchConfigurationModel) item;
+        SearchConfigurationModel configModel = (SearchConfigurationModel) item;
+
+        // TODO: move primitives to the config model
+        configModel.getSearchExecutor().ifPresent(searchExecutor ->
+                blockDisplays = searchExecutor.getFunctionalPrimitives().stream()
+                        .map(BlockDisplay::new)
+                        .collect(Collectors.toList())
+        );
+
+        blockDisplayTableView.setItems(FXCollections.observableArrayList(blockDisplays));
+
+        Node node;
+        vbConfiguration.getChildren().clear();
+
+        if (configModel instanceof CgpConfigurationModel) {
+            node = getConfigViews().get("cgp-config");
+        } else {
+            node = getConfigViews().get("gep-config");
+        }
+
+        vbConfiguration.getChildren().add(node);
     }
 
     private void loadFunction() {
@@ -163,6 +190,15 @@ public class DefineSearchController implements Initializable {
     }
 
     /**
+     * <p>Returns the view service of this controller</p>
+     *
+     * @return the view service of the controller
+     */
+    private ViewService getViewService() {
+        return viewService;
+    }
+
+    /**
      * <p>
      * Returns the workspace service of this controller
      * </p>
@@ -171,5 +207,9 @@ public class DefineSearchController implements Initializable {
      */
     private WorkspaceService getWorkspaceService() {
         return workspaceService;
+    }
+
+    public Map<String, Node> getConfigViews() {
+        return configViews;
     }
 }

@@ -56,42 +56,45 @@ public class Bootstrapper extends Application {
         try {
 
             // Create the primary stage
-        primaryStage.setTitle("- Iconic Workbench");
+            primaryStage.setTitle("- Iconic Workbench");
 
-        // Create the root node for placing all the other components
-        val root = new BorderPane();
+            // Create the root node for placing all the other components
+            val root = new BorderPane();
 
-        // Load the child UI elements from FXML resources
-        View menuView = new View("views/menu/MenuView.fxml", getInjector());
-        View projectView = new View("views/project/ProjectTreeView.fxml", getInjector());
-        View workspaceView = new View("views/workspace/WorkspaceView.fxml", getInjector());
+            // Load the child UI elements from FXML resources
+            View menuView = new View("views/menu/MenuView.fxml", getInjector());
+            View projectView = new View("views/project/ProjectTreeView.fxml", getInjector());
+            View workspaceView = new View("views/workspace/WorkspaceView.fxml", getInjector());
+            View cgpConfigView = new View("views/project/search/CgpConfigurationView.fxml", getInjector());
+            View gepConfigView = new View("views/project/search/GepConfigurationView.fxml", getInjector());
 
-        getViewService().put("menu", menuView);
-        getViewService().put("project-tree", projectView);
-        getViewService().put("workspace", workspaceView);
+            getViewService().put("menu", menuView);
+            getViewService().put("project-tree", projectView);
+            getViewService().put("workspace", workspaceView);
+            getViewService().put("cgp-config", cgpConfigView);
+            getViewService().put("gep-config", gepConfigView);
 
-        try {
-            root.setTop(menuView.load());
-            root.setLeft(projectView.load());
-            root.setCenter(workspaceView.load());
-        } catch (IOException ex) {
-            log.debug(ex.getMessage());
-        }
+            try {
+                root.setTop(menuView.load());
+                root.setLeft(projectView.load());
+                root.setCenter(workspaceView.load());
+            } catch (IOException ex) {
+                log.debug(ex.getMessage());
+            }
 
-        Scene scene = new Scene(root, 720, 480);
+            Scene scene = new Scene(root, 720, 480);
 
-        // Load our stylesheets
-        val stylesheet = getClass().getClassLoader().getResource("stylesheet.css");
+            // Load our stylesheets
+            val stylesheet = getClass().getClassLoader().getResource("stylesheet.css");
 
-        if (stylesheet != null) {
-            scene.getStylesheets().add(stylesheet.toExternalForm());
-        }
+            if (stylesheet != null) {
+                scene.getStylesheets().add(stylesheet.toExternalForm());
+            }
 
             primaryStage.setScene(scene);
             primaryStage.setMaximized(true);
             primaryStage.show();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             log.error("{}:\n{}", ex::getMessage, ex::getStackTrace);
         }
     }

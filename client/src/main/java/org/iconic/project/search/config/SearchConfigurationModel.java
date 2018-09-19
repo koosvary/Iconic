@@ -10,7 +10,7 @@ import org.iconic.project.search.io.SearchExecutor;
 import java.util.Optional;
 import java.util.UUID;
 
-public class SearchConfigurationModel implements Displayable {
+public abstract class SearchConfigurationModel implements Displayable {
     private final UUID id;
     private final SimpleStringProperty name;
     private DatasetModel datasetModel;

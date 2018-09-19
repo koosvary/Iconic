@@ -7,7 +7,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
-import javafx.scene.layout.VBox;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.project.Displayable;
@@ -33,8 +32,6 @@ public class StartSearchController implements Initializable {
     private final ViewService viewService;
     private final WorkspaceService workspaceService;
 
-    @FXML
-    private VBox vbConfiguration;
     @FXML
     private Button btnSearch;
     @FXML
@@ -80,18 +77,6 @@ public class StartSearchController implements Initializable {
         }
 
         SearchConfigurationModel search = (SearchConfigurationModel) item;
-//
-//        try {
-//            if (search instanceof GepConfigurationModel) {
-//                vbConfiguration.getChildren().clear();
-//                vbConfiguration.getChildren().add(getViewService().getViews().get("gep-config").load());
-//            } else {
-//                vbConfiguration.getChildren().clear();
-//                vbConfiguration.getChildren().add(getViewService().getViews().get("cgp-config").load());
-//            }
-//        } catch (IOException ex) {
-//            // TODO: display error message
-//        }
 
         // Make sure that all the UI elements actually exist
         if (btnSearch != null && btnStopSearch != null) {
@@ -175,9 +160,7 @@ public class StartSearchController implements Initializable {
     }
 
     /**
-     * <p>
-     * Returns the workspace service of this controller
-     * </p>
+     * <p>Returns the workspace service of this controller</p>
      *
      * @return the workspace service of the controller
      */
@@ -186,17 +169,11 @@ public class StartSearchController implements Initializable {
     }
 
     /**
-     * <p>
-     * Returns the search service of this controller
-     * </p>
+     * <p>Returns the search service of this controller</p>
      *
      * @return the search service of the controller
      */
     private SearchService getSearchService() {
         return searchService;
-    }
-
-    public ViewService getViewService() {
-        return viewService;
     }
 }
