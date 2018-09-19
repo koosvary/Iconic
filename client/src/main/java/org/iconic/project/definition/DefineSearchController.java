@@ -14,6 +14,8 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.converter.NumberStringConverter;
 import lombok.extern.log4j.Log4j2;
+import org.iconic.control.DatasetComboBox;
+import org.iconic.control.operator.evolutionary.MutatorComboBox;
 import org.iconic.ea.data.DataManager;
 import org.iconic.project.BlockDisplay;
 import org.iconic.project.Displayable;
@@ -39,6 +41,12 @@ public class DefineSearchController implements Initializable {
     private final SearchService searchService;
     private final ViewService viewService;
     private final WorkspaceService workspaceService;
+
+    @FXML
+    private DatasetComboBox cbDatasets;
+
+    @FXML
+    public MutatorComboBox cbMutators;
 
     @FXML
     VBox vbConfiguration;
@@ -130,35 +138,20 @@ public class DefineSearchController implements Initializable {
             node = getConfigViews().get("gep-config");
         }
 
-        // Create a combo box holding all of the available datasets
-        ObservableList<DatasetModel> options = FXCollections.emptyObservableList();
+        // Add all of the datasets within the project to the datasets combo box
         Optional<ProjectModel> parent = getProjectService().findParentProject(item);
 
-        if (parent.isPresent()) {
-            options = parent.get().getDatasets();
+        if (parent.isPresent() && parent.get().getDatasets().size() > 0) {
+            ObservableList<DatasetModel> options = parent.get().getDatasets();
+            cbDatasets.setItems(options);
+            cbDatasets.setPromptText("Select a dataset");
+            cbDatasets.setDisable(false);
+        } else {
+            cbDatasets.setItems(FXCollections.emptyObservableList());
+            cbDatasets.setPromptText("No datasets available");
+            cbDatasets.setDisable(true);
         }
 
-        ComboBox<DatasetModel> cbDatasets = new ComboBox<>(options);
-        cbDatasets.setButtonCell(null);
-        cbDatasets.setCellFactory(new Callback<ListView<DatasetModel>, ListCell<DatasetModel>>() {
-            @Override
-            public ListCell<DatasetModel> call(ListView<DatasetModel> param) {
-                return new ListCell<DatasetModel>() {
-                    @Override
-                    protected void updateItem(DatasetModel item, boolean empty) {
-                        super.updateItem(item, empty);
-
-                        if (item == null || empty) {
-                            setText("No dataset selected");
-                        } else {
-                            setText(item.getLabel());
-                        }
-                    }
-                };
-            }
-        });
-
-        vbConfiguration.getChildren().add(cbDatasets);
         vbConfiguration.getChildren().add(node);
     }
 

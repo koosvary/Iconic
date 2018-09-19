@@ -144,4 +144,9 @@ public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromos
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "Single Active Gene Mutation";
+    }
 }

@@ -1,5 +1,7 @@
 package org.iconic.project.search.config;
 
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import lombok.NonNull;
 import org.controlsfx.glyphfont.FontAwesome;
@@ -17,6 +19,8 @@ public abstract class SearchConfigurationModel implements Displayable {
     private final List<FunctionalPrimitive<Double, Double>> primitives;
     private final UUID id;
     private final SimpleStringProperty name;
+    private SimpleDoubleProperty mutationRate;
+    private SimpleDoubleProperty crossoverRate;
     private DatasetModel datasetModel;
     private SearchExecutor searchExecutor;
 
@@ -28,6 +32,8 @@ public abstract class SearchConfigurationModel implements Displayable {
     public SearchConfigurationModel(@NonNull final String name) {
         this.name = new SimpleStringProperty(name);
         this.id = UUID.randomUUID();
+        this.mutationRate = new SimpleDoubleProperty(0.1);
+        this.crossoverRate = new SimpleDoubleProperty(0.1);
 
         this.primitives = new ArrayList<>();
         this.primitives.add(new AbsoluteValue());
@@ -39,13 +45,35 @@ public abstract class SearchConfigurationModel implements Displayable {
         this.primitives.add(new Ceiling());
         this.primitives.add(new Cos());
         this.primitives.add(new Division());
-//        new EqualTo(),
-//                    new Exponential(), new Floor(), new GaussianFunction(), new GreaterThan(),
-//                    new GreaterThanOrEqual(), new IfThenElse(), new LessThan(), new LessThanOrEqual(),
-//                    new LogisticFunction(), new Maximum(), new Minimum(), new Modulo(), new Multiplication(),
-//                    new NaturalLog(), new Negation(), new Not(), new Or(), new Power(), new Root(),
-//                    new SignFunction(), new Sin(), new SquareRoot(), new StepFunction(), new Subtraction(),
-//                    new Tan(), new Tanh(), new TwoArcTan(), new Xor()
+        this.primitives.add(new EqualTo());
+        this.primitives.add(new Exponential());
+        this.primitives.add(new Floor());
+        this.primitives.add(new GaussianFunction());
+        this.primitives.add(new GreaterThan());
+        this.primitives.add(new GreaterThanOrEqual());
+        this.primitives.add(new IfThenElse());
+        this.primitives.add(new LessThan());
+        this.primitives.add(new LessThanOrEqual());
+        this.primitives.add(new LogisticFunction());
+        this.primitives.add(new Maximum());
+        this.primitives.add(new Minimum());
+        this.primitives.add(new Modulo());
+        this.primitives.add(new Multiplication());
+        this.primitives.add(new NaturalLog());
+        this.primitives.add(new Negation());
+        this.primitives.add(new Not());
+        this.primitives.add(new Or());
+        this.primitives.add(new Power());
+        this.primitives.add(new Root());
+        this.primitives.add(new SignFunction());
+        this.primitives.add(new Sin());
+        this.primitives.add(new SquareRoot());
+        this.primitives.add(new StepFunction());
+        this.primitives.add(new Subtraction());
+        this.primitives.add(new Tan());
+        this.primitives.add(new Tanh());
+        this.primitives.add(new TwoArcTan());
+        this.primitives.add(new Xor());
     }
 
     /**
@@ -130,5 +158,29 @@ public abstract class SearchConfigurationModel implements Displayable {
 
     public List<FunctionalPrimitive<Double, Double>> getPrimitives() {
         return primitives;
+    }
+
+    public double getMutationRate() {
+        return mutationRate.get();
+    }
+
+    public SimpleDoubleProperty mutationRateProperty() {
+        return mutationRate;
+    }
+
+    public void setMutationRate(double mutationRate) {
+        this.mutationRate.set(mutationRate);
+    }
+
+    public double getCrossoverRate() {
+        return crossoverRate.get();
+    }
+
+    public SimpleDoubleProperty crossoverRateProperty() {
+        return crossoverRate;
+    }
+
+    public void setCrossoverRate(double crossoverRate) {
+        this.crossoverRate.set(crossoverRate);
     }
 }
