@@ -47,6 +47,7 @@ public class SearchModel implements Runnable {
     private final DatasetModel datasetModel;
     private final ObjectProperty<String> updates;
     private EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> ea;
+    private SolutionStorage<Double> solutionStorage = new SolutionStorage<>(); // Stores the solutions found
     private boolean running;
     private ArrayList<BlockDisplay> blockDisplays;
 
@@ -118,7 +119,7 @@ public class SearchModel implements Runnable {
     public void run() {
         setRunning(true);
 
-        final int populationSize = 100;
+        final int populationSize = 5;
         final int numGenerations = 500;
 
         Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
@@ -136,6 +137,9 @@ public class SearchModel implements Runnable {
                     List<ExpressionChromosome<Double>> newPopulation = ea.evolve(oldPopulation);
                     ea.setChromosomes(newPopulation);
 
+                    // Evaluate the new population of solutions and store the best ones
+                    solutionStorage.evaluate(newPopulation); // TODO - Choose what solutions get stored
+
                     ExpressionChromosome<Double> newBestCandidate = ea.getChromosomes()
                             .stream().min(comparator).get();
 
@@ -151,6 +155,7 @@ public class SearchModel implements Runnable {
                     final String generation = "\nGeneration: " + (i + 1);
                     final String candidate = "\n\tNew Best candidate: " + bestCandidate.toString();
                     final String fitness = "\n\tFitness: " + bestCandidate.getFitness();
+                    final String size = "\n\tSize: " + bestCandidate.getSize();
 
                     // Append the current generation's best results in front of the list of updates
                     if (newCandidate) {
@@ -159,7 +164,7 @@ public class SearchModel implements Runnable {
                         );
                     }
 
-                    log.info(generation + candidate + fitness);
+                    log.info(generation + candidate + fitness + size);
                 }
 
                 setUpdates("\nFinished!" + getUpdates());
@@ -191,6 +196,10 @@ public class SearchModel implements Runnable {
      */
     public DatasetModel getDatasetModel() {
         return datasetModel;
+    }
+
+    public SolutionStorage<Double> getSolutionStorage() {
+        return solutionStorage;
     }
 
     @Synchronized
