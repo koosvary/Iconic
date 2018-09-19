@@ -19,10 +19,13 @@ public abstract class SearchConfigurationModel implements Displayable {
     private final List<FunctionalPrimitive<Double, Double>> primitives;
     private final UUID id;
     private final SimpleStringProperty name;
+    private SimpleIntegerProperty populationSize;
+    private SimpleIntegerProperty numGenerations;
     private SimpleDoubleProperty mutationRate;
     private SimpleDoubleProperty crossoverRate;
     private DatasetModel datasetModel;
-    private SearchExecutor searchExecutor;
+    private SearchExecutor<?> searchExecutor;
+    private boolean changed;
 
     /**
      * <p>Constructs a new search configuration with the provided name.</p>
@@ -30,10 +33,14 @@ public abstract class SearchConfigurationModel implements Displayable {
      * @param name The name of the search configuration
      */
     public SearchConfigurationModel(@NonNull final String name) {
+        this.changed = true;
         this.name = new SimpleStringProperty(name);
         this.id = UUID.randomUUID();
+        this.populationSize = new SimpleIntegerProperty(10);
+        this.numGenerations = new SimpleIntegerProperty(10);
         this.mutationRate = new SimpleDoubleProperty(0.1);
         this.crossoverRate = new SimpleDoubleProperty(0.1);
+        this.datasetModel = null;
 
         this.primitives = new ArrayList<>();
         this.primitives.add(new AbsoluteValue());
@@ -140,6 +147,7 @@ public abstract class SearchConfigurationModel implements Displayable {
     }
 
     public void setDatasetModel(DatasetModel datasetModel) {
+        setChanged(true);
         this.datasetModel = datasetModel;
     }
 
@@ -148,13 +156,19 @@ public abstract class SearchConfigurationModel implements Displayable {
      *
      * @return The search executor associated with the search configuration
      */
-    public Optional<SearchExecutor> getSearchExecutor() {
-        return (searchExecutor != null) ? Optional.of(searchExecutor) : Optional.empty();
+    public Optional<SearchExecutor<?>> getSearchExecutor() {
+        if (isChanged()) {
+            setSearchExecutor(buildSearchExecutor());
+        }
+
+        return (searchExecutor != null && isValid()) ? Optional.of(searchExecutor) : Optional.empty();
     }
 
-    public void setSearchExecutor(SearchExecutor searchExecutor) {
+    public void setSearchExecutor(SearchExecutor<?> searchExecutor) {
         this.searchExecutor = searchExecutor;
     }
+
+    protected abstract SearchExecutor<?> buildSearchExecutor();
 
     public List<FunctionalPrimitive<Double, Double>> getPrimitives() {
         return primitives;
@@ -169,6 +183,7 @@ public abstract class SearchConfigurationModel implements Displayable {
     }
 
     public void setMutationRate(double mutationRate) {
+        setChanged(true);
         this.mutationRate.set(mutationRate);
     }
 
@@ -181,6 +196,43 @@ public abstract class SearchConfigurationModel implements Displayable {
     }
 
     public void setCrossoverRate(double crossoverRate) {
+        setChanged(true);
         this.crossoverRate.set(crossoverRate);
+    }
+
+    protected abstract boolean isValid();
+
+    protected boolean isChanged() {
+        return changed;
+    }
+
+    protected void setChanged(boolean changed) {
+        this.changed = changed;
+    }
+
+    public int getNumGenerations() {
+        return numGenerations.get();
+    }
+
+    public SimpleIntegerProperty numGenerationsProperty() {
+        return numGenerations;
+    }
+
+    public void setNumGenerations(int numGenerations) {
+        setChanged(true);
+        this.numGenerations.set(numGenerations);
+    }
+
+    public int getPopulationSize() {
+        return populationSize.get();
+    }
+
+    public SimpleIntegerProperty populationSizeProperty() {
+        return populationSize;
+    }
+
+    public void setPopulationSize(int populationSize) {
+        setChanged(true);
+        this.populationSize.set(populationSize);
     }
 }

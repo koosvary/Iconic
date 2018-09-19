@@ -76,23 +76,28 @@ public class StartSearchController implements Initializable {
             return;
         }
 
-        SearchConfigurationModel search = (SearchConfigurationModel) item;
+        SearchConfigurationModel configModel = (SearchConfigurationModel) item;
 
         // Make sure that all the UI elements actually exist
         if (btnSearch != null && btnStopSearch != null) {
-            // If there's no search...
-            if (!search.getSearchExecutor().isPresent()) {
-                btnSearch.setText("Start Search");
-                btnSearch.setDisable(false);
-                btnStopSearch.setDisable(true);
-                btnStopSearch.setVisible(false);
+            // If there's a search let the user start or pause it
+            if (configModel.getSearchExecutor().isPresent()) {
+                SearchExecutor<?> search = configModel.getSearchExecutor().get();
+                if (!search.isRunning()) {
+                    btnSearch.setText("Start Search");
+                    btnSearch.setDisable(false);
+                    btnStopSearch.setDisable(true);
+                } else {
+                    btnSearch.setText("Pause");
+                    btnSearch.setDisable(false);
+                    btnStopSearch.setDisable(false);
+                }
             }
-            // Otherwise...
+            // Otherwise the search configuration needs to be changed
             else {
-                btnSearch.setText("Pause");
+                btnSearch.setText("Start Search");
                 btnSearch.setDisable(true);
-                btnStopSearch.setDisable(false);
-                btnStopSearch.setVisible(true);
+                btnStopSearch.setDisable(true);
             }
         }
     }
@@ -105,48 +110,47 @@ public class StartSearchController implements Initializable {
     public void startSearch(ActionEvent actionEvent) {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
-        // Check that there's an active dataset before starting the search
-        if (item instanceof DatasetModel) {
-            // TODO(Meyer): Use the function defined to determine what data is used, and what to calculate to
-//            log.info("Function to use: " + defineSearchService.getFunction());
-
-            DatasetModel dataset = (DatasetModel) item;
-            SearchExecutor search = getSearchService().searchesProperty().get(dataset.getId());
-
-            // If there's no search already being performed on the dataset, start a new one
-            if (search == null) {
-                SearchExecutor newSearch = new SearchExecutor(dataset, new ArrayList<>());
-                getSearchService().searchesProperty().put(dataset.getId(), newSearch);
-                Thread thread = new Thread(getSearchService().searchesProperty().get(dataset.getId()));
-                thread.start();
-            }
-            // Otherwise stop the current search
-            else {
-//              TODO implement pause functionality
-                stopSearch(actionEvent);
-            }
+        if (!(item instanceof SearchConfigurationModel)) {
+            return;
         }
+
+        SearchConfigurationModel configModel = (SearchConfigurationModel) item;
+
+        // Check that there's an active dataset before starting the search
+        configModel.getSearchExecutor().ifPresent(search -> {
+            if (search.isRunning()) {
+                stopSearch(actionEvent);
+            } else {
+                Thread thread = new Thread(search);
+                thread.start();
+                searchService.searchesProperty().put(configModel.getId(), search);
+            }
+        });
+        updateWorkspace();
     }
 
     /**
-     * Stops the current search.
+     * <p>Stops the provided search</p>
      *
-     * @param actionEvent The action that triggered this event
+     * @param actionEvent The action that triggered the event
      */
     public void stopSearch(ActionEvent actionEvent) {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
-        // Check that there's an active dataset before starting the search
-        if (item instanceof DatasetModel) {
-            val dataset = (DatasetModel) item;
-            val search = getSearchService().searchesProperty().get(dataset.getId());
+        if (!(item instanceof SearchConfigurationModel)) {
+            return;
+        }
 
+        SearchConfigurationModel configModel = (SearchConfigurationModel) item;
+        configModel.getSearchExecutor().ifPresent(search -> {
             lcSearchProgress.getData().clear();
             lcSearchProgress.getData().add(search.getPlots());
 
             search.stop();
-            getSearchService().searchesProperty().remove(dataset.getId());
-        }
+            searchService.searchesProperty().remove(configModel.getId());
+        });
+        updateWorkspace();
+
     }
 
     /**

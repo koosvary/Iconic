@@ -7,6 +7,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Control;
+import javafx.scene.control.TextField;
+import org.iconic.control.LabelledSlider;
 import org.iconic.control.operator.evolutionary.CrossoverComboBox;
 import org.iconic.control.operator.evolutionary.MutatorComboBox;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
@@ -23,6 +25,18 @@ import java.util.ResourceBundle;
 public class CgpConfigurationController implements Initializable {
     private final WorkspaceService workspaceService;
 
+    @FXML
+    private TextField tfNumOutputs;
+    @FXML
+    private TextField tfNumColumns;
+    @FXML
+    private TextField tfNumRows;
+    @FXML
+    private TextField tfNumLevelsBack;
+    @FXML
+    private LabelledSlider sldrMutationRate;
+    @FXML
+    private LabelledSlider sldrCrossoverRate;
     @FXML
     MutatorComboBox<CartesianChromosome<Double>> cbMutators;
     @FXML
@@ -43,9 +57,11 @@ public class CgpConfigurationController implements Initializable {
     private void updateView() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
-        if (!(item instanceof SearchConfigurationModel)) {
+        if (!(item instanceof CgpConfigurationModel)) {
             return;
         }
+
+        CgpConfigurationModel configModel = (CgpConfigurationModel) item;
 
         @SuppressWarnings("unchecked")
         ObservableList<Mutator<CartesianChromosome<Double>, Double>> mutators =
@@ -57,9 +73,61 @@ public class CgpConfigurationController implements Initializable {
         ObservableList<Crossover<CartesianChromosome<Double>, Double>> crossovers =
                 FXCollections.emptyObservableList();
 
-
         cbMutators.setItems(mutators);
         cbCrossovers.setItems(crossovers);
+
+        tfNumOutputs.setText(String.valueOf(configModel.getNumOutputs()));
+        tfNumOutputs.textProperty().addListener((obs, oldValue, newValue) -> {
+            int i;
+            try {
+                i = Integer.parseInt(newValue);
+                configModel.setNumOutputs(i);
+            }
+            catch (NumberFormatException ex) {
+                // Do nothing
+            }
+        });
+
+        tfNumColumns.setText(String.valueOf(configModel.getNumColumns()));
+        tfNumColumns.textProperty().addListener((obs, oldValue, newValue) -> {
+            int i;
+            try {
+                i = Integer.parseInt(newValue);
+                configModel.setNumColumns(i);
+            }
+            catch (NumberFormatException ex) {
+                // Do nothing
+            }
+        });
+
+        tfNumRows.setText(String.valueOf(configModel.getNumRows()));
+        tfNumRows.textProperty().addListener((obs, oldValue, newValue) -> {
+            int i;
+            try {
+                i = Integer.parseInt(newValue);
+                configModel.setNumRows(i);
+            }
+            catch (NumberFormatException ex) {
+                // Do nothing
+            }
+        });
+
+        tfNumLevelsBack.setText(String.valueOf(configModel.getNumLevelsBack()));
+        tfNumLevelsBack.textProperty().addListener((obs, oldValue, newValue) -> {
+            int i;
+            try {
+                i = Integer.parseInt(newValue);
+                configModel.setNumLevelsBack(i);
+            }
+            catch (NumberFormatException ex) {
+                // Do nothing
+            }
+        });
+
+        sldrCrossoverRate.getSlider().valueProperty().unbind();
+        sldrMutationRate.getSlider().valueProperty().unbind();
+        sldrCrossoverRate.getSlider().valueProperty().bindBidirectional(configModel.crossoverRateProperty());
+        sldrMutationRate.getSlider().valueProperty().bindBidirectional(configModel.mutationRateProperty());
 
         disableControlIfEmpty(cbMutators, mutators);
         disableControlIfEmpty(cbCrossovers, crossovers);

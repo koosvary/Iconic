@@ -31,60 +31,41 @@ import java.util.List;
  * separate thread.</p>
  */
 @Log4j2
-public class SearchExecutor implements Runnable {
+public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
     private final XYChart.Series<Number, Number> plots;
     private final DatasetModel datasetModel;
     private final ObjectProperty<String> updates;
-    private List<FunctionalPrimitive<Double, Double>> primitives;
-    private EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> ea;
+    private final int numGenerations;
+    private EvolutionaryAlgorithm<T, Double> evolutionaryAlgorithm;
     private boolean running;
-    private List<BlockDisplay> blockDisplays;
-
 
     /**
      * Constructs a new search model with the provided dataset.
      *
      * @param datasetModel The dataset to perform the search on
      */
-    public SearchExecutor(@NonNull final DatasetModel datasetModel, List<BlockDisplay> blockDisplays) {
-
-        this.blockDisplays = blockDisplays;
+    public SearchExecutor(@NonNull final DatasetModel datasetModel, int numGenerations) {
         this.datasetModel = datasetModel;
+        this.numGenerations = getNumGenerations();
+//        ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(
+//                10,
+//                datasetModel.getDataManager().getFeatureSize() - 1
+//        );
+////
+//        List<FunctionalPrimitive<Double, Double>> enabledPrimitives = new ArrayList<>(this.blockDisplays.size());
+//        for (int i = 0; i < this.blockDisplays.size(); i++) {
+//            if (this.blockDisplays.get(i).isEnabled()) {
+//                enabledPrimitives.add(getPrimitives().get(i));
+//            }
+//        }
 
-        ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(
-                10,
-                datasetModel.getDataManager().getFeatureSize() - 1
-        );
-
-        List<FunctionalPrimitive<Double, Double>> enabledPrimitives = new ArrayList<>(this.blockDisplays.size());
-        for (int i = 0; i < this.blockDisplays.size(); i++) {
-            if (this.blockDisplays.get(i).isEnabled()) {
-                enabledPrimitives.add(getPrimitives().get(i));
-            }
-        }
-
-        supplier.addFunction(enabledPrimitives);
+//        supplier.addFunction(enabledPrimitives);
 
         this.plots = new XYChart.Series<>();
         this.updates = new SimpleObjectProperty<>(null);
         this.running = false;
-        this.ea = new GeneExpressionProgramming<>(supplier);
         this.updates.set("");
         this.plots.setName(this.datasetModel.getName());
-
-        ea.setCrossoverProbability(1.0);
-        ea.setMutationProbability(1.0);
-
-        // Add in the evolutionary operators the algorithm can use
-        ea.addCrossover(new SimpleExpressionCrossover<>());
-        ea.addMutator(new ExpressionMutator<>());
-
-        // Add in the objectives the algorithm should aim for
-        ea.addObjective(
-                new DefaultObjective<>(
-                        new MeanSquaredError(), datasetModel.getDataManager()
-                )
-        );
     }
 
     /**
@@ -93,26 +74,20 @@ public class SearchExecutor implements Runnable {
     @Override
     public void run() {
         setRunning(true);
-
-        final int populationSize = 100;
-        final int numGenerations = 500;
-
         Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
 
         while (isRunning()) {
             try {
-                ea.initialisePopulation(populationSize);
-
-                ExpressionChromosome<Double> bestCandidate = ea.getChromosomes()
+                Chromosome<Double> bestCandidate = getEvolutionaryAlgorithm().getChromosomes()
                         .stream().min(comparator).get();
 
                 setUpdates("\nStarting..." + getUpdates());
-                for (int i = 0; i < numGenerations && isRunning(); ++i) {
-                    List<ExpressionChromosome<Double>> oldPopulation = ea.getChromosomes();
-                    List<ExpressionChromosome<Double>> newPopulation = ea.evolve(oldPopulation);
-                    ea.setChromosomes(newPopulation);
+                for (int i = 0; i < getNumGenerations() && isRunning(); ++i) {
+                    List<T> oldPopulation = getEvolutionaryAlgorithm().getChromosomes();
+                    List<T> newPopulation = getEvolutionaryAlgorithm().evolve(oldPopulation);
+                    getEvolutionaryAlgorithm().setChromosomes(newPopulation);
 
-                    ExpressionChromosome<Double> newBestCandidate = ea.getChromosomes()
+                    T newBestCandidate = getEvolutionaryAlgorithm().getChromosomes()
                             .stream().min(comparator).get();
 
                     // Only add a new plot point if the fitness value improves
@@ -135,7 +110,7 @@ public class SearchExecutor implements Runnable {
                         );
                     }
 
-                    log.info(generation + candidate + fitness);
+                    log.debug(generation + candidate + fitness);
                 }
 
                 setUpdates("\nFinished!" + getUpdates());
@@ -189,7 +164,7 @@ public class SearchExecutor implements Runnable {
     }
 
     @Synchronized
-    private void setRunning(boolean running) {
+    public void setRunning(boolean running) {
         this.running = running;
     }
 
@@ -197,11 +172,15 @@ public class SearchExecutor implements Runnable {
         return plots;
     }
 
-    public List<FunctionalPrimitive<Double, Double>> getPrimitives() {
-        return primitives;
+    public EvolutionaryAlgorithm<T, Double> getEvolutionaryAlgorithm() {
+        return evolutionaryAlgorithm;
     }
 
-    public void setPrimitives(List<FunctionalPrimitive<Double, Double>> primitives) {
-        this.primitives = primitives;
+    public void setEvolutionaryAlgorithm(EvolutionaryAlgorithm<T, Double> evolutionaryAlgorithm) {
+        this.evolutionaryAlgorithm = evolutionaryAlgorithm;
+    }
+
+    public int getNumGenerations() {
+        return numGenerations;
     }
 }

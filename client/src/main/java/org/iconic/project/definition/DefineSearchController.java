@@ -2,6 +2,7 @@ package org.iconic.project.definition;
 
 import com.google.inject.Inject;
 import javafx.beans.InvalidationListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,19 +12,15 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
 import javafx.util.converter.NumberStringConverter;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.control.DatasetComboBox;
-import org.iconic.control.operator.evolutionary.MutatorComboBox;
 import org.iconic.ea.data.DataManager;
 import org.iconic.project.BlockDisplay;
 import org.iconic.project.Displayable;
 import org.iconic.project.ProjectModel;
 import org.iconic.project.ProjectService;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.dataset.DatasetService;
-import org.iconic.project.search.SearchService;
 import org.iconic.project.search.config.CgpConfigurationModel;
 import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.views.ViewService;
@@ -38,15 +35,11 @@ import java.util.stream.Collectors;
 public class DefineSearchController implements Initializable {
 
     private final ProjectService projectService;
-    private final SearchService searchService;
     private final ViewService viewService;
     private final WorkspaceService workspaceService;
 
     @FXML
     private DatasetComboBox cbDatasets;
-
-    @FXML
-    public MutatorComboBox cbMutators;
 
     @FXML
     VBox vbConfiguration;
@@ -66,12 +59,10 @@ public class DefineSearchController implements Initializable {
     @Inject
     public DefineSearchController(
             final ProjectService projectService,
-            final SearchService searchService,
             final ViewService viewService,
             final WorkspaceService workspaceService
     ) {
         this.projectService = projectService;
-        this.searchService = searchService;
         this.viewService = viewService;
         this.workspaceService = workspaceService;
         this.functionDefinitions = new HashMap<>();
@@ -111,6 +102,7 @@ public class DefineSearchController implements Initializable {
 
         blockDisplayTableView.getColumns().addAll(enabledCol, nameCol, complexityCol);
 
+        cbDatasets.valueProperty().addListener(this::updateDataset);
         updateTab();
     }
 
@@ -141,6 +133,8 @@ public class DefineSearchController implements Initializable {
         // Add all of the datasets within the project to the datasets combo box
         Optional<ProjectModel> parent = getProjectService().findParentProject(item);
 
+        cbDatasets.getSelectionModel().select(configModel.getDatasetModel());
+
         if (parent.isPresent() && parent.get().getDatasets().size() > 0) {
             ObservableList<DatasetModel> options = parent.get().getDatasets();
             cbDatasets.setItems(options);
@@ -153,6 +147,17 @@ public class DefineSearchController implements Initializable {
         }
 
         vbConfiguration.getChildren().add(node);
+    }
+
+    private void updateDataset(ObservableValue<? extends DatasetModel> observer, DatasetModel oldValue, DatasetModel newValue) {
+        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
+
+        if (!(item instanceof SearchConfigurationModel)) {
+            return;
+        }
+
+        SearchConfigurationModel configModel = (SearchConfigurationModel) item;
+        configModel.setDatasetModel(newValue);
     }
 
     private void loadFunction() {
