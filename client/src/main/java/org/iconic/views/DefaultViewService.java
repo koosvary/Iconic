@@ -1,5 +1,6 @@
 package org.iconic.views;
 
+import com.google.inject.Singleton;
 import org.iconic.View;
 
 import java.util.HashMap;
@@ -8,6 +9,7 @@ import java.util.Map;
 /**
  * {@inheritDoc}
  */
+@Singleton
 public class DefaultViewService implements ViewService {
     private final Map<String, View> views;
 
