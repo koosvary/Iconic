@@ -3,28 +3,15 @@ package org.iconic.ea.data.preprocessing;
 import java.util.List;
 
 public abstract class Preprocessor<T> {
-    private boolean enabled;
+    private TransformType transformType;
 
-    protected Preprocessor() {
-        enabled = false;
+    public abstract List<T> apply(List<T> values);
+
+    public TransformType getTransformType() {
+        return transformType;
     }
 
-    public abstract void apply(List<T> values);
-
-    /**
-     * <p>Sets whether or not this preprocessor should be used to the provided value</p>
-     *
-     * @param enabled True if the preprocessor should be used
-     */
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public boolean isEnabled() {
-        return enabled;
+    public void setTransformType(TransformType transformType) {
+        this.transformType = transformType;
     }
 }

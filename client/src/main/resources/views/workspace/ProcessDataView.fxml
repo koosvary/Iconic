@@ -46,7 +46,7 @@
                 <VBox prefWidth="${screen.visualBounds.width*0.66}" spacing="5">
                     <padding><Insets top="10" bottom="10" left="10" right="10"/></padding>
 
-                    <CheckBox fx:id="cbSmoothData" text="Smooth data points" onAction="#smoothDatasetFeature" disable="true"/>
+                    <CheckBox fx:id="cbSmoothData" text="Smooth data points" disable="true"/>
                     <VBox fx:id="vbSmoothData" visible="false" managed="false">
                         <HBox>
                             <Button text="Smooth Automatically" onAction="#smoothDatasetFeature"/>
@@ -54,7 +54,7 @@
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbHandleMissingValues" text="Handle missing values" onAction="#handleMissingValuesOfDatasetFeature" disable="true"/>
+                    <CheckBox fx:id="cbHandleMissingValues" text="Handle missing values" disable="true"/>
                     <VBox fx:id="vbHandleMissingValues" visible="false" managed="false">
                         <HBox>
                             <Label text="Method:"><padding><Insets left="25" right="10"/></padding></Label>
@@ -74,7 +74,7 @@
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbRemoveOutliers" text="Remove outliers" onAction="#removeOutliersInDatasetFeature" disable="true"/>
+                    <CheckBox fx:id="cbRemoveOutliers" text="Remove outliers" disable="true"/>
                     <VBox fx:id="vbRemoveOutliers" visible="false" managed="false">
                         <HBox>
                             <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
@@ -87,7 +87,7 @@
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbNormalise" text="Normalise scale" onAction="#normalizeDatasetFeature" disable="true"/>
+                    <CheckBox fx:id="cbNormalise" text="Normalise scale" disable="true"/>
                     <VBox fx:id="vbNormalise" visible="false" managed="false">
                         <HBox>
                             <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
@@ -100,7 +100,7 @@
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbOffset" text="Offset data" onAction="#offsetDatasetFeature" disable="true"/>
+                    <CheckBox fx:id="cbOffset" text="Offset data" disable="true"/>
                     <VBox fx:id="vbOffset" visible="false" managed="false">
                         <HBox>
                             <Label text="Offset values by:"><padding><Insets left="25" right="10"/></padding></Label>
