@@ -60,7 +60,6 @@ public class SearchModel implements Runnable {
     public SearchModel(@NonNull final DatasetModel datasetModel, ArrayList<BlockDisplay> blockDisplays) {
 
         // Get the number of features to tell the search function how many it can use
-        // TODO(Meyer): Fix the search so that it uses the right features
         int numFeatures = 0;
         List<String> headers = datasetModel.getDataManager().getSampleHeaders();
 
@@ -75,7 +74,7 @@ public class SearchModel implements Runnable {
 
         ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(
                 10,
-                numFeatures - 1
+                numFeatures
         );
 
         this.blockDisplays = new ArrayList<>(blockDisplays);
