@@ -10,11 +10,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.ea.data.DataManager;
@@ -55,6 +53,8 @@ public class ProcessDataController implements Initializable {
     private ComboBox<String> cbHandleMissingValuesOptions;
     @FXML
     private TextField tfNormaliseMin, tfNormaliseMax, tfOffsetValue;
+    @FXML
+    private Spinner<Double> spRemoveOutliersThreshold;
 
     /**
      * <p>
@@ -104,6 +104,31 @@ public class ProcessDataController implements Initializable {
         addCheckBoxChangeListener(cbOffset, vbOffset);
 
         addComboBoxChangeListener(cbHandleMissingValuesOptions, cbHandleMissingValues);
+
+        initializeSpinner();
+        addSpinnerChangeListener(spRemoveOutliersThreshold, cbRemoveOutliers);
+    }
+
+    /**
+     * Creates a ValueFactory for the spinner with the specified parameters, and also formats the spinners values to
+     * 2 decimal places.
+     */
+    private void initializeSpinner() {
+        SpinnerValueFactory.DoubleSpinnerValueFactory valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 99.99, 1.50, 0.10);
+
+        valueFactory.setConverter(new StringConverter<Double>() {
+            @Override
+            public String toString(Double value) {
+                return String.format("%.2f", value);
+            }
+
+            @Override
+            public Double fromString(String string) {
+                return Double.parseDouble(string);
+            }
+        });
+
+        spRemoveOutliersThreshold.setValueFactory(valueFactory);
     }
 
     /**
@@ -169,7 +194,30 @@ public class ProcessDataController implements Initializable {
 
                 if (dataManager.isPresent()) {
                     removeExistingPreprocessor(checkbox);
-                    handleMissingValuesOfDatasetFeature();
+
+                    int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+                    String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+
+                    convertTransformTypeToFunction(convertCheckBoxToTransformType(checkbox));
+
+                    updateModifiedText(selectedIndex, selectedHeader);
+                }
+            }
+        });
+    }
+
+    private void addSpinnerChangeListener(Spinner<Double> spinner, CheckBox checkbox) {
+        if (spinner == null) {
+            return;
+        }
+
+        spinner.valueProperty().addListener(new ChangeListener<Double>() {
+            @Override
+            public void changed(ObservableValue<? extends Double> observable, Double oldValue, Double newValue) {
+                Optional<DataManager<Double>> dataManager = getDataManager();
+
+                if (dataManager.isPresent()) {
+                    removeExistingPreprocessor(checkbox);
 
                     int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
                     String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
@@ -304,6 +352,8 @@ public class ProcessDataController implements Initializable {
 
             if (cbRemoveOutliers.isSelected() && dataManager.isPresent()) {
                 RemoveOutliers removeOutliers = new RemoveOutliers();
+
+
             }
 
             featureSelected(selectedIndex);
