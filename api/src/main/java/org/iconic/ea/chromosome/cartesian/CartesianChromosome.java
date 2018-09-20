@@ -507,6 +507,6 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
      * {@inheritDoc}
      */
     public int getSize() {
-        return -1; // TODO
+        return outputs.size() + phenome.size();
     }
 }
