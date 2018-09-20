@@ -101,6 +101,18 @@ public abstract class Chromosome<T> {
             return preorderExpression;
         }
 
+        String[] expressionSplit = preorderExpression.split("\nOutput = ");
+        if(expressionSplit.length > 2){
+            String output = "";
+            for(int i = 1; i < expressionSplit.length; i++){
+                if(i == expressionSplit.length-1)
+                    output += getExpression(expressionSplit[i], primitives, true);
+                else
+                    output += getExpression(expressionSplit[i], primitives, true) + "\ny"+ (i+1) +" = ";
+            }
+            return output;
+        }
+
         /* I don't remember adding this if block */
         if(topLevelFlag){
             if(preorderExpression.contains("Output")){
@@ -123,10 +135,13 @@ public abstract class Chromosome<T> {
         }
 
         /* this flag to determine whether or not this is the first time this method has been called, if it is, the
-         * substring is slightly different. In both cases it cuts the function and its front and back parenthesis off
+         * substring is slightly different. In both cases it cuts the function and its front and back parentheses off
          */
         if(topLevelFlag){
-            preorderExpression = preorderExpression.substring(leadingPrimitive.getSymbol().length() + 3, preorderExpression.length() - 4);
+            if(preorderExpression.endsWith("  ) "))
+                preorderExpression = preorderExpression.substring(leadingPrimitive.getSymbol().length() + 3, preorderExpression.length() - 4);
+            else
+                preorderExpression = preorderExpression.substring(leadingPrimitive.getSymbol().length() + 3, preorderExpression.length() - 3);
         }
         else{
             preorderExpression = preorderExpression.substring(leadingPrimitive.getSymbol().length() + 3, preorderExpression.length() - 2);
