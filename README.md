@@ -9,6 +9,7 @@
 #### General
 * Removed the 500 generation limit on searches
     * Searches now run until manually stopped
+* Added a method that takes a prefix expression and converts it into an infix expression
 
 #### Input Data
 * Now supports display and editing of feature header and description
