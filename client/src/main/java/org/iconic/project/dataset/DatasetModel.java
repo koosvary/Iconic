@@ -22,6 +22,20 @@ public class DatasetModel implements Displayable {
     private final SimpleStringProperty absolutePath;
     private final DataManager<Double> dataManager;
 
+
+
+    /**
+     * <p>Constructs a new DatasetModel with the provided name.</p>
+     *
+     * @param name         The name of the dataset
+     */
+    public DatasetModel(@NonNull final String name) {
+        this.name = new SimpleStringProperty(name);
+        this.absolutePath = new SimpleStringProperty("");
+        this.dataManager = new DataManager<>();
+        this.id = UUID.randomUUID();
+    }
+
     /**
      * <p>Constructs a new DatasetModel with the provided name and absolute path.</p>
      *

@@ -84,10 +84,7 @@ public class InputDataController implements Initializable {
     private void addToEmptySpreadsheetView(){
         double spreadsheetHeight = spreadsheet.getPrefHeight();
         double cellHeight = spreadsheet.getRowHeight(1);
-        System.out.println(spreadsheetHeight);
-        System.out.println(cellHeight);
         for(int i = 0; i < spreadsheetHeight; i += cellHeight){
-            System.out.println(i);
             spreadsheetAddRow();
         }
     }
@@ -322,6 +319,32 @@ public class InputDataController implements Initializable {
     }
 
     public void createDataset(ActionEvent actionEvent) throws IOException {
+        DatasetModel dataset = new DatasetModel("Dataset");
+        Displayable currentItem = getWorkspaceService().getActiveWorkspaceItem();
+        // If the current active item isn't a project create a new project
+        if ((!(currentItem instanceof ProjectModel)) && (!(currentItem instanceof DatasetModel))){
+            TextInputDialog dialog = new TextInputDialog("Project1");
+            dialog.setTitle("Create a Project");
+            dialog.setHeaderText("To load a dataset, you need to create a project.");
+            dialog.setContentText("Please enter a project name:");
+            // Create the project only if a name was provided
+            dialog.showAndWait().ifPresent(
+                    name -> {
+                        final ProjectModel project = ProjectModel.builder().name(name).build();
+                        getWorkspaceService().setActiveWorkspaceItem(project);
+                        getProjectService().getProjects().add(project);
+                    }
+            );
+        }
+        //If statement required to check if user clicked cancel in previous dialog
+        if (getWorkspaceService().getActiveWorkspaceItem() instanceof ProjectModel) {
+            ProjectModel project = (ProjectModel) getWorkspaceService().getActiveWorkspaceItem();
+            ProjectModel newProject = project.toBuilder().dataset(dataset).build();
+            getWorkspaceService().setActiveWorkspaceItem(null);
+            getProjectService().getProjects().set(getProjectService().getProjects().indexOf(project),newProject);
+            getWorkspaceService().setActiveWorkspaceItem(newProject);
+        }
+
     }
 
     public void saveDataset(ActionEvent actionEvent) throws IOException {
