@@ -84,16 +84,19 @@ public class Client {
             int currentGen = 0;
             long time = System.currentTimeMillis();
             long oldTime = System.currentTimeMillis();
+            int percent =0;
+            // Pretty-print a summarised progress indicator
+            StringBuilder out = new StringBuilder();
             // Start the evolutionary loop
-            for (int i = 0; i < generations; ++i) {
-                final int percent = intToPercent(i, generations);
+            int i;
+            for (i = 0; i < generations; ++i) {
+
 
                 population = ea.evolve(population);
                 // Retrieve the individual with the best fitness
                 bestCandidate = population.stream().min(comparator).get();
+                percent = intToPercent(i, generations);
 
-                // Pretty-print a summarised progress indicator
-                StringBuilder out = new StringBuilder();
 
                 if(i == 0)
                     time = System.currentTimeMillis()-time;
@@ -110,7 +113,17 @@ public class Client {
                 }
                 System.out.print(out);
             }
+            currentGen = i;
+            time += System.currentTimeMillis()-oldTime;
+            percent = intToPercent(i, generations);
+            out.append("\r")
+                    .append("Progress: ").append(percent).append("%")
+                    // And include the current best fitness
+                    .append("\t|\tFitness: ").append(bestCandidate.getFitness())
+                    .append("\t|\tGeneration: ").append(currentGen)
+                    .append("\t|\tTime: ").append(time + " ");
 
+            System.out.println(out);
             // When it ends print out the actual genome of the best candidate
             log.info("\n\tBest candidate: {}\n\tFitness: {}",
                     bestCandidate.toString(), bestCandidate.getFitness()

@@ -100,6 +100,8 @@ public abstract class Chromosome<T> {
         if(preorderExpression.split(" ").length==1){
             return preorderExpression;
         }
+
+        /* I don't remember adding this if block */
         if(topLevelFlag){
             if(preorderExpression.contains("Output")){
                 preorderExpression = preorderExpression.substring(10);
@@ -201,14 +203,6 @@ public abstract class Chromosome<T> {
         return tempPrim;
     }
 
-    public String simplifyExpression(String expression){
-   		expression = expression.replaceAll("\\((.*)\\)\\+\\(\\1\\)", "2*$1");
-        expression = expression.replaceAll("\\((.*)\\)\\*\\(\\1\\)", "$1^2");
-        expression = expression.replaceAll("\\((.*)\\)\\-\\((.*)\\)", "$1-$2");
-        return "";
-    }
-
-  
     /**
      * Returns the size of the chromosome.
      * @return The size of the chromosome
