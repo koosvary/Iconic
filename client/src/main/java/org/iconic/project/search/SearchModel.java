@@ -119,7 +119,6 @@ public class SearchModel implements Runnable {
         setRunning(true);
 
         final int populationSize = 5;
-        final int numGenerations = 500;
 
         Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
 
@@ -131,7 +130,7 @@ public class SearchModel implements Runnable {
                         .stream().min(comparator).get();
 
                 setUpdates("\nStarting..." + getUpdates());
-                for (int i = 0; i < numGenerations && isRunning(); ++i) {
+                for (int i = 0; isRunning(); ++i) {
                     List<ExpressionChromosome<Double>> oldPopulation = ea.getChromosomes();
                     List<ExpressionChromosome<Double>> newPopulation = ea.evolve(oldPopulation);
                     ea.setChromosomes(newPopulation);
