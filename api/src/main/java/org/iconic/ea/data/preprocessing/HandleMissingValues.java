@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class HandleMissingValues extends Preprocessor<Number> {
+public class HandleMissingValues {
 
     /**
      * The method to be used when dealing with missing values that occur within a List of values.
@@ -26,16 +26,10 @@ public class HandleMissingValues extends Preprocessor<Number> {
         NUMERICAL
     }
 
-    /** Mode we're currently using */
-    private Mode mode = Mode.ONE;
     /** Replacement value, if needed */
-    private double numericalValueReplacement = 0;
+    private static double numericalValueReplacement = 0;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void apply(List<Number> values) {
+    public static ArrayList<Number> apply(ArrayList<Number> values, Mode mode) {
         switch (mode) {
             case COPY_PREVIOUS_ROW:
                 copyPreviousRow(values);
@@ -56,6 +50,8 @@ public class HandleMissingValues extends Preprocessor<Number> {
                 replaceMissingWith(values, numericalValueReplacement);
                 break;
         }
+
+        return values;
     }
 
     // TODO - Decide how this function will work with all other feature classes
@@ -77,7 +73,7 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * </p>
      * @param values The ArrayList to perform the function on.
      */
-    private void copyPreviousRow(List<Number> values) {
+    private static ArrayList<Number> copyPreviousRow(ArrayList<Number> values) {
         // Loop through all values in the array
         for (int i = 0; i < values.size(); i++) {
             // The currentIndex is equal to i - 1 (with wrapping)
@@ -90,7 +86,7 @@ public class HandleMissingValues extends Preprocessor<Number> {
                 // If currentIndex loops all the way back to i, then the entire array is null and nothing
                 // can be done, therefore exit the method.
                 if (i == currentIndex) {
-                    return;
+                    return values;
                 }
             }
 
@@ -107,6 +103,8 @@ public class HandleMissingValues extends Preprocessor<Number> {
                 currentIndex = (values.size() + currentIndex + 1) % values.size();
             }
         }
+
+        return values;
     }
 
     /**
@@ -116,7 +114,7 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * </p>
      * @param values The ArrayList to perform the function on.
      */
-    private void mean(List<Number> values) {
+    private static ArrayList<Number> mean(ArrayList<Number> values) {
         // Create a list to track all the null value indexes
         List<Integer> indexesToReplace = new ArrayList<>();
         double mean;
@@ -139,6 +137,8 @@ public class HandleMissingValues extends Preprocessor<Number> {
         for (Integer i : indexesToReplace) {
             values.set(i, mean);
         }
+
+        return values;
     }
 
     /**
@@ -154,8 +154,8 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * </p>
      * @param values The ArrayList to perform the function on.
      */
-    private void median(List<Number> values) {
-        List<Double> doubleValues = new ArrayList<>();
+    private static ArrayList<Number> median(ArrayList<Number> values) {
+        ArrayList<Double> doubleValues = new ArrayList<>();
         double medianValue;
 
         for (Number v : values) {
@@ -183,6 +183,8 @@ public class HandleMissingValues extends Preprocessor<Number> {
                 values.set(i, medianValue);
             }
         }
+
+        return values;
     }
 
     /**
@@ -192,28 +194,14 @@ public class HandleMissingValues extends Preprocessor<Number> {
      * @param values The ArrayList to perform the function on.
      * @param replacement The replacement value to use
      */
-    private void replaceMissingWith(List<Number> values, double replacement) {
+    private static ArrayList<Number> replaceMissingWith(ArrayList<Number> values, double replacement) {
         for (int i = 0; i < values.size(); i++) {
             if (values.get(i) == null) {
                 values.set(i, replacement);
             }
         }
-    }
 
-    /**
-     * <p>Get the mode we're using</p>
-     * @return Mode
-     */
-    public Mode getMode() {
-        return mode;
-    }
-
-    /**
-     * <p>Set the mode we're using</p>
-     * @param mode Sets the method to be used when dealing with missing values.
-     */
-    public void setMode(Mode mode) {
-        this.mode = mode;
+        return values;
     }
 
     /**
@@ -229,5 +217,20 @@ public class HandleMissingValues extends Preprocessor<Number> {
      */
     public void setNumericalValueReplacement(double value) {
         this.numericalValueReplacement = value;
+    }
+
+    /**
+     * DEBUG METHOD: Can be deleted once copyPreviousRow is fixed.
+     *
+     * @param values
+     */
+    private static void printValues(ArrayList<Number> values) {
+        String valueString = "";
+
+        for (int i=0; i < values.size(); i++) {
+            valueString += values.get(i) + ", ";
+        }
+
+        System.out.println(valueString);
     }
 }
