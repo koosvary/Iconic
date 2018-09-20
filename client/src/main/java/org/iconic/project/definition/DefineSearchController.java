@@ -150,6 +150,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
             // NOTE(Meyer): Must check if not null otherwise injection will cause an NPE (it's dumb, I know)
             if (tfTargetExpression != null) {
                 tfTargetExpression.setText(functionStr);
+                dataset.get().defineFunction(functionStr);
             }
         }
     }
