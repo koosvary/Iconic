@@ -12,6 +12,8 @@ import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.ea.strategies.gep.GeneExpressionProgramming;
 import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
+import org.iconic.ea.data.FeatureClass;
+import org.iconic.ea.strategies.gep.GeneExpressionProgramming;
 import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.DefaultObjective;
@@ -57,12 +59,27 @@ public class SearchModel implements Runnable {
      */
     public SearchModel(@NonNull final DatasetModel datasetModel, ArrayList<BlockDisplay> blockDisplays) {
 
-        this.blockDisplays = new ArrayList<>(blockDisplays);
-        this.datasetModel = datasetModel;
+        // Get the number of features to tell the search function how many it can use
+        // TODO(Meyer): Fix the search so that it uses the right features
+        int numFeatures = 0;
+        List<String> headers = datasetModel.getDataManager().getSampleHeaders();
+
+        for (String header : headers) {
+            FeatureClass<Number> feature = datasetModel.getDataManager().getDataset().get(header);
+
+            if(feature.isActive())
+            {
+                numFeatures++;
+            }
+        }
+
         ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(
                 10,
-                datasetModel.getDataManager().getFeatureSize() - 1
+                numFeatures - 1
         );
+
+        this.blockDisplays = new ArrayList<>(blockDisplays);
+        this.datasetModel = datasetModel;
 
         List<FunctionalPrimitive<Double, Double>> enabledPrimitives = new ArrayList<>(this.blockDisplays.size());
         for (int i = 0; i < this.blockDisplays.size(); i++) {

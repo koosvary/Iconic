@@ -7,6 +7,8 @@ import java.util.List;
 
 public abstract class FeatureClass<T> {
     private boolean output;
+    private boolean active;
+
     private List<T> originalSamples, modifiedSamples;
 
     // A list of preprocessors that are currently applied to the feature. This list updates dynamically, meaning when
@@ -15,6 +17,7 @@ public abstract class FeatureClass<T> {
 
     protected FeatureClass(boolean output) {
         this.output = output;
+        this.active = true;
         this.originalSamples = new ArrayList<>();
         this.modifiedSamples = new ArrayList<>();
         this.preprocessors = new ArrayList<>();
@@ -103,6 +106,16 @@ public abstract class FeatureClass<T> {
 
     public void setOutput(boolean value) {
         this.output = value;
+    }
+
+    // Returns true if the feature was found in the function definition
+    public boolean isActive() {
+        return active;
+    }
+
+    // Set to true if the feature was found in the function definition
+    public void setActive(boolean value) {
+        this.active = value;
     }
 
     /**

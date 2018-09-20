@@ -2,6 +2,8 @@ package org.iconic.project.definition;
 
 import com.google.inject.Inject;
 import javafx.beans.InvalidationListener;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
@@ -54,6 +56,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        tfTargetExpression.focusedProperty().addListener(focusListener);
 
         blockDisplays = new ArrayList<>(SearchModel.getFunctionalPrimitives().length);
         for (FunctionalPrimitive primitive :
@@ -102,6 +105,23 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         }
 
         return functionStr;
+    }
+
+    public void setFunction() {
+        String functionStr = null;
+
+        Optional<DataManager<Double>> dataset = getDataManager();
+
+        if (dataset.isPresent()) {
+            // Get the ID of the dataset
+            String[] splitString = dataset.toString().split("@");
+            String datasetID = splitString[splitString.length - 1].replace("]", ""); // There's a trailing ']' from the toString
+
+            // Get the dataset, if exists
+            functionStr = tfTargetExpression.getText();
+
+            functionDefinitions.put(datasetID, functionStr);
+        }
     }
 
     private void loadFunction() {
@@ -158,4 +178,21 @@ public class DefineSearchController implements Initializable, DefineSearchServic
             return Optional.empty();
         }
     }
+
+    private ChangeListener<Boolean> focusListener = new ChangeListener<Boolean>() {
+        @Override
+        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+            if (!newValue) {
+                // Get the data from the definition field, send it to the data manager to parse
+                Optional<DataManager<Double>> dataset = getDataManager();
+
+                String functionDefinition = tfTargetExpression.getText();
+
+                if(dataset.isPresent()) {
+                    setFunction();
+                    dataset.get().defineFunction(functionDefinition);
+                }
+            }
+        }
+    };
 }
