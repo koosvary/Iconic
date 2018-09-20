@@ -115,7 +115,6 @@ public class StartSearchController implements Initializable {
 
         // Check that there's an active dataset before starting the search
         if (item instanceof DatasetModel) {
-            // TODO(Meyer): Use the function defined to determine what data is used, and what to calculate to
             log.info("Function for use: " + defineSearchService.getFunction());
 
             DatasetModel dataset = (DatasetModel) item;
