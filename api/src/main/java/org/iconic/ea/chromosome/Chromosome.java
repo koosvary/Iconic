@@ -102,7 +102,8 @@ public abstract class Chromosome<T> {
         }
         if(topLevelFlag){
             if(preorderExpression.contains("Output")){
-                preorderExpression = preorderExpression.substring(9);
+                preorderExpression = preorderExpression.substring(10);
+                return getExpression(preorderExpression, primitives, true);
             }
         }
 
@@ -198,6 +199,13 @@ public abstract class Chromosome<T> {
             }
         }
         return tempPrim;
+    }
+
+    public String simplifyExpression(String expression){
+   		expression = expression.replaceAll("\\((.*)\\)\\+\\(\\1\\)", "2*$1");
+        expression = expression.replaceAll("\\((.*)\\)\\*\\(\\1\\)", "$1^2");
+        expression = expression.replaceAll("\\((.*)\\)\\-\\((.*)\\)", "$1-$2");
+        return "";
     }
 
   
