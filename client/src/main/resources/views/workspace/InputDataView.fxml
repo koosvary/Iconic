@@ -18,28 +18,27 @@
             </image>
         </ImageView>
     </graphic>
-    <VBox>
-        <SpreadsheetView fx:id="spreadsheet" editable="true" showRowHeader="true" showColumnHeader="true"/>
-        <HBox>
-            <padding><Insets top="5" bottom="5"/></padding>
-            <Button fx:id="btnSaveDataset" text="Save Dataset to file" onAction="#saveDataset"/>
-            <Label><padding><Insets left="5" right="5"/></padding></Label>
-        </HBox>
+    <VBox fx:id="inputBox">
+        <SpreadsheetView fx:id="spreadsheet" editable="true" showRowHeader="true" showColumnHeader="true" prefHeight="${inputBox.height*0.4}"/>
+
         <padding><Insets topRightBottomLeft="5"/></padding>
         <Text GridPane.columnIndex="0">Welcome, import a dataset to get started.</Text>
 
         <HBox>
             <padding><Insets top="5" bottom="5"/></padding>
-            <Button fx:id="btnLoadDataset" text="Load Dataset" onAction="#importDataset"/>
+            <Button fx:id="btnCreateDataset" text="Create Dataset" onAction="#createDataset"/>
             <Label><padding><Insets left="5" right="5"/></padding></Label>
-            <TextField fx:id="txtDatasetFilePath" promptText="File Path" />
         </HBox>
 
         <HBox>
             <padding><Insets top="5" bottom="5"/></padding>
-            <Button fx:id="btnOutputDirectory" text="Output Directory"/>
+            <Button fx:id="btnImportDataset" text="Import Dataset" onAction="#importDataset"/>
             <Label><padding><Insets left="5" right="5"/></padding></Label>
-            <TextField fx:id="txtOutputFilePath" promptText="{Default = Dataset Directory}" />
+        </HBox>
+        <HBox>
+            <padding><Insets top="5" bottom="5"/></padding>
+            <Button fx:id="btnExportDataset" text="Export Dataset" onAction="#saveDataset"/>
+            <Label><padding><Insets left="5" right="5"/></padding></Label>
         </HBox>
     </VBox>
 </Tab>

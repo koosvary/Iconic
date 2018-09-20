@@ -107,9 +107,13 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
             for (String header : headers) {
                 FeatureClass<Number> feature = dataManager.getDataset().get(header);
 
-                row.add(
-                        (T) feature.getSampleValue(i)
-                );
+                // Add the values of the features specified in the formula
+                if(feature.isActive())
+                {
+                    row.add(
+                            (T) feature.getSampleValue(i)
+                    );
+                }
             }
 
             output.put(i, getRoot().apply(row));
@@ -228,5 +232,15 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
         clone.setGenome(genome);
 
         return clone;
+    }
+
+    /**
+     * <p>
+     * Returns the size of the Expression Chromosome.
+     * </p>
+     * @return Returns the size of the chromosome.
+     */
+    public int getSize() {
+        return root.getSize();
     }
 }

@@ -26,6 +26,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     private final int columns;
     private final int levelsBack;
     private final int maxArity;
+	List<Map<Integer, T>> results;
 
     /**
      * <p>Constructs a new cartesian chromosome with the provided number of inputs, columns, rows, and
@@ -56,7 +57,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         this.outputs = outputs;
         this.phenome = new HashMap<>();
         this.genome = genome;
-
+		results = new ArrayList<>();
         // Create a comparator for calculating the maximum arity
         final Comparator<FunctionalPrimitive<T, T>> comparator =
                 Comparator.comparing(FunctionalPrimitive::getArity);
@@ -66,11 +67,11 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
 
         if (max.isPresent()) {
             maxArity = max.get().getArity();
-        } else { // If no max value is present something has gone horribly wrong (how'd it even get here?)
-            throw new IllegalStateException(
-                    "Invalid number of primitives present in chromosome." +
-                            "There should be at least one primitive present.");
-        }
+        } else{ // If no max value is present something has gone horribly wrong (how'd it even get here?)
+			throw new IllegalStateException(
+					"Invalid number of primitives present in chromosome." +
+							"There should be at least one primitive present.");
+		}
     }
 
     /**
@@ -255,11 +256,15 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
 
             calculatedValues.add(output);
         }
-
+		results = new ArrayList<>(calculatedValues);
         return calculatedValues;
     }
 
-    /**
+	public List<Map<Integer, T>> getResults(){
+		return results;
+	}
+
+	/**
      * <p>Returns a human-readable representation of a node in this chromosome</p>
      *
      * @param node       the node to format
@@ -327,6 +332,39 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         });
 
         return outputBuilder.toString();
+    }
+
+    public String getExpression(){
+        Map<Integer, List<Integer>> nodes = getPhenome();
+        String[] expressions = new String[genome.size()+getOutputs().size()];
+        Set<Integer> keysSet = nodes.keySet();
+        Integer[] keys = keysSet.toArray(new Integer[0]);
+        List<Integer> actualNodes = null;
+        String alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        for(int i = 0; i < getInputs(); i++){
+                expressions[i] =  String.valueOf(alph.charAt(i));
+        }
+        for(int i = 0; i < getOutputs().size(); i++){
+            actualNodes = nodes.get(keys[i]);
+            for(int j = 0; j < actualNodes.size(); j++){
+                final int index = nodeToIndex(actualNodes.get(j), getInputs(), maxArity);
+                if(index < getInputs())
+                    continue;
+                final int functionGene = genome.get(index);
+                final FunctionalPrimitive<?, ?> primitive = primitives.get(functionGene);
+                final int arity = primitive.getArity();
+                if(arity == 1){
+                    final int connectionGene = genome.get(index + 1);
+                    expressions[index] = "(" + primitive.getSymbol() + "(" + expressions[nodeToIndex(connectionGene, getInputs(), maxArity)] + "))";
+                }
+                else{
+                    final int fConnectionGene = genome.get(index + 1);
+                    final int sConnectionGene = genome.get(index + 2);
+                    expressions[index] = "(" + expressions[nodeToIndex(fConnectionGene, getInputs(), maxArity)] + primitive.getSymbol() + expressions[nodeToIndex(sConnectionGene, getInputs(), maxArity)] + ")";
+                }
+            }
+        }
+        return expressions[nodeToIndex(actualNodes.get(actualNodes.size()-1), getInputs(), maxArity)];
     }
 
     /**
@@ -463,5 +501,12 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         clone.setChanged(isChanged());
 
         return clone;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public int getSize() {
+        return outputs.size() + phenome.size();
     }
 }

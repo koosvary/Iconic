@@ -27,8 +27,8 @@ public class DataManager<T> {
         try {
             importData(this.fileName);
         } catch (IOException ex) {
-             log.error("Bad File: {}", () -> fileName);
-             log.error("Exception: {}", ex);
+            log.error("Bad File: {}", () -> fileName);
+            log.error("Exception: {}", ex);
         }
     }
 
@@ -37,6 +37,14 @@ public class DataManager<T> {
 
         try{
             fileWriter = new FileWriter(fileName);
+            if(containsHeader){
+                for(int j = 0; j < featureSize-1; j ++) {
+                    fileWriter.append(String.valueOf(sampleHeaders.get(j)));
+                    fileWriter.append(",");
+                }
+                fileWriter.append(String.valueOf(sampleHeaders.get(featureSize-1)));
+                fileWriter.append(System.getProperty("line.separator"));
+            }
             for(int i = 0; i < sampleSize; i++){
                 List<Number> currentRow = getSampleRow(i);
                 for(int j = 0; j < currentRow.size()-1; j ++) {
@@ -106,7 +114,6 @@ public class DataManager<T> {
         if (containsHeader) {
             // Update the headers
             Collections.addAll(sampleHeaders, split);
-            log.error(sampleHeaders);
 
             // Read in the next line for later (needed because the `else` block already reads in the next line)
             line = getNextLineFromDataFile(sc);
@@ -115,6 +122,7 @@ public class DataManager<T> {
             for (int i = 0; i < featureSize; i++) {
                 sampleHeaders.add(intToHeader(i));
             }
+            containsHeader = true;
         }
 
         // Set the last column by default as the expected output
@@ -195,10 +203,6 @@ public class DataManager<T> {
         return name.toString();
     }
 
-    public void applyPreProcessing() {
-        dataset.forEach((key, value) -> value.applyPreProcessing());
-    }
-
     public HashMap<String, FeatureClass<Number>> getDataset() {
         return dataset;
     }
@@ -215,13 +219,21 @@ public class DataManager<T> {
         return samples;
     }
 
-    public ArrayList<Number> getSampleColumn(int column) {
-        String columnName = sampleHeaders.get(column);
+    public void addRow(List<Number> numbers) {
+        sampleSize++;
+        for(int i = 0; i < sampleHeaders.size(); i ++){
+            String header = sampleHeaders.get(i);
+            FeatureClass<Number> fc = dataset.get(header);
+            fc.addSampleValue(numbers.get(i));
+        }
+    }
 
+    public List<Number> getSampleColumn(int column) {
+        String columnName = sampleHeaders.get(column);
         return getSampleColumn(columnName);
     }
 
-    public ArrayList<Number> getSampleColumn(String columnName) {
+    public List<Number> getSampleColumn(String columnName) {
         FeatureClass<Number> featureClass = dataset.get(columnName);
 
         return featureClass.getSamples();
@@ -241,20 +253,72 @@ public class DataManager<T> {
 
     public List<String> getSampleHeaders() { return sampleHeaders; }
 
-    // Replaces all data within a header column, identified by headerIndex
-    // e.g. updating stored data after normalisation
-    public void setSampleColumn(int headerIndex, ArrayList<Number> values) {
-        for (int i = 0; i < sampleSize; i++) {
-            Number value = values.get(i);
-            dataset.get(sampleHeaders.get(headerIndex)).updateModifiedSample(i, value);
+    public boolean containsHeader() {
+        return containsHeader;
+    }
+
+    public void updateHeaderAtIndex(int index, String newHeader){
+        String oldHeader = sampleHeaders.get(index);
+        sampleHeaders.set(index,newHeader);
+        dataset.put(newHeader,dataset.remove(oldHeader));
+    }
+
+    // Reads in the function specified by user,
+    // sets the 'output' and 'active' states of the features
+    public void defineFunction(String function)
+    {
+        String outputFeaturesStr = cleanParentheses(function.split("=")[0]);
+
+        // Removes first 'f' as that's for the function definition (like in "y = f(x)")
+        String activeFeaturesStr = cleanParentheses(function.split("=")[1].replaceFirst("f", ""));
+
+        // NOTE(Meyer): This particular part may need fixing when we start doing multi-objective stuff
+        //              Assuming only one for now, even with the for loop.
+        // Get all the output features and set them to be output variables
+        String[] outputFeatures = outputFeaturesStr.split(",");
+        List<String> outputFeatureList = new ArrayList<>();
+        for (String feature : outputFeatures) {
+            outputFeatureList.add(cleanParentheses(feature));
+        }
+
+        // Get all the active features and set so they can be used in searched
+        String[] activeFeatures = activeFeaturesStr.split(",");
+        List<String> activeFeatureList = new ArrayList<>();
+        for (String feature : activeFeatures) {
+            activeFeatureList.add(cleanParentheses(feature));
+        }
+
+        for(String header : sampleHeaders)
+        {
+            FeatureClass fClass = dataset.get(header);
+            fClass.setOutput(false);
+            fClass.setActive(false);
+
+            if(outputFeatureList.contains(header))
+            {
+                fClass.setOutput(true);
+            }
+            else if(activeFeatureList.contains(header))
+            {
+                fClass.setActive(true);
+            }
         }
     }
 
-    // Resets all data within a header column, identified by headerIndex, to
-    // the original data entered by the user
-    public void resetSampleColumn(int headerIndex) {
-        for (int i=0; i < sampleSize; i++) {
-            dataset.get(sampleHeaders.get(headerIndex)).resetModifiedSample(i);
+    // Removes the encapsulating parenthesis from a string, and trims it.
+    private String cleanParentheses(String featureName)
+    {
+        // Replace the first instance of open parenthesis
+        featureName = featureName.replaceFirst("\\(", "");
+
+        // Find the last instance of closing parenthesis and split, keeping first half
+        int index = featureName.lastIndexOf(")");
+        if(index > 0) {
+            featureName = featureName.substring(0, index);
         }
+
+        featureName = featureName.trim();
+
+        return featureName;
     }
 }

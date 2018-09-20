@@ -1,24 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
-<?import javafx.collections.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.control.cell.*?>
-<?import javafx.collections.*?>
-
-<?import org.iconic.project.BlockDisplay?>
-
+<?import javafx.scene.text.Font?>
+<?import java.lang.*?>
 <Tab text="   Define Search" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="org.iconic.project.definition.DefineSearchController">
 	<graphic>
-		<ImageView fitWidth="24" fitHeight="24">
-			<image>
-				<Image url="@/images/file.png"/>
-			</image>
-		</ImageView>
+        <ImageView fitWidth="24" fitHeight="24">
+            <Image url="@/images/file.png"/>
+        </ImageView>
 	</graphic>
 	
 	<VBox>
@@ -36,34 +30,9 @@
 		
 		<HBox>
 			<padding><Insets top="25" left="20"/></padding>
-			<TableView>
-				<columns>
-					<TableColumn text="Enabled">
-						<cellValueFactory><PropertyValueFactory property="enabled"/></cellValueFactory>
-					</TableColumn>
-					<TableColumn text="Name">
-						<cellValueFactory><PropertyValueFactory property="name"/></cellValueFactory>
-					</TableColumn>
-					<TableColumn text="Complexity">
-						<cellValueFactory><PropertyValueFactory property="complexity"/></cellValueFactory>
-					</TableColumn>
-				</columns>
-				<items>
-					<FXCollections fx:factory="observableArrayList">
-						<BlockDisplay enabled="" name="+" complexity="1"/>
-						<BlockDisplay enabled="" name="-" complexity="1"/>
-						<BlockDisplay enabled="" name="/" complexity="2"/>
-						<BlockDisplay enabled="" name="*" complexity="2"/>
-						<BlockDisplay enabled="" name="Sin" complexity="3"/>
-						<BlockDisplay enabled="" name="Cos" complexity="3"/>
-						<BlockDisplay enabled="" name="Tan" complexity="4"/>
-					</FXCollections>
-				</items>
-			</TableView>
+			<TableView fx:id="blockDisplayTableView"/>
 			
 			<Label><padding><Insets left="20" right="20"/></padding></Label>
-			
-			<ListView/>
 		</HBox>
 		
 		<HBox>
