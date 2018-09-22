@@ -22,23 +22,25 @@
         <SpreadsheetView fx:id="spreadsheet" editable="true" showRowHeader="true" showColumnHeader="true" prefHeight="${inputBox.height*0.4}"/>
 
         <padding><Insets topRightBottomLeft="5"/></padding>
-        <Text GridPane.columnIndex="0">Welcome, import a dataset to get started.</Text>
+        <Text fx:id="welcomeMessage" GridPane.columnIndex="0">Welcome, create or import a dataset to get started.</Text>
 
-        <HBox>
-            <padding><Insets top="5" bottom="5"/></padding>
-            <Button fx:id="btnCreateDataset" text="Create Dataset" onAction="#createDataset"/>
-            <Label><padding><Insets left="5" right="5"/></padding></Label>
-        </HBox>
-
-        <HBox>
-            <padding><Insets top="5" bottom="5"/></padding>
-            <Button fx:id="btnImportDataset" text="Import Dataset" onAction="#importDataset"/>
-            <Label><padding><Insets left="5" right="5"/></padding></Label>
-        </HBox>
         <HBox>
             <padding><Insets top="5" bottom="5"/></padding>
             <Button fx:id="btnExportDataset" text="Export Dataset" onAction="#saveDataset"/>
             <Label><padding><Insets left="5" right="5"/></padding></Label>
         </HBox>
+
+        <HBox fx:id="createButtonHBox">
+            <padding><Insets top="5" bottom="5"/></padding>
+            <Button fx:id="btnCreateDataset" text="Create Dataset" onAction="#createDataset"/>
+            <Label><padding><Insets left="5" right="5"/></padding></Label>
+        </HBox>
+
+        <HBox fx:id="importButtonHBox">
+            <padding><Insets top="5" bottom="5"/></padding>
+            <Button fx:id="btnImportDataset" text="Import Dataset" onAction="#importDataset"/>
+            <Label><padding><Insets left="5" right="5"/></padding></Label>
+        </HBox>
+
     </VBox>
 </Tab>

@@ -13,6 +13,8 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import lombok.val;
 import org.controlsfx.control.spreadsheet.*;
@@ -41,6 +43,12 @@ public class InputDataController implements Initializable {
     private Button btnImportDataset;
     @FXML
     private Button btnExportDataset;
+    @FXML
+    private HBox createButtonHBox;
+    @FXML
+    private HBox importButtonHBox;
+    @FXML
+    private Text welcomeMessage;
 
     @Inject
     public InputDataController(final ProjectService projectService, final WorkspaceService workspaceService) {
@@ -62,12 +70,18 @@ public class InputDataController implements Initializable {
         else{
             fillSpreadsheetByRow();
             spreadsheet.setVisible(true);
+            createButtonHBox.setVisible(false);
+            importButtonHBox.setVisible(false);
+            welcomeMessage.setText("Save this dataset to a file.");
         }
     }
 
     private void clearUI() {
         spreadsheet.setGrid(new GridBase(0,0));
         spreadsheet.setVisible(false);
+        createButtonHBox.setVisible(true);
+        importButtonHBox.setVisible(true);
+        welcomeMessage.setText("Welcome, create or import a dataset to get started.");
     }
 
     @Override
@@ -84,10 +98,7 @@ public class InputDataController implements Initializable {
     private void addToEmptySpreadsheetView(){
         double spreadsheetHeight = spreadsheet.getPrefHeight();
         double cellHeight = spreadsheet.getRowHeight(1);
-        System.out.println(spreadsheetHeight);
-        System.out.println(cellHeight);
         for(int i = 0; i < spreadsheetHeight; i += cellHeight){
-            System.out.println(i);
             spreadsheetAddRow();
         }
     }
@@ -211,6 +222,7 @@ public class InputDataController implements Initializable {
         for (int column = 0; column < oldGrid.getColumnCount(); ++column) {
             String cellContents = "0.0";
             SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(newRowPos, column, 1, 1, cellContents);
+            nextCell.setStyle("-fx-background-color: #dcdcdc;");
             nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
                 try{
                     addNewRowsFromSpreadsheet(newRowPos);
@@ -232,6 +244,11 @@ public class InputDataController implements Initializable {
     private void addNewRowsFromSpreadsheet(int row){
         Optional<DataManager<Double>> dataManager = getDataManager();
         int datasetSize = dataManager.get().getSampleSize();
+        //Allowing for info row
+        datasetSize++;
+        if(dataManager.get().containsHeader()){
+            datasetSize++;
+        }
         int datasetFeatureSize = dataManager.get().getFeatureSize();
         int newDatatsetSize = row;
 
@@ -242,6 +259,7 @@ public class InputDataController implements Initializable {
             List<Number> newDataValues = new ArrayList<>();
             for (int column = 0; column < datasetFeatureSize; ++column) {
                 SpreadsheetCell oldCell = spreadsheet.getGrid().getRows().get(datasetSize).get(column);
+                oldCell.setStyle("-fx-background-color: #ffffff;");
                 String cellContents = String.valueOf(oldCell.getItem());
                 SpreadsheetCell newCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
                 int changedRow = datasetSize;
@@ -322,6 +340,44 @@ public class InputDataController implements Initializable {
     }
 
     public void createDataset(ActionEvent actionEvent) throws IOException {
+        TextInputDialog dialog = new TextInputDialog("Dataset1");
+        dialog.setTitle("Create a Dataset");
+        dialog.setHeaderText("You are about to create a new dataset.");
+        dialog.setContentText("Please enter a dataset name:");
+        // Create the project only if a name was provided
+        dialog.showAndWait().ifPresent(
+                name -> {
+                    DatasetModel dataset = new DatasetModel(name);
+                    Displayable currentItem = getWorkspaceService().getActiveWorkspaceItem();
+                    setupNewDataset(currentItem, dataset);
+                }
+        );
+    }
+
+    private void setupNewDataset(Displayable currentItem, DatasetModel dataset){
+        // If the current active item isn't a project create a new project
+        if ((!(currentItem instanceof ProjectModel)) && (!(currentItem instanceof DatasetModel))){
+            TextInputDialog dialog = new TextInputDialog("Project1");
+            dialog.setTitle("Create a Project");
+            dialog.setHeaderText("To load a dataset, you need to create a project.");
+            dialog.setContentText("Please enter a project name:");
+            // Create the project only if a name was provided
+            dialog.showAndWait().ifPresent(
+                    name -> {
+                        final ProjectModel project = ProjectModel.builder().name(name).build();
+                        getWorkspaceService().setActiveWorkspaceItem(project);
+                        getProjectService().getProjects().add(project);
+                    }
+            );
+        }
+        //If statement required to check if user clicked cancel in previous dialog
+        if (getWorkspaceService().getActiveWorkspaceItem() instanceof ProjectModel) {
+            ProjectModel project = (ProjectModel) getWorkspaceService().getActiveWorkspaceItem();
+            ProjectModel newProject = project.toBuilder().dataset(dataset).build();
+            getWorkspaceService().setActiveWorkspaceItem(null);
+            getProjectService().getProjects().set(getProjectService().getProjects().indexOf(project),newProject);
+            getWorkspaceService().setActiveWorkspaceItem(newProject);
+        }
     }
 
     public void saveDataset(ActionEvent actionEvent) throws IOException {
@@ -371,29 +427,7 @@ public class InputDataController implements Initializable {
         if (f != null) {
             DatasetModel dataset = new DatasetModel(f.getName(), f.getAbsolutePath());
             Displayable currentItem = getWorkspaceService().getActiveWorkspaceItem();
-            // If the current active item isn't a project create a new project
-            if ((!(currentItem instanceof ProjectModel)) && (!(currentItem instanceof DatasetModel))){
-                TextInputDialog dialog = new TextInputDialog("Project1");
-                dialog.setTitle("Create a Project");
-                dialog.setHeaderText("To load a dataset, you need to create a project.");
-                dialog.setContentText("Please enter a project name:");
-                // Create the project only if a name was provided
-                dialog.showAndWait().ifPresent(
-                        name -> {
-                            final ProjectModel project = ProjectModel.builder().name(name).build();
-                            getWorkspaceService().setActiveWorkspaceItem(project);
-                            getProjectService().getProjects().add(project);
-                        }
-                );
-            }
-            //If statement required to check if user clicked cancel in previous dialog
-            if (getWorkspaceService().getActiveWorkspaceItem() instanceof ProjectModel) {
-                ProjectModel project = (ProjectModel) getWorkspaceService().getActiveWorkspaceItem();
-                ProjectModel newProject = project.toBuilder().dataset(dataset).build();
-                getWorkspaceService().setActiveWorkspaceItem(null);
-                getProjectService().getProjects().set(getProjectService().getProjects().indexOf(project),newProject);
-                getWorkspaceService().setActiveWorkspaceItem(newProject);
-            }
+            setupNewDataset(currentItem, dataset);
             //TODO If a project is not highlighted get the project associated with the current view
         }
     }

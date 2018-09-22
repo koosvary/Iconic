@@ -19,6 +19,12 @@ public class DataManager<T> {
     private int sampleSize;
     private boolean containsHeader = false;
 
+    public DataManager(){
+        expectedOutputHeaders = new ArrayList<>();
+        sampleHeaders = new ArrayList<>();
+        createNewDataset();
+    }
+
     public DataManager(String fileName) {
         this.fileName = fileName;
         expectedOutputHeaders = new ArrayList<>();
@@ -166,6 +172,37 @@ public class DataManager<T> {
 
         sc.close();
         // log.info("Successfully Imported Dataset");
+    }
+
+    private void createNewDataset(){
+        sampleSize = 0;
+        featureSize = 26;
+        dataset = new HashMap<>();
+
+        // Generate all the header names such as: A, B, C, ..., Z, AA, BB, etc
+        for (int i = 0; i < featureSize; i++) {
+            sampleHeaders.add(intToHeader(i));
+        }
+        containsHeader = true;
+
+        // Set the last column by default as the expected output
+        expectedOutputHeaders.add(sampleHeaders.get(featureSize - 1));
+
+        // Create a list of all features
+        ArrayList<FeatureClass<Number>> featureClasses = new ArrayList<>(featureSize);
+
+        for (String aSampleHeader : sampleHeaders) {
+            if (expectedOutputHeaders.contains(aSampleHeader)) {
+                featureClasses.add(new NumericFeatureClass(true));
+            } else {
+                featureClasses.add(new NumericFeatureClass(false));
+            }
+        }
+
+        // Add all the feature classes to the map
+        for (int i = 0; i < featureSize; i++) {
+            dataset.put(sampleHeaders.get(i), featureClasses.get(i));
+        }
     }
 
     private String getNextLineFromDataFile(Scanner sc) {
