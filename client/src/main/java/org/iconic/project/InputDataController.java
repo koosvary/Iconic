@@ -241,7 +241,7 @@ public class InputDataController implements Initializable {
 
         final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
         for (int column = 0; column < oldGrid.getColumnCount(); ++column) {
-            String cellContents = "0.0";
+            String cellContents = "";
             SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(newRowPos, column, 1, 1, cellContents);
             nextCell.setStyle("-fx-background-color: #dcdcdc;");
             nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
@@ -282,10 +282,13 @@ public class InputDataController implements Initializable {
                 SpreadsheetCell oldCell = spreadsheet.getGrid().getRows().get(datasetSize).get(column);
                 oldCell.setStyle("-fx-background-color: #ffffff;");
                 String cellContents = String.valueOf(oldCell.getItem());
-                SpreadsheetCell newCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
-                int changedRow = datasetSize;
-                int changedColumn = column;
-                addChangeListenerToCell(newCell,changedRow,changedColumn);
+                if(cellContents.isEmpty()){
+                    cellContents = "0.0";
+                }
+                SpreadsheetCell newCell = SpreadsheetCellType.STRING.createCell(datasetSize, column, 1, 1, cellContents);
+                //Minus two accounting for header and description
+                int changedRow = datasetSize - 2;
+                addChangeListenerToCell(newCell,changedRow, column);
                 spreadsheet.getGrid().getRows().get(datasetSize).set(column,newCell);
                 newDataValues.add(Double.parseDouble(cellContents));
             }
