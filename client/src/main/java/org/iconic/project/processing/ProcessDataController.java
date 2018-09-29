@@ -351,9 +351,12 @@ public class ProcessDataController implements Initializable {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
             if (cbRemoveOutliers.isSelected() && dataManager.isPresent()) {
+                double threshold = spRemoveOutliersThreshold.getValue();
+
                 RemoveOutliers removeOutliers = new RemoveOutliers();
+                removeOutliers.setThreshold(threshold);
 
-
+                addNewPreprocessor(dataManager.get().getSampleHeaders().get(selectedIndex), removeOutliers);
             }
 
             featureSelected(selectedIndex);
