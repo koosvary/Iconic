@@ -56,6 +56,8 @@ public class InputDataController implements Initializable {
     private final ProjectService projectService;
     private final WorkspaceService workspaceService;
 
+    private ObservableList<String> rowHeaders = FXCollections.observableArrayList();
+
     @FXML
     private SpreadsheetView spreadsheet;
     @FXML
@@ -100,6 +102,7 @@ public class InputDataController implements Initializable {
     private void clearUI() {
         spreadsheet.setGrid(new GridBase(0,0));
         spreadsheet.setVisible(false);
+        rowHeaders.clear();
         createButtonHBox.setVisible(true);
         importButtonHBox.setVisible(true);
         welcomeMessage.setText("Welcome, create or import a dataset to get started.");
@@ -136,7 +139,7 @@ public class InputDataController implements Initializable {
             grid = new GridBase(rowCount+1, columnCount);
         }
         ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
-        ObservableList<String> rowHeaders = FXCollections.observableArrayList();
+        rowHeaders = FXCollections.observableArrayList();
         int row = 0;
 
         //Creates a row above the data for adding a column description
@@ -236,7 +239,6 @@ public class InputDataController implements Initializable {
         Grid oldGrid = spreadsheet.getGrid();
 
         int newRowPos = oldGrid.getRowCount();
-        ObservableList<String> rowHeaders = oldGrid.getRowHeaders();
         ObservableList<ObservableList<SpreadsheetCell>> rows = oldGrid.getRows();
 
         final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
@@ -256,7 +258,8 @@ public class InputDataController implements Initializable {
         }
         // Adds the new row to the rows set
         rows.add(list);
-        rowHeaders.add(String.valueOf(newRowPos+1));
+        //Minus 1 to account for info and name row
+        rowHeaders.add(String.valueOf(newRowPos-1));
         // Updates the Grid rows
         oldGrid.getRowHeaders().setAll(rowHeaders);
         spreadsheet.setGrid(oldGrid);
