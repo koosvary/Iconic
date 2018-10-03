@@ -195,6 +195,17 @@ public class DataManager<T> {
         // log.info("Successfully Imported Dataset");
     }
 
+    public void addNewFeature(String sampleHeader, List<Number> feature){
+        sampleHeaders.add(sampleHeader);
+        expectedOutputHeaders.add(sampleHeader);
+        FeatureClass<Number> featureClass = new NumericFeatureClass(true);
+        for (Number number : feature) {
+            featureClass.addSampleValue(number);
+        }
+        dataset.put(sampleHeader,featureClass);
+        featureSize++;
+    }
+
     private void createNewDataset(){
         sampleSize = 0;
         featureSize = 26;
