@@ -30,10 +30,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
@@ -321,9 +318,13 @@ public class InputDataController implements Initializable {
             //When a value is added to the new cell add the rows up to and including the row of this cell
             nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
                 try{
+                    //Check that entered value is a number
+                    Double.parseDouble(String.valueOf(newValue));
                     addNewRowsFromSpreadsheet(newRowPos, finalColumn);
                 }catch (Exception e) {
-                    nextCell.setItem(oldValue);
+                    if(!newValue.equals("")) {
+                        nextCell.setItem(oldValue);
+                    }
                 }
             });
             list.add(nextCell);
@@ -382,9 +383,13 @@ public class InputDataController implements Initializable {
             //When a value is added to this new cell, add the columns up to and including the column of this cell
             nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
                 try{
+                    //Check that entered value is a number
+                    Double.parseDouble(String.valueOf(newValue));
                     addNewColumnsFromSpreadsheet(finalRow, newColumnPos);
                 }catch (Exception e) {
-                    nextCell.setItem(oldValue);
+                    if(!newValue.equals("")) {
+                        nextCell.setItem(oldValue);
+                    }
                 }
             });
             rows.get(row).add(nextCell);
