@@ -30,14 +30,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollBar;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
-import lombok.val;
 import org.controlsfx.control.spreadsheet.*;
 import org.iconic.ea.data.DataManager;
 import org.iconic.project.dataset.DatasetModel;
@@ -55,6 +51,9 @@ import java.util.ResourceBundle;
 public class InputDataController implements Initializable {
     private final ProjectService projectService;
     private final WorkspaceService workspaceService;
+
+    private ObservableList<String> rowHeaders = FXCollections.observableArrayList();
+    private String infoPlaceholder = "Enter variable description here.";
 
     @FXML
     private SpreadsheetView spreadsheet;
@@ -81,8 +80,12 @@ public class InputDataController implements Initializable {
         getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedListener);
     }
 
+    /**
+     * Changes what is shown to the user according to the active workspace item. For example shows the current
+     * dataset if that is the active item.
+     */
     private void updateWorkspace() {
-        val item = getWorkspaceService().getActiveWorkspaceItem();
+        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
         // If no dataset is selected clear the UI
         if (!(item instanceof DatasetModel)) {
@@ -97,9 +100,13 @@ public class InputDataController implements Initializable {
         }
     }
 
+    /**
+     * Hides the spreadsheet and export spreadsheet button to show what would be classified as the home page.
+     */
     private void clearUI() {
         spreadsheet.setGrid(new GridBase(0,0));
         spreadsheet.setVisible(false);
+        rowHeaders.clear();
         createButtonHBox.setVisible(true);
         importButtonHBox.setVisible(true);
         welcomeMessage.setText("Welcome, create or import a dataset to get started.");
@@ -115,7 +122,12 @@ public class InputDataController implements Initializable {
         updateWorkspace();
     }
 
-    //This requires prefHeight of spreadsheet to be set
+    /**
+     * Adds empty buffer rows to a small or empty dataset. The number of rows added is calculated according to the
+     * height of the spreadsheetview.
+     *
+     * This method requires prefHeight of spreadsheet to be set
+     */
     private void addToEmptySpreadsheetView(){
         double spreadsheetHeight = spreadsheet.getPrefHeight();
         double cellHeight = spreadsheet.getRowHeight(1);
@@ -124,33 +136,43 @@ public class InputDataController implements Initializable {
         }
     }
 
+    /**
+     * Reads the current dataset selected within the project and fills the spreadsheet row by row
+     */
     private void fillSpreadsheetByRow(){
+        //Retrieves the dataset and its size
         Optional<DataManager<Double>> dataManager = getDataManager();
-        int rowCount = dataManager.get().getSampleSize();
-        int columnCount = dataManager.get().getFeatureSize();
+        int datasetRowCount = dataManager.get().getSampleSize();
+        int datasetColumnCount = dataManager.get().getFeatureSize();
+
+        //A grid is set up using the width of the current dataset
         GridBase grid;
         if(dataManager.get().containsHeader()){
-            grid = new GridBase(rowCount+2, columnCount);
+            grid = new GridBase(datasetRowCount+2, datasetColumnCount);
         }
         else{
-            grid = new GridBase(rowCount+1, columnCount);
+            grid = new GridBase(datasetRowCount+1, datasetColumnCount);
         }
+
+        //The rows variable stores the values of the dataset as spreadsheet cells
         ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
-        ObservableList<String> rowHeaders = FXCollections.observableArrayList();
-        int row = 0;
+        //This list contains the row headers so that the number starts after the info and header rows
+        rowHeaders = FXCollections.observableArrayList();
+        //Keeps track of the current row of the spreadsheet
+        int spreadsheetRow = 0;
 
         //Creates a row above the data for adding a column description
         ObservableList<SpreadsheetCell> infoList = FXCollections.observableArrayList();
-        for (int column = 0; column < columnCount; ++column) {
-            String cellContents = "Enter variable description here.";
-            SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
+        for (int column = 0; column < datasetColumnCount; ++column) {
+            String cellContents = infoPlaceholder;
+            SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(spreadsheetRow, column, 1, 1, cellContents);
             int finalColumn = column;
+            //If the description is changed update it in the dataset
             nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
                 try{
                     String newHeader = String.valueOf(newValue);
                     updateVariableDescriptions(finalColumn,newHeader);
                 }catch (Exception e) {
-                    //handle exception here
                     nextCell.setItem(oldValue);
                 }
             });
@@ -158,20 +180,21 @@ public class InputDataController implements Initializable {
         }
         rows.add(infoList);
         rowHeaders.add("info");
-        row++;
+        spreadsheetRow++;
 
+        //If the datset has headers they are added to the spreadsheet before the data
         if(dataManager.get().containsHeader()){
             final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
-            for (int column = 0; column < columnCount; ++column) {
+            for (int column = 0; column < datasetColumnCount; ++column) {
                 String cellContents = String.valueOf(dataManager.get().getSampleHeaders().get(column));
-                SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
+                SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(spreadsheetRow, column, 1, 1, cellContents);
                 int finalColumn = column;
+                //If the header is changed update it in the dataset
                 nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
                     try{
                         String newHeader = String.valueOf(newValue);
                         updateProjectHeaders(finalColumn,newHeader);
                     }catch (Exception e) {
-                        //handle exception here
                         nextCell.setItem(oldValue);
                     }
                 });
@@ -179,31 +202,42 @@ public class InputDataController implements Initializable {
             }
             rows.add(list);
             rowHeaders.add("name");
-            row++;
+            spreadsheetRow++;
         }
-        for(int cellRow = 0; cellRow < dataManager.get().getSampleSize(); cellRow++){
+
+        //For each row in the dataset add it to the spreadsheet below the info and header rows
+        for(int datasetRow = 0; datasetRow < datasetRowCount; datasetRow++){
             final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
             for (int column = 0; column < grid.getColumnCount(); ++column) {
-                String cellContents = String.valueOf(dataManager.get().getSampleRow(cellRow).get(column));
-                SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
-                int changedRow = cellRow;
-                int changedColumn = column;
-                addChangeListenerToCell(nextCell,changedRow,changedColumn);
+                String cellContents = String.valueOf(dataManager.get().getSampleRow(datasetRow).get(column));
+                //Adds the cell at spreadsheetRow (below the last row added)
+                SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(spreadsheetRow, column, 1, 1, cellContents);
+                //If the value is changed in the spreadsheet the dataset is updated
+                addChangeListenerToCell(nextCell, datasetRow, column);
                 list.add(nextCell);
             }
             rows.add(list);
-            rowHeaders.add(String.valueOf(cellRow+1));
-            row++;
+            rowHeaders.add(String.valueOf(datasetRow+1));
+            spreadsheetRow++;
         }
+        //Adds the spreadsheet cells to the grid
         grid.setRows(rows);
         grid.getRowHeaders().setAll(rowHeaders);
+        //Add the grid to the spreadsheet view
         spreadsheet.setGrid(grid);
         spreadsheet.setRowHeaderWidth(50);
+        //Add buffer rows in case of small or empty dataset
         addToEmptySpreadsheetView();
-        ScrollBar bar = getVerticalScrollbar(spreadsheet);
-        bar.valueProperty().addListener(this::scrolled);
+        //Get the Vertical and Horizontal Scroll bars and add new rows and columns when they reach their respective ends
+        ScrollBar verticalScrollbar = getVerticalScrollbar(spreadsheet);
+        verticalScrollbar.valueProperty().addListener(this::verticalScrolled);
+        ScrollBar horizontalScrollbar = getHorizontalScrollBar(spreadsheet);
+        horizontalScrollbar.valueProperty().addListener(this::horizontalScrolled);
     }
 
+    /**
+     * Returns the Vertical Scroll Bar for the given Spreadsheetview
+     */
     private ScrollBar getVerticalScrollbar(SpreadsheetView table) {
         ScrollBar result = null;
         for (Node n : table.lookupAll(".scroll-bar")) {
@@ -217,8 +251,27 @@ public class InputDataController implements Initializable {
         return result;
     }
 
+    /**
+     * Returns the Horizontal Scroll Bar for the given Spreadsheetview
+     */
+    private ScrollBar getHorizontalScrollBar(SpreadsheetView table) {
+        ScrollBar result = null;
+        for (Node n : table.lookupAll(".scroll-bar")) {
+            if (n instanceof ScrollBar) {
+                ScrollBar bar = (ScrollBar) n;
+                if (bar.getOrientation().equals(Orientation.HORIZONTAL)) {
+                    result = bar;
+                }
+            }
+        }
+        return result;
+    }
 
-    private void scrolled(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+    /**
+     *     Adds a new row to the spreadsheet when the vertical scroll bar is at the bottom of the table
+     *     Once a new row is added the scroll bar is moved up slightly to avoid an infinite loop
+     */
+    private void verticalScrolled(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
         double value = newValue.doubleValue();
         ScrollBar bar = getVerticalScrollbar(spreadsheet);
         //If the scroll bar is at the bottom add a new row
@@ -230,77 +283,210 @@ public class InputDataController implements Initializable {
     }
 
     /**
+     *     Adds a new column to the spreadsheet when the horizontal scroll bar is at the bottom of the table
+     *     Once a new column is added the scroll bar is moved left slightly to avoid an infinite loop
+     */
+    private void horizontalScrolled(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+        double value = newValue.doubleValue();
+        ScrollBar bar = getHorizontalScrollBar(spreadsheet);
+        //If the scroll bar is at the bottom add a new row
+        if (value == bar.getMax() && value != bar.getMin()) {
+            double targetValue = value * spreadsheet.getGrid().getColumnCount();
+            spreadsheetAddColumn();
+            bar.setValue(targetValue / spreadsheet.getGrid().getColumnCount());
+        }
+    }
+
+    /**
      * Adds a new row to a given SpreadsheetView's Grid on runtime, preserving all it's cells values.
      */
     private void spreadsheetAddRow() {
         Grid oldGrid = spreadsheet.getGrid();
 
+        //The row index where the new row will be added to the spreadsheet
         int newRowPos = oldGrid.getRowCount();
-        ObservableList<String> rowHeaders = oldGrid.getRowHeaders();
         ObservableList<ObservableList<SpreadsheetCell>> rows = oldGrid.getRows();
 
         final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
+        //Adds an empty cell to each new row
         for (int column = 0; column < oldGrid.getColumnCount(); ++column) {
-            String cellContents = "0.0";
+            String cellContents = "";
             SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(newRowPos, column, 1, 1, cellContents);
+            //Set unused cell to be grey
             nextCell.setStyle("-fx-background-color: #dcdcdc;");
+            int finalColumn = column;
+            //When a value is added to the new cell add the rows up to and including the row of this cell
             nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
                 try{
-                    addNewRowsFromSpreadsheet(newRowPos);
+                    //Check that entered value is a number
+                    Double.parseDouble(String.valueOf(newValue));
+                    addNewRowsFromSpreadsheet(newRowPos, finalColumn);
                 }catch (Exception e) {
-                    //handle exception here
-                    nextCell.setItem(oldValue);
+                    if(!newValue.equals("")) {
+                        nextCell.setItem(oldValue);
+                    }
                 }
             });
             list.add(nextCell);
         }
         // Adds the new row to the rows set
         rows.add(list);
-        rowHeaders.add(String.valueOf(newRowPos+1));
+        //Minus 1 to account for info and name row
+        rowHeaders.add(String.valueOf(newRowPos-1));
         // Updates the Grid rows
         oldGrid.getRowHeaders().setAll(rowHeaders);
         spreadsheet.setGrid(oldGrid);
     }
 
-    private void addNewRowsFromSpreadsheet(int row){
+    /**
+     * Adds a new column to a given SpreadsheetView's Grid on runtime, preserving all it's cells values.
+     */
+    private void spreadsheetAddColumn() {
+        Grid oldGrid = spreadsheet.getGrid();
+        //The column index where the new column will be added
+        int newColumnPos = oldGrid.getColumnCount();
+        ObservableList<ObservableList<SpreadsheetCell>> rows = oldGrid.getRows();
+
+        //Create and adds the new column description cell with an appropriate change listener
+        SpreadsheetCell infoCell = SpreadsheetCellType.STRING.createCell(0, newColumnPos, 1, 1, infoPlaceholder);
+        infoCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+            try{
+                String newHeader = String.valueOf(newValue);
+                addNewColumnsFromSpreadsheet(0,newColumnPos);
+                updateVariableDescriptions(newColumnPos,newHeader);
+            }catch (Exception e) {
+                infoCell.setItem(oldValue);
+            }
+        });
+        rows.get(0).add(infoCell);
+
+        //Create and adds the new column name cell with an appropriate change listener
+        SpreadsheetCell headerCell = SpreadsheetCellType.STRING.createCell(1, newColumnPos, 1, 1, getDataManager().get().intToHeader(newColumnPos));
+        headerCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+            try{
+                String newHeader = String.valueOf(newValue);
+                addNewColumnsFromSpreadsheet(1,newColumnPos);
+                updateProjectHeaders(newColumnPos,newHeader);
+            }catch (Exception e) {
+                headerCell.setItem(oldValue);
+            }
+        });
+        rows.get(1).add(headerCell);
+
+        //Adds an empty cell to each new row, this loop starts at 2 to account for the previous two cells already being added
+        for (int row = 2; row < rows.size(); ++row) {
+            String cellContents = "";
+            SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(row, newColumnPos, 1, 1, cellContents);
+            //Set unused cell to be grey
+            nextCell.setStyle("-fx-background-color: #dcdcdc;");
+            int finalRow = row;
+            //When a value is added to this new cell, add the columns up to and including the column of this cell
+            nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+                try{
+                    //Check that entered value is a number
+                    Double.parseDouble(String.valueOf(newValue));
+                    addNewColumnsFromSpreadsheet(finalRow, newColumnPos);
+                }catch (Exception e) {
+                    if(!newValue.equals("")) {
+                        nextCell.setItem(oldValue);
+                    }
+                }
+            });
+            rows.get(row).add(nextCell);
+        }
+        //Create a new grid a column wider than the current grid
+        //This needs to be done as there is no method to add a new column to a grid base
+        Grid newGrid = new GridBase(rows.size(),newColumnPos+1);
+        newGrid.setRows(rows);
+        newGrid.getRowHeaders().setAll(rowHeaders);
+        //Change the existing grid to the new wider grid
+        spreadsheet.setGrid(newGrid);
+        spreadsheet.setRowHeaderWidth(50);
+    }
+
+    /**
+     * Adds the new rows of the spreadsheet from the end of the current dataset to the row given as
+     * a parameter. Any blank cells are changed to the value 0.0
+     */
+    private void addNewRowsFromSpreadsheet(int finalNewRowPos, int newCellCol){
         Optional<DataManager<Double>> dataManager = getDataManager();
-        int datasetSize = dataManager.get().getSampleSize();
+        int currentNewRowPos = dataManager.get().getSampleSize();
         //Allowing for info row
-        datasetSize++;
+        currentNewRowPos++;
         if(dataManager.get().containsHeader()){
-            datasetSize++;
+            currentNewRowPos++;
         }
         int datasetFeatureSize = dataManager.get().getFeatureSize();
-        int newDatatsetSize = row;
 
-
-        ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
-
-        while(datasetSize<=newDatatsetSize){
+        while(currentNewRowPos <= finalNewRowPos){
             List<Number> newDataValues = new ArrayList<>();
             for (int column = 0; column < datasetFeatureSize; ++column) {
-                SpreadsheetCell oldCell = spreadsheet.getGrid().getRows().get(datasetSize).get(column);
-                oldCell.setStyle("-fx-background-color: #ffffff;");
-                String cellContents = String.valueOf(oldCell.getItem());
-                SpreadsheetCell newCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
-                int changedRow = datasetSize;
-                int changedColumn = column;
-                addChangeListenerToCell(newCell,changedRow,changedColumn);
-                spreadsheet.getGrid().getRows().get(datasetSize).set(column,newCell);
-                newDataValues.add(Double.parseDouble(cellContents));
+                createNewCell(newDataValues, currentNewRowPos, column);
             }
             addRowToDataset(newDataValues);
-            datasetSize++;
+            currentNewRowPos++;
+        }
+        if(newCellCol > datasetFeatureSize){
+            addNewColumnsFromSpreadsheet(finalNewRowPos, newCellCol);
         }
     }
 
+    /**
+     * Adds the new column of the spreadsheet from the end of the current dataset to the column given as
+     * a parameter. Any blank cells are changed to the value 0.0
+     */
+    private void addNewColumnsFromSpreadsheet(int newCellRow, int finalNewColPos){
+        Optional<DataManager<Double>> dataManager = getDataManager();
+        int currentNewColPos = dataManager.get().getFeatureSize();
+        //Plus 2 accounting for info and header row
+        int currentSpreadSheetRowCount = dataManager.get().getSampleSize() + 2;
+
+        //For each new column
+        while(currentNewColPos <= finalNewColPos){
+            List<Number> newDataValues = new ArrayList<>();
+            for (int currentRow = 2; currentRow < currentSpreadSheetRowCount; ++currentRow) {
+                createNewCell(newDataValues, currentRow, currentNewColPos);
+            }
+            addColumnToDataset(spreadsheet.getGrid().getRows().get(1).get(currentNewColPos).getText(),newDataValues);
+            currentNewColPos++;
+        }
+        if(newCellRow > currentSpreadSheetRowCount){
+            addNewRowsFromSpreadsheet(newCellRow, finalNewColPos);
+        }
+    }
+
+    /**
+     * Given a list a new cells (row or column) each oldCell which was not included in the dataset
+     * is changed to hold the value 0.0 before being added to the dataset. Additionally, the colour
+     * is changed to white and a change listener is added to ensure the dataset is updated when this
+     * cells contents are changed.
+     */
+    private void createNewCell(List<Number> newDataValues, int row, int column){
+        SpreadsheetCell oldCell = spreadsheet.getGrid().getRows().get(row).get(column);
+        //Set used cell to be white
+        oldCell.setStyle("-fx-background-color: #ffffff;");
+        String cellContents = String.valueOf(oldCell.getItem());
+        if(cellContents.isEmpty()){
+            cellContents = "0.0";
+        }
+        SpreadsheetCell newCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
+        //Minus two accounting for header and description
+        int changedRow = row - 2;
+        addChangeListenerToCell(newCell,changedRow, column);
+        spreadsheet.getGrid().getRows().get(row).set(column,newCell);
+        newDataValues.add(Double.parseDouble(cellContents));
+    }
+
+    /**
+     * Adds a change listener to the given cell that will ensure the dataset is
+     * updated when the cell is changed.
+     */
     private void addChangeListenerToCell(SpreadsheetCell spreadsheetCell, int row, int column){
         spreadsheetCell.itemProperty().addListener((observable, oldValue, newValue) -> {
             try{
                 Number newNumber = Double.parseDouble(String.valueOf(newValue));
                 updateProjectDataset(row,column,newNumber);
             }catch (Exception e) {
-                //handle exception here
                 spreadsheetCell.setItem(oldValue);
             }
         });
@@ -309,6 +495,11 @@ public class InputDataController implements Initializable {
     private void addRowToDataset(List<Number> newNumbers){
         Optional<DataManager<Double>> dataManager = getDataManager();
         dataManager.get().addRow(newNumbers);
+    }
+
+    private void addColumnToDataset(String header, List<Number> newNumbers){
+        Optional<DataManager<Double>> dataManager = getDataManager();
+        dataManager.get().addNewFeature(header, newNumbers);
     }
 
     private void updateProjectDataset(int row, int column, Number newValue){
@@ -327,6 +518,9 @@ public class InputDataController implements Initializable {
         //dataManager.get().updateDescriptionAtIndex(column,newValue);
     }
 
+    /**
+     *Returns the current datamanager if present
+     */
     private Optional<DataManager<Double>> getDataManager() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
@@ -375,6 +569,12 @@ public class InputDataController implements Initializable {
         );
     }
 
+    /**
+     * Takes a dataset and adds it to a project. If the current displayable item is
+     * a project the new dataset is added to this project. Otherwise a new project
+     * is created and the dataset is added to this new project.
+     *
+     */
     private void setupNewDataset(Displayable currentItem, DatasetModel dataset){
         // If the current active item isn't a project create a new project
         if ((!(currentItem instanceof ProjectModel)) && (!(currentItem instanceof DatasetModel))){
@@ -391,16 +591,23 @@ public class InputDataController implements Initializable {
                     }
             );
         }
-        //If statement required to check if user clicked cancel in previous dialog
+        //This if statement is required to check if user clicked cancel in previous dialog
         if (getWorkspaceService().getActiveWorkspaceItem() instanceof ProjectModel) {
             ProjectModel project = (ProjectModel) getWorkspaceService().getActiveWorkspaceItem();
             ProjectModel newProject = project.toBuilder().dataset(dataset).build();
             getWorkspaceService().setActiveWorkspaceItem(null);
+            //Keeps the project list in the same order
             getProjectService().getProjects().set(getProjectService().getProjects().indexOf(project),newProject);
             getWorkspaceService().setActiveWorkspaceItem(newProject);
         }
     }
 
+    /**
+     * Opens a file dialog to save the current dataset as a text file or csv
+     *
+     * @param actionEvent
+     * @throws IOException
+     */
     public void saveDataset(ActionEvent actionEvent) throws IOException {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Dataset");
@@ -436,7 +643,7 @@ public class InputDataController implements Initializable {
         }
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Import Dataset");
-        // Show only .txt and .csv files
+        // Show only .txt and .csv files as file types
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Text files", "*.txt", "*.csv")
         );
@@ -444,12 +651,11 @@ public class InputDataController implements Initializable {
         // Show the file dialog over the parent window
         File f = fileChooser.showOpenDialog(spreadsheet.getScene().getWindow());
 
-        // If the user selected a file add it to the current active item as a dataset
+        // If the user selected a file add it to the current active item as a dataset, ie. if the did not click cancel
         if (f != null) {
             DatasetModel dataset = new DatasetModel(f.getName(), f.getAbsolutePath());
             Displayable currentItem = getWorkspaceService().getActiveWorkspaceItem();
             setupNewDataset(currentItem, dataset);
-            //TODO If a project is not highlighted get the project associated with the current view
         }
     }
 }

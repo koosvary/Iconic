@@ -124,23 +124,61 @@ public class DataManager<T> {
         // Get the first line from the datafile
         String line = getNextLineFromDataFile(sc);
 
+        //Feature size is set as number of commas as line.split(",")
+        //does not account for trailing commas
+        featureSize = 0;
+        if (line != null) {
+            for(int i = 0; i < line.length(); i++) {
+                if(line.charAt(i) == ',') featureSize++;
+            }
+            //Plus 1 for last value in line
+            featureSize++;
+        }
+
         // Assume the delimiter is a comma, and set feature size
         String[] split = line.split(",");
-        featureSize = split.length;
 
         // Try to determine if the datafile contains a header row
         for (String header : split) {
             try {
                 Double.parseDouble(header);
             } catch (NumberFormatException e) {
-                containsHeader = true;
-                break;
+                //Check that it is not a missing number
+                if(!header.trim().isEmpty()) {
+                    containsHeader = true;
+                    break;
+                }
             }
         }
 
         if (containsHeader) {
-            // Update the headers
-            Collections.addAll(sampleHeaders, split);
+            int missingHeaderCount = 1;
+            int headerCount = 0;
+            //Update headers setting missing values as column
+            while(headerCount < split.length){
+                String header = split[headerCount];
+                //If the header is missing
+                if(header.trim().isEmpty()) {
+                    sampleHeaders.add("Missing" + missingHeaderCount);
+                    missingHeaderCount++;
+                }
+                //Check for duplicate header tame for example bloodtype, bloodtype, age will be
+                //changed to bloodtype, bloodtype, age
+                else if(sampleHeaders.contains(header)){
+                    int duplicateCount = Collections.frequency(sampleHeaders, header) + 1;
+                    sampleHeaders.add(header+duplicateCount);
+                }
+                else{
+                    sampleHeaders.add(header);
+                }
+                headerCount++;
+            }
+            //Add missing headers from trailing commas
+            while(headerCount < featureSize){
+                sampleHeaders.add("Blank" + missingHeaderCount);
+                missingHeaderCount++;
+                headerCount++;
+            }
 
             // Read in the next line for later (needed because the `else` block already reads in the next line)
             line = getNextLineFromDataFile(sc);
@@ -176,11 +214,22 @@ public class DataManager<T> {
 
             // Assume the delimiter is a comma
             String[] values = line.split(",");
-
+            int i  = 0;
             // Parse the string values to a double and add to FeatureClass
-            for (int i = 0; i < values.length; i++) {
-                Double value = Double.parseDouble(values[i]);
-                featureClasses.get(i).addSampleValue(value);
+            while(i < values.length) {
+                try {
+                    Double value = Double.parseDouble(values[i]);
+                    featureClasses.get(i).addSampleValue(value);
+                }catch (Exception e) {
+                    //TODO Change 0 to null when handled
+                    featureClasses.get(i).addSampleValue(0.0);
+                }
+                i++;
+            }
+            while(i < featureSize){
+                //TODO Change 0 to null when handled
+                featureClasses.get(i).addSampleValue(0.0);
+                i++;
             }
 
             line = getNextLineFromDataFile(sc);
@@ -193,6 +242,17 @@ public class DataManager<T> {
 
         sc.close();
         // log.info("Successfully Imported Dataset");
+    }
+
+    public void addNewFeature(String sampleHeader, List<Number> feature){
+        sampleHeaders.add(sampleHeader);
+        expectedOutputHeaders.add(sampleHeader);
+        FeatureClass<Number> featureClass = new NumericFeatureClass(true);
+        for (Number number : feature) {
+            featureClass.addSampleValue(number);
+        }
+        dataset.put(sampleHeader,featureClass);
+        featureSize++;
     }
 
     private void createNewDataset(){
