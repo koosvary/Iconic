@@ -114,7 +114,7 @@ public class ProcessDataController implements Initializable {
      * 2 decimal places.
      */
     private void initializeSpinner() {
-        SpinnerValueFactory.DoubleSpinnerValueFactory valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 99.99, 1.50, 0.10);
+        SpinnerValueFactory.DoubleSpinnerValueFactory valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 99.99, 2.00, 0.10);
 
         valueFactory.setConverter(new StringConverter<Double>() {
             @Override
@@ -340,7 +340,9 @@ public class ProcessDataController implements Initializable {
         }
     }
 
-    // TODO: once RemoveOutliers class has been implemented
+    /**
+     * Creates a RemoveOutliers object which is added to the list of currently active preprocessors.
+     */
     public void removeOutliersInDatasetFeature() {
         if (lvFeatures == null) {
             return;
@@ -354,6 +356,7 @@ public class ProcessDataController implements Initializable {
                 double threshold = spRemoveOutliersThreshold.getValue();
 
                 RemoveOutliers removeOutliers = new RemoveOutliers();
+                removeOutliers.setTransformType(TransformType.OutliersRemoved);
                 removeOutliers.setThreshold(threshold);
 
                 addNewPreprocessor(dataManager.get().getSampleHeaders().get(selectedIndex), removeOutliers);
