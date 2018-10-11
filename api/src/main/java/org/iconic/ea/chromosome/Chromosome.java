@@ -149,6 +149,9 @@ public abstract class Chromosome<T> {
         FunctionalPrimitive<T, T> leadingPrimitive=null;
 
         /* getting the string of the leading primitive by cutting the front off the input and trimming it */
+        if(preorderExpression.indexOf("(") == -1){
+            return "";
+        }
         String firstFunction = preorderExpression.substring(0, preorderExpression.indexOf("(")).trim();
 
         /* match the firstFunction string to a functional primitive */

@@ -1,28 +1,8 @@
-/**
- * Copyright (C) 2018 Iconic
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package org.iconic.project.search;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import lombok.NonNull;
 import lombok.Synchronized;
@@ -30,11 +10,8 @@ import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
-import org.iconic.ea.operator.objective.CacheableObjective;
-import org.iconic.ea.operator.objective.MonoObjective;
 import org.iconic.ea.strategies.gep.GeneExpressionProgramming;
 import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
-import org.iconic.ea.data.FeatureClass;
 import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.DefaultObjective;
@@ -71,6 +48,7 @@ public class SearchModel implements Runnable {
     private SolutionStorage<Double> solutionStorage = new SolutionStorage<>(); // Stores the solutions found
     private boolean running;
     private ArrayList<BlockDisplay> blockDisplays;
+    private ExpressionChromosomeFactory<Double> supplier;
 
 
     /**
@@ -80,25 +58,12 @@ public class SearchModel implements Runnable {
      */
     public SearchModel(@NonNull final DatasetModel datasetModel, ArrayList<BlockDisplay> blockDisplays) {
 
-        // Get the number of features to tell the search function how many it can use
-        int numFeatures = 0;
-        List<String> headers = datasetModel.getDataManager().getSampleHeaders();
-
-        for (String header : headers) {
-            FeatureClass<Number> feature = datasetModel.getDataManager().getDataset().get(header);
-
-            if (feature.isActive()) {
-                numFeatures++;
-            }
-        }
-
-        ExpressionChromosomeFactory<Double> supplier = new ExpressionChromosomeFactory<>(
-                10,
-                numFeatures
-        );
-
         this.blockDisplays = new ArrayList<>(blockDisplays);
         this.datasetModel = datasetModel;
+        supplier = new ExpressionChromosomeFactory<>(
+                10,
+                datasetModel.getDataManager().getFeatureSize() - 1
+        );
 
         List<FunctionalPrimitive<Double, Double>> enabledPrimitives = new ArrayList<>(this.blockDisplays.size());
         for (int i = 0; i < this.blockDisplays.size(); i++) {
@@ -124,11 +89,10 @@ public class SearchModel implements Runnable {
         ea.addMutator(new ExpressionMutator<>());
 
         // Add in the objectives the algorithm should aim for
-        ea.setObjective(
-                new CacheableObjective<>(
-                        new DefaultObjective(
-                                new MeanSquaredError(), datasetModel.getDataManager()
-                        ))
+        ea.addObjective(
+                new DefaultObjective<>(
+                        new MeanSquaredError(), datasetModel.getDataManager()
+                )
         );
     }
 
@@ -140,6 +104,7 @@ public class SearchModel implements Runnable {
         setRunning(true);
 
         final int populationSize = 5;
+        final int numGenerations = 500;
 
         Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
 
@@ -151,7 +116,7 @@ public class SearchModel implements Runnable {
                         .stream().min(comparator).get();
 
                 setUpdates("\nStarting..." + getUpdates());
-                for (int i = 0; isRunning(); ++i) {
+                for (int i = 0; i < numGenerations && isRunning(); ++i) {
                     List<ExpressionChromosome<Double>> oldPopulation = ea.getChromosomes();
                     List<ExpressionChromosome<Double>> newPopulation = ea.evolve(oldPopulation);
                     ea.setChromosomes(newPopulation);
