@@ -60,6 +60,9 @@ public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromos
                 mutant.getInputs(), mutant.getInputs() + numNodes + numOutputs - 1
         );
 
+        //ensure the mutant gets updated the next time it's evaluated
+        mutant.setChanged(true);
+
         //the main loop runs until an active gene is mutated
         while (!activeNodeMutated) {
             //picking the gene to mutate

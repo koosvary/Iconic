@@ -19,18 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.ea.operator.objective;
+package org.iconic.ea.operator.objective.error;
 
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.FeatureClass;
+import org.iconic.ea.operator.objective.MonoObjective;
+import org.iconic.ea.operator.objective.Objective;
 import org.iconic.ea.operator.objective.error.ErrorFunction;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -40,11 +39,10 @@ import java.util.stream.Collectors;
  * </p>
  */
 @Log4j2
-public abstract class ErrorBasedObjective<T> implements Objective<T> {
+public abstract class ErrorBasedObjective extends MonoObjective<Double> {
     private final ErrorFunction lambda;
-    private DataManager<T> dataManager;
-    private List<T> expectedResults;
-    private boolean changed;
+    private final DataManager<Double> dataManager;
+    private List<Double> expectedResults;
 
     /**
      * <p>
@@ -54,25 +52,37 @@ public abstract class ErrorBasedObjective<T> implements Objective<T> {
      * @param lambda  The error function to apply
      * @param dataManager The dataset to apply the error function on
      */
-    public ErrorBasedObjective(final ErrorFunction lambda, final DataManager dataManager) {
+    public ErrorBasedObjective(final ErrorFunction lambda, final DataManager<Double> dataManager) {
+        super();
         this.lambda = lambda;
         this.dataManager = dataManager;
         this.expectedResults = new LinkedList<>();
-        this.changed = true;
+
+        Map<String, FeatureClass<Number>> dataset = dataManager.getDataset();
+
+        // Collect the expected answers
+        List<FeatureClass<Number>> features = dataset.values().stream()
+                .filter(FeatureClass::isOutput)
+                .limit(1)
+                .collect(Collectors.toList());
+
+        expectedResults = features.get(0).getSamples().stream()
+                .mapToDouble(Number::doubleValue).boxed()
+                .collect(Collectors.toList());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public abstract double apply(final Chromosome<T> c);
+    public abstract double apply(final Chromosome<Double> c);
 
     /**
      * <p>Returns the dataset used by this objective.</p>
      *
      * @return the dataset used by this objective
      */
-    protected DataManager<T> getDataManager() {
+    protected DataManager<Double> getDataManager() {
         return dataManager;
     }
 
@@ -90,59 +100,7 @@ public abstract class ErrorBasedObjective<T> implements Objective<T> {
      *
      * @return the expected results for the samples used by this objective
      */
-    protected List<T> getExpectedResults() {
-        // Check if the expected results need to be recalculated
-        if (isChanged()) {
-            HashMap<String, FeatureClass<Number>> dataset = getDataManager().getDataset();
-
-            // Collect the expected answers
-            List<FeatureClass<Number>> features = dataset.values().stream()
-                    .filter(FeatureClass::isOutput)
-                    .limit(1)
-                    .collect(Collectors.toList());
-
-            expectedResults = (ArrayList<T>) features.get(0).getSamples();
-
-            setChanged(false);
-        }
-
+    protected List<Double> getExpectedResults() {
         return expectedResults;
-    }
-
-    /**
-     * <p>Returns the changed status of this objective.</p>
-     *
-     * <p>
-     * If the backing samples used by this objective are changed then the expected results need to be
-     * recalculated.
-     * </p>
-     *
-     * @return true if the backing samples used by this objective have changed
-     */
-    private boolean isChanged() {
-        return changed;
-    }
-
-    /**
-     * <p>
-     * Sets the changed status of this objective to the provided value.
-     * </p>
-     *
-     * @param changed The value to set the changed status of this objective to
-     */
-    private void setChanged(final boolean changed) {
-        this.changed = changed;
-    }
-
-    /**
-     * <p>
-     * Sets the dataset of this objective to the provided value and marks it as changed.
-     * </p>
-     *
-     * @param dataManager The value to set the dataset of this objective to
-     */
-    public void setDataManager(final DataManager dataManager) {
-        setChanged(true);
-        this.dataManager = dataManager;
     }
 }

@@ -25,24 +25,24 @@ import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosomeFactory;
+import org.iconic.ea.operator.objective.MonoObjective;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
-public class CartesianGeneticProgramming<T> extends EvolutionaryAlgorithm<CartesianChromosome<T>, T>{
-	public final CartesianChromosomeFactory<T> chromosomeFactory;
-
+public class CartesianGeneticProgramming<T extends Comparable<T>>
+		extends EvolutionaryAlgorithm<CartesianChromosome<T>, T>{
 	public CartesianGeneticProgramming(CartesianChromosomeFactory<T> chromosomeFactory) {
-		super();
-		this.chromosomeFactory = chromosomeFactory;
+		super(chromosomeFactory);
 	}
 
 	@Override
 	public void initialisePopulation(int populationSize){
 		for (int i = 0; i < populationSize; i++) {
-			CartesianChromosome<T> chromosome = chromosomeFactory.getChromosome();
-			getObjective(0).apply(chromosome);
+			CartesianChromosome<T> chromosome = getChromosomeFactory().getChromosome();
+			getObjective().apply(chromosome);
 			getChromosomes().add(chromosome);
 		}
 	}
@@ -61,9 +61,10 @@ public class CartesianGeneticProgramming<T> extends EvolutionaryAlgorithm<Cartes
 		return population;
 	}
 
-	public CartesianChromosome<T> mutate(CartesianChromosome<T> chromosome){
+	private CartesianChromosome<T> mutate(CartesianChromosome<T> chromosome){
 		assert (getMutators().size() > 0);
-		assert (getObjectives().size() > 0);
+		Objects.requireNonNull(getObjective(), "An objective is required");
+
 		final int lambda = 4;
         final Comparator<Chromosome<T>> comparator = Comparator.comparing(Chromosome::getFitness);
 
@@ -72,10 +73,10 @@ public class CartesianGeneticProgramming<T> extends EvolutionaryAlgorithm<Cartes
 
 		for (int i = 0; i < lambda; ++i) {
 			CartesianChromosome<T> child = getMutator(0).apply(
-					chromosomeFactory.getFunctionalPrimitives(),
+					getChromosomeFactory().getFunctionalPrimitives(),
 					chromosome
 			);
-			getObjective(0).apply(child);
+			getObjective().apply(child);
 			children.add(child);
 		}
 

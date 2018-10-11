@@ -21,6 +21,7 @@
  */
 package org.iconic.ea.chromosome.cartesian;
 
+import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.LinearChromosome;
 import org.iconic.ea.data.DataManager;
@@ -38,6 +39,7 @@ import java.util.*;
  * Cycles in the graph are prevented by restricting nodes in the graph such that they can only connect to
  * preceding nodes. The genome is linearly encoded and can support multiple outputs.</p>
  */
+@Log4j2
 public class CartesianChromosome<T> extends Chromosome<T> implements LinearChromosome<Integer>, Cloneable {
     private Map<Integer, List<Integer>> phenome;
     private List<Integer> outputs;
@@ -47,7 +49,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     private final int columns;
     private final int levelsBack;
     private final int maxArity;
-	List<Map<Integer, T>> results;
+    List<Map<Integer, T>> results;
 
     /**
      * <p>Constructs a new cartesian chromosome with the provided number of inputs, columns, rows, and
@@ -78,7 +80,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         this.outputs = outputs;
         this.phenome = new HashMap<>();
         this.genome = genome;
-		results = new ArrayList<>();
+        results = new ArrayList<>();
         // Create a comparator for calculating the maximum arity
         final Comparator<FunctionalPrimitive<T, T>> comparator =
                 Comparator.comparing(FunctionalPrimitive::getArity);
@@ -88,11 +90,11 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
 
         if (max.isPresent()) {
             maxArity = max.get().getArity();
-        } else{ // If no max value is present something has gone horribly wrong (how'd it even get here?)
-			throw new IllegalStateException(
-					"Invalid number of primitives present in chromosome." +
-							"There should be at least one primitive present.");
-		}
+        } else { // If no max value is present something has gone horribly wrong (how'd it even get here?)
+            throw new IllegalStateException(
+                    "Invalid number of primitives present in chromosome." +
+                            "There should be at least one primitive present.");
+        }
     }
 
     /**
@@ -110,7 +112,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
      * @param node     the position of the node to produce an index for
      * @param inputs   the number of inputs in the chromosome the node belongs to
      * @param maxArity the maximum arity of the chromosome the node belongs to
-     * @return         the index of the node within its genome
+     * @return the index of the node within its genome
      */
     static public int nodeToIndex(int node, int inputs, int maxArity) {
         return (node < inputs) ? node : (maxArity + 1) * (node - inputs) + inputs;
@@ -277,15 +279,16 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
 
             calculatedValues.add(output);
         }
-		results = new ArrayList<>(calculatedValues);
+        setChanged(false);
+        results = new ArrayList<>(calculatedValues);
         return calculatedValues;
     }
 
-	public List<Map<Integer, T>> getResults(){
-		return results;
-	}
+    public List<Map<Integer, T>> getResults() {
+        return results;
+    }
 
-	/**
+    /**
      * <p>Returns a human-readable representation of a node in this chromosome</p>
      *
      * @param node       the node to format
@@ -355,37 +358,36 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         return outputBuilder.toString();
     }
 
-    public String getExpression(){
+    public String getExpression() {
         Map<Integer, List<Integer>> nodes = getPhenome();
-        String[] expressions = new String[genome.size()+getOutputs().size()];
+        String[] expressions = new String[genome.size() + getOutputs().size()];
         Set<Integer> keysSet = nodes.keySet();
         Integer[] keys = keysSet.toArray(new Integer[0]);
         List<Integer> actualNodes = null;
         String alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        for(int i = 0; i < getInputs(); i++){
-                expressions[i] =  String.valueOf(alph.charAt(i));
+        for (int i = 0; i < getInputs(); i++) {
+            expressions[i] = String.valueOf(alph.charAt(i));
         }
-        for(int i = 0; i < getOutputs().size(); i++){
+        for (int i = 0; i < getOutputs().size(); i++) {
             actualNodes = nodes.get(keys[i]);
-            for(int j = 0; j < actualNodes.size(); j++){
+            for (int j = 0; j < actualNodes.size(); j++) {
                 final int index = nodeToIndex(actualNodes.get(j), getInputs(), maxArity);
-                if(index < getInputs())
+                if (index < getInputs())
                     continue;
                 final int functionGene = genome.get(index);
                 final FunctionalPrimitive<?, ?> primitive = primitives.get(functionGene);
                 final int arity = primitive.getArity();
-                if(arity == 1){
+                if (arity == 1) {
                     final int connectionGene = genome.get(index + 1);
                     expressions[index] = "(" + primitive.getSymbol() + "(" + expressions[nodeToIndex(connectionGene, getInputs(), maxArity)] + "))";
-                }
-                else{
+                } else {
                     final int fConnectionGene = genome.get(index + 1);
                     final int sConnectionGene = genome.get(index + 2);
                     expressions[index] = "(" + expressions[nodeToIndex(fConnectionGene, getInputs(), maxArity)] + primitive.getSymbol() + expressions[nodeToIndex(sConnectionGene, getInputs(), maxArity)] + ")";
                 }
             }
         }
-        return expressions[nodeToIndex(actualNodes.get(actualNodes.size()-1), getInputs(), maxArity)];
+        return expressions[nodeToIndex(actualNodes.get(actualNodes.size() - 1), getInputs(), maxArity)];
     }
 
     /**
@@ -418,7 +420,13 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
      * @param phenome The new phenome of the chromosome
      */
     private void setPhenome(Map<Integer, List<Integer>> phenome) {
-        this.phenome = phenome;
+        this.phenome = new LinkedHashMap<>();
+
+        for (Map.Entry<Integer, List<Integer>> output: phenome.entrySet()) {
+            List<Integer> genes = new LinkedList<>();
+            genes.addAll(output.getValue());
+            this.phenome.put(output.getKey(), genes);
+        }
     }
 
     /**
@@ -519,6 +527,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         clone.setGenome(getGenome());
         clone.setOutputs(getOutputs());
         clone.setFitness(getFitness());
+        clone.setPhenome(getPhenome());
         clone.setChanged(isChanged());
 
         return clone;
@@ -529,5 +538,28 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
      */
     public int getSize() {
         return outputs.size() + phenome.size();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getPhenome());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        } else if (o instanceof CartesianChromosome) {
+            CartesianChromosome<?> other = (CartesianChromosome<?>) o;
+            return Objects.deepEquals(this.getPhenome(), other.getPhenome()) &&
+                    Objects.equals(this.isChanged(), other.isChanged());
+        }
+        return false;
     }
 }

@@ -19,13 +19,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.ea.operator.evolutionary.selection;
+package org.iconic.ea.operator.objective;
 
 import org.iconic.ea.chromosome.Chromosome;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-@FunctionalInterface
-public interface Selection<T extends Chromosome<R>, R> {
-    T apply(final T parent, final List<T> children);
+/**
+ * <p>Defines a functional interface for an objective</p>
+ *
+ * <p>
+ * An objective is a measure used by an {@see org.iconic.ea.EvolutionaryAlgorithm} to determine the fitness
+ * of chromosomes.
+ * </p>
+ *
+ */
+public abstract class MonoObjective<T extends Comparable<T>> implements Objective<T> {
+    public MonoObjective() {
+        // Do nothing
+    }
 }

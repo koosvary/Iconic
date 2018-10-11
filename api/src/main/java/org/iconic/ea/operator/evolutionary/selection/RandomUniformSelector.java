@@ -19,55 +19,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.ea.operator.primitive;
+package org.iconic.ea.operator.evolutionary.selection;
 
-import lombok.extern.log4j.Log4j2;
+import org.apache.commons.math3.distribution.UniformIntegerDistribution;
+import org.iconic.ea.chromosome.Chromosome;
 
 import java.util.List;
-import java.util.function.Function;
 
-/**
- * 
- * @param <T>
- * @param <R>
- */
-@Log4j2
-public class FunctionalPrimitive<T, R> implements UncheckedFunctionalPrimitive<T, R> {
-    private final Function<List<T>, R> lambda;
-    private final int arity;
-    private final String symbol;
-
-    public FunctionalPrimitive(final Function<List<T>, R> lambda, final int arity, final String symbol) {
-        this.lambda = lambda;
-        this.arity = arity;
-        this.symbol = symbol;
-    }
-
+public class RandomUniformSelector<T extends Chromosome<?>> implements Selector<T> {
     @Override
-    public R apply(List<T> args) {
-        assert(args.size() >= getArity());
-
-        if (args.contains(null)) {
-            log.warn("Null argument found: {}", args);
-        }
-
-        return lambda.apply(args);
-    }
-
-    public int getArity() {
-        return arity;
-    }
-
-    @Override
-    public String toString() {
-        return getSymbol();
-    }
-
-    private Function<List<T>, R> getLambda() {
-        return lambda;
-    }
-
-    public String getSymbol() {
-        return symbol;
+    public T apply(final List<T> population) {
+        assert (population.size() >= 1);
+        //probability distribution to select the node to mutate
+        UniformIntegerDistribution distribution = new UniformIntegerDistribution(0, population.size() - 1);
+        return population.get(distribution.sample());
     }
 }

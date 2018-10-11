@@ -24,27 +24,28 @@ package org.iconic.ea.strategies.gep;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
+import org.iconic.ea.chromosome.ChromosomeFactory;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
+import org.iconic.ea.operator.objective.MonoObjective;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Log4j2
-public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<ExpressionChromosome<T>, T> {
-    private final ExpressionChromosomeFactory<T> chromosomeFactory;
-
+public class GeneExpressionProgramming<T extends Comparable<T>>
+        extends EvolutionaryAlgorithm<ExpressionChromosome<T>, T> {
     public GeneExpressionProgramming(ExpressionChromosomeFactory<T> chromosomeFactory) {
-        super();
-        this.chromosomeFactory = chromosomeFactory;
+        super(chromosomeFactory);
     }
 
     public void initialisePopulation(int populationSize) {
         for (int i = 0; i < populationSize; i++) {
-            Chromosome<T> chromosome = getChromosomeFactory().getChromosome();
-            getObjective(0).apply(chromosome);
-            getChromosomes().add((ExpressionChromosome<T>) chromosome);
+            ExpressionChromosome<T> chromosome = getChromosomeFactory().getChromosome();
+            getObjective().apply(chromosome);
+            getChromosomes().add(chromosome);
         }
     }
 
@@ -75,18 +76,18 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
         return population;
     }
 
-    public ExpressionChromosome<T> crossover(ExpressionChromosome<T> c1, ExpressionChromosome<T> c2) {
+    private ExpressionChromosome<T> crossover(ExpressionChromosome<T> c1, ExpressionChromosome<T> c2) {
         assert (getCrossovers().size() > 0);
 
         ExpressionChromosome<T> child = getCrossover(0).apply(c1, c2);
-        getObjective(0).apply(child);
+        getObjective().apply(child);
 
         return child;
     }
 
-    public ExpressionChromosome<T> mutate(ExpressionChromosome<T> chromosome) {
+    private ExpressionChromosome<T> mutate(ExpressionChromosome<T> chromosome) {
         assert (getMutators().size() > 0);
-        assert (getObjectives().size() > 0);
+        Objects.requireNonNull(getObjective(), "An objective is required");
 
         ExpressionChromosome<T> child = getMutator(0).apply(
                 getChromosomeFactory().getFunctionalPrimitives(),
@@ -94,8 +95,8 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
         );
 
         // Evaluate the fitness of both chromosomes
-        double parentFitness = getObjective(0).apply(chromosome);
-        double childFitness = getObjective(0).apply(child);
+        double parentFitness = getObjective().apply(chromosome);
+        double childFitness = getObjective().apply(child);
 
         // Return the new chromosome if it's objectively better or equivalent to its parent
         if (childFitness <= parentFitness) {
@@ -103,9 +104,5 @@ public class GeneExpressionProgramming<T> extends EvolutionaryAlgorithm<Expressi
         }
 
         return chromosome;
-    }
-
-    public ExpressionChromosomeFactory<T> getChromosomeFactory() {
-        return chromosomeFactory;
     }
 }

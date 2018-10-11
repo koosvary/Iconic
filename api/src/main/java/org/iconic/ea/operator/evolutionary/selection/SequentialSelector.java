@@ -19,55 +19,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.ea.operator.primitive;
+package org.iconic.ea.operator.evolutionary.selection;
 
-import lombok.extern.log4j.Log4j2;
+import org.iconic.ea.chromosome.Chromosome;
 
 import java.util.List;
-import java.util.function.Function;
 
-/**
- * 
- * @param <T>
- * @param <R>
- */
-@Log4j2
-public class FunctionalPrimitive<T, R> implements UncheckedFunctionalPrimitive<T, R> {
-    private final Function<List<T>, R> lambda;
-    private final int arity;
-    private final String symbol;
+public class SequentialSelector<T extends Chromosome<?>> implements Selector<T> {
+    private int currentIndex;
 
-    public FunctionalPrimitive(final Function<List<T>, R> lambda, final int arity, final String symbol) {
-        this.lambda = lambda;
-        this.arity = arity;
-        this.symbol = symbol;
+    public SequentialSelector() {
+        currentIndex = -1;
     }
 
     @Override
-    public R apply(List<T> args) {
-        assert(args.size() >= getArity());
-
-        if (args.contains(null)) {
-            log.warn("Null argument found: {}", args);
+    public T apply(final List<T> population) {
+        //probability distribution to select the node to mutate
+        if (currentIndex >= population.size() - 1) {
+            setCurrentIndex(-1);
         }
 
-        return lambda.apply(args);
+        setCurrentIndex(getCurrentIndex() + 1);
+        return population.get(getCurrentIndex());
     }
 
-    public int getArity() {
-        return arity;
+    private int getCurrentIndex() {
+        return currentIndex;
     }
 
-    @Override
-    public String toString() {
-        return getSymbol();
+    private void setCurrentIndex(int currentIndex) {
+        this.currentIndex = currentIndex;
     }
 
-    private Function<List<T>, R> getLambda() {
-        return lambda;
-    }
-
-    public String getSymbol() {
-        return symbol;
+    public void reset() {
+        setCurrentIndex(0);
     }
 }
