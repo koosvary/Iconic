@@ -4,6 +4,41 @@
 
 ## What's New
 
+### Release Notes - 0.4.0 - September 21st, 2018
+
+#### General
+* Removed the 500 generation limit on searches
+    * Searches now run until manually stopped
+* Added a method that takes a prefix expression and converts it into an infix expression
+
+#### Input Data
+* Now supports display and editing of feature header and description
+* Can add additional rows to the dataset by scrolling down
+    * These rows will only persist if a cell is edited
+* Renamed buttons
+* Spreadsheet view does not show when dataset is not selected
+* Added placeholder "Create Dataset" button
+
+#### Process Data
+* Preprocessing functions improved
+* Preprocessing checkboxes are greyed out when a feature is not selected
+* Checkboxes now correlate to each feature individually
+* Features will display "modified" if they have transformations applied
+*Note: Handle missing values and Remove outliers are not currently implemented in the GUI*
+
+#### Define Search
+* Target expression can be defined
+* Additional building blocks have been added
+* Building blocks can now be toggled on and off
+* Building block complexity can now be modified
+
+#### Results
+* Now shows a live-updating list of best solutions of each size as they are found
+
+#### Bug Fixes
+* Fixed a bug where “offset values” was added cumulatively each time it was applied
+    * E.g. entering 5 as an offset, then changing the offset to 10 would cause the total offset to be 15
+
 ### Release Notes - 0.3.0 - August 31st, 2018
 
 #### Improvements

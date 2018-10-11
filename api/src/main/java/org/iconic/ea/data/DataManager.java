@@ -1,3 +1,24 @@
+/**
+ * Copyright (C) 2018 Iconic
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package org.iconic.ea.data;
 
 import lombok.extern.log4j.Log4j2;
@@ -19,6 +40,12 @@ public class DataManager<T> {
     private int sampleSize;
     private boolean containsHeader = false;
 
+    public DataManager(){
+        expectedOutputHeaders = new ArrayList<>();
+        sampleHeaders = new ArrayList<>();
+        createNewDataset();
+    }
+
     public DataManager(String fileName) {
         this.fileName = fileName;
         expectedOutputHeaders = new ArrayList<>();
@@ -27,8 +54,8 @@ public class DataManager<T> {
         try {
             importData(this.fileName);
         } catch (IOException ex) {
-             log.error("Bad File: {}", () -> fileName);
-             log.error("Exception: {}", ex);
+            log.error("Bad File: {}", () -> fileName);
+            log.error("Exception: {}", ex);
         }
     }
 
@@ -97,23 +124,61 @@ public class DataManager<T> {
         // Get the first line from the datafile
         String line = getNextLineFromDataFile(sc);
 
+        //Feature size is set as number of commas as line.split(",")
+        //does not account for trailing commas
+        featureSize = 0;
+        if (line != null) {
+            for(int i = 0; i < line.length(); i++) {
+                if(line.charAt(i) == ',') featureSize++;
+            }
+            //Plus 1 for last value in line
+            featureSize++;
+        }
+
         // Assume the delimiter is a comma, and set feature size
         String[] split = line.split(",");
-        featureSize = split.length;
 
         // Try to determine if the datafile contains a header row
         for (String header : split) {
             try {
                 Double.parseDouble(header);
             } catch (NumberFormatException e) {
-                containsHeader = true;
-                break;
+                //Check that it is not a missing number
+                if(!header.trim().isEmpty()) {
+                    containsHeader = true;
+                    break;
+                }
             }
         }
 
         if (containsHeader) {
-            // Update the headers
-            Collections.addAll(sampleHeaders, split);
+            int missingHeaderCount = 1;
+            int headerCount = 0;
+            //Update headers setting missing values as column
+            while(headerCount < split.length){
+                String header = split[headerCount];
+                //If the header is missing
+                if(header.trim().isEmpty()) {
+                    sampleHeaders.add("Missing" + missingHeaderCount);
+                    missingHeaderCount++;
+                }
+                //Check for duplicate header tame for example bloodtype, bloodtype, age will be
+                //changed to bloodtype, bloodtype, age
+                else if(sampleHeaders.contains(header)){
+                    int duplicateCount = Collections.frequency(sampleHeaders, header) + 1;
+                    sampleHeaders.add(header+duplicateCount);
+                }
+                else{
+                    sampleHeaders.add(header);
+                }
+                headerCount++;
+            }
+            //Add missing headers from trailing commas
+            while(headerCount < featureSize){
+                sampleHeaders.add("Blank" + missingHeaderCount);
+                missingHeaderCount++;
+                headerCount++;
+            }
 
             // Read in the next line for later (needed because the `else` block already reads in the next line)
             line = getNextLineFromDataFile(sc);
@@ -149,11 +214,22 @@ public class DataManager<T> {
 
             // Assume the delimiter is a comma
             String[] values = line.split(",");
-
+            int i  = 0;
             // Parse the string values to a double and add to FeatureClass
-            for (int i = 0; i < values.length; i++) {
-                Double value = Double.parseDouble(values[i]);
-                featureClasses.get(i).addSampleValue(value);
+            while(i < values.length) {
+                try {
+                    Double value = Double.parseDouble(values[i]);
+                    featureClasses.get(i).addSampleValue(value);
+                }catch (Exception e) {
+                    //TODO Change 0 to null when handled
+                    featureClasses.get(i).addSampleValue(0.0);
+                }
+                i++;
+            }
+            while(i < featureSize){
+                //TODO Change 0 to null when handled
+                featureClasses.get(i).addSampleValue(0.0);
+                i++;
             }
 
             line = getNextLineFromDataFile(sc);
@@ -166,6 +242,48 @@ public class DataManager<T> {
 
         sc.close();
         // log.info("Successfully Imported Dataset");
+    }
+
+    public void addNewFeature(String sampleHeader, List<Number> feature){
+        sampleHeaders.add(sampleHeader);
+        expectedOutputHeaders.add(sampleHeader);
+        FeatureClass<Number> featureClass = new NumericFeatureClass(true);
+        for (Number number : feature) {
+            featureClass.addSampleValue(number);
+        }
+        dataset.put(sampleHeader,featureClass);
+        featureSize++;
+    }
+
+    private void createNewDataset(){
+        sampleSize = 0;
+        featureSize = 26;
+        dataset = new HashMap<>();
+
+        // Generate all the header names such as: A, B, C, ..., Z, AA, BB, etc
+        for (int i = 0; i < featureSize; i++) {
+            sampleHeaders.add(intToHeader(i));
+        }
+        containsHeader = true;
+
+        // Set the last column by default as the expected output
+        expectedOutputHeaders.add(sampleHeaders.get(featureSize - 1));
+
+        // Create a list of all features
+        ArrayList<FeatureClass<Number>> featureClasses = new ArrayList<>(featureSize);
+
+        for (String aSampleHeader : sampleHeaders) {
+            if (expectedOutputHeaders.contains(aSampleHeader)) {
+                featureClasses.add(new NumericFeatureClass(true));
+            } else {
+                featureClasses.add(new NumericFeatureClass(false));
+            }
+        }
+
+        // Add all the feature classes to the map
+        for (int i = 0; i < featureSize; i++) {
+            dataset.put(sampleHeaders.get(i), featureClasses.get(i));
+        }
     }
 
     private String getNextLineFromDataFile(Scanner sc) {
@@ -261,5 +379,64 @@ public class DataManager<T> {
         String oldHeader = sampleHeaders.get(index);
         sampleHeaders.set(index,newHeader);
         dataset.put(newHeader,dataset.remove(oldHeader));
+    }
+
+    // Reads in the function specified by user,
+    // sets the 'output' and 'active' states of the features
+    public void defineFunction(String function)
+    {
+        String outputFeaturesStr = cleanParentheses(function.split("=")[0]);
+
+        // Removes first 'f' as that's for the function definition (like in "y = f(x)")
+        String activeFeaturesStr = cleanParentheses(function.split("=")[1].replaceFirst("f", ""));
+
+        // NOTE(Meyer): This particular part may need fixing when we start doing multi-objective stuff
+        //              Assuming only one for now, even with the for loop.
+        // Get all the output features and set them to be output variables
+        String[] outputFeatures = outputFeaturesStr.split(",");
+        List<String> outputFeatureList = new ArrayList<>();
+        for (String feature : outputFeatures) {
+            outputFeatureList.add(cleanParentheses(feature));
+        }
+
+        // Get all the active features and set so they can be used in searched
+        String[] activeFeatures = activeFeaturesStr.split(",");
+        List<String> activeFeatureList = new ArrayList<>();
+        for (String feature : activeFeatures) {
+            activeFeatureList.add(cleanParentheses(feature));
+        }
+
+        for(String header : sampleHeaders)
+        {
+            FeatureClass fClass = dataset.get(header);
+            fClass.setOutput(false);
+            fClass.setActive(false);
+
+            if(outputFeatureList.contains(header))
+            {
+                fClass.setOutput(true);
+            }
+            else if(activeFeatureList.contains(header))
+            {
+                fClass.setActive(true);
+            }
+        }
+    }
+
+    // Removes the encapsulating parenthesis from a string, and trims it.
+    private String cleanParentheses(String featureName)
+    {
+        // Replace the first instance of open parenthesis
+        featureName = featureName.replaceFirst("\\(", "");
+
+        // Find the last instance of closing parenthesis and split, keeping first half
+        int index = featureName.lastIndexOf(")");
+        if(index > 0) {
+            featureName = featureName.substring(0, index);
+        }
+
+        featureName = featureName.trim();
+
+        return featureName;
     }
 }

@@ -1,7 +1,30 @@
+/**
+ * Copyright (C) 2018 Iconic
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package org.iconic.project.definition;
 
 import com.google.inject.Inject;
 import javafx.beans.InvalidationListener;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
@@ -54,6 +77,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        tfTargetExpression.focusedProperty().addListener(focusListener);
 
         blockDisplays = new ArrayList<>(SearchModel.getFunctionalPrimitives().length);
         for (FunctionalPrimitive primitive :
@@ -104,6 +128,23 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         return functionStr;
     }
 
+    public void setFunction() {
+        String functionStr = null;
+
+        Optional<DataManager<Double>> dataset = getDataManager();
+
+        if (dataset.isPresent()) {
+            // Get the ID of the dataset
+            String[] splitString = dataset.toString().split("@");
+            String datasetID = splitString[splitString.length - 1].replace("]", ""); // There's a trailing ']' from the toString
+
+            // Get the dataset, if exists
+            functionStr = tfTargetExpression.getText();
+
+            functionDefinitions.put(datasetID, functionStr);
+        }
+    }
+
     private void loadFunction() {
         Optional<DataManager<Double>> dataset = getDataManager();
 
@@ -130,6 +171,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
             // NOTE(Meyer): Must check if not null otherwise injection will cause an NPE (it's dumb, I know)
             if (tfTargetExpression != null) {
                 tfTargetExpression.setText(functionStr);
+                dataset.get().defineFunction(functionStr);
             }
         }
     }
@@ -158,4 +200,21 @@ public class DefineSearchController implements Initializable, DefineSearchServic
             return Optional.empty();
         }
     }
+
+    private ChangeListener<Boolean> focusListener = new ChangeListener<Boolean>() {
+        @Override
+        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+            if (!newValue) {
+                // Get the data from the definition field, send it to the data manager to parse
+                Optional<DataManager<Double>> dataset = getDataManager();
+
+                String functionDefinition = tfTargetExpression.getText();
+
+                if(dataset.isPresent()) {
+                    setFunction();
+                    dataset.get().defineFunction(functionDefinition);
+                }
+            }
+        }
+    };
 }

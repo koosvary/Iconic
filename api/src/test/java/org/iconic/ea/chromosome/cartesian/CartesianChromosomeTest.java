@@ -1,3 +1,24 @@
+/**
+ * Copyright (C) 2018 Iconic
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package org.iconic.ea.chromosome.cartesian;
 
 import lombok.extern.log4j.Log4j2;
@@ -5,6 +26,7 @@ import org.iconic.ea.operator.primitive.*;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -76,6 +98,22 @@ public class CartesianChromosomeTest {
         // A chromosome is only created to access the class method
         CartesianChromosome<Double> c = getChromosome(inputs, outputs, primitives);
         c.generateOutput(activeNodes, genome, inputs, outputs, primitives, samples);
+    }
+
+    @Test
+    @DisplayName("Test that the expression generated is correct")
+    public void getExpressionTest(){
+        CartesianChromosome<Double> chrome = new CartesianChromosome<>(Arrays.asList(
+                new Addition(), new Subtraction(), new Multiplication(), new Division(),
+                new Power(), new Root(), new Sin(), new Cos(), new Tan()
+        ),0,0,0,0, Arrays.asList(0), null);
+        String expected = "TAN(TAN(((((COS(F9))^((F0)ROOT(F2)))+((F4)*(F2)))/(COS(F9)))ROOT(SIN(SIN(SIN(F0))))))";
+        String result = chrome.getExpression("TAN ( TAN ( ROOT ( / ( + ( ^ ( COS ( F9 ) , ROOT ( F0, F2 )  )" +
+                        " , * ( F4, F2 )  ) , COS ( F9 )  ) , SIN ( SIN ( SIN ( F0 )  )  )  )  )  ) ",
+                Arrays.asList(new Addition(), new Subtraction(), new Multiplication(), new Division(),
+                        new Power(), new Root(), new Sin(), new Cos(), new Tan()
+                ),true);
+        assertEquals(expected, result);
     }
 
     /**
