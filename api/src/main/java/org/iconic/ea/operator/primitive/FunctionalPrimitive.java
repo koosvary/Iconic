@@ -21,6 +21,8 @@
  */
 package org.iconic.ea.operator.primitive;
 
+import lombok.extern.log4j.Log4j2;
+
 import java.util.List;
 import java.util.function.Function;
 
@@ -28,6 +30,7 @@ import java.util.function.Function;
  * @param <T>
  * @param <R>
  */
+@Log4j2
 public class FunctionalPrimitive<T, R> implements UncheckedFunctionalPrimitive<T, R> {
     private final Function<List<T>, R> lambda;
     private final int arity;
@@ -46,6 +49,10 @@ public class FunctionalPrimitive<T, R> implements UncheckedFunctionalPrimitive<T
     @Override
     public R apply(List<T> args) {
         assert (args.size() >= getArity());
+
+        if (args.contains(null)) {
+            log.warn("Null argument found: {}", args);
+        }
 
         return lambda.apply(args);
     }

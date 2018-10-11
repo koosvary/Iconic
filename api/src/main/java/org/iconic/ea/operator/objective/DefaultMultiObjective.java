@@ -21,33 +21,20 @@
  */
 package org.iconic.ea.operator.objective;
 
-import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
-import org.iconic.ea.data.DataManager;
-import org.iconic.ea.operator.objective.error.ErrorBasedObjective;
-import org.iconic.ea.operator.objective.error.ErrorFunction;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * {@inheritDoc}
  * <p>
- * A default objective that uses a chromosome's error as the fitness.
- * </p>
+ * This multi-objective sums all of its goals together to produce the final fitness.
  */
-@Log4j2
-public class DefaultObjective extends ErrorBasedObjective {
-
-    /**
-     * <p>Constructs a new DefaultObjective</p>
-     *
-     * @param lambda      The error function to apply
-     * @param dataManager The samples to use with the error function
-     */
-    public DefaultObjective(final ErrorFunction lambda, final DataManager<Double> dataManager) {
-        super(lambda, dataManager);
+public class DefaultMultiObjective extends MultiObjective<Double> {
+    public DefaultMultiObjective(Collection<Objective<Double>> goals) {
+        super(goals);
     }
 
     /**
@@ -55,23 +42,10 @@ public class DefaultObjective extends ErrorBasedObjective {
      */
     @Override
     public double apply(final Chromosome<Double> c) {
-        List<Map<Integer, Double>> results = c.evaluate(getDataManager());
-        List<Double> summedResults = new ArrayList<>(results.size());
-
-        // Convert results into a list with each output summed
-        results.forEach(result -> summedResults.add(
-                result.values().stream().mapToDouble(i -> i).sum()
-        ));
-
-        double fitness = getLambda().apply(summedResults, getExpectedResults());
-
-        // If an erroneous value is given replace it with the worst possible fitness
-        if (Double.isNaN(fitness)) {
-            fitness = getWorstValue();
-        }
-
+        double fitness = getGoals().stream()
+                .mapToDouble(goal -> goal.apply(c))
+                .sum() / getGoals().size();
         c.setFitness(fitness);
-
         return fitness;
     }
 }

@@ -22,47 +22,49 @@
 package org.iconic.ea.operator.objective;
 
 import org.iconic.ea.chromosome.Chromosome;
+import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * Defines a functional interface for an objective
+ * <p>Defines a functional interface for an objective</p>
+ *
  * <p>
  * An objective is a measure used by an {@see org.iconic.ea.EvolutionaryAlgorithm} to determine the fitness
  * of chromosomes.
+ * </p>
  *
- * @param <T> The type of the {@link org.iconic.ea.chromosome.Chromosome chromosome's} input and output
  */
-@FunctionalInterface
-public interface Objective<T extends Comparable<T>> {
-    /**
-     * Applies this objective to the given {@link org.iconic.ea.chromosome.Chromosome chromosome}.
-     *
-     * @param c The chromosome to apply this objective to
-     * @return The fitness of the chromosome
-     * @see org.iconic.ea.chromosome.Chromosome
-     */
-    double apply(final Chromosome<T> c);
+public abstract class MultiObjective<T extends Comparable<T>> implements Objective<T> {
+    private final List<Objective<T>> goals;
 
-    /**
-     * Returns the worst fitness value possible for this objective.
-     * By default if fitness values are ranked in ascending order negative infinity is returned,
-     * otherwise the inverse is assumed and positive infinity is returned.
-     *
-     * @return The worst fitness value possible for the objective.
-     */
-    default double getWorstValue() {
-        return (isNotWorse(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY))
-                ? Double.NEGATIVE_INFINITY
-                : Double.POSITIVE_INFINITY;
+    public MultiObjective(Collection<Objective<T>> goals) {
+        this.goals = new LinkedList<>(goals);
+    }
+
+    public Collection<Objective<T>> getGoals() {
+        return goals;
+    }
+
+    public void addGoal(final MonoObjective<T> goal) {
+        getGoals().add(goal);
+    }
+
+    public void removeGoal(final MonoObjective<T> goal) {
+        getGoals().remove(goal);
+    }
+
+    public void removeGoal(int index) {
+        getGoals().remove(index);
     }
 
     /**
-     * Returns true if the first value <i>is not worse</i> than the second value.
-     *
-     * @param x The value to test
-     * @param y The value to test against
-     * @return True if the first value is not worse than the second value.
+     * {@inheritDoc}
+     * @return
      */
-    default boolean isNotWorse(double x, double y) {
+    @Override
+    public boolean isNotWorse(double x, double y) {
         double epsilon = 1E-6;
         return x <= y || Math.abs(x - y) < epsilon;
     }

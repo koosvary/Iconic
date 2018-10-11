@@ -50,7 +50,7 @@ import static org.mockito.Mockito.when;
 class DefaultObjectiveTest {
 
     /** The instance we will use for every test (It is created during {@link #setUp()}) */
-    private DefaultObjective<Double> defaultObjective;
+    private DefaultObjective defaultObjective;
 
     /** Mocked Chromosome */
     @Mock // Be sure to use a Mockito.when() for every call it will receive
@@ -87,7 +87,7 @@ class DefaultObjectiveTest {
         // Create the defaultObjective we will use for each test.
         // We would expect to ALSO mock out lambda, but for the sake of this I am showing not everything has to be mocked.
         ErrorFunction lambda = new MeanSquaredError();
-        defaultObjective = new DefaultObjective<>(lambda, dataManager);
+        defaultObjective = new DefaultObjective(lambda, dataManager);
     }
 
     /**

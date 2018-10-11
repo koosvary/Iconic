@@ -25,6 +25,7 @@ import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.LinearChromosome;
 import org.iconic.ea.chromosome.TreeChromosome;
+import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.graph.Node;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.FeatureClass;
@@ -263,5 +264,32 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
      */
     public int getSize() {
         return root.getSize();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getGenome(), this.getHeadLength(), this.getTailLength());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        } else if (o instanceof ExpressionChromosome<?>) {
+            ExpressionChromosome<?> other = (ExpressionChromosome<?>) o;
+            return Objects.deepEquals(this.getGenome(), other.getGenome()) &&
+                   Objects.equals(this.isChanged(), other.isChanged() &&
+                   Objects.equals(this.getHeadLength(), other.getHeadLength()) &&
+                   Objects.equals(this.getTailLength(), other.getTailLength())
+            );
+        }
+        return false;
     }
 }

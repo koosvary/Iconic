@@ -21,6 +21,8 @@
  */
 package org.iconic.ea.chromosome;
 
+import lombok.extern.log4j.Log4j2;
+import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
@@ -33,6 +35,7 @@ import java.util.function.Function;
  * output of the same form as its input.
  * @param <T> The type class of the data to pass through the chromosome
  */
+@Log4j2
 public abstract class Chromosome<T> {
     private boolean changed;
     private double fitness;
@@ -152,6 +155,7 @@ public abstract class Chromosome<T> {
         leadingPrimitive = matchPrimitive(firstFunction, primitives);
 
         if(leadingPrimitive==null){
+            log.warn("Unrecognised function in expression");
             return "Unrecognised function in expression";
         }
 
@@ -220,6 +224,7 @@ public abstract class Chromosome<T> {
         }
 
         /* this should only output on invalid expressions */
+        log.warn("Unable to parse expression");
         return "Somethingwentwrong";
     }
 
@@ -244,4 +249,6 @@ public abstract class Chromosome<T> {
      * @return The size of the chromosome
      */
     public abstract int getSize();
+
+    public abstract Chromosome<T> clone();
 }
