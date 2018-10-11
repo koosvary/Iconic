@@ -107,9 +107,9 @@ public class CartesianChromosomeTest {
                 new Addition(), new Subtraction(), new Multiplication(), new Division(),
                 new Power(), new Root(), new Sin(), new Cos(), new Tan()
         ),0,0,0,0, Arrays.asList(0), null);
-        String expected = "TAN(TAN(((((COS(F9))^((F0)ROOT(F2)))+((F4)*(F2)))/(COS(F9)))ROOT(SIN(SIN(SIN(F0))))))";
-        String result = chrome.getExpression("TAN ( TAN ( ROOT ( / ( + ( ^ ( COS ( F9 ) , ROOT ( F0, F2 )  )" +
-                        " , * ( F4, F2 )  ) , COS ( F9 )  ) , SIN ( SIN ( SIN ( F0 )  )  )  )  )  ) ",
+        String expected = "TAN(TAN(((((COS(F9))POW((F0)ROOT(F2)))ADD((F4)MUL(F2)))DIV(COS(F9)))ROOT(SIN(SIN(SIN(F0))))))";
+        String result = chrome.getExpression("TAN ( TAN ( ROOT ( DIV ( ADD ( POW ( COS ( F9 ) , ROOT ( F0, F2 )  )" +
+                        " , MUL ( F4, F2 )  ) , COS ( F9 )  ) , SIN ( SIN ( SIN ( F0 )  )  )  )  )  ) ",
                 Arrays.asList(new Addition(), new Subtraction(), new Multiplication(), new Division(),
                         new Power(), new Root(), new Sin(), new Cos(), new Tan()
                 ),true);
