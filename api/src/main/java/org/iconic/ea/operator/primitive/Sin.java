@@ -25,7 +25,7 @@ public class Sin extends ArithmeticPrimitive<Number> {
     public Sin() {
         super(
                 args -> Math.sin(args.get(0)),
-                1, "SIN"
+                1, "SIN","Returns the sine of a", 3
         );
     }
 }

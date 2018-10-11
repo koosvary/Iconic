@@ -25,7 +25,7 @@ public class ArcTan extends ArithmeticPrimitive<Number> {
     public ArcTan() {
         super(
                 args -> Math.atan(args.get(0)),
-                1, "ATAN"
+                1, "ATAN", "Returns the inverse single argument tangent function of a", 4
         );
     }
 }

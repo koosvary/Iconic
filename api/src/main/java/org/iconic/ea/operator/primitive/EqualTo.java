@@ -25,7 +25,7 @@ public class EqualTo extends ArithmeticPrimitive<Number> {
     public EqualTo() {
         super(
                 args -> args.get(0).equals(args.get(1)) ? 1.d : 0.d,
-                2, "=="
+                2, "EQUAL", "Returns 1 if a is equal to b, 0 otherwise", 4
         );
     }
 }

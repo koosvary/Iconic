@@ -27,7 +27,7 @@ public class LogisticFunction extends ArithmeticPrimitive<Number> {
     public LogisticFunction() {
         super(
                 args -> 1/(1+Math.exp(args.get(0))),
-                1, "LOGISTIC"
+                1, "LOGISTIC", "Returns 1 / 1 + exp(-a)), common sigmoid squashing function", 4
         );
     }
 }

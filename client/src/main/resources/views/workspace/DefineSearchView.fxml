@@ -54,8 +54,8 @@
 		<HBox>
 			<padding><Insets top="25" left="20"/></padding>
 			<TableView fx:id="blockDisplayTableView"/>
-			
 			<Label><padding><Insets left="20" right="20"/></padding></Label>
+			<TextArea fx:id="selectedBlockDisplayDescription"/>
 		</HBox>
 		
 		<HBox>

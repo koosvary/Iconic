@@ -25,7 +25,7 @@ public class And extends ArithmeticPrimitive<Number> {
     public And() {
         super(
                 args -> (args.get(0) > 0 && args.get(1) > 0) ? 1.d : 0.d,
-                2, "AND"
+                2, "AND", "Returns 1 if both a and b are greater than 0, 0 otherwise", 4
         );
     }
 }
