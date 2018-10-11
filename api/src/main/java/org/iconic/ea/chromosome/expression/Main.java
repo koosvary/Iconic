@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class Main{
 	public static void main(String[] args){
-		String expression = "(((6*B)/(3*B)))+(((((2*B)-(3*B)))-(((1*B)*(1*B)))))+(-3*B)+(3*B)";
+		String expression = "(((F9)ROOT(TAN(F8)))/(((F0)*(F6))/(F3)))*(((TAN(((F6)+(F5))-(F9)))ROOT((((F0)*(F6))/(F3))^(((F9)ROOT(TAN(F8)))+(F3))))+(((F9)ROOT(TAN(F8)))+(F3)))";
 		System.out.println(expression);
 
 		//TODO: see if you can fix the minus thing...
@@ -13,14 +13,33 @@ public class Main{
 		String coXMinusCoXPattern = "\\(([-?0-9]+)?\\*?([A-Za-z0-9_]+)\\)\\-\\(([-?0-9]+)?\\*?\\2\\)";
 		String coXTimesCoXPattern = "\\(([-?0-9]+)?\\*?([A-Za-z0-9_]+)\\)\\*\\(([-?0-9]+)?\\*?\\2\\)";
 		String coXDividesCoXPattern = "\\(([-?0-9]+)?\\*?([A-Za-z0-9_]+)\\)\\/\\(([-?0-9]+)?\\*?\\2\\)";
-		//TODO:
-		String indicesPattern = "\\(([-?0-9]+)?\\*?([A-Za-z0-9_]+)\\)\\/\\(([-?0-9]+)?\\*?\\2\\)";
+
+		String anythingOpAnythingPattern = "\\(([A-Za-z0-9_]+)\\)([\\+\\-\\/\\*])\\(([A-Za-z0-9_]+)\\)";
+		String xTimesRootPattern = "\\(([A-Za-z0-9_]+)\\)ROOT";
+//		String OpX
 		//check fractions
 
-		Pattern pattern = Pattern.compile(coXPlusCoXPattern);
+		Pattern pattern = Pattern.compile(xTimesRootPattern);
 		Matcher matcher = pattern.matcher(expression);
 
-		if(matcher.find()){
+		while(matcher.find()){
+			expression = expression.replaceFirst("\\(" + matcher.group(1) + "\\)ROOT", matcher.group(1) + "*ROOT");
+			System.out.println(expression);
+		}
+
+		pattern = Pattern.compile(anythingOpAnythingPattern);
+		matcher = pattern.matcher(expression);
+
+		while(matcher.find()){
+			expression = expression.replaceFirst("\\(" + matcher.group(1) + "\\)", matcher.group(1));
+			expression = expression.replaceFirst("\\(" + matcher.group(3) + "\\)", matcher.group(3));
+			System.out.println(expression);
+		}
+
+		pattern = Pattern.compile(coXPlusCoXPattern);
+		matcher = pattern.matcher(expression);
+
+		while(matcher.find()){
 			int a = 1, b = 1;
 			if(matcher.group(1) != null){
 				a = Integer.parseInt(matcher.group(1));
@@ -46,7 +65,7 @@ public class Main{
 		pattern = Pattern.compile(coXMinusCoXPattern);
 		matcher = pattern.matcher(expression);
 
-		if(matcher.find()){
+		while(matcher.find()){
 			int a = 1, b = 1;
 			if(matcher.group(1) != null){
 				a = Integer.parseInt(matcher.group(1));
@@ -71,7 +90,7 @@ public class Main{
 		pattern = Pattern.compile(coXTimesCoXPattern);
 		matcher = pattern.matcher(expression);
 
-		if(matcher.find()){
+		while(matcher.find()){
 			int a = 1, b = 1;
 			if(matcher.group(1) != null){
 				a = Integer.parseInt(matcher.group(1));
@@ -93,7 +112,7 @@ public class Main{
 		pattern = Pattern.compile(coXDividesCoXPattern);
 		matcher = pattern.matcher(expression);
 
-		if(matcher.find()){
+		while(matcher.find()){
 			int a = 1, b = 1;
 			if(matcher.group(1) != null){
 				a = Integer.parseInt(matcher.group(1));
