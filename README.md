@@ -4,6 +4,40 @@
 
 ## What's New
 
+### Release Notes - 0.5.0 - October 11th, 2018
+
+#### General
+* Added license (MIT) to each source file
+    * Utilises a build plugin to ensure the license exists
+
+#### Input Data
+* Datasets can now be created from scratch
+    * Currently defaults to 26 features. This is to be fixed in a future release
+* New features can now be added to datasets by scrolling horizontally
+* Empty rows and features are now blank until a value is added
+* “info” and “name” labels added to info and name rows
+    * Previously labelled 1 & 2, with dataset starting from 3
+* Datasets with missing headers are now supported
+    * Will be replaced with “Missing” and a number appended
+* Datasets with missing values no longer cause a crash
+    * Missing values will default to 0.0
+* Many bug fixes related to importing and editing datasets
+
+#### Process Data
+* Handle outliers has been implemented
+
+#### Define Search
+* Building blocks now have a default complexity set
+    * Although complexity is still not used
+* Building blocks now display a description of their function when selected
+
+#### Simple Evolutionary Algorithm for Multi-objective Optimization (SEAMO)
+* Two new multi-objective evolutionary algorithms, SEAMO and elitist SEAMO
+    * Elitist SEAMO is experimental and very inefficient
+* Objective decorator caches fitness results computed by its underlying objective
+    * Single active gene mutation benefits very little from caching
+* Supports multi-objective type of objective
+
 ### Release Notes - 0.4.0 - September 21st, 2018
 
 #### General
