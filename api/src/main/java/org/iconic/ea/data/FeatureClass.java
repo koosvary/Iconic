@@ -1,26 +1,47 @@
+/**
+ * Copyright (C) 2018 Iconic
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package org.iconic.ea.data;
 
-import org.iconic.ea.data.preprocessing.Preprocessor;
-import org.iconic.ea.data.preprocessing.TransformType;
-import org.iconic.ea.data.preprocessing.Transformation;
+import org.iconic.ea.data.preprocessing.*;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 public abstract class FeatureClass<T> {
     private boolean output;
-    private ArrayList<T> originalSamples, modifiedSamples;
-    private Set<Preprocessor<T>> preprocessors;
-    private ArrayList<Transformation> transformations;
-    private boolean modified;
+    private boolean active;
+
+    private List<T> originalSamples, modifiedSamples;
+
+    // A list of preprocessors that are currently applied to the feature. This list updates dynamically, meaning when
+    // a preprocessor is disabled, it is removed from this list.
+    private List<Preprocessor<T>> preprocessors;
 
     protected FeatureClass(boolean output) {
         this.output = output;
+        this.active = true;
         this.originalSamples = new ArrayList<>();
         this.modifiedSamples = new ArrayList<>();
-        this.preprocessors = new HashSet<>();
-        this.transformations = new ArrayList<>();
+        this.preprocessors = new ArrayList<>();
     }
 
     public void addSampleValue(T value) {
@@ -32,23 +53,72 @@ public abstract class FeatureClass<T> {
         return modifiedSamples.get(row);
     }
 
-    public ArrayList<T> getSamples() {
+    public List<T> getSamples() {
         return modifiedSamples;
     }
 
-    public void applyPreProcessing() {
-        // Ignoring order of operations
-        getPreprocessors().stream()
-                .filter(Preprocessor::isEnabled)
-                .forEach(p -> p.apply(modifiedSamples));
-    }
-
-    public Set<Preprocessor<T>> getPreprocessors() {
+    public List<Preprocessor<T>> getPreprocessors() {
         return preprocessors;
     }
 
-    public void setPreprocessors(Set<Preprocessor<T>> preprocessors) {
-        this.preprocessors = preprocessors;
+    /**
+     * Updates an existing preprocessor if parameters changes, or adds a new preprocessor to the active list. The
+     * remaining preprocessors are then re-applied in order.
+     *
+     * @param preprocessor
+     */
+    public void addPreprocessor(Preprocessor<T> preprocessor) {
+        // Checks if a preprocessor of this type is already active, and if so, replaces it.
+        for (int i=0; i < preprocessors.size(); i++) {
+            if (preprocessors.get(i).getTransformType() == preprocessor.getTransformType()) {
+                preprocessors.remove(i);
+                preprocessors.add(i, preprocessor);
+
+                applyPreprocessors();
+                return;
+            }
+        }
+
+        // If a preprocessor of this type is not currently active, simply add it to the end of the list.
+        preprocessors.add(preprocessor);
+        applyPreprocessors();
+    }
+
+    /**
+     * Given a TransformType, the corresponding preprocessor is removed from the currently active list. The remaining
+     * preprocessors are then re-applied in order.
+     *
+     * @param transformType Identifies the preprocessor to be removed
+     */
+    public void removePreprocessor(TransformType transformType) {
+        for (int i=0; i < preprocessors.size(); i++) {
+            if (preprocessors.get(i).getTransformType() == transformType) {
+                preprocessors.remove(i);
+                break;
+            }
+        }
+
+        applyPreprocessors();
+    }
+
+    /**
+     * Reapplies all currently active preprocessors to the original samples, and then updates modifised samples
+     * with these values.
+     */
+    private void applyPreprocessors() {
+        List<T> values = new ArrayList<>(originalSamples);
+
+        if (!preprocessors.isEmpty()) {
+            // Apply the first preprocessor using the original samples
+            values = preprocessors.get(0).apply(values);
+
+            // Apply each subsequent preprocessor using the newly modified samples
+            for (int i=1; i < preprocessors.size(); i++) {
+                values = preprocessors.get(i).apply(values);
+            }
+        }
+
+        modifiedSamples = values;
     }
 
     public boolean isOutput() {
@@ -59,41 +129,49 @@ public abstract class FeatureClass<T> {
         this.output = value;
     }
 
-    public void updateModifiedSample(int index, T value) {
-        modifiedSamples.set(index, value);
+    // Returns true if the feature was found in the function definition
+    public boolean isActive() {
+        return active;
     }
 
-    public void resetModifiedSample(int index) {
-        modifiedSamples.set(index, originalSamples.get(index));
-    }
-
-    public void addTransformation(Transformation transformation) {
-        transformations.add(transformation);
+    // Set to true if the feature was found in the function definition
+    public void setActive(boolean value) {
+        this.active = value;
     }
 
     /**
-     * Removes a specific transformation from the stored list given a TransformType.
+     * Returns whether or not any preprocessors have been applied to the feature.
      *
-     * @param transformType Enum used to identify the type of transformation.
+     * @return True in the case that at least one preprocessor is active, or false if less than 1.
      */
-    public void removeTransformation(TransformType transformType) {
-        for (int i=0; i < transformations.size(); i++) {
-            if (transformations.get(i).getTransform().equals(transformType)) {
-                transformations.remove(i);
-                break;
-            }
+    public boolean isModified() {
+        if (preprocessors.size() > 0) {
+            return true;
+        } else {
+            return false;
         }
     }
 
-    public ArrayList<Transformation> getTransformations() {
-        return transformations;
+    /**
+     *  TEMPORARY DEBUG METHODS
+     */
+    private void printValues(List<T> values) {
+        String valueString = "";
+
+        for (int i=0; i < values.size(); i++) {
+            valueString += values.get(i) + " ";
+        }
+
+        System.out.println(valueString);
     }
 
-    public boolean isModified() {
-        return modified;
-    }
+    private void printPreprocessors() {
+        String test="";
 
-    public void setModified(boolean modified) {
-        this.modified = modified;
+        for (int i=0; i < preprocessors.size(); i++) {
+            test += " " + preprocessors.get(i).getTransformType();
+        }
+
+        System.out.println(test);
     }
 }

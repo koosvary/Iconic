@@ -1,3 +1,24 @@
+/**
+ * Copyright (C) 2018 Iconic
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package org.iconic.ea.operator.objective;
 
 import org.iconic.ea.chromosome.Chromosome;
@@ -29,7 +50,7 @@ import static org.mockito.Mockito.when;
 class DefaultObjectiveTest {
 
     /** The instance we will use for every test (It is created during {@link #setUp()}) */
-    private DefaultObjective<Double> defaultObjective;
+    private DefaultObjective defaultObjective;
 
     /** Mocked Chromosome */
     @Mock // Be sure to use a Mockito.when() for every call it will receive
@@ -66,7 +87,7 @@ class DefaultObjectiveTest {
         // Create the defaultObjective we will use for each test.
         // We would expect to ALSO mock out lambda, but for the sake of this I am showing not everything has to be mocked.
         ErrorFunction lambda = new MeanSquaredError();
-        defaultObjective = new DefaultObjective<>(lambda, dataManager);
+        defaultObjective = new DefaultObjective(lambda, dataManager);
     }
 
     /**
