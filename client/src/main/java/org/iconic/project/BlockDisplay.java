@@ -29,14 +29,13 @@ public class BlockDisplay {
     private final SimpleStringProperty name = new SimpleStringProperty("");
     private final SimpleBooleanProperty enabled = new SimpleBooleanProperty(true);
     private final SimpleIntegerProperty complexity = new SimpleIntegerProperty(1);
+    private final SimpleStringProperty description = new SimpleStringProperty("");
 
-    public BlockDisplay() {
-    }
-
-    public BlockDisplay(Boolean enabled, String name, Integer complexity) {
+    public BlockDisplay(Boolean enabled, String name, Integer complexity, String description) {
         setEnabled(enabled);
         setName(name);
         setComplexity(complexity);
+        setDescription(description);
     }
 
     public boolean isEnabled() {
@@ -73,5 +72,17 @@ public class BlockDisplay {
 
     public void setComplexity(int complexity) {
         this.complexity.set(complexity);
+    }
+
+    public String getDescription() {
+        return description.get();
+    }
+
+    public SimpleStringProperty descriptionProperty() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description.set(description);
     }
 }

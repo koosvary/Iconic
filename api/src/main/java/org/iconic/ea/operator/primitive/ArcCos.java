@@ -25,7 +25,7 @@ public class ArcCos extends ArithmeticPrimitive<Number> {
     public ArcCos() {
         super(
                 args -> Math.acos(args.get(0)),
-                1, "ACOS"
+                1, "ACOS", "Returns the inverse cosine function of a", 4
         );
     }
 }

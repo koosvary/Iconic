@@ -33,7 +33,7 @@ public class Subtraction extends ArithmeticPrimitive<Number> {
 
                     return identity;
                 },
-                2, "-"
+                2, "SUB", "Returns a - b", 1
         );
 
 

@@ -26,7 +26,7 @@ public class StepFunction extends ArithmeticPrimitive<Number> {
     public StepFunction() {
         super(
                 args -> args.get(0) > 0 ? 1.d : 0.d,
-                1, "STEP"
+                1, "STEP","Returns 1 if x is positive, 0 otherwise", 4
         );
     }
 }

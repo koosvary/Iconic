@@ -30,6 +30,7 @@ import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -49,6 +50,8 @@ import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.SearchModel;
 import org.iconic.workspace.WorkspaceService;
 
+import javax.xml.soap.Text;
+
 @Log4j2
 public class DefineSearchController implements Initializable, DefineSearchService {
 
@@ -57,6 +60,9 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
     @FXML
     public TableView<BlockDisplay> blockDisplayTableView;
+
+    @FXML
+    public TextArea selectedBlockDisplayDescription;
 
     private HashMap<String, String> functionDefinitions;
 
@@ -78,11 +84,12 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         tfTargetExpression.focusedProperty().addListener(focusListener);
+        blockDisplayTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> selectedBlockDisplayDescription.setText(newSelection.getDescription()));
 
         blockDisplays = new ArrayList<>(SearchModel.getFunctionalPrimitives().length);
         for (FunctionalPrimitive primitive :
                 SearchModel.getFunctionalPrimitives()) {
-            blockDisplays.add(new BlockDisplay(true, primitive.getSymbol(), 1));
+            blockDisplays.add(new BlockDisplay(true, primitive.getSymbol(), primitive.getDefaultComplexity(), primitive.getDescription()));
         }
 
         blockDisplayTableView.setItems(FXCollections.observableArrayList(blockDisplays));

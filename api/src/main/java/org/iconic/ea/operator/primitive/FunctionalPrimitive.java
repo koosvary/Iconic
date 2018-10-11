@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * 
  * @param <T>
  * @param <R>
  */
@@ -33,16 +32,20 @@ public class FunctionalPrimitive<T, R> implements UncheckedFunctionalPrimitive<T
     private final Function<List<T>, R> lambda;
     private final int arity;
     private final String symbol;
+    private final String description;
+    private final int defaultComplexity;
 
-    public FunctionalPrimitive(final Function<List<T>, R> lambda, final int arity, final String symbol) {
+    public FunctionalPrimitive(Function<List<T>, R> lambda, int arity, String symbol, String description, int defaultComplexity) {
         this.lambda = lambda;
         this.arity = arity;
         this.symbol = symbol;
+        this.description = description;
+        this.defaultComplexity = defaultComplexity;
     }
 
     @Override
     public R apply(List<T> args) {
-        assert(args.size() >= getArity());
+        assert (args.size() >= getArity());
 
         return lambda.apply(args);
     }
@@ -62,5 +65,22 @@ public class FunctionalPrimitive<T, R> implements UncheckedFunctionalPrimitive<T
 
     public String getSymbol() {
         return symbol;
+    }
+
+    public String getDescription() {
+        if (arity > 0) {
+            StringBuilder parameters = new StringBuilder();
+            for (int i = 0; i < arity; i++) {
+                parameters.append((char) ('a' + i)).append(", ");
+            }
+            parameters.setLength(parameters.length() - 2);
+
+            return String.format("%s (%s): %s", symbol, parameters.toString(), description);
+        }
+        return description;
+    }
+
+    public int getDefaultComplexity() {
+        return defaultComplexity;
     }
 }

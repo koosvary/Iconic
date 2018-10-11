@@ -25,7 +25,7 @@ public class Ceiling extends ArithmeticPrimitive<Number> {
     public Ceiling() {
         super(
                 args -> Math.ceil(args.get(0)),
-                1, "CEIL"
+                1, "CEIL", "Returns the integer of a rounded up", 4
         );
     }
 }
