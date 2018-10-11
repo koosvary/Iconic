@@ -1,9 +1,31 @@
+/**
+ * Copyright (C) 2018 Iconic
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package org.iconic.ea.chromosome.expression;
 
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.LinearChromosome;
 import org.iconic.ea.chromosome.TreeChromosome;
+import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.graph.Node;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.FeatureClass;
@@ -242,5 +264,32 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
      */
     public int getSize() {
         return root.getSize();
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.getGenome(), this.getHeadLength(), this.getTailLength());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        } else if (o instanceof ExpressionChromosome<?>) {
+            ExpressionChromosome<?> other = (ExpressionChromosome<?>) o;
+            return Objects.deepEquals(this.getGenome(), other.getGenome()) &&
+                   Objects.equals(this.isChanged(), other.isChanged() &&
+                   Objects.equals(this.getHeadLength(), other.getHeadLength()) &&
+                   Objects.equals(this.getTailLength(), other.getTailLength())
+            );
+        }
+        return false;
     }
 }

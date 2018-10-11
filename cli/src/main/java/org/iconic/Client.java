@@ -1,20 +1,46 @@
+/**
+ * Copyright (C) 2018 Iconic
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package org.iconic;
 
 import com.beust.jcommander.JCommander;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
+import org.iconic.ea.chromosome.ChromosomeFactory;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosomeFactory;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.operator.evolutionary.mutation.cgp.CartesianSingleActiveMutator;
-import org.iconic.ea.operator.objective.DefaultObjective;
+import org.iconic.ea.operator.objective.*;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.operator.primitive.*;
-import org.iconic.ea.strategies.cgp.CartesianGeneticProgramming;
+import org.iconic.ea.strategies.seamo.ElitistSEAMO;
+import org.iconic.ea.strategies.seamo.SEAMO;
 import org.iconic.io.ArgsConverterFactory;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Log4j2
 public class Client {
@@ -51,7 +77,7 @@ public class Client {
             log.info("Sample Size: {}", () -> sampleSize);
 
             // Create a supplier for Gene Expression Programming chromosomes
-            CartesianChromosomeFactory<Double> supplier = new CartesianChromosomeFactory<>(
+            ChromosomeFactory<CartesianChromosome<Double>, Double> supplier = new CartesianChromosomeFactory<>(
                     outputs, featureSize - 1, columns, rows, levelsBack
             );
 
@@ -63,7 +89,7 @@ public class Client {
 
             // Create an evolutionary algorithm using Gene Expression Programming
             EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea =
-                    new CartesianGeneticProgramming<>(supplier);
+                    new SEAMO<>(supplier, 1);
             ea.setCrossoverProbability(client.getArgs().getCrossoverProbability());
             ea.setMutationProbability(client.getArgs().getMutationProbability());
 
@@ -71,25 +97,33 @@ public class Client {
             ea.addMutator(new CartesianSingleActiveMutator<>());
 
             // Add in the objectives the algorithm should aim for
-            ea.addObjective(
-                    new DefaultObjective<>(
-                            new MeanSquaredError(), dm
-                    ));
+            ea.setObjective(
+//                    new CacheableObjective<>(
+                        new DefaultMultiObjective(
+                            Arrays.asList(
+                                    new CacheableObjective<>(
+                                            new DefaultObjective(new MeanSquaredError(), dm)
+                                    ),
+                                    new CacheableObjective<>(
+                                            new DefaultObjective(new MeanSquaredError(), dm)
+                                    )
+                            )
+                    )
+            );
 
             final int generations = client.getArgs().getGenerations();
             final Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
             ea.initialisePopulation(client.getArgs().getPopulation());
+
             List<CartesianChromosome<Double>> population = ea.getChromosomes();
             Chromosome<Double> bestCandidate = population.stream().min(comparator).get();
-            int currentGen = 0;
-            long time = System.currentTimeMillis();
-            long oldTime = System.currentTimeMillis();
-            int percent =0;
+
+            Instant start = Instant.now();
+            int percent;
             // Pretty-print a summarised progress indicator
             StringBuilder out = new StringBuilder();
             // Start the evolutionary loop
-            int i;
-            for (i = 0; i < generations; ++i) {
+            for (int i = 0; i < generations; ++i) {
 
 
                 population = ea.evolve(population);
@@ -97,38 +131,25 @@ public class Client {
                 bestCandidate = population.stream().min(comparator).get();
                 percent = intToPercent(i, generations);
 
+                String global = (ea instanceof SEAMO)
+                        ? " (" + ((SEAMO<?, Double>) ea).getGlobals().values().stream()
+                        .map(v -> String.format("%.4f", v)).collect(Collectors.joining(", ")) + ")"
+                        : "";
 
-                if(i == 0)
-                    time = System.currentTimeMillis()-time;
+                // And include the current best fitness
                 out.append("\r")
                         .append("Progress: ").append(percent).append("%")
                         // And include the current best fitness
-                        .append("\t|\tFitness: ").append(bestCandidate.getFitness())
-                        .append("\t|\tGeneration: ").append(currentGen)
-                        .append("\t|\tTime: ").append(time + " ");
-                if(i%100 == 0){
-                    currentGen = i;
-                    time += System.currentTimeMillis()-oldTime;
-                    oldTime = System.currentTimeMillis();
-                }
+                        .append("\t|\tFitness: ").append(String.format("%.4f", bestCandidate.getFitness())).append(global)
+                        .append("\t|\tGeneration: ").append(i + 1)
+                        .append("\t|\tTime: ").append(Duration.between(start, Instant.now())).append(" ");
                 System.out.print(out);
             }
-            currentGen = i;
-            time += System.currentTimeMillis()-oldTime;
-            percent = intToPercent(i, generations);
-            out.append("\r")
-                    .append("Progress: ").append(percent).append("%")
-                    // And include the current best fitness
-                    .append("\t|\tFitness: ").append(bestCandidate.getFitness())
-                    .append("\t|\tGeneration: ").append(currentGen)
-                    .append("\t|\tTime: ").append(time + " ");
-
-            System.out.println(out);
             // When it ends print out the actual genome of the best candidate
             log.info("\n\tBest candidate: {}\n\tFitness: {}",
-                    bestCandidate.toString(), bestCandidate.getFitness()
+                    bestCandidate.toString(), String.format("%.4f", bestCandidate.getFitness())
             );
-            System.out.println("y = " + ((CartesianChromosome<Double>) bestCandidate).getExpression(
+            System.out.println("y = " + (bestCandidate).getExpression(
                     bestCandidate.toString(), supplier.getFunctionalPrimitives(),true));
         }
     }
