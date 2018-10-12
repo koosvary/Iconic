@@ -101,12 +101,8 @@
                     <CheckBox fx:id="cbRemoveOutliers" text="Remove outliers" disable="true"/>
                     <VBox fx:id="vbRemoveOutliers" visible="false" managed="false">
                         <HBox>
-                            <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
-                            <TextField text="0"/>
-                        </HBox>
-                        <HBox>
-                            <Label text="Max Value:"><padding><Insets left="25" right="10"/></padding></Label>
-                            <TextField text="100"/>
+                            <Label text="Threshold:"><padding><Insets left="25" right="10"/></padding></Label>
+                            <Spinner fx:id="spRemoveOutliersThreshold" editable="true"/>
                         </HBox>
                     </VBox>
                     <Separator/>

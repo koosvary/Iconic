@@ -21,23 +21,77 @@
  */
 package org.iconic.ea.data.preprocessing;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Iterator;
 
 public class RemoveOutliers extends Preprocessor<Number> {
-    private Number minCutoff, maxCutoff;
+    private double threshold = 2.00;
 
     public List<Number> apply(List<Number> values) {
+        // Calculate the mean and IQR
+        double mean = calculateMean(values);
+        double IQR = calculateIQR(values);
 
-        // Remove outliers functionality
+        // Use iterator to safely remove outlier values
+        Iterator<Number> iterator = values.iterator();
+
+        while (iterator.hasNext()) {
+            // Checks if the distance between the point and the mean is greater than the threshold multiplied by the IQR
+            if (Math.abs(mean - iterator.next().doubleValue()) > threshold * IQR) {
+                iterator.remove();
+            }
+        }
 
         return values;
     }
 
-    public void setMinCutoff(Number minCutoff) {
-        this.minCutoff = minCutoff;
+    private double calculateMean(List<Number> values) {
+        double total = 0;
+
+        for (Number value : values) {
+            total += value.doubleValue();
+        }
+
+        return total / values.size();
     }
 
-    public void setMaxCutoff(Number maxCutoff) {
-        this.maxCutoff = maxCutoff;
+    private double calculateMedian(Double[] values) {
+        if (values.length % 2 == 0) {
+            return (values[values.length / 2] + values[values.length / 2] - 1) / 2;
+        } else {
+            return values[values.length / 2];
+        }
+    }
+
+    private double calculateIQR(List<Number> values) {
+        // Convert values to an array and sort
+        Double[] numbers = values.toArray(new Double[values.size()]);
+        Arrays.sort(numbers);
+
+        // Calculate the size of the first/second half sets
+        int splitSize = (int)Math.floor(numbers.length / 2);
+
+        Double[] firstHalf = new Double[splitSize];
+        Double[] secondHalf = new Double[splitSize];
+
+        // Assigns each number to either the first half array or second half array
+        // If the set has an odd length, the middle element is ignored
+        for (int i=0; i < numbers.length; i++) {
+            if (i < splitSize) {
+                firstHalf[i] = numbers[i];
+            } else if (numbers.length % 2 == 0 && (i == splitSize || i > splitSize)) {
+                secondHalf[i - splitSize] = numbers[i];
+            } else if (numbers.length %2 != 0 && i > splitSize) {
+                secondHalf[i - splitSize - 1] = numbers[i];
+            }
+        }
+
+        // Returns the result of Q3 - Q1
+        return calculateMedian(secondHalf) - calculateMedian(firstHalf);
+    }
+
+    public void setThreshold(double threshold) {
+        this.threshold = threshold;
     }
 }
