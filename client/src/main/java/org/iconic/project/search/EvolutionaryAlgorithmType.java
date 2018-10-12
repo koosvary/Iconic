@@ -19,29 +19,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.project.definition;
+package org.iconic.project.search;
 
-import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.SearchExecutor;
+public enum EvolutionaryAlgorithmType {
+    GENE_EXPRESSION_PROGRAMMING("Gene Expression Programming"),
+    CARTESIAN_GENETIC_PROGRAMMING("Cartesian Genetic Programming");
 
+    private final String name;
 
-public interface DefineSearchService {
-    /**
-     * <p>
-     * Returns a list of projects owned by this service.
-     * </p>
-     *
-     * @return The function defined by the user
-     */
-    String getFunction();
+    EvolutionaryAlgorithmType(final String name) {
+        this.name = name;
+    }
 
-    /**
-     * <p>
-     * Returns a search model using settings in define search controller.
-     * </p>
-     *
-     * @return the search model as per settings
-     */
-    SearchExecutor getSearchModel(DatasetModel datasetModel);
+    private String getName() {
+        return name;
+    }
 
+    @Override
+    public String toString() {
+        return name;
+    }
 }

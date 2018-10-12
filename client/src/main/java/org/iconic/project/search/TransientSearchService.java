@@ -39,7 +39,7 @@ import java.util.UUID;
 @Log4j2
 @Singleton
 public class TransientSearchService implements SearchService {
-    private final ObservableMap<UUID, SearchModel> searches;
+    private final ObservableMap<UUID, SearchExecutor> searches;
 
     /**
      * <p>
@@ -47,7 +47,7 @@ public class TransientSearchService implements SearchService {
      * </p>
      */
     public TransientSearchService() {
-        Map<UUID, SearchModel> map = new HashMap<>();
+        Map<UUID, SearchExecutor> map = new HashMap<>();
 
         this.searches = FXCollections.observableMap(map);
     }
@@ -55,7 +55,7 @@ public class TransientSearchService implements SearchService {
     /**
      * {@inheritDoc}
      */
-    public ObservableMap<UUID, SearchModel> searchesProperty() {
+    public ObservableMap<UUID, SearchExecutor> searchesProperty() {
         return searches;
     }
 }

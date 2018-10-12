@@ -47,10 +47,8 @@ import org.iconic.project.BlockDisplay;
 import org.iconic.project.Displayable;
 import org.iconic.project.ProjectService;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.SearchModel;
+import org.iconic.project.search.SearchExecutor;
 import org.iconic.workspace.WorkspaceService;
-
-import javax.xml.soap.Text;
 
 @Log4j2
 public class DefineSearchController implements Initializable, DefineSearchService {
@@ -86,9 +84,9 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         tfTargetExpression.focusedProperty().addListener(focusListener);
         blockDisplayTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> selectedBlockDisplayDescription.setText(newSelection.getDescription()));
 
-        blockDisplays = new ArrayList<>(SearchModel.getFunctionalPrimitives().length);
+        blockDisplays = new ArrayList<>(SearchExecutor.getFunctionalPrimitives().length);
         for (FunctionalPrimitive primitive :
-                SearchModel.getFunctionalPrimitives()) {
+                SearchExecutor.getFunctionalPrimitives()) {
             blockDisplays.add(new BlockDisplay(true, primitive.getSymbol(), primitive.getDefaultComplexity(), primitive.getDescription()));
         }
 
@@ -113,8 +111,8 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     }
 
     @Override
-    public SearchModel getSearchModel(DatasetModel datasetModel) {
-        return new SearchModel(datasetModel, blockDisplays);
+    public SearchExecutor getSearchModel(DatasetModel datasetModel) {
+        return new SearchExecutor(datasetModel, blockDisplays);
     }
 
     @Override

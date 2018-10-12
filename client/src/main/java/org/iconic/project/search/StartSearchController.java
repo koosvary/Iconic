@@ -97,7 +97,7 @@ public class StartSearchController implements Initializable {
             if (item instanceof DatasetModel) {
                 DatasetModel dataset = (DatasetModel) item;
                 // Check if a search on the current active dataset is being performed
-                SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
+                SearchExecutor search = getSearchService().searchesProperty().get(dataset.getId());
 
                 // If there's no search...
                 if (search == null) {
@@ -139,11 +139,11 @@ public class StartSearchController implements Initializable {
             log.info("Function for use: " + defineSearchService.getFunction());
 
             DatasetModel dataset = (DatasetModel) item;
-            SearchModel search = getSearchService().searchesProperty().get(dataset.getId());
+            SearchExecutor search = getSearchService().searchesProperty().get(dataset.getId());
 
             // If there's no search already being performed on the dataset, start a new one
             if (search == null) {
-                SearchModel newSearch = defineSearchService.getSearchModel(dataset);
+                SearchExecutor newSearch = defineSearchService.getSearchModel(dataset);
                 getSearchService().searchesProperty().put(dataset.getId(), newSearch);
                 Thread thread = new Thread(getSearchService().searchesProperty().get(dataset.getId()));
                 thread.start();

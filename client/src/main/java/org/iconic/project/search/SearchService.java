@@ -42,5 +42,5 @@ public interface SearchService {
      *
      * @return The property of searches attached to the service
      */
-    ObservableMap<UUID, SearchModel> searchesProperty();
+    ObservableMap<UUID, SearchExecutor> searchesProperty();
 }

@@ -78,7 +78,8 @@ public class WorkspaceController implements Initializable {
     private void updateWorkspace() {
         val item = getWorkspaceService().getActiveWorkspaceItem();
 
-        // If no dataset is selected clear the UI
+        // If no dataset is selected clear the UI of dataset related elements
+        // TODO: if a search is selected, do not clear the results
         if (!(item instanceof DatasetModel)) {
             clearUI();
         }
