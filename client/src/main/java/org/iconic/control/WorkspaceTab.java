@@ -19,29 +19,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.project.definition;
+package org.iconic.control;
 
-import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.SearchExecutor;
+import javafx.scene.control.Tab;
 
+public class WorkspaceTab extends Tab {
+    private TabType tabType;
 
-public interface DefineSearchService {
-    /**
-     * <p>
-     * Returns a list of projects owned by this service.
-     * </p>
-     *
-     * @return The function defined by the user
-     */
-    String getFunction();
+    public WorkspaceTab() {
+        super();
+        this.tabType = TabType.OTHER;
+    }
 
-    /**
-     * <p>
-     * Returns a search model using settings in define search controller.
-     * </p>
-     *
-     * @return the search model as per settings
-     */
-    SearchExecutor getSearchModel(DatasetModel datasetModel);
+    public TabType getTabType() {
+        return tabType;
+    }
 
+    public void setTabType(TabType tabType) {
+        this.tabType = tabType;
+    }
+
+    public enum TabType {
+        DATASET,
+        SEARCH,
+        OTHER
+    }
 }

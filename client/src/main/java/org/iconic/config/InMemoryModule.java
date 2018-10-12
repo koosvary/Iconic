@@ -48,5 +48,6 @@ public class InMemoryModule extends AbstractModule {
         bind(SearchService.class).to(TransientSearchService.class);
         bind(WorkspaceService.class).to(DefaultWorkspaceService.class);
         bind(DefineSearchService.class).to(DefineSearchController.class);
+        bind(IconService.class).to(FontAwesomeIconService.class);
     }
 }
