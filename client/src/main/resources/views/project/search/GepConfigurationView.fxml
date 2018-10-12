@@ -28,10 +28,16 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.stage.Screen?>
 
+<?import org.iconic.control.operator.evolutionary.MutatorComboBox?>
+<?import org.iconic.control.LabelledSlider?>
+<?import org.iconic.control.operator.evolutionary.CrossoverComboBox?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      spacing="5">
-      <!--fx:controller="org.iconic.project.search.StartSearchController">-->
+      spacing="10"
+      prefWidth="${screen.visualBounds.width*0.2}"
+      alignment="CENTER_LEFT"
+      fx:controller="org.iconic.project.search.config.GepConfigurationController">
+    <!--fx:controller="org.iconic.project.search.StartSearchController">-->
     <!-- Define the primary screen so we can use percentage based widths -->
     <fx:define>
         <Screen fx:factory="getPrimary" fx:id="screen"/>
@@ -39,7 +45,14 @@
     <padding>
         <Insets top="10" bottom="10" left="10" right="10"/>
     </padding>
-    <TextField promptText="Head Length" />
-    <TextField promptText="Crossover Rate" />
-    <TextField promptText="Mutation Rate" />
+    <TextField promptText="Head Length"/>
+    <Separator/>
+    <HBox spacing="20">
+        <MutatorComboBox fx:id="cbMutators" promptText="Select a mutator"/>
+        <LabelledSlider text="Mutation Rate"/>
+    </HBox>
+    <HBox spacing="20">
+        <CrossoverComboBox fx:id="cbCrossovers" promptText="Select a crossover operator"/>
+        <LabelledSlider text="Crossover Rate"/>
+    </HBox>
 </VBox>

@@ -21,6 +21,8 @@
  */
 package org.iconic.project.search.config;
 
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import lombok.NonNull;
 import org.controlsfx.glyphfont.FontAwesome;
@@ -35,6 +37,8 @@ public abstract class SearchConfigurationModel implements Displayable {
     private final Map<FunctionalPrimitive<Double, Double>, Boolean> primitives;
     private final UUID id;
     private final SimpleStringProperty name;
+    private SimpleDoubleProperty mutationRate;
+    private SimpleDoubleProperty crossoverRate;
     private DatasetModel datasetModel;
     private SearchExecutor searchExecutor;
 
@@ -169,5 +173,29 @@ public abstract class SearchConfigurationModel implements Displayable {
 
     public Map<FunctionalPrimitive<Double, Double>, Boolean> getPrimitives() {
         return primitives;
+    }
+
+    public double getMutationRate() {
+        return mutationRate.get();
+    }
+
+    public SimpleDoubleProperty mutationRateProperty() {
+        return mutationRate;
+    }
+
+    public void setMutationRate(double mutationRate) {
+        this.mutationRate.set(mutationRate);
+    }
+
+    public double getCrossoverRate() {
+        return crossoverRate.get();
+    }
+
+    public SimpleDoubleProperty crossoverRateProperty() {
+        return crossoverRate;
+    }
+
+    public void setCrossoverRate(double crossoverRate) {
+        this.crossoverRate.set(crossoverRate);
     }
 }

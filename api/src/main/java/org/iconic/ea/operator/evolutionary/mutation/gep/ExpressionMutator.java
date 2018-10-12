@@ -93,4 +93,9 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
 //            expression.add(new FunctionNode<>((Constant<R>) new Constant<>(constant)));
 //        }
     }
+
+    @Override
+    public String toString() {
+        return "Simple Expression Mutation";
+    }
 }

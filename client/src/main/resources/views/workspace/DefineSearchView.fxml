@@ -32,7 +32,9 @@
 <?import javafx.scene.text.Font?>
 <?import java.lang.*?>
 <?import org.iconic.control.WorkspaceTab?>
-
+<?import org.iconic.control.DatasetComboBox?>
+<?import javafx.stage.Screen?>
+<?import org.iconic.control.operator.evolutionary.MutatorComboBox?>
 <WorkspaceTab text="   Define Search" tabType="SEARCH"
               xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
               fx:controller="org.iconic.project.definition.DefineSearchController">
@@ -44,12 +46,16 @@
         </ImageView>
     </graphic>
 
+    <fx:define>
+        <Screen fx:factory="getPrimary" fx:id="screen"/>
+    </fx:define>
+
     <VBox>
         <padding>
             <Insets topRightBottomLeft="25"/>
         </padding>
-        <VBox fx:id="vbConfiguration">
-            <HBox>
+        <VBox spacing="5" alignment="CENTER">
+            <HBox spacing="5">
                 <Label text="Target Expression:">
                     <padding>
                         <Insets left="20" right="20"/>
@@ -58,9 +64,10 @@
                         <Font size="16.0"/>
                     </font>
                 </Label>
-
                 <TextField fx:id="tfTargetExpression" text="y = f(x)"/>
+                <DatasetComboBox fx:id="cbDatasets"/>
             </HBox>
+            <VBox fx:id="vbConfiguration"/>
         </VBox>
 
         <HBox>

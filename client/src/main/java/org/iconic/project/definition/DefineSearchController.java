@@ -36,6 +36,8 @@ import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.converter.NumberStringConverter;
 import lombok.extern.log4j.Log4j2;
+import org.iconic.control.DatasetComboBox;
+import org.iconic.control.operator.evolutionary.MutatorComboBox;
 
 import java.net.URL;
 import java.util.*;
@@ -64,6 +66,12 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     private final SearchService searchService;
     private final ViewService viewService;
     private final WorkspaceService workspaceService;
+
+    @FXML
+    private DatasetComboBox cbDatasets;
+
+    @FXML
+    public MutatorComboBox cbMutators;
 
     @FXML
     VBox vbConfiguration;
@@ -131,6 +139,11 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         updateTab();
     }
 
+    @Override
+    public SearchExecutor getSearchModel(DatasetModel datasetModel) {
+        return new SearchExecutor(datasetModel, null);
+    }
+
     private void updateTab() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
@@ -141,58 +154,39 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         SearchConfigurationModel search = (SearchConfigurationModel) item;
         blockDisplays = search.getPrimitives().entrySet().stream()
                 .map(BlockDisplay::new)
+                .sorted(Comparator
+                        .comparing(BlockDisplay::getComplexity)
+                        .thenComparing(BlockDisplay::getName)
+                )
                 .collect(Collectors.toList());
 
         Platform.runLater(() -> {
-                    Node node;
-                    vbConfiguration.getChildren().clear();
-                    blockDisplayTableView.setItems(FXCollections.observableArrayList(blockDisplays));
+            Node node;
+            vbConfiguration.getChildren().clear();
+            blockDisplayTableView.setItems(FXCollections.observableArrayList(blockDisplays));
 
-                    if (search instanceof CgpConfigurationModel) {
-                        node = getConfigViews().get("cgp-config");
-                    } else {
-                        node = getConfigViews().get("gep-config");
-                    }
+            if (search instanceof CgpConfigurationModel) {
+                node = getConfigViews().get("cgp-config");
+            } else {
+                node = getConfigViews().get("gep-config");
+            }
 
-                    // Create a combo box holding all of the available datasets
-                    ObservableList<DatasetModel> options = FXCollections.emptyObservableList();
-                    Optional<ProjectModel> parent = getProjectService().findParentProject(item);
+            // Add all of the datasets within the project to the datasets combo box
+            Optional<ProjectModel> parent = getProjectService().findParentProject(item);
 
-                    if (parent.isPresent()) {
-                        options = parent.get().getDatasets();
-                    }
+            if (parent.isPresent() && parent.get().getDatasets().size() > 0) {
+                ObservableList<DatasetModel> options = parent.get().getDatasets();
+                cbDatasets.setItems(options);
+                cbDatasets.setPromptText("Select a dataset");
+                cbDatasets.setDisable(false);
+            } else {
+                cbDatasets.setItems(FXCollections.emptyObservableList());
+                cbDatasets.setPromptText("No datasets available");
+                cbDatasets.setDisable(true);
+            }
 
-                    ComboBox<DatasetModel> cbDatasets = new ComboBox<>(options);
-                    cbDatasets.setButtonCell(null);
-                    cbDatasets.setCellFactory(new Callback<ListView<DatasetModel>, ListCell<DatasetModel>>() {
-                        @Override
-                        public ListCell<DatasetModel> call(ListView<DatasetModel> param) {
-                            return new ListCell<DatasetModel>() {
-                                @Override
-                                protected void updateItem(DatasetModel item, boolean empty) {
-                                    super.updateItem(item, empty);
-
-                                    if (item == null || empty) {
-                                        setText("No dataset selected");
-                                    } else {
-                                        setText(item.getLabel());
-                                    }
-                                }
-                            };
-                        }
-                    });
-
-                    vbConfiguration.getChildren().add(cbDatasets);
-                    vbConfiguration.getChildren().add(node);
-                }
-        );
-
-        loadFunction();
-    }
-
-    @Override
-    public SearchExecutor getSearchModel(DatasetModel datasetModel) {
-        return new SearchExecutor(datasetModel, null);
+            vbConfiguration.getChildren().add(node);
+        });
     }
 
     @Override
@@ -209,7 +203,6 @@ public class DefineSearchController implements Initializable, DefineSearchServic
             // Get the dataset, if exists
             functionStr = functionDefinitions.get(datasetID);
         }
-
         return functionStr;
     }
 
