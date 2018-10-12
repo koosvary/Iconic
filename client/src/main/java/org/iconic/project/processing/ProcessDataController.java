@@ -302,6 +302,8 @@ public class ProcessDataController implements Initializable {
             return;
         }
 
+        resetEmptyTextField(tfSmoothingWindow, "0");
+
         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {
             Optional<DataManager<Double>> dataManager = getDataManager();
@@ -372,7 +374,11 @@ public class ProcessDataController implements Initializable {
             return;
         }
 
+        resetEmptyTextField(tfNormaliseMin, "0");
+        resetEmptyTextField(tfNormaliseMax, "1");
+
         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+
         if (selectedIndex != -1) {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
@@ -404,6 +410,8 @@ public class ProcessDataController implements Initializable {
         if (lvFeatures == null) {
             return;
         }
+
+        resetEmptyTextField(tfOffsetValue, "0");
 
         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
@@ -669,6 +677,13 @@ public class ProcessDataController implements Initializable {
         cbOffset.setSelected(false);
 
         resetCheckboxFlag = false;
+    }
+
+    private void resetEmptyTextField(TextField textField, String resetValue) {
+        if (textField.getText().isEmpty()) {
+            textField.setText(resetValue);
+            textField.positionCaret(resetValue.length());
+        }
     }
 
     /**
