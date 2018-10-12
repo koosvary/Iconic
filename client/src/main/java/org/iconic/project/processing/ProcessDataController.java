@@ -75,7 +75,7 @@ public class ProcessDataController implements Initializable {
     @FXML
     private ComboBox<String> cbHandleMissingValuesOptions;
     @FXML
-    private TextField tfNormaliseMin, tfNormaliseMax, tfOffsetValue;
+    private TextField tfSmoothingWindow, tfNormaliseMin, tfNormaliseMax, tfOffsetValue;
 
     /**
      * <p>
@@ -125,6 +125,11 @@ public class ProcessDataController implements Initializable {
         addCheckBoxChangeListener(cbOffset, vbOffset);
 
         addComboBoxChangeListener(cbHandleMissingValuesOptions, cbHandleMissingValues);
+
+        addTextFieldChangeListener(tfSmoothingWindow, false);
+        addTextFieldChangeListener(tfNormaliseMin, true);
+        addTextFieldChangeListener(tfNormaliseMax, true);
+        addTextFieldChangeListener(tfOffsetValue, true);
     }
 
     /**
@@ -204,6 +209,30 @@ public class ProcessDataController implements Initializable {
     }
 
     /**
+     * Adds a change listener to a specified TextField which strips out all non-numerical characters to ensure
+     * that the field only contains integer values.
+     *
+     * @param textField The selected TextField
+     * @param allowDecimals A boolean flag denoting whether or not to allow decimal points in the TextField
+     */
+    private void addTextFieldChangeListener(TextField textField, Boolean allowDecimals) {
+        textField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (allowDecimals) {
+                    if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                        textField.setText(oldValue);
+                    }
+                } else {
+                    if (!newValue.matches("\\d*")) {
+                        textField.setText(newValue.replaceAll("[^\\d]", ""));
+                    }
+                }
+            }
+        });
+    }
+
+    /**
      * Called after a checkbox has been selected. A check is done to determine whether the feature
      * has been modified. If so, a 'modified' keyword is appended to the header and the feature list
      * is updated.
@@ -273,13 +302,18 @@ public class ProcessDataController implements Initializable {
             return;
         }
 
+        resetEmptyTextField(tfSmoothingWindow, "0");
+
         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
             if (cbSmoothData.isSelected() && dataManager.isPresent()) {
+                int smoothingWindow = Integer.parseInt(tfSmoothingWindow.getText());
+
                 Smooth smooth = new Smooth();
                 smooth.setTransformType(TransformType.Smoothed);
+                smooth.setNeighbourSize(smoothingWindow);
 
                 addNewPreprocessor(dataManager.get().getSampleHeaders().get(selectedIndex), smooth);
             }
@@ -340,7 +374,11 @@ public class ProcessDataController implements Initializable {
             return;
         }
 
+        resetEmptyTextField(tfNormaliseMin, "0");
+        resetEmptyTextField(tfNormaliseMax, "1");
+
         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+
         if (selectedIndex != -1) {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
@@ -372,6 +410,8 @@ public class ProcessDataController implements Initializable {
         if (lvFeatures == null) {
             return;
         }
+
+        resetEmptyTextField(tfOffsetValue, "0");
 
         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
@@ -637,6 +677,13 @@ public class ProcessDataController implements Initializable {
         cbOffset.setSelected(false);
 
         resetCheckboxFlag = false;
+    }
+
+    private void resetEmptyTextField(TextField textField, String resetValue) {
+        if (textField.getText().isEmpty()) {
+            textField.setText(resetValue);
+            textField.positionCaret(resetValue.length());
+        }
     }
 
     /**
