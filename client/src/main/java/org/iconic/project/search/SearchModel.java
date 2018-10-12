@@ -21,6 +21,7 @@
  */
 package org.iconic.project.search;
 
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.chart.XYChart;
@@ -131,6 +132,7 @@ public class SearchModel implements Runnable {
      */
     @Override
     public void run() {
+        log.debug("Starting search...");
         setRunning(true);
 
         final int populationSize = 5;
@@ -140,7 +142,7 @@ public class SearchModel implements Runnable {
             ea.initialisePopulation(populationSize);
 
             ExpressionChromosome<Double> bestCandidate = ea.getChromosomes().stream().min(comparator).get();
-            getPlots().getData().add(new XYChart.Data<>(0, bestCandidate.getFitness()));
+            addPlot(0, bestCandidate);
 
             setUpdates("\nStarting..." + getUpdates());
             for (int i = 0; isRunning(); ++i) {
@@ -158,7 +160,7 @@ public class SearchModel implements Runnable {
 
                 if (newCandidate) {
                     bestCandidate = newBestCandidate;
-                    getPlots().getData().add(new XYChart.Data<>(i + 1, bestCandidate.getFitness()));
+                    addPlot(i+1, bestCandidate);
                 }
 
                 final String generation = "\nGeneration: " + (i + 1);
@@ -188,6 +190,18 @@ public class SearchModel implements Runnable {
      */
     public void stop() {
         setRunning(false);
+    }
+
+    /**
+     * Add a plot point for progress over time
+     * @param candidate Candidate to plot
+     */
+    private void addPlot(int generation, final ExpressionChromosome<Double> candidate) {
+        Platform.runLater(() -> {
+            double fitness = candidate.getFitness();
+            XYChart.Data<Number, Number> plot = new XYChart.Data<>(generation, fitness);
+            getPlots().getData().add(plot);
+        });
     }
 
     /**
