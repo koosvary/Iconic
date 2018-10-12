@@ -145,7 +145,11 @@ public class ProcessDataController implements Initializable {
 
             @Override
             public Double fromString(String string) {
-                return Double.parseDouble(string);
+                if (string.isEmpty()) {
+                    return 0.0;
+                } else {
+                    return Double.parseDouble(string);
+                }
             }
         });
 
