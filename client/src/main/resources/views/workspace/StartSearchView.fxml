@@ -56,6 +56,7 @@
         <items>
             <AnchorPane minHeight="0.0" minWidth="0.0">
                 <VBox>
+
                     <HBox>
                         <padding>
                             <Insets top="10" bottom="10" left="10" right="10"/>
@@ -67,9 +68,11 @@
                             </buttons>
                         </ButtonBar>
                     </HBox>
+
                     <Separator/>
+
                     <HBox>
-                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.33}">
+                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.3}">
                             <padding>
                                 <Insets top="10" bottom="10" left="10" right="10"/>
                             </padding>
@@ -111,7 +114,8 @@
                                 </content>
                             </ScrollPane>
                         </VBox>
-                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.66}">
+
+                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.5}">
                             <padding>
                                 <Insets top="10" bottom="10" left="10" right="10"/>
                             </padding>
@@ -123,7 +127,7 @@
                                            AnchorPane.rightAnchor="0"
                                            AnchorPane.BottomAnchor="0">
                                     <xAxis>
-                                        <NumberAxis label="Generations" side="BOTTOM"/>
+                                        <NumberAxis label="Generation" side="BOTTOM"/>
                                     </xAxis>
                                     <yAxis>
                                         <NumberAxis label="Fitness" side="LEFT"/>
@@ -132,6 +136,7 @@
                             </AnchorPane>
                         </VBox>
                     </HBox>
+
                 </VBox>
             </AnchorPane>
             <AnchorPane minHeight="0.0" minWidth="0.0">

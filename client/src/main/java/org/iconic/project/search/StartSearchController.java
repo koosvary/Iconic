@@ -22,6 +22,7 @@
 package org.iconic.project.search;
 
 import com.google.inject.Inject;
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -46,6 +47,7 @@ import java.util.ResourceBundle;
  */
 @Log4j2
 public class StartSearchController implements Initializable {
+
     private final SearchService searchService;
     private final WorkspaceService workspaceService;
     private final DefineSearchService defineSearchService;
@@ -58,10 +60,8 @@ public class StartSearchController implements Initializable {
     private LineChart<Number, Number> lcSearchProgress;
 
     /**
-     * <p>
      * Constructs a new StartSearchController that attaches an invalidation listener onto the search and workspace
      * services.
-     * </p>
      */
     @Inject
     public StartSearchController(final WorkspaceService workspaceService, final SearchService searchService, final DefineSearchService defineSearchService) {
@@ -89,41 +89,37 @@ public class StartSearchController implements Initializable {
         // If no dataset is selected clear the UI
         if (!(item instanceof DatasetModel)) {
             clearUI();
+            return;
         }
 
         // Make sure that all the UI elements actually exist
-        if (btnSearch != null && btnStopSearch != null) {
-            // If the selected item is a dataset
-            if (item instanceof DatasetModel) {
-                DatasetModel dataset = (DatasetModel) item;
-                // Check if a search on the current active dataset is being performed
-                SearchExecutor search = getSearchService().searchesProperty().get(dataset.getId());
-
-                // If there's no search...
-                if (search == null) {
-                    btnSearch.setText("Start Search");
-                    btnSearch.setDisable(false);
-                    btnStopSearch.setDisable(true);
-                    btnStopSearch.setVisible(false);
-                }
-                // Otherwise...
-                else {
-                    btnSearch.setText("Pause");
-                    btnSearch.setDisable(true);
-                    btnStopSearch.setDisable(false);
-                    btnStopSearch.setVisible(true);
-                }
-            }
-            // Otherwise if no interesting project item is selected
-            else {
-                // Display some default messages
-                btnSearch.setText("Start Search");
-                btnStopSearch.setVisible(false);
-                // And disable the search buttons
-                btnSearch.setDisable(true);
-                btnStopSearch.setDisable(true);
-            }
+        if (btnSearch == null || btnStopSearch == null) {
+            return;
         }
+
+        DatasetModel dataset = (DatasetModel) item;
+        // Check if a search on the current active dataset is being performed
+        SearchExecutor search = getSearchService().searchesProperty().get(dataset.getId());
+
+        // If there's no search...
+        if (search == null) {
+            btnSearch.setText("Start Search");
+            btnSearch.setDisable(false);
+            btnStopSearch.setDisable(true);
+        }
+        // Otherwise...
+        else {
+            btnSearch.setText("Pause");
+            btnSearch.setDisable(true);
+            btnStopSearch.setDisable(false);
+            updatePlots(search);
+        }
+
+    }
+
+    private synchronized void updatePlots(SearchExecutor search) {
+        lcSearchProgress.getData().clear();
+        lcSearchProgress.getData().add(search.getPlots());
     }
 
     /**
@@ -150,7 +146,7 @@ public class StartSearchController implements Initializable {
             }
             // Otherwise stop the current search
             else {
-//              TODO implement pause functionality
+                // TODO implement pause functionality
                 stopSearch(actionEvent);
             }
         }
@@ -166,11 +162,8 @@ public class StartSearchController implements Initializable {
 
         // Check that there's an active dataset before starting the search
         if (item instanceof DatasetModel) {
-            val dataset = (DatasetModel) item;
-            val search = getSearchService().searchesProperty().get(dataset.getId());
-
-            lcSearchProgress.getData().clear();
-            lcSearchProgress.getData().add(search.getPlots());
+            DatasetModel dataset = (DatasetModel) item;
+            SearchExecutor search = getSearchService().searchesProperty().get(dataset.getId());
 
             search.stop();
             getSearchService().searchesProperty().remove(dataset.getId());
@@ -185,13 +178,19 @@ public class StartSearchController implements Initializable {
         if (lcSearchProgress != null) {
             lcSearchProgress.getData().clear();
         }
+
+        // Disable the search buttons
+        if (btnSearch != null) {
+            btnSearch.setText("Start Search");
+            btnSearch.setDisable(true);
+        }
+        if (btnStopSearch != null) {
+            btnStopSearch.setDisable(true);
+        }
     }
 
     /**
-     * <p>
      * Returns the workspace service of this controller
-     * </p>
-     *
      * @return the workspace service of the controller
      */
     private WorkspaceService getWorkspaceService() {
@@ -199,10 +198,7 @@ public class StartSearchController implements Initializable {
     }
 
     /**
-     * <p>
      * Returns the search service of this controller
-     * </p>
-     *
      * @return the search service of the controller
      */
     private SearchService getSearchService() {

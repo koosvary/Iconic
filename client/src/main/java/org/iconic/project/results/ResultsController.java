@@ -58,7 +58,7 @@ public class ResultsController implements Initializable {
 
     private SolutionStorage<Double> storage;
     private SearchExecutor lastSearch;
-    private InvalidationListener selectionChangedListener;
+    private InvalidationListener resultAddedListener;
 
     @FXML
     private TableView<ResultDisplay> solutionsTableView;
@@ -72,9 +72,9 @@ public class ResultsController implements Initializable {
         this.searchService = searchService;
 
         // Update the workspace whenever the active dataset changes
-        selectionChangedListener = observable -> updateWorkspace();
-        getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedListener);
-        getSearchService().searchesProperty().addListener(selectionChangedListener);
+        resultAddedListener = observable -> updateWorkspace();
+        getWorkspaceService().activeWorkspaceItemProperty().addListener(resultAddedListener);
+        getSearchService().searchesProperty().addListener(resultAddedListener);
     }
 
     /**
@@ -86,7 +86,7 @@ public class ResultsController implements Initializable {
     }
 
     /**
-     * Updates the workspace to match the current active dataset.
+     * Calls the main thread to update the workspace when it can.
      */
     private synchronized void updateWorkspace() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
@@ -102,7 +102,7 @@ public class ResultsController implements Initializable {
         if (search != null && search != lastSearch) {
             // If a search is running, use that current one for results. Else use the last search
             storage = search.getSolutionStorage();
-            storage.getSolutions().addListener(selectionChangedListener);
+            storage.getSolutions().addListener(resultAddedListener);
             lastSearch = search;
         }
 
@@ -114,6 +114,9 @@ public class ResultsController implements Initializable {
         Platform.runLater(() -> updateWorkspaceMainThread());
     }
 
+    /**
+     * Updates the workspace to match the current active dataset.
+     */
     private synchronized void updateWorkspaceMainThread() {
         List<ResultDisplay> resultDisplays = new ArrayList<>();
         for (Map.Entry<Integer, List<ExpressionChromosome<Double>>> entry : storage.getSolutions().entrySet()) {
