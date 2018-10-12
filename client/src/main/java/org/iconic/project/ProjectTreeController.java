@@ -203,6 +203,7 @@ public class ProjectTreeController implements Initializable {
             // If there's no item in the cell, don't display anything
             if (empty) {
                 setText(null);
+                setGraphic(null);
             }
             // Otherwise display the item's icon and name
             else {
