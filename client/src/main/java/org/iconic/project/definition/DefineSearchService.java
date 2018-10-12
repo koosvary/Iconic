@@ -43,5 +43,4 @@ public interface DefineSearchService {
      * @return the search model as per settings
      */
     SearchExecutor getSearchModel(DatasetModel datasetModel);
-
 }

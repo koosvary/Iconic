@@ -28,7 +28,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.config.SearchConfigurationModel;
+import org.iconic.project.search.SearchConfigurationModel;
 
 import java.util.Optional;
 

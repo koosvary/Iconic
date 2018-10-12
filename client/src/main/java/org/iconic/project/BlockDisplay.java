@@ -24,6 +24,7 @@ package org.iconic.project;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 public class BlockDisplay {
     private final SimpleStringProperty name = new SimpleStringProperty("");

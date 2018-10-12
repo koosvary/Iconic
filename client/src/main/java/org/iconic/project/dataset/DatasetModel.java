@@ -43,8 +43,6 @@ public class DatasetModel implements Displayable {
     private final SimpleStringProperty absolutePath;
     private final DataManager<Double> dataManager;
 
-
-
     /**
      * <p>Constructs a new DatasetModel with the provided name.</p>
      *
@@ -66,7 +64,7 @@ public class DatasetModel implements Displayable {
     public DatasetModel(@NonNull final String name, @NonNull final String absolutePath) {
         this.name = new SimpleStringProperty(name);
         this.absolutePath = new SimpleStringProperty(absolutePath);
-        this.dataManager = new DataManager<Double>(absolutePath);
+        this.dataManager = new DataManager<>(absolutePath);
         this.id = UUID.randomUUID();
     }
 

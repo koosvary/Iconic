@@ -47,6 +47,7 @@ import org.iconic.project.BlockDisplay;
 import org.iconic.project.Displayable;
 import org.iconic.project.ProjectService;
 import org.iconic.project.dataset.DatasetModel;
+import org.iconic.project.search.SearchConfigurationModel;
 import org.iconic.project.search.SearchExecutor;
 import org.iconic.workspace.WorkspaceService;
 
@@ -198,12 +199,14 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     private Optional<DataManager<Double>> getDataManager() {
         Displayable item = workspaceService.getActiveWorkspaceItem();
 
-        if (item instanceof DatasetModel) {
-            DatasetModel dataset = (DatasetModel) item;
-            return Optional.of(dataset.getDataManager());
-        } else {
-            return Optional.empty();
+        if (item instanceof SearchConfigurationModel) {
+            SearchConfigurationModel search = (SearchConfigurationModel) item;
+            if (search.getDatasetModel().isPresent()) {
+                return Optional.of(search.getDatasetModel().get().getDataManager());
+            }
         }
+
+        return Optional.empty();
     }
 
     private ChangeListener<Boolean> focusListener = new ChangeListener<Boolean>() {

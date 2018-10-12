@@ -105,8 +105,8 @@ public class SearchConfigurationModel implements Displayable {
      *
      * @return The dataset model associated with the search configuration
      */
-    public DatasetModel getDatasetModel() {
-        return datasetModel;
+    public Optional<DatasetModel> getDatasetModel() {
+        return (datasetModel == null) ? Optional.empty() : Optional.of(datasetModel);
     }
 
     public void setDatasetModel(DatasetModel datasetModel) {
@@ -118,8 +118,8 @@ public class SearchConfigurationModel implements Displayable {
      *
      * @return The search executor associated with the search configuration
      */
-    public SearchExecutor getSearchExecutor() {
-        return searchExecutor;
+    public Optional<SearchExecutor> getSearchExecutor() {
+        return (searchExecutor == null) ? Optional.empty() : Optional.of(searchExecutor);
     }
 
     public void setSearchExecutor(SearchExecutor searchExecutor) {

@@ -39,6 +39,7 @@ import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.SearchExecutor;
 import org.iconic.project.search.SearchService;
 import org.iconic.project.search.SolutionStorage;
+import org.iconic.project.search.SearchConfigurationModel;
 import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
@@ -57,7 +58,7 @@ public class ResultsController implements Initializable {
     private final SearchService searchService;
 
     private SolutionStorage<Double> storage;
-    private SearchExecutor lastSearch;
+    private SearchConfigurationModel lastSearch;
     private InvalidationListener resultAddedListener;
 
     @FXML
@@ -92,26 +93,27 @@ public class ResultsController implements Initializable {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
         // If no dataset, stop what you're doing.
-        if (!(item instanceof DatasetModel)) {
+        if (!(item instanceof SearchConfigurationModel)) {
             // TODO clear the UI?
             return;
         }
 
-        DatasetModel dataset = (DatasetModel) item;
-        SearchExecutor search = getSearchModel(dataset);
-        if (search != null && search != lastSearch) {
-            // If a search is running, use that current one for results. Else use the last search
-            storage = search.getSolutionStorage();
-            storage.getSolutions().addListener(resultAddedListener);
-            lastSearch = search;
-        }
+        SearchConfigurationModel search = (SearchConfigurationModel) item;
+        search.getSearchExecutor().ifPresent(executor -> {
+            if (search != lastSearch) {
+                // If a search is running, use that current one for results. Else use the last search
+                storage = executor.getSolutionStorage();
+                storage.getSolutions().addListener(resultAddedListener);
+                lastSearch = search;
+            }
 
+        });
         if (storage == null) {
             // No storage? No worries
             return;
         }
 
-        Platform.runLater(() -> updateWorkspaceMainThread());
+        Platform.runLater(this::updateWorkspaceMainThread);
     }
 
     /**
@@ -149,7 +151,7 @@ public class ResultsController implements Initializable {
      * @param dataset DatasetModel to use
      * @return Search model for that dataset, or null if no search is running
      */
-    private SearchExecutor getSearchModel(DatasetModel dataset) {
+    private SearchExecutor getSearchExecutor(DatasetModel dataset) {
         return getSearchService().searchesProperty().get(dataset.getId());
     }
 

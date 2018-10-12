@@ -19,35 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.config;
+package org.iconic.views;
 
-import com.google.inject.AbstractModule;
-import org.iconic.project.ProjectService;
-import org.iconic.project.TransientProjectService;
-import org.iconic.project.search.SearchService;
-import org.iconic.project.search.TransientSearchService;
-import org.iconic.views.DefaultViewService;
-import org.iconic.views.ViewService;
-import org.iconic.workspace.DefaultWorkspaceService;
-import org.iconic.workspace.WorkspaceService;
+import org.iconic.View;
+
+import java.util.Map;
 
 /**
- * {@inheritDoc}
- * <p>
- * An in memory module defines services that are guaranteed not to persist any of their data for the next time the
- * application is opened.
- * </p>
+ * <p>A view service that maintains a list of views</p>
  */
-public class InMemoryModule extends AbstractModule {
+public interface ViewService {
     /**
-     * {@inheritDoc}
+     * <p>Returns a list of views owned by this service</p>
+     *
+     * @return The list of views
      */
-    @Override
-    protected void configure() {
-        bind(IconService.class).to(FontAwesomeIconService.class);
-        bind(ProjectService.class).to(TransientProjectService.class);
-        bind(SearchService.class).to(TransientSearchService.class);
-        bind(ViewService.class).to(DefaultViewService.class);
-        bind(WorkspaceService.class).to(DefaultWorkspaceService.class);
-    }
+    Map<String, View> getViews();
+
+    /**
+     * <p>Adds the provided key value pair to this service's map of views</p>
+     *
+     * @param key
+     * @param value
+     */
+    void put(final String key, final View value);
 }
