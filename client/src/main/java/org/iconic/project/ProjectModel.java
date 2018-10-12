@@ -30,7 +30,7 @@ import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.SearchConfigurationModel;
+import org.iconic.project.search.config.SearchConfigurationModel;
 
 import java.util.Collection;
 import java.util.LinkedList;

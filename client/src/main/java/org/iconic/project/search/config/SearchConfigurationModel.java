@@ -19,18 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.project.search;
+package org.iconic.project.search.config;
 
 import javafx.beans.property.SimpleStringProperty;
 import lombok.NonNull;
 import org.controlsfx.glyphfont.FontAwesome;
+import org.iconic.ea.operator.primitive.*;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
+import org.iconic.project.search.SearchExecutor;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-public class SearchConfigurationModel implements Displayable {
+public abstract class SearchConfigurationModel implements Displayable {
+    private final Map<FunctionalPrimitive<Double, Double>, Boolean> primitives;
     private final UUID id;
     private final SimpleStringProperty name;
     private DatasetModel datasetModel;
@@ -44,6 +46,45 @@ public class SearchConfigurationModel implements Displayable {
     public SearchConfigurationModel(@NonNull final String name) {
         this.name = new SimpleStringProperty(name);
         this.id = UUID.randomUUID();
+        this.primitives = new HashMap<>();
+        primitives.put(new AbsoluteValue(), true);
+        primitives.put(new Addition(), true);
+        primitives.put(new And(), true);
+        primitives.put(new ArcCos(), true);
+        primitives.put(new ArcSin(), true);
+        primitives.put(new ArcTan(), true);
+        primitives.put(new Ceiling(), true);
+        primitives.put(new Cos(), true);
+        primitives.put(new Division(), true);
+        primitives.put(new EqualTo(), true);
+        primitives.put(new Exponential(), true);
+        primitives.put(new Floor(), true);
+        primitives.put(new GaussianFunction(), true);
+        primitives.put(new GreaterThan(), true);
+        primitives.put(new GreaterThanOrEqual(), true);
+        primitives.put(new IfThenElse(), true);
+        primitives.put(new LessThan(), true);
+        primitives.put(new LessThanOrEqual(), true);
+        primitives.put(new LogisticFunction(), true);
+        primitives.put(new Maximum(), true);
+        primitives.put(new Minimum(), true);
+        primitives.put(new Modulo(), true);
+        primitives.put(new Multiplication(), true);
+        primitives.put(new NaturalLog(), true);
+        primitives.put(new Negation(), true);
+        primitives.put(new Not(), true);
+        primitives.put(new Or(), true);
+        primitives.put(new Power(), true);
+        primitives.put(new Root(), true);
+        primitives.put(new SignFunction(), true);
+        primitives.put(new Sin(), true);
+        primitives.put(new SquareRoot(), true);
+        primitives.put(new StepFunction(), true);
+        primitives.put(new Subtraction(), true);
+        primitives.put(new Tan(), true);
+        primitives.put(new Tanh(), true);
+        primitives.put(new TwoArcTan(), true);
+        primitives.put(new Xor(), true);
     }
 
     /**
@@ -124,5 +165,9 @@ public class SearchConfigurationModel implements Displayable {
 
     public void setSearchExecutor(SearchExecutor searchExecutor) {
         this.searchExecutor = searchExecutor;
+    }
+
+    public Map<FunctionalPrimitive<Double, Double>, Boolean> getPrimitives() {
+        return primitives;
     }
 }

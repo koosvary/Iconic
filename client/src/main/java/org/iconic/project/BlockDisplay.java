@@ -26,11 +26,22 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
+import java.util.Map;
+
 public class BlockDisplay {
     private final SimpleStringProperty name = new SimpleStringProperty("");
     private final SimpleBooleanProperty enabled = new SimpleBooleanProperty(true);
     private final SimpleIntegerProperty complexity = new SimpleIntegerProperty(1);
     private final SimpleStringProperty description = new SimpleStringProperty("");
+
+    public BlockDisplay(final Map.Entry<FunctionalPrimitive<Double, Double>, Boolean> primitive) {
+        this(
+                primitive.getValue(),
+                primitive.getKey().getSymbol(),
+                primitive.getKey().getDefaultComplexity(),
+                primitive.getKey().getDescription()
+        );
+    }
 
     public BlockDisplay(Boolean enabled, String name, Integer complexity, String description) {
         setEnabled(enabled);

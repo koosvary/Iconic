@@ -40,8 +40,9 @@ import lombok.Getter;
 import lombok.val;
 import org.iconic.config.IconService;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.EvolutionaryAlgorithmType;
-import org.iconic.project.search.SearchConfigurationModel;
+import org.iconic.project.search.config.EvolutionaryAlgorithmType;
+import org.iconic.project.search.config.SearchConfigurationModel;
+import org.iconic.project.search.config.SearchConfigurationModelFactory;
 import org.iconic.workspace.WorkspaceService;
 
 import java.io.File;
@@ -348,8 +349,25 @@ public class ProjectTreeController implements Initializable {
             // If the current active item isn't a project don't do anything
             if (item instanceof ProjectModel) {
                 result.ifPresent(params -> {
+                            SearchConfigurationModelFactory searchConfigurationModelFactory =
+                                    new SearchConfigurationModelFactory();
+
+                            if (
+                                    params.getKey() == null ||
+                                    params.getValue() == null ||
+                                    params.getKey().trim().isEmpty()
+                            ) {
+                                return;
+                            }
+
+                            // Construct the search configuration model using the parameters
+                            // input by the user
                             SearchConfigurationModel searchConfiguration =
-                                    new SearchConfigurationModel(params.getKey());
+                                    searchConfigurationModelFactory.getSearchConfigurationModel(
+                                            params.getKey(), params.getValue()
+                                    );
+
+                            // Clone the selected project model and add the configuration to it
                             ProjectModel project = (ProjectModel) item;
                             ProjectModel newProject = project.toBuilder()
                                     .searchConfiguration(searchConfiguration)

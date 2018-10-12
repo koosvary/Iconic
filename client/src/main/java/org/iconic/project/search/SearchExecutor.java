@@ -51,29 +51,22 @@ import java.util.*;
  */
 @Log4j2
 public class SearchExecutor implements Runnable {
-    private static final FunctionalPrimitive[] FUNCTIONAL_PRIMITIVES = {new AbsoluteValue(), new Addition(), new And(), new ArcCos(), new ArcSin(),
-            new ArcTan(), new Ceiling(), new Cos(), new Division(), new EqualTo(),
-            new Exponential(), new Floor(), new GaussianFunction(), new GreaterThan(),
-            new GreaterThanOrEqual(), new IfThenElse(), new LessThan(), new LessThanOrEqual(),
-            new LogisticFunction(), new Maximum(), new Minimum(), new Modulo(), new Multiplication(),
-            new NaturalLog(), new Negation(), new Not(), new Or(), new Power(), new Root(),
-            new SignFunction(), new Sin(), new SquareRoot(), new StepFunction(), new Subtraction(),
-            new Tan(), new Tanh(), new TwoArcTan(), new Xor()};
-
     private final XYChart.Series<Number, Number> plots;
     private final DatasetModel datasetModel;
     private final ObjectProperty<String> updates;
     private EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> ea;
     private SolutionStorage<Double> solutionStorage = new SolutionStorage<>(); // Stores the solutions found
     private boolean running;
-    private ArrayList<BlockDisplay> blockDisplays;
 
 
     /**
      * Constructs a new search model with the provided dataset.
      * @param datasetModel The dataset to perform the search on
      */
-    public SearchExecutor(@NonNull final DatasetModel datasetModel, ArrayList<BlockDisplay> blockDisplays) {
+    public SearchExecutor(
+            @NonNull final DatasetModel datasetModel,
+            @NonNull final List<FunctionalPrimitive<Double, Double>> primitives
+    ) {
 
         // Get the number of features to tell the search function how many it can use
         int numFeatures = 0;
@@ -91,19 +84,9 @@ public class SearchExecutor implements Runnable {
                 10,
                 numFeatures
         );
+        supplier.addFunction(primitives);
 
-        this.blockDisplays = new ArrayList<>(blockDisplays);
         this.datasetModel = datasetModel;
-
-        List<FunctionalPrimitive<Double, Double>> enabledPrimitives = new ArrayList<>(this.blockDisplays.size());
-        for (int i = 0; i < this.blockDisplays.size(); i++) {
-            if (this.blockDisplays.get(i).isEnabled()) {
-                enabledPrimitives.add(getFunctionalPrimitives()[i]);
-            }
-        }
-
-        supplier.addFunction(enabledPrimitives);
-
         this.plots = new XYChart.Series<>();
         this.updates = new SimpleObjectProperty<>(null);
         this.running = false;
@@ -242,9 +225,5 @@ public class SearchExecutor implements Runnable {
 
     public XYChart.Series<Number, Number> getPlots() {
         return plots;
-    }
-
-    public static FunctionalPrimitive[] getFunctionalPrimitives() {
-        return FUNCTIONAL_PRIMITIVES;
     }
 }

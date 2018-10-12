@@ -35,7 +35,7 @@ import lombok.extern.log4j.Log4j2;
 import org.iconic.control.WorkspaceTab;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.SearchConfigurationModel;
+import org.iconic.project.search.config.SearchConfigurationModel;
 
 import java.net.URL;
 import java.util.ResourceBundle;

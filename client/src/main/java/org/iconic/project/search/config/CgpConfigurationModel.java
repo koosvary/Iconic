@@ -19,24 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.project.search;
+package org.iconic.project.search.config;
 
-public enum EvolutionaryAlgorithmType {
-    GENE_EXPRESSION_PROGRAMMING("Gene Expression Programming"),
-    CARTESIAN_GENETIC_PROGRAMMING("Cartesian Genetic Programming");
+import lombok.NonNull;
 
-    private final String name;
-
-    EvolutionaryAlgorithmType(final String name) {
-        this.name = name;
-    }
-
-    private String getName() {
-        return name;
-    }
-
-    @Override
-    public String toString() {
-        return name;
+public class CgpConfigurationModel extends SearchConfigurationModel {
+    /**
+     * {@inheritDoc}
+     */
+    public CgpConfigurationModel(@NonNull final String name) {
+        super(name);
     }
 }

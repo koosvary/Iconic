@@ -39,7 +39,7 @@ import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.SearchExecutor;
 import org.iconic.project.search.SearchService;
 import org.iconic.project.search.SolutionStorage;
-import org.iconic.project.search.SearchConfigurationModel;
+import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
