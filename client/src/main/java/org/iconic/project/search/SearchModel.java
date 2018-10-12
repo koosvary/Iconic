@@ -31,7 +31,6 @@ import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.ea.operator.objective.CacheableObjective;
-import org.iconic.ea.operator.objective.MonoObjective;
 import org.iconic.ea.strategies.gep.GeneExpressionProgramming;
 import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
 import org.iconic.ea.data.FeatureClass;
@@ -46,12 +45,8 @@ import org.iconic.project.dataset.DatasetModel;
 import java.util.*;
 
 /**
- * <p>
- * A global for evolutionary searches, it maintains a dataset, data manager, and a trainer.
- * </p>
- * <p>
- * SearchModels implement the Runnable interface so that the search may be performed on a separate thread.
- * </p>
+ * <p>A global for evolutionary searches, it maintains a dataset, data manager, and a trainer.</p>
+ * <p>SearchModels implement the Runnable interface so that the search may be performed on a separate thread.</p>
  */
 @Log4j2
 public class SearchModel implements Runnable {
@@ -75,7 +70,6 @@ public class SearchModel implements Runnable {
 
     /**
      * Constructs a new search model with the provided dataset.
-     *
      * @param datasetModel The dataset to perform the search on
      */
     public SearchModel(@NonNull final DatasetModel datasetModel, ArrayList<BlockDisplay> blockDisplays) {
@@ -140,77 +134,64 @@ public class SearchModel implements Runnable {
         setRunning(true);
 
         final int populationSize = 5;
-
         Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
 
-        while (isRunning()) {
-            try {
-                ea.initialisePopulation(populationSize);
+        try {
+            ea.initialisePopulation(populationSize);
 
-                ExpressionChromosome<Double> bestCandidate = ea.getChromosomes()
-                        .stream().min(comparator).get();
+            ExpressionChromosome<Double> bestCandidate = ea.getChromosomes().stream().min(comparator).get();
+            getPlots().getData().add(new XYChart.Data<>(0, bestCandidate.getFitness()));
 
-                setUpdates("\nStarting..." + getUpdates());
-                for (int i = 0; isRunning(); ++i) {
-                    List<ExpressionChromosome<Double>> oldPopulation = ea.getChromosomes();
-                    List<ExpressionChromosome<Double>> newPopulation = ea.evolve(oldPopulation);
-                    ea.setChromosomes(newPopulation);
+            setUpdates("\nStarting..." + getUpdates());
+            for (int i = 0; isRunning(); ++i) {
+                List<ExpressionChromosome<Double>> oldPopulation = ea.getChromosomes();
+                List<ExpressionChromosome<Double>> newPopulation = ea.evolve(oldPopulation);
+                ea.setChromosomes(newPopulation);
 
-                    // Evaluate the new population of solutions and store the best ones
-                    solutionStorage.evaluate(newPopulation); // TODO - Choose what solutions get stored
+                // Evaluate the new population of solutions and store the best ones
+                solutionStorage.evaluate(newPopulation); // TODO - Choose what solutions get stored
 
-                    ExpressionChromosome<Double> newBestCandidate = ea.getChromosomes()
-                            .stream().min(comparator).get();
+                ExpressionChromosome<Double> newBestCandidate = ea.getChromosomes().stream().min(comparator).get();
 
-                    // Only add a new plot point if the fitness value improves
-                    boolean newCandidate = bestCandidate.getFitness() > newBestCandidate.getFitness();
+                // Only add a new plot point if the fitness value improves
+                boolean newCandidate = bestCandidate.getFitness() > newBestCandidate.getFitness();
 
-                    if (newCandidate) {
-                        getPlots().getData().add(new XYChart.Data<>(i + 1, newBestCandidate.getFitness()));
-                    }
-
+                if (newCandidate) {
                     bestCandidate = newBestCandidate;
-
-                    final String generation = "\nGeneration: " + (i + 1);
-                    final String candidate = "\n\tNew Best candidate: " + bestCandidate.toString();
-                    final String fitness = "\n\tFitness: " + bestCandidate.getFitness();
-                    final String size = "\n\tSize: " + bestCandidate.getSize();
-
-                    // Append the current generation's best results in front of the list of updates
-                    if (newCandidate) {
-                        setUpdates(
-                                generation + candidate + fitness + getUpdates()
-                        );
-                    }
-
-                    log.info(generation + candidate + fitness + size);
+                    getPlots().getData().add(new XYChart.Data<>(i + 1, bestCandidate.getFitness()));
                 }
 
-                setUpdates("\nFinished!" + getUpdates());
-                setRunning(false);
-            } catch (Exception ex) {
-                log.error("{}: ", ex::getMessage);
-                Arrays.stream(ex.getStackTrace()).forEach(log::error);
+                final String generation = "\nGeneration: " + (i + 1);
+                final String candidate = "\n\tNew Best candidate: " + bestCandidate.toString();
+                final String fitness = "\n\tFitness: " + bestCandidate.getFitness();
+                final String size = "\n\tSize: " + bestCandidate.getSize();
+
+                // Append the current generation's best results in front of the list of updates
+                if (newCandidate) {
+                    setUpdates(generation + candidate + fitness + getUpdates());
+                }
+
+                log.info(generation + candidate + fitness + size);
             }
+
+        } catch (Exception ex) {
+            log.error("{}: ", ex::getMessage);
+            Arrays.stream(ex.getStackTrace()).forEach(log::error);
+        } finally {
+            setUpdates("\nFinished!" + getUpdates());
+            setRunning(false);
         }
-
-
     }
 
     /**
-     * <p>
      * Stops any ongoing search.
-     * </p>
      */
     public void stop() {
         setRunning(false);
     }
 
     /**
-     * <p>
      * Returns the dataset that's being trained on.
-     * </p>
-     *
      * @return The dataset that this search model is training on
      */
     public DatasetModel getDatasetModel() {

@@ -27,7 +27,6 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.geometry.Insets?>
@@ -43,6 +42,7 @@
      xmlns="http://javafx.com/javafx"
      xmlns:fx="http://javafx.com/fxml"
      fx:controller="org.iconic.project.search.StartSearchController">
+
     <!-- Define the primary screen so we can use percentage based widths -->
     <fx:define>
         <Screen fx:factory="getPrimary" fx:id="screen"/>
@@ -60,6 +60,7 @@
         <items>
             <AnchorPane minHeight="0.0" minWidth="0.0">
                 <VBox>
+
                     <HBox>
                         <padding>
                             <Insets top="10" bottom="10" left="10" right="10"/>
@@ -71,9 +72,11 @@
                             </buttons>
                         </ButtonBar>
                     </HBox>
+
                     <Separator/>
+
                     <HBox>
-                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.33}">
+                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.3}">
                             <padding>
                                 <Insets top="10" bottom="10" left="10" right="10"/>
                             </padding>
@@ -115,7 +118,8 @@
                                 </content>
                             </ScrollPane>
                         </VBox>
-                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.66}">
+
+                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.5}">
                             <padding>
                                 <Insets top="10" bottom="10" left="10" right="10"/>
                             </padding>
@@ -127,7 +131,7 @@
                                            AnchorPane.rightAnchor="0"
                                            AnchorPane.BottomAnchor="0">
                                     <xAxis>
-                                        <NumberAxis label="Generations" side="BOTTOM"/>
+                                        <NumberAxis label="Generation" side="BOTTOM"/>
                                     </xAxis>
                                     <yAxis>
                                         <NumberAxis label="Fitness" side="LEFT"/>
@@ -136,6 +140,7 @@
                             </AnchorPane>
                         </VBox>
                     </HBox>
+
                 </VBox>
             </AnchorPane>
             <AnchorPane minHeight="0.0" minWidth="0.0">

@@ -60,7 +60,7 @@
     <VBox>
         <HBox>
             <!-- Left-header -->
-            <HBox spacing="5" prefWidth="${screen.visualBounds.width*0.5}">
+            <HBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
                 <padding>
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
@@ -71,7 +71,7 @@
                 </Text>
             </HBox>
             <!-- Right-header -->
-            <HBox spacing="5" prefWidth="${screen.visualBounds.width*0.5}">
+            <HBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
                 <padding>
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
@@ -96,7 +96,7 @@
 
         <HBox>
             <!-- Table for best solutions of different sizes -->
-            <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.5}">
+            <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
                 <padding>
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
@@ -110,7 +110,7 @@
             </VBox>
 
             <!-- Plot -->
-            <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.5}">
+            <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
                 <padding>
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
@@ -131,7 +131,7 @@
         </HBox>
 
         <HBox>
-            <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.5}">
+            <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
                 <padding>
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
@@ -173,7 +173,7 @@
                     </content>
                 </ScrollPane>
             </VBox>
-            <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.5}">
+            <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
                 <padding>
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
