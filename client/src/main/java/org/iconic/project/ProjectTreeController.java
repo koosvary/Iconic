@@ -22,21 +22,31 @@
 package org.iconic.project;
 
 import com.google.inject.Inject;
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.util.Pair;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.val;
+import org.iconic.config.IconService;
 import org.iconic.project.dataset.DatasetModel;
+import org.iconic.project.search.EvolutionaryAlgorithmType;
+import org.iconic.project.search.SearchConfigurationModel;
 import org.iconic.workspace.WorkspaceService;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -48,6 +58,7 @@ import java.util.ResourceBundle;
  * </p>
  */
 public class ProjectTreeController implements Initializable {
+    private final IconService iconService;
     private final ProjectService projectService;
     private final WorkspaceService workspaceService;
 
@@ -61,9 +72,14 @@ public class ProjectTreeController implements Initializable {
      * </p>
      */
     @Inject
-    public ProjectTreeController(final ProjectService projectService, final WorkspaceService workspaceService) {
+    public ProjectTreeController(
+            final ProjectService projectService,
+            final WorkspaceService workspaceService,
+            final IconService iconService
+    ) {
         this.projectService = projectService;
         this.workspaceService = workspaceService;
+        this.iconService = iconService;
 
         // Update the tree view whenever its backing model is invalidated
         InvalidationListener listener = observable -> updateTreeView();
@@ -101,15 +117,21 @@ public class ProjectTreeController implements Initializable {
     private void updateTreeView() {
         // Check that the tree view actually exists
         if (getProjectView() != null) {
-            val root = new TreeItem<Displayable>();
+            TreeItem<Displayable> root = new TreeItem<>();
             root.setExpanded(true);
 
             // Add every project as a child to the root node
             for (final ProjectModel p : getProjectService().getProjects()) {
-                val child = new TreeItem<Displayable>(p);
+                TreeItem<Displayable> child = new TreeItem<>(p);
 
-                for (final DatasetModel d : p.getDatasets()) {
-                    child.getChildren().add(new TreeItem<>(d));
+                for (final SearchConfigurationModel config : p.getSearchConfigurations()) {
+                    TreeItem<Displayable> node = new TreeItem<>(config);
+                    child.getChildren().add(node);
+                }
+
+                for (final DatasetModel dataset : p.getDatasets()) {
+                    TreeItem<Displayable> node = new TreeItem<>(dataset);
+                    child.getChildren().add(node);
                 }
 
                 child.setExpanded(true);
@@ -159,6 +181,10 @@ public class ProjectTreeController implements Initializable {
         return workspaceService;
     }
 
+    private IconService getIconService() {
+        return iconService;
+    }
+
     /**
      * {@inheritDoc}
      * <p>
@@ -178,29 +204,54 @@ public class ProjectTreeController implements Initializable {
             if (empty) {
                 setText(null);
             }
-            // Otherwise display the item's withName
+            // Otherwise display the item's icon and name
             else {
+
+                // Only display an icon if it has one
+                item.getIcon().ifPresent(glyph ->
+                        setGraphic(getIconService().getIcon(glyph))
+                );
+
                 setText(item.getLabel());
 
                 // If the cell is for a ProjectModel give it a custom context menu
                 if (item instanceof ProjectModel) {
+                    // Add a menu item for adding a new search configuration
+                    MenuItem miCreateSearch = createMenuItem(
+                            "_Add Search Configuration...",
+                            KeyCombination.keyCombination("Shortcut+A"),
+                            this::createSearchConfiguration
+                    );
+
                     // Add a menu item for importing datasets
-                    val miImportDataset = new MenuItem("Import _Dataset...");
-                    miImportDataset.setOnAction(this::importDataset);
-                    miImportDataset.setMnemonicParsing(true);
-                    miImportDataset.setAccelerator(KeyCombination.keyCombination("Shortcut+D"));
+                    MenuItem miImportDataset = createMenuItem(
+                            "Import _Dataset...",
+                            KeyCombination.keyCombination("Shortcut+D"),
+                            this::importDataset
+                    );
 
                     // Add a menu item for renaming the project
-                    val miRenameProject = new MenuItem("_Rename...");
-                    miRenameProject.setOnAction(this::renameProject);
-                    miRenameProject.setMnemonicParsing(true);
-                    miRenameProject.setAccelerator(KeyCombination.keyCombination("Shortcut+R"));
+                    val miRenameProject = createMenuItem(
+                            "_Rename...", KeyCombination.keyCombination("Shortcut+R"), this::renameProject
+                    );
 
                     setContextMenu(
-                            new ContextMenu(miImportDataset, miRenameProject)
+                            new ContextMenu(miCreateSearch, miImportDataset, miRenameProject)
                     );
                 }
             }
+        }
+
+        MenuItem createMenuItem(
+                final String label,
+                final KeyCombination accelerator,
+                final EventHandler<ActionEvent> actionEvent
+        ) {
+            MenuItem item = new MenuItem(label);
+            item.setOnAction(actionEvent);
+            item.setMnemonicParsing(true);
+            item.setAccelerator(accelerator);
+            return item;
         }
 
         /**
@@ -223,18 +274,94 @@ public class ProjectTreeController implements Initializable {
 
             // If the user selected a file add it to the current active item as a dataset
             if (f != null) {
-                val dataset = new DatasetModel(f.getName(), f.getAbsolutePath());
-                val item = getWorkspaceService().getActiveWorkspaceItem();
+                DatasetModel dataset = new DatasetModel(f.getName(), f.getAbsolutePath());
+                Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
                 // If the current active item isn't a project don't do anything
                 if (item instanceof ProjectModel) {
-                    val project = (ProjectModel) item;
-                    val newProject = project.toBuilder().dataset(dataset).build();
+                    ProjectModel project = (ProjectModel) item;
+                    ProjectModel newProject = project.toBuilder().dataset(dataset).build();
 
                     getWorkspaceService().setActiveWorkspaceItem(null);
                     getProjectService().getProjects().set(getProjectService().getProjects().indexOf(project), newProject);
                     getWorkspaceService().setActiveWorkspaceItem(newProject);
                 }
+            }
+        }
+
+        /**
+         * <p>
+         * Opens a search configuration dialog for creating a new search configuration.
+         * </p>
+         *
+         * <p>The search configuration dialog presents a combo box, text input field, and two buttons to the user.</p>
+         *
+         * @param actionEvent The action that triggered the event
+         */
+        private void createSearchConfiguration(ActionEvent actionEvent) {
+            Dialog<Pair<String, EvolutionaryAlgorithmType>> dialog = new Dialog<>();
+            dialog.setTitle("Add a Search Configuration");
+            dialog.setHeaderText("Select the type of evolutionary algorithm you'd like to use");
+//            dialog.initOwner(getStage());
+            // Set the button types.
+            ButtonType okButtonType = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+            dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
+
+            // Create a text field for the user to name the search configuration
+            TextField configurationName = new TextField();
+            configurationName.setPromptText("Configuration name");
+
+            // Create a combo box holding all of the available evolutionary algorithms
+            ObservableList<EvolutionaryAlgorithmType> options =
+                    FXCollections.observableArrayList(
+                            EvolutionaryAlgorithmType.CARTESIAN_GENETIC_PROGRAMMING,
+                            EvolutionaryAlgorithmType.GENE_EXPRESSION_PROGRAMMING
+                    );
+            ComboBox<EvolutionaryAlgorithmType> availableAlgorithms = new ComboBox<>(options);
+
+            availableAlgorithms.setPromptText("Evolutionary Algorithm");
+
+            VBox contentArea = new VBox();
+            contentArea.getChildren().add(configurationName);
+            contentArea.getChildren().add(availableAlgorithms);
+            contentArea.setSpacing(10);
+
+            dialog.getDialogPane().setContent(contentArea);
+
+            // Set the user's default focus to the text field
+            Platform.runLater(configurationName::requestFocus);
+
+            // We need to convert the result from the dialog into a name-type pair when a button is clicked
+            dialog.setResultConverter(buttonType -> {
+                        if (buttonType == okButtonType) {
+                            return new Pair<>(configurationName.getText(), availableAlgorithms.getValue());
+                        }
+                        // If they click any other button just return null
+                        return null;
+                    }
+            );
+
+            Optional<Pair<String, EvolutionaryAlgorithmType>> result = dialog.showAndWait();
+
+            Displayable item = getWorkspaceService().getActiveWorkspaceItem();
+
+            // If the current active item isn't a project don't do anything
+            if (item instanceof ProjectModel) {
+                result.ifPresent(params -> {
+                            SearchConfigurationModel searchConfiguration =
+                                    new SearchConfigurationModel(params.getKey());
+                            ProjectModel project = (ProjectModel) item;
+                            ProjectModel newProject = project.toBuilder()
+                                    .searchConfiguration(searchConfiguration)
+                                    .build();
+
+                            // Update the active workspace item to the new project (modified)
+                            getWorkspaceService().setActiveWorkspaceItem(null);
+                            getProjectService().getProjects()
+                                    .set(getProjectService().getProjects().indexOf(project), (ProjectModel) newProject);
+                            getWorkspaceService().setActiveWorkspaceItem(newProject);
+                        }
+                );
             }
         }
 

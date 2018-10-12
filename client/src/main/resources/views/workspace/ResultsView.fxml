@@ -25,27 +25,21 @@
 
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.text.Font?>
-<?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.chart.CategoryAxis?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.stage.Screen?>
-<?import javafx.scene.image.*?>
-<?import javafx.collections.*?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.text.Text?>
-
-<Tab text="   Results"
-     xmlns="http://javafx.com/javafx"
-     xmlns:fx="http://javafx.com/fxml"
-     fx:controller="org.iconic.project.results.ResultsController">
-
+<?import org.iconic.control.WorkspaceTab?>
+<?import javafx.geometry.Insets?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<WorkspaceTab text="   Results" tabType="SEARCH"
+              xmlns="http://javafx.com/javafx"
+              xmlns:fx="http://javafx.com/fxml"
+              fx:controller="org.iconic.project.results.ResultsController">
     <!-- Define the primary screen so we can use percentage based widths -->
     <fx:define>
         <Screen fx:factory="getPrimary" fx:id="screen"/>
@@ -194,4 +188,4 @@
             </VBox>
         </HBox>
     </VBox>
-</Tab>
+</WorkspaceTab>

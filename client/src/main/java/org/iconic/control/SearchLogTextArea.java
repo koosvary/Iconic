@@ -22,18 +22,18 @@
 package org.iconic.control;
 
 import javafx.scene.control.TextArea;
-import org.iconic.project.search.SearchModel;
+import org.iconic.project.search.SearchExecutor;
 
 public class SearchLogTextArea extends TextArea {
-    private final SearchModel model;
+    private final SearchExecutor model;
 
-    public SearchLogTextArea(final SearchModel model) {
+    public SearchLogTextArea(final SearchExecutor model) {
         this.model = model;
         this.setWrapText(false);
         this.textProperty().bind(model.updatesProperty());
     }
 
-    public SearchModel getModel() {
+    public SearchExecutor getModel() {
         return model;
     }
 }

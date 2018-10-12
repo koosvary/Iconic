@@ -19,29 +19,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.project.definition;
+package org.iconic.config;
 
-import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.SearchExecutor;
+import org.controlsfx.glyphfont.Glyph;
 
-
-public interface DefineSearchService {
+/**
+ * <p>An icon service provides users with access to icons</p>
+ *
+ * <p>Implementers of this interface can retrieve icons either locally or from a web-based resource,
+ * as such it's important to ensure that any icon service used is instantiated as soon as possible.</p>
+ */
+public interface IconService {
     /**
-     * <p>
-     * Returns a list of projects owned by this service.
-     * </p>
+     * <p>Returns an icon based on the provided glyph identifier</p>
      *
-     * @return The function defined by the user
+     * @param glyph The glyph identifier to iconify
+     * @return an icon glyph
      */
-    String getFunction();
-
-    /**
-     * <p>
-     * Returns a search model using settings in define search controller.
-     * </p>
-     *
-     * @return the search model as per settings
-     */
-    SearchExecutor getSearchModel(DatasetModel datasetModel);
-
+    Glyph getIcon(final Enum<?> glyph);
 }

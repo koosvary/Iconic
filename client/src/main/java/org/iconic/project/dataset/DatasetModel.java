@@ -24,10 +24,10 @@ package org.iconic.project.dataset;
 import javafx.beans.property.SimpleStringProperty;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
+import org.controlsfx.glyphfont.FontAwesome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.project.Displayable;
 
-import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -93,8 +93,8 @@ public class DatasetModel implements Displayable {
      * @return
      */
     @Override
-    public Optional<URI> getIcon() {
-        return Optional.empty();
+    public Optional<Enum<?>> getIcon() {
+        return Optional.of(FontAwesome.Glyph.DATABASE);
     }
 
     /**

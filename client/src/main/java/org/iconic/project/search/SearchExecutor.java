@@ -50,7 +50,7 @@ import java.util.*;
  * <p>SearchModels implement the Runnable interface so that the search may be performed on a separate thread.</p>
  */
 @Log4j2
-public class SearchModel implements Runnable {
+public class SearchExecutor implements Runnable {
     private static final FunctionalPrimitive[] FUNCTIONAL_PRIMITIVES = {new AbsoluteValue(), new Addition(), new And(), new ArcCos(), new ArcSin(),
             new ArcTan(), new Ceiling(), new Cos(), new Division(), new EqualTo(),
             new Exponential(), new Floor(), new GaussianFunction(), new GreaterThan(),
@@ -73,7 +73,7 @@ public class SearchModel implements Runnable {
      * Constructs a new search model with the provided dataset.
      * @param datasetModel The dataset to perform the search on
      */
-    public SearchModel(@NonNull final DatasetModel datasetModel, ArrayList<BlockDisplay> blockDisplays) {
+    public SearchExecutor(@NonNull final DatasetModel datasetModel, ArrayList<BlockDisplay> blockDisplays) {
 
         // Get the number of features to tell the search function how many it can use
         int numFeatures = 0;

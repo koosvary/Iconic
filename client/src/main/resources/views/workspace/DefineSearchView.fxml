@@ -31,13 +31,19 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import java.lang.*?>
-<Tab text="   Define Search" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="org.iconic.project.definition.DefineSearchController">
-	<graphic>
+<?import org.iconic.control.WorkspaceTab?>
+
+<WorkspaceTab text="   Define Search" tabType="SEARCH"
+              xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+              fx:controller="org.iconic.project.definition.DefineSearchController">
+    <graphic>
         <ImageView fitWidth="24" fitHeight="24">
-            <Image url="@/images/file.png"/>
+            <image>
+                <Image url="@/images/file.png"/>
+            </image>
         </ImageView>
-	</graphic>
-	
+    </graphic>
+
 	<VBox>
 		<padding><Insets topRightBottomLeft="25"/></padding>
 		<HBox>
@@ -93,4 +99,4 @@
 			<TextField/>
 		</HBox>
 	</VBox>
-</Tab>
+</WorkspaceTab>
