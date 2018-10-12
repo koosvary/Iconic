@@ -72,7 +72,8 @@
                     <CheckBox fx:id="cbSmoothData" text="Smooth data points" disable="true"/>
                     <VBox fx:id="vbSmoothData" visible="false" managed="false">
                         <HBox>
-                            <Button text="Smooth Automatically" onAction="#smoothDatasetFeature"/>
+                            <Label text="Smoothing window:"><padding><Insets left="25" right="10"/></padding></Label>
+                            <TextField fx:id="tfSmoothingWindow" text="2" onAction="#smoothDatasetFeature"/>
                         </HBox>
                     </VBox>
                     <Separator/>

@@ -75,7 +75,7 @@ public class ProcessDataController implements Initializable {
     @FXML
     private ComboBox<String> cbHandleMissingValuesOptions;
     @FXML
-    private TextField tfNormaliseMin, tfNormaliseMax, tfOffsetValue;
+    private TextField tfSmoothingWindow, tfNormaliseMin, tfNormaliseMax, tfOffsetValue;
 
     /**
      * <p>
@@ -125,6 +125,11 @@ public class ProcessDataController implements Initializable {
         addCheckBoxChangeListener(cbOffset, vbOffset);
 
         addComboBoxChangeListener(cbHandleMissingValuesOptions, cbHandleMissingValues);
+
+        addTextFieldChangeListener(tfSmoothingWindow, false);
+        addTextFieldChangeListener(tfNormaliseMin, true);
+        addTextFieldChangeListener(tfNormaliseMax, true);
+        addTextFieldChangeListener(tfOffsetValue, true);
     }
 
     /**
@@ -198,6 +203,30 @@ public class ProcessDataController implements Initializable {
                     convertTransformTypeToFunction(convertCheckBoxToTransformType(checkbox));
 
                     updateModifiedText(selectedIndex, selectedHeader);
+                }
+            }
+        });
+    }
+
+    /**
+     * Adds a change listener to a specified TextField which strips out all non-numerical characters to ensure
+     * that the field only contains integer values.
+     *
+     * @param textField The selected TextField
+     * @param allowDecimals A boolean flag denoting whether or not to allow decimal points in the TextField
+     */
+    private void addTextFieldChangeListener(TextField textField, Boolean allowDecimals) {
+        textField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (allowDecimals) {
+                    if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                        textField.setText(oldValue);
+                    }
+                } else {
+                    if (!newValue.matches("\\d*")) {
+                        textField.setText(newValue.replaceAll("[^\\d]", ""));
+                    }
                 }
             }
         });
@@ -278,8 +307,11 @@ public class ProcessDataController implements Initializable {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
             if (cbSmoothData.isSelected() && dataManager.isPresent()) {
+                int smoothingWindow = Integer.parseInt(tfSmoothingWindow.getText());
+
                 Smooth smooth = new Smooth();
                 smooth.setTransformType(TransformType.Smoothed);
+                smooth.setNeighbourSize(smoothingWindow);
 
                 addNewPreprocessor(dataManager.get().getSampleHeaders().get(selectedIndex), smooth);
             }
