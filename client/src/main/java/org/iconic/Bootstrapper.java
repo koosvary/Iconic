@@ -31,9 +31,11 @@ import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.config.InMemoryModule;
 import org.iconic.project.search.SearchService;
+import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.views.ViewService;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * {@inheritDoc}
@@ -122,7 +124,7 @@ public class Bootstrapper extends Application {
 
     @Override
     public void stop() {
-        for (val search : getSearchService().searchesProperty().entrySet()) {
+        for (Map.Entry<?, SearchExecutor<?>> search : getSearchService().searchesProperty().entrySet()) {
             search.getValue().stop();
         }
     }

@@ -28,14 +28,14 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Control;
+import javafx.scene.control.TextField;
+import org.iconic.control.LabelledSlider;
 import org.iconic.control.operator.evolutionary.CrossoverComboBox;
 import org.iconic.control.operator.evolutionary.MutatorComboBox;
-import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.ea.operator.evolutionary.crossover.Crossover;
 import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.Mutator;
-import org.iconic.ea.operator.evolutionary.mutation.cgp.CartesianSingleActiveMutator;
 import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.project.Displayable;
 import org.iconic.workspace.WorkspaceService;
@@ -47,6 +47,12 @@ import java.util.ResourceBundle;
 public class GepConfigurationController implements Initializable {
     private final WorkspaceService workspaceService;
 
+    @FXML
+    private TextField tfHeadLength;
+    @FXML
+    private LabelledSlider sldrMutationRate;
+    @FXML
+    private LabelledSlider sldrCrossoverRate;
     @FXML
     private MutatorComboBox<ExpressionChromosome<Double>> cbMutators;
     @FXML
@@ -67,16 +73,17 @@ public class GepConfigurationController implements Initializable {
     private void updateView() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
-        if (!(item instanceof SearchConfigurationModel)) {
+        if (!(item instanceof GepConfigurationModel)) {
             return;
         }
+
+        GepConfigurationModel configModel = (GepConfigurationModel) item;
 
         @SuppressWarnings("unchecked")
         ObservableList<Mutator<ExpressionChromosome<Double>, Double>> mutators =
                 FXCollections.observableArrayList(
                         new ExpressionMutator<>()
                 );
-
 
         @SuppressWarnings("unchecked")
         ObservableList<Crossover<ExpressionChromosome<Double>, Double>> crossovers =
@@ -86,6 +93,24 @@ public class GepConfigurationController implements Initializable {
 
         cbMutators.setItems(mutators);
         cbCrossovers.setItems(crossovers);
+
+        // TODO: switch to a TextFormatter
+        tfHeadLength.setText(String.valueOf(configModel.getHeadLength()));
+        tfHeadLength.textProperty().addListener((obs, oldValue, newValue) -> {
+            int i;
+            try {
+                i = Integer.parseInt(newValue);
+                configModel.setHeadLength(i);
+            }
+            catch (NumberFormatException ex) {
+                // Do nothing
+            }
+        });
+
+        sldrCrossoverRate.getSlider().valueProperty().unbind();
+        sldrMutationRate.getSlider().valueProperty().unbind();
+        sldrCrossoverRate.getSlider().valueProperty().bindBidirectional(configModel.crossoverRateProperty());
+        sldrMutationRate.getSlider().valueProperty().bindBidirectional(configModel.mutationRateProperty());
 
         disableControlIfEmpty(cbMutators, mutators);
         disableControlIfEmpty(cbCrossovers, crossovers);

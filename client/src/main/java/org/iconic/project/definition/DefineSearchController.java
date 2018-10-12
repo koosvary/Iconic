@@ -24,6 +24,7 @@ package org.iconic.project.definition;
 import com.google.inject.Inject;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
@@ -33,11 +34,9 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
 import javafx.util.converter.NumberStringConverter;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.control.DatasetComboBox;
-import org.iconic.control.operator.evolutionary.MutatorComboBox;
 
 import java.net.URL;
 import java.util.*;
@@ -48,12 +47,10 @@ import org.iconic.project.Displayable;
 import org.iconic.project.ProjectModel;
 import org.iconic.project.ProjectService;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.dataset.DatasetService;
-import org.iconic.project.search.SearchService;
 import org.iconic.project.search.config.CgpConfigurationModel;
 import org.iconic.views.ViewService;
 import org.iconic.project.search.config.SearchConfigurationModel;
-import org.iconic.project.search.SearchExecutor;
+import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.workspace.WorkspaceService;
 
 import java.io.IOException;
@@ -63,15 +60,11 @@ import java.util.stream.Collectors;
 public class DefineSearchController implements Initializable, DefineSearchService {
 
     private final ProjectService projectService;
-    private final SearchService searchService;
     private final ViewService viewService;
     private final WorkspaceService workspaceService;
 
     @FXML
     private DatasetComboBox cbDatasets;
-
-    @FXML
-    public MutatorComboBox cbMutators;
 
     @FXML
     VBox vbConfiguration;
@@ -94,12 +87,10 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     @Inject
     public DefineSearchController(
             final ProjectService projectService,
-            final SearchService searchService,
             final ViewService viewService,
             final WorkspaceService workspaceService
     ) {
         this.projectService = projectService;
-        this.searchService = searchService;
         this.viewService = viewService;
         this.workspaceService = workspaceService;
         this.functionDefinitions = new HashMap<>();
@@ -136,12 +127,8 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         complexityCol.setCellValueFactory(cellData -> cellData.getValue().complexityProperty());
         blockDisplayTableView.getColumns().addAll(enabledCol, nameCol, complexityCol);
 
+        cbDatasets.valueProperty().addListener(this::updateDataset);
         updateTab();
-    }
-
-    @Override
-    public SearchExecutor getSearchModel(DatasetModel datasetModel) {
-        return new SearchExecutor(datasetModel, null);
     }
 
     private void updateTab() {
@@ -179,6 +166,11 @@ public class DefineSearchController implements Initializable, DefineSearchServic
                 cbDatasets.setItems(options);
                 cbDatasets.setPromptText("Select a dataset");
                 cbDatasets.setDisable(false);
+
+                search.getDatasetModel().ifPresent(dataset ->
+                        cbDatasets.getSelectionModel().select(dataset)
+                );
+
             } else {
                 cbDatasets.setItems(FXCollections.emptyObservableList());
                 cbDatasets.setPromptText("No datasets available");
@@ -207,8 +199,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     }
 
     public void setFunction() {
-        String functionStr = null;
-
+        String functionStr;
         Optional<DataManager<Double>> dataset = getDataManager();
 
         if (dataset.isPresent()) {
@@ -221,6 +212,17 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
             functionDefinitions.put(datasetID, functionStr);
         }
+    }
+
+    private void updateDataset(ObservableValue<? extends DatasetModel> observer, DatasetModel oldValue, DatasetModel newValue) {
+        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
+
+        if (!(item instanceof SearchConfigurationModel)) {
+            return;
+        }
+
+        SearchConfigurationModel configModel = (SearchConfigurationModel) item;
+        configModel.setDatasetModel(newValue);
     }
 
     private void loadFunction() {

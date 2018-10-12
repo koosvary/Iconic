@@ -33,7 +33,7 @@ import javafx.scene.layout.AnchorPane;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.control.SearchLogTextArea;
-import org.iconic.project.search.SearchExecutor;
+import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.project.search.SearchService;
 
 import java.net.URL;
@@ -70,7 +70,7 @@ public class ConsoleController implements Initializable {
         this.searchService = searchService;
 
         // Update the console whenever the searches change
-        MapChangeListener<UUID, SearchExecutor> searchChangeListener = change -> {
+        MapChangeListener<UUID, SearchExecutor<?>> searchChangeListener = change -> {
             // Check the console tab pane as there's no guarantee it will exist when this is triggered
             if (this.consoleTabs == null) {
                 return;
@@ -86,7 +86,7 @@ public class ConsoleController implements Initializable {
                 // If this isn't an update operation, add a new tab - but first make sure everything's not null
                 if (tabs.size() < 1 && change.getValueAdded().getDatasetModel() != null) {
                     Tab newTab = new Tab();
-                    SearchExecutor searchExecutor = change.getValueAdded();
+                    SearchExecutor<?> searchExecutor = change.getValueAdded();
 
                     newTab.setText(searchExecutor.getDatasetModel().getLabel());
                     // Set the ID so we can modify the tab pane later without re-rendering the entire thing

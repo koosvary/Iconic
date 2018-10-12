@@ -31,6 +31,7 @@
 <?import org.iconic.control.operator.evolutionary.MutatorComboBox?>
 <?import org.iconic.control.LabelledSlider?>
 <?import org.iconic.control.operator.evolutionary.CrossoverComboBox?>
+<?import javafx.scene.text.Font?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       spacing="10"
@@ -45,18 +46,39 @@
         <Insets top="10" bottom="10" left="10" right="10"/>
     </padding>
     <HBox spacing="5">
-        <TextField promptText="Number of Outputs" />
-        <TextField promptText="Number of Columns" />
-        <TextField promptText="Number of Rows" />
-        <TextField promptText="Number of Levels Back" />
+        <VBox spacing="10">
+            <Label labelFor="$tfNumOutputs" text="Number of Outputs: "/>
+            <TextField fx:id="tfNumOutputs" promptText="Number of Outputs"/>
+        </VBox>
+        <VBox spacing="10">
+            <Label labelFor="$tfNumColumns" text="Number of Columns: "/>
+            <TextField fx:id="tfNumColumns" promptText="Number of Columns"/>
+        </VBox>
+        <VBox spacing="10">
+            <Label labelFor="$tfNumRows" text="Number of Rows: "/>
+            <TextField fx:id="tfNumRows" promptText="Number of Rows"/>
+        </VBox>
+        <VBox spacing="10">
+            <Label labelFor="$tfNumLevelsBack" text="Number of Levels Back: "/>
+            <TextField fx:id="tfNumLevelsBack" promptText="Number of Levels Back"/>
+        </VBox>
     </HBox>
     <Separator/>
     <HBox spacing="20">
-        <MutatorComboBox fx:id="cbMutators" promptText="Select a mutator"/>
-        <LabelledSlider text="Mutation Rate"/>
+        <padding><Insets top="25"/></padding>
+        <VBox spacing="10">
+            <Label labelFor="$cbMutators" text="Mutation: "/>
+            <MutatorComboBox fx:id="cbMutators" promptText="Select a mutator"/>
+        </VBox>
+        <LabelledSlider fx:id="sldrMutationRate" text="Mutation Rate"/>
     </HBox>
+
     <HBox spacing="20">
-        <CrossoverComboBox fx:id="cbCrossovers" promptText="Select a crossover operator"/>
-        <LabelledSlider text="Crossover Rate"/>
+        <padding><Insets top="25"/></padding>
+        <VBox spacing="10">
+            <Label labelFor="$cbCrossovers" text="Crossover: " />
+            <CrossoverComboBox fx:id="cbCrossovers" promptText="Select a crossover operator"/>
+        </VBox>
+        <LabelledSlider fx:id="sldrCrossoverRate" text="Crossover Rate"/>
     </HBox>
 </VBox>

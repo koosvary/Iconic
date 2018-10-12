@@ -61,7 +61,7 @@
                         <padding>
                             <Insets top="10" bottom="10" left="10" right="10"/>
                         </padding>
-                        <ButtonBar>
+                        <ButtonBar buttonMinWidth="150">
                             <buttons>
                                 <Button fx:id="btnSearch" text="%workspace.search" onAction="#startSearch"/>
                                 <Button fx:id="btnStopSearch" text="%workspace.search.stop" onAction="#stopSearch"/>

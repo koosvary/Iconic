@@ -36,7 +36,7 @@ import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.SearchExecutor;
+import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.project.search.SearchService;
 import org.iconic.project.search.SolutionStorage;
 import org.iconic.project.search.config.SearchConfigurationModel;
@@ -151,7 +151,7 @@ public class ResultsController implements Initializable {
      * @param dataset DatasetModel to use
      * @return Search model for that dataset, or null if no search is running
      */
-    private SearchExecutor getSearchExecutor(DatasetModel dataset) {
+    private SearchExecutor<?> getSearchExecutor(DatasetModel dataset) {
         return getSearchService().searchesProperty().get(dataset.getId());
     }
 

@@ -33,6 +33,7 @@ import lombok.extern.log4j.Log4j2;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.config.SearchConfigurationModel;
+import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.views.ViewService;
 import org.iconic.workspace.WorkspaceService;
 
@@ -99,34 +100,54 @@ public class StartSearchController implements Initializable {
 
         // Make sure that all the UI elements actually exist
         if (btnSearch != null && btnStopSearch != null) {
-            // If there's no search...
-            if (!search.getSearchExecutor().isPresent()) {
-                btnSearch.setText("Start Search");
-                btnSearch.setDisable(false);
-                btnStopSearch.setDisable(true);
-                btnStopSearch.setVisible(false);
+            // If there's a search let the user start or pause it
+            if (search.getSearchExecutor().isPresent()) {
+                SearchExecutor<?> executor = search.getSearchExecutor().get();
+
+                if (!executor.isRunning()) {
+                    Platform.runLater(() -> {
+                                btnSearch.setText("Start Search");
+                                btnSearch.setDisable(false);
+                                btnStopSearch.setDisable(true);
+                            }
+                    );
+                } else {
+                    Platform.runLater(() -> {
+                                btnSearch.setText("Pause");
+                                btnSearch.setDisable(false);
+                                btnStopSearch.setDisable(false);
+                            }
+                    );
+                }
             }
-            // Otherwise...
+            // Otherwise the search configuration needs to be changed
             else {
-                btnSearch.setText("Pause");
-                btnSearch.setDisable(true);
-                btnStopSearch.setDisable(false);
-                btnStopSearch.setVisible(true);
+                Platform.runLater(() -> {
+                            btnSearch.setText("Start Search");
+                            btnSearch.setDisable(true);
+                            btnStopSearch.setDisable(true);
+                        }
+                );
             }
         }
         // Otherwise...
         else {
-            btnSearch.setText("Pause");
-            btnSearch.setDisable(true);
-            btnStopSearch.setDisable(false);
+            Platform.runLater(() -> {
+                        btnSearch.setText("Pause");
+                        btnSearch.setDisable(true);
+                        btnStopSearch.setDisable(false);
+                    }
+            );
             updatePlots(search);
         }
     }
 
     private synchronized void updatePlots(final SearchConfigurationModel search) {
         search.getSearchExecutor().ifPresent(executor -> {
-            lcSearchProgress.getData().clear();
-            lcSearchProgress.getData().add(executor.getPlots());
+            Platform.runLater(() -> {
+                lcSearchProgress.getData().clear();
+                lcSearchProgress.getData().add(executor.getPlots());
+            });
         });
     }
 
@@ -144,28 +165,29 @@ public class StartSearchController implements Initializable {
         }
 
         SearchConfigurationModel search = (SearchConfigurationModel) item;
-        // If there's no search already being performed on the dataset, start a new one
-        if (!search.getSearchExecutor().isPresent() && search.getDatasetModel().isPresent()) {
-            final DatasetModel dataset = search.getDatasetModel().get();
-            final SearchExecutor newSearch = new SearchExecutor(dataset, new ArrayList<>());
-
-            Platform.runLater(() -> {
-                getSearchService().searchesProperty().put(search.getId(), newSearch);
-                Thread thread = new Thread(getSearchService().searchesProperty().get(search.getId()));
-                thread.start();
-            });
-        }
-        // Otherwise stop the current search
-        else {
-            // TODO implement pause functionality
-            stopSearch(actionEvent);
-        }
+        // If there's no search already being performed on the dataset, the configuration is invalid
+        // so ignore it
+        search.getSearchExecutor().ifPresent(executor -> {
+            // If the search is running stop it
+            if (executor.isRunning()) {
+                stopSearch(actionEvent);
+            }
+            // Otherwise start it
+            else {
+                executor.setRunning(true);
+                Platform.runLater(() -> {
+                    getSearchService().searchesProperty().put(search.getId(), executor);
+                    Thread thread = new Thread(getSearchService().searchesProperty().get(search.getId()));
+                    thread.start();
+                });
+            }
+        });
     }
 
     /**
-     * Stops the current search.
+     * <p>Stops the provided search</p>
      *
-     * @param actionEvent The action that triggered this event
+     * @param actionEvent The action that triggered the event
      */
     public void stopSearch(ActionEvent actionEvent) {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
@@ -177,9 +199,12 @@ public class StartSearchController implements Initializable {
         SearchConfigurationModel search = (SearchConfigurationModel) item;
 
         search.getSearchExecutor().ifPresent(executor -> {
+            lcSearchProgress.getData().clear();
+            lcSearchProgress.getData().add(executor.getPlots());
             executor.stop();
-            getSearchService().searchesProperty().remove(search.getId());
+            searchService.searchesProperty().remove(search.getId());
         });
+        updateWorkspace();
     }
 
     /**

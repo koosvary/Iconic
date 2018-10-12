@@ -177,28 +177,25 @@ public class ProcessDataController implements Initializable {
      * @param combobox The selected combo box
      * @param checkbox The selected check box to identify the transformType
      */
-    private void addComboBoxChangeListener(ComboBox combobox, CheckBox checkbox) {
+    private void addComboBoxChangeListener(ComboBox<?> combobox, CheckBox checkbox) {
         if (combobox == null) {
             return;
         }
 
         cbHandleMissingValuesOptions.getSelectionModel().selectFirst();
-        combobox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
-            @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
-                Optional<DataManager<Double>> dataManager = getDataManager();
+        combobox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            Optional<DataManager<Double>> dataManager = getDataManager();
 
-                if (dataManager.isPresent()) {
-                    removeExistingPreprocessor(checkbox);
-                    handleMissingValuesOfDatasetFeature();
+            if (dataManager.isPresent()) {
+                removeExistingPreprocessor(checkbox);
+                handleMissingValuesOfDatasetFeature();
 
-                    int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
-                    String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+                int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+                String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
 
-                    convertTransformTypeToFunction(convertCheckBoxToTransformType(checkbox));
+                convertTransformTypeToFunction(convertCheckBoxToTransformType(checkbox));
 
-                    updateModifiedText(selectedIndex, selectedHeader);
-                }
+                updateModifiedText(selectedIndex, selectedHeader);
             }
         });
     }

@@ -585,9 +585,11 @@ public class InputDataController implements Initializable {
             // Create the project only if a name was provided
             dialog.showAndWait().ifPresent(
                     name -> {
-                        final ProjectModel project = ProjectModel.builder().name(name).build();
-                        getWorkspaceService().setActiveWorkspaceItem(project);
-                        getProjectService().getProjects().add(project);
+                        if (!name.isEmpty()) {
+                            final ProjectModel project = ProjectModel.builder().name(name).build();
+                            getWorkspaceService().setActiveWorkspaceItem(project);
+                            getProjectService().getProjects().add(project);
+                        }
                     }
             );
         }
