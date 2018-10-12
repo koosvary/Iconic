@@ -63,7 +63,6 @@ public class SolutionStorage<T> {
             // If the current solution has a better fitness then the best fitness with the same size, add it to the list
             if (fitness < sameSizeBestFitness) {
                 sameSizeSolutions.add(0, solution);
-                //updateController(); // TODO This would be the best spot to update the results view
             }
         }
     }
