@@ -28,6 +28,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
@@ -64,17 +65,17 @@ public class StartSearchController implements Initializable {
     private LineChart<Number, Number> lcSearchProgress;
 
     @FXML
-    private Text txtTime;
+    private Label txtTime;
     @FXML
-    private Text txtGen;
+    private Label txtGen;
     @FXML
-    private Text txtGenSec;
+    private Label txtGenSec;
     @FXML
-    private Text txtLastImprov;
+    private Label txtLastImprov;
     @FXML
-    private Text txtAvgImprov;
+    private Label txtAvgImprov;
     @FXML
-    private Text txtCores;
+    private Label txtCores;
 
     /**
      * Constructs a new StartSearchController that attaches an invalidation listener onto the search and workspace
@@ -245,7 +246,7 @@ public class StartSearchController implements Initializable {
      * Get the Text for time
      * @return Text for time
      */
-    public Text getTxtTime() {
+    public Label getTxtTime() {
         return txtTime;
     }
 
@@ -253,7 +254,7 @@ public class StartSearchController implements Initializable {
      * Get the Text for current generation
      * @return Text for current generation
      */
-    public Text getTxtGen() {
+    public Label getTxtGen() {
         return txtGen;
     }
 
@@ -261,7 +262,7 @@ public class StartSearchController implements Initializable {
      * Get the Text for generations per second
      * @return Text for generations per second
      */
-    public Text getTxtGenSec() {
+    public Label getTxtGenSec() {
         return txtGenSec;
     }
 
@@ -269,7 +270,7 @@ public class StartSearchController implements Initializable {
      * Get the Text for last time of improvement
      * @return Text for last time of improvement
      */
-    public Text getTxtLastImprov() {
+    public Label getTxtLastImprov() {
         return txtLastImprov;
     }
 
@@ -277,7 +278,7 @@ public class StartSearchController implements Initializable {
      * Get the Text for average time between improvements
      * @return Text for average time between improvements
      */
-    public Text getTxtAvgImprov() {
+    public Label getTxtAvgImprov() {
         return txtAvgImprov;
     }
 
@@ -285,7 +286,7 @@ public class StartSearchController implements Initializable {
      * Get the Text for cores in use
      * @return Text for cores in use
      */
-    public Text getTxtCores() {
+    public Label getTxtCores() {
         return txtCores;
     }
 }

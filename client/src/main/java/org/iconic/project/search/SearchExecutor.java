@@ -288,7 +288,11 @@ public class SearchExecutor implements Runnable {
     }
 
     public Long getAverageImproveDuration() {
-        return getElapsedDuration() / improvedCount;
+        if (improvedCount != 0L) {
+            return getElapsedDuration() / improvedCount;
+        } else {
+            return 0L;
+        }
     }
 
     public int getGeneration() {
