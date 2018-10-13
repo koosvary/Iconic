@@ -5,6 +5,7 @@ import javafx.scene.control.TablePosition;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import org.controlsfx.control.spreadsheet.SpreadsheetView;
+import java.util.StringTokenizer;
 
 public class Spreadsheet extends SpreadsheetView {
     @Override
@@ -13,8 +14,14 @@ public class Spreadsheet extends SpreadsheetView {
         copySelectionToClipboard();
     }
 
-    private void copySelectionToClipboard() {
+    @Override
+    public void pasteClipboard(){
+        super.pasteClipboard();
+        pasteFromClipboard();
 
+    }
+
+    private void copySelectionToClipboard() {
         StringBuilder clipboardString = new StringBuilder();
 
         ObservableList<TablePosition> positionList = this.getSelectionModel().getSelectedCells();
@@ -50,5 +57,59 @@ public class Spreadsheet extends SpreadsheetView {
 
         // set clipboard content
         Clipboard.getSystemClipboard().setContent(clipboardContent);
+    }
+
+    private void pasteFromClipboard() {
+        // abort if there's not cell selected to start with
+        if(this.getSelectionModel().getSelectedCells().size() == 0) {
+            return;
+        }
+
+        // get the cell position to start with
+        TablePosition pasteCellPosition = this.getSelectionModel().getSelectedCells().get(0);
+
+        String pasteString = Clipboard.getSystemClipboard().getString();
+
+        int rowClipboard = -1;
+
+        StringTokenizer rowTokenizer = new StringTokenizer( pasteString, "\n");
+        while(rowTokenizer.hasMoreTokens()) {
+
+            rowClipboard++;
+
+            String rowString = rowTokenizer.nextToken();
+
+            StringTokenizer columnTokenizer = new StringTokenizer(rowString, "\t");
+
+            int colClipboard = -1;
+
+            while(columnTokenizer.hasMoreTokens()) {
+
+                colClipboard++;
+
+                // get next cell data from clipboard
+                String clipboardCellContent = columnTokenizer.nextToken();
+
+                // calculate the position in the table cell
+                int rowTable = pasteCellPosition.getRow() + rowClipboard;
+                int colTable = pasteCellPosition.getColumn() + colClipboard;
+
+                // skip if we reached the end of the table
+                if(rowTable >= this.getItems().size()) {
+                    continue;
+                }
+                if(colTable >= this.getColumns().size()) {
+                    continue;
+                }
+
+                // get cell
+                try{
+                    double content = Double.parseDouble(clipboardCellContent);
+                    this.getGrid().getRows().get(rowTable).get(colTable).setItem(String.valueOf(content));
+                }catch (Exception ignored) {}
+            }
+
+        }
+
     }
 }
