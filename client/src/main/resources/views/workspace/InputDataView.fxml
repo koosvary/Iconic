@@ -29,8 +29,8 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-<?import org.controlsfx.control.spreadsheet.SpreadsheetView?>
 <?import org.iconic.control.WorkspaceTab?>
+<?import org.iconic.project.Spreadsheet?>
 <WorkspaceTab text="   Input Data" closable="false" tabType="DATASET"
               xmlns="http://javafx.com/javafx"
               xmlns:fx="http://javafx.com/fxml"
@@ -43,7 +43,7 @@
         </ImageView>
     </graphic>
     <VBox fx:id="inputBox">
-        <SpreadsheetView fx:id="spreadsheet" editable="true" showRowHeader="true" showColumnHeader="true" prefHeight="${inputBox.height*0.4}"/>
+        <Spreadsheet fx:id="spreadsheet" editable="true" showRowHeader="true" showColumnHeader="true" prefHeight="${inputBox.height*0.4}"/>
 
         <padding><Insets topRightBottomLeft="5"/></padding>
         <Text fx:id="welcomeMessage" GridPane.columnIndex="0">Welcome, create or import a dataset to get started.</Text>

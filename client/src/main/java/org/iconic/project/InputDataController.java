@@ -56,7 +56,7 @@ public class InputDataController implements Initializable {
     private String infoPlaceholder = "Enter variable description here.";
 
     @FXML
-    private SpreadsheetView spreadsheet;
+    private Spreadsheet spreadsheet;
     @FXML
     private Button btnCreateDataset;
     @FXML
