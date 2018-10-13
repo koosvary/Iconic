@@ -257,7 +257,7 @@ public class DataManager<T> {
 
     private void createNewDataset(){
         sampleSize = 0;
-        featureSize = 26;
+        featureSize = 1;
         dataset = new HashMap<>();
 
         // Generate all the header names such as: A, B, C, ..., Z, AA, BB, etc

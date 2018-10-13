@@ -134,6 +134,9 @@ public class InputDataController implements Initializable {
         for(int i = 0; i < spreadsheetHeight; i += cellHeight){
             spreadsheetAddRow();
         }
+        for(int i = 0; i < 26; i ++){
+            spreadsheetAddColumn();
+        }
     }
 
     /**
