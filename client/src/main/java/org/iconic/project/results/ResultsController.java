@@ -33,6 +33,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.extern.log4j.Log4j2;
+import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
@@ -61,6 +62,8 @@ public class ResultsController implements Initializable {
     private InvalidationListener resultAddedListener;
 
     @FXML
+    private WorkspaceTab resultsTab;
+    @FXML
     private TableView<ResultDisplay> solutionsTableView;
 
     /**
@@ -83,6 +86,8 @@ public class ResultsController implements Initializable {
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
         updateWorkspace();
+
+        resultsTab.setOnSelectionChanged(event -> updateWorkspace());
     }
 
     /**

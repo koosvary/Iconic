@@ -32,6 +32,7 @@ import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
+import org.iconic.control.WorkspaceTab;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.definition.DefineSearchService;
@@ -57,6 +58,8 @@ public class StartSearchController implements Initializable {
 
     private Lock updating;
 
+    @FXML
+    private WorkspaceTab searchTab;
     @FXML
     private Button btnSearch;
     @FXML
@@ -97,6 +100,8 @@ public class StartSearchController implements Initializable {
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
         updateWorkspace();
+
+        searchTab.setOnSelectionChanged(event -> updateWorkspace());
     }
 
     /**
