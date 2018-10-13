@@ -125,7 +125,8 @@
                                            AnchorPane.topAnchor="0"
                                            AnchorPane.leftAnchor="0"
                                            AnchorPane.rightAnchor="0"
-                                           AnchorPane.BottomAnchor="0">
+                                           AnchorPane.BottomAnchor="0"
+                                           animated="false">
                                     <xAxis>
                                         <NumberAxis label="Generation" side="BOTTOM"/>
                                     </xAxis>
