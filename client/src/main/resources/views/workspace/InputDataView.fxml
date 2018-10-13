@@ -30,11 +30,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 <?import org.iconic.control.WorkspaceTab?>
-<?import org.iconic.project.Spreadsheet?>
+<?import org.controlsfx.control.spreadsheet.SpreadsheetView?>
 <WorkspaceTab fx:id="inputTab" text="   Input Data" closable="false" tabType="DATASET"
               xmlns="http://javafx.com/javafx"
               xmlns:fx="http://javafx.com/fxml"
-              fx:controller="org.iconic.project.InputDataController">
+              fx:controller="org.iconic.project.input.InputDataController">
     <graphic>
         <ImageView fitWidth="24" fitHeight="24">
             <image>
@@ -43,7 +43,7 @@
         </ImageView>
     </graphic>
     <VBox fx:id="inputBox">
-        <Spreadsheet fx:id="spreadsheet" editable="true" showRowHeader="true" showColumnHeader="true" prefHeight="${inputBox.height*0.4}"/>
+        <SpreadsheetView fx:id="spreadsheet" editable="true" showRowHeader="true" showColumnHeader="true" prefHeight="${inputBox.height*0.4}"/>
 
         <padding><Insets topRightBottomLeft="5"/></padding>
         <Text fx:id="welcomeMessage" GridPane.columnIndex="0">Welcome, create or import a dataset to get started.</Text>
