@@ -35,6 +35,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import org.controlsfx.control.spreadsheet.*;
+import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.data.DataManager;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.workspace.WorkspaceService;
@@ -55,6 +56,8 @@ public class InputDataController implements Initializable {
     private ObservableList<String> rowHeaders = FXCollections.observableArrayList();
     private String infoPlaceholder = "Enter variable description here.";
 
+    @FXML
+    private WorkspaceTab inputTab;
     @FXML
     private Spreadsheet spreadsheet;
     @FXML
@@ -120,6 +123,8 @@ public class InputDataController implements Initializable {
         btnExportDataset.visibleProperty().bind(spreadsheet.visibleProperty());
 
         updateWorkspace();
+
+        inputTab.setOnSelectionChanged(event -> updateWorkspace());
     }
 
     /**

@@ -33,7 +33,7 @@
 <?import java.lang.*?>
 <?import org.iconic.control.WorkspaceTab?>
 
-<WorkspaceTab text="   Define Search" tabType="SEARCH"
+<WorkspaceTab fx:id="defineTab" text="   Define Search" tabType="SEARCH"
               xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
               fx:controller="org.iconic.project.definition.DefineSearchController">
     <graphic>

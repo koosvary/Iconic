@@ -31,7 +31,7 @@
 <?import javafx.scene.text.Text?>
 <?import org.iconic.control.WorkspaceTab?>
 <?import org.iconic.project.Spreadsheet?>
-<WorkspaceTab text="   Input Data" closable="false" tabType="DATASET"
+<WorkspaceTab fx:id="inputTab" text="   Input Data" closable="false" tabType="DATASET"
               xmlns="http://javafx.com/javafx"
               xmlns:fx="http://javafx.com/fxml"
               fx:controller="org.iconic.project.InputDataController">

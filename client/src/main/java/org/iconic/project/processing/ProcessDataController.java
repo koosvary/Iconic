@@ -35,6 +35,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
+import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.preprocessing.*;
 import org.iconic.project.Displayable;
@@ -59,6 +60,8 @@ public class ProcessDataController implements Initializable {
     // event when manually enabling/disabling checkboxes.
     private boolean resetCheckboxFlag = false;
 
+    @FXML
+    private WorkspaceTab processTab;
     @FXML
     private ListView<String> lvFeatures;
     @FXML
@@ -133,6 +136,8 @@ public class ProcessDataController implements Initializable {
         addTextFieldChangeListener(tfNormaliseMin, true);
         addTextFieldChangeListener(tfNormaliseMax, true);
         addTextFieldChangeListener(tfOffsetValue, true);
+
+        processTab.setOnSelectionChanged(event -> updateWorkspace());
     }
 
     /**

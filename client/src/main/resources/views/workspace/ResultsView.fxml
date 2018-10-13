@@ -36,7 +36,7 @@
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
-<WorkspaceTab text="   Results" tabType="SEARCH"
+<WorkspaceTab fx:id="resultsTab" text="   Results" tabType="SEARCH"
               xmlns="http://javafx.com/javafx"
               xmlns:fx="http://javafx.com/fxml"
               fx:controller="org.iconic.project.results.ResultsController">
