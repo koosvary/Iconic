@@ -24,10 +24,12 @@ package org.iconic.project.search;
 import com.google.inject.Inject;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
@@ -66,7 +68,6 @@ public class StartSearchController implements Initializable {
     private Button btnStopSearch;
     @FXML
     private LineChart<Number, Number> lcSearchProgress;
-
     @FXML
     private Label txtTime;
     @FXML
@@ -165,13 +166,12 @@ public class StartSearchController implements Initializable {
 
     /**
      * Update the search progress over time graph.
-     * @param executor Executor in use
+     * @param search SearchModel in use
      */
-    private synchronized void updatePlots(final SearchExecutor<?> executor) {
-        Platform.runLater(() -> {
-            lcSearchProgress.getData().clear();
-            lcSearchProgress.getData().add(executor.getPlots());
-        });
+    private synchronized void updatePlots(SearchExecutor<?> search) {
+        lcSearchProgress.setData(
+                FXCollections.observableArrayList(search.getPlots())
+        );
     }
 
     /**
@@ -230,7 +230,6 @@ public class StartSearchController implements Initializable {
         }
 
         SearchConfigurationModel search = (SearchConfigurationModel) item;
-
         search.getSearchExecutor().ifPresent(executor -> {
             updateStatistics(executor);
             executor.stop();

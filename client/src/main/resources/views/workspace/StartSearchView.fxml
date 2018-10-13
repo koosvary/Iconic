@@ -162,9 +162,7 @@
 
                 </VBox>
             </AnchorPane>
-            <AnchorPane minHeight="0.0" minWidth="0.0">
-                <fx:include source="ConsoleView.fxml"/>
-            </AnchorPane>
+            <fx:include source="ConsoleView.fxml"/>
         </items>
     </SplitPane>
 </WorkspaceTab>

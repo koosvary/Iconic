@@ -24,26 +24,21 @@ package org.iconic.workspace.console;
 import com.google.inject.Inject;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
-import javafx.collections.MapChangeListener;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import lombok.extern.log4j.Log4j2;
-import lombok.val;
-import org.iconic.control.SearchLogTextArea;
 import org.iconic.project.Displayable;
 import org.iconic.project.search.config.SearchConfigurationModel;
-import org.iconic.project.search.io.SearchExecutor;
-import org.iconic.project.search.SearchService;
 import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -63,7 +58,9 @@ public class ConsoleController implements Initializable {
     private final WorkspaceService workspaceService;
 
     @FXML
-    private ScrollPane consoleArea;
+    private AnchorPane consoleArea;
+    @FXML
+    private ListView<String> consoleContent;
 
     /**
      * <p>
@@ -90,6 +87,17 @@ public class ConsoleController implements Initializable {
      */
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
+        consoleContent.prefHeightProperty().bind(consoleArea.prefHeightProperty());
+        consoleContent.prefWidthProperty().bind(consoleArea.prefWidthProperty());
+        consoleContent.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        MenuItem miCopy = new MenuItem("Copy");
+        miCopy.setOnAction(this::copyAction);
+        miCopy.setAccelerator(KeyCombination.keyCombination("Shortcut+C"));
+
+        ContextMenu menu = new ContextMenu();
+        menu.getItems().add(miCopy);
+        consoleContent.setContextMenu(menu);
         updateConsole();
     }
 
@@ -97,27 +105,29 @@ public class ConsoleController implements Initializable {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
         // Check the console tab pane as there's no guarantee it will exist when this is triggered
-        if (this.consoleArea == null || !(item instanceof SearchConfigurationModel)) {
+        if (!(item instanceof SearchConfigurationModel)) {
+            consoleContent.itemsProperty().unbind();
             return;
         }
 
         SearchConfigurationModel search = (SearchConfigurationModel) item;
 
-        if (!search.getSearchExecutor().isPresent()) {
-            Platform.runLater(() -> consoleArea.setContent(null));
-            return;
-        }
         search.getSearchExecutor().ifPresent(executor -> {
-            TextArea textArea = new SearchLogTextArea(executor);
-            // Fit the textarea and scroll pane to the anchor pane
-            // *Both* of them need to be set or they'll fall back to the size of their contents
-            AnchorPane.setTopAnchor(textArea, 0.0);
-            AnchorPane.setLeftAnchor(textArea, 0.0);
-            AnchorPane.setRightAnchor(textArea, 0.0);
-            AnchorPane.setBottomAnchor(textArea, 0.0);
-            consoleArea.setContent(textArea);
-            Platform.runLater(() -> consoleArea.setContent(textArea));
+            Platform.runLater(() -> {
+                consoleContent.itemsProperty().bind(executor.updatesProperty());
+            });
         });
+    }
+
+    private void copyAction(ActionEvent actionEvent) {
+        final ClipboardContent clipboard = new ClipboardContent();
+        final StringBuilder out = new StringBuilder();
+
+        consoleContent.getSelectionModel().getSelectedItems().stream().filter(Objects::nonNull)
+                .forEach(item -> out.append(item).append("\n"));
+
+        clipboard.putString(out.toString());
+        Clipboard.getSystemClipboard().setContent(clipboard);
     }
 
     /**

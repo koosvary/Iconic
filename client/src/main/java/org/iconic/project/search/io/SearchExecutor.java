@@ -22,8 +22,12 @@
 package org.iconic.project.search.io;
 
 import javafx.application.Platform;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 import lombok.NonNull;
 import lombok.Synchronized;
@@ -34,9 +38,12 @@ import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.SolutionStorage;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+
+import static javafx.collections.FXCollections.emptyObservableList;
 
 /**
  * <p>A model for evolutionary searches, it maintains a dataset, data manager, and a trainer</p>
@@ -48,7 +55,8 @@ import java.util.List;
 public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
     private final XYChart.Series<Number, Number> plots;
     private final DatasetModel datasetModel;
-    private final ObjectProperty<String> updates;
+    private final ObservableList<String> _updates;
+    private final ListProperty<String> updates;
     private final int numGenerations;
     private final SolutionStorage<T> solutionStorage; // Stores the solutions found
     private final List<FunctionalPrimitive<Double, Double>> primitives;
@@ -74,9 +82,9 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
         this.datasetModel = datasetModel;
         this.numGenerations = numGenerations;
         this.plots = new XYChart.Series<>();
-        this.updates = new SimpleObjectProperty<>(null);
+        this._updates = FXCollections.observableArrayList();
+        this.updates = new SimpleListProperty<>(_updates);
         this.running = false;
-        this.updates.set("");
         this.plots.setName(this.datasetModel.getName());
         this.primitives = primitives;
         this.solutionStorage = new SolutionStorage<>();
@@ -99,7 +107,7 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
                 Chromosome<Double> bestCandidate = getEvolutionaryAlgorithm().getChromosomes()
                         .stream().min(comparator).get();
                 addPlot(0, bestCandidate);
-                setUpdates("\nStarting..." + getUpdates());
+                addUpdate("Starting...");
 
                 for (generation = 1; (generation <= getNumGenerations() || getNumGenerations() == 0) && isRunning(); ++generation) {
                     List<T> oldPopulation = getEvolutionaryAlgorithm().getChromosomes();
@@ -117,17 +125,15 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
                     if (newCandidate) {
                         bestCandidate = newBestCandidate;
                         setImproved(bestCandidate);
-
-                        final String gen = "\nGeneration: " + getGeneration();
-                        final String candidate = "\n\tNew Best candidate: " + bestCandidate.toString();
-                        final String fitness = "\n\tFitness: " + bestCandidate.getFitness();
-                        final String size = "\n\tSize: " + bestCandidate.getSize();
-
-                        // Append the current generation's best results in front of the list of updates
-                        setUpdates(
-                                gen + candidate + fitness + size + getUpdates()
-                        );
-                        log.debug(generation + candidate + fitness + size);
+                        final String gen = "Generation: " + generation;
+                        final String candidate = bestCandidate.toString();
+                        final String fitness = "Fitness: " + bestCandidate.getFitness();
+                        final String size = "Size: " + bestCandidate.getSize();
+                        addUpdate(gen);
+                        addUpdate(candidate);
+                        addUpdate(fitness);
+                        addUpdate(size);
+                        log.debug(gen + candidate + fitness + size);
                     }
                     elapsedDuration = System.currentTimeMillis() - startTime;
                 }
@@ -135,12 +141,16 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
                 log.error("{}: ", ex::getMessage);
                 Arrays.stream(ex.getStackTrace()).forEach(log::error);
             } finally {
-                setUpdates("\nFinished!" + getUpdates());
+                addUpdate("Finished!");
                 setRunning(false);
                 elapsedDuration = System.currentTimeMillis() - startTime;
                 log.debug("Stopping search");
             }
         }
+    }
+
+    private void addUpdate(final String value) {
+        Platform.runLater(() -> get_updates().add(value));
     }
 
     /**
@@ -191,19 +201,16 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
         return datasetModel;
     }
 
-    public String getUpdates() {
+    private ObservableList<String> get_updates() {
+        return _updates;
+    }
+
+    public ObservableList<String> getUpdates() {
         return updates.get();
     }
 
-    public ObjectProperty<String> updatesProperty() {
+    public ListProperty<String> updatesProperty() {
         return updates;
-    }
-
-    @Synchronized
-    private void setUpdates(String updates) {
-        Platform.runLater(() ->
-                this.updates.set(updates)
-        );
     }
 
     public boolean isRunning() {

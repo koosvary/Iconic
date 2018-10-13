@@ -24,16 +24,14 @@
 -->
 
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.ListView?>
 
-<?import javafx.scene.control.ScrollPane?>
-<AnchorPane prefHeight="400.0" prefWidth="Infinity" xmlns="http://javafx.com/javafx/8.0.121"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.iconic.workspace.console.ConsoleController">
-    <AnchorPane AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"
-                AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0"
-    >
-        <ScrollPane fx:id="consoleArea" fitToHeight="true" fitToWidth="true"
-                    vbarPolicy="AS_NEEDED"
-                    AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0"
-                    AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="0" />
-    </AnchorPane>
+<AnchorPane fx:id="consoleArea" prefHeight="400.0" prefWidth="Infinity" styleClass="console-pane"
+            minWidth="0" minHeight="0"
+            xmlns="http://javafx.com/javafx/8.0.121"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.iconic.workspace.console.ConsoleController">
+    <ListView fx:id="consoleContent" styleClass="console-content"
+              AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+              AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" />
 </AnchorPane>

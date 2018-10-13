@@ -351,11 +351,11 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         getOutputs().forEach(output -> {
             // Append its phenotype
             outputBuilder
-                    .append("\nOutput = ")
-                    .append(formatNode(output, getInputs(), getMaxArity(), getPrimitives()));
+                    .append(formatNode(output, getInputs(), getMaxArity(), getPrimitives()))
+                    .append("\n");
         });
 
-        return outputBuilder.toString();
+        return outputBuilder.toString().trim();
     }
 
     public String getExpression() {

@@ -30,12 +30,17 @@ import javafx.stage.Stage;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.config.InMemoryModule;
+import org.iconic.project.ProjectModel;
+import org.iconic.project.ProjectService;
 import org.iconic.project.search.SearchService;
+import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.views.ViewService;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * {@inheritDoc}
@@ -47,7 +52,7 @@ import java.util.Map;
 @Log4j2
 public class Bootstrapper extends Application {
     private final Injector injector;
-    private final SearchService searchService;
+    private final ProjectService projectService;
     private final ViewService viewService;
 
     /**
@@ -67,7 +72,7 @@ public class Bootstrapper extends Application {
     public Bootstrapper() {
         super();
         injector = Guice.createInjector(new InMemoryModule());
-        searchService = injector.getInstance(SearchService.class);
+        projectService = injector.getInstance(ProjectService.class);
         viewService = injector.getInstance(ViewService.class);
     }
 
@@ -124,9 +129,11 @@ public class Bootstrapper extends Application {
 
     @Override
     public void stop() {
-        for (Map.Entry<?, SearchExecutor<?>> search : getSearchService().searchesProperty().entrySet()) {
-            search.getValue().stop();
-        }
+        getProjectService().getProjects().stream()
+                .flatMap(project -> project.getSearchConfigurations().stream())
+                .filter(search -> search.getSearchExecutor().isPresent())
+                .map(search -> search.getSearchExecutor().get())
+                .forEach(SearchExecutor::stop);
     }
 
     /**
@@ -139,12 +146,12 @@ public class Bootstrapper extends Application {
     }
 
     /**
-     * <p>Returns the search service of this bootstrapper</p>
+     * <p>Returns the project service of this bootstrapper</p>
      *
-     * @return the search service of the bootstrapper
+     * @return the project service of the bootstrapper
      */
-    private SearchService getSearchService() {
-        return searchService;
+    private ProjectService getProjectService() {
+        return projectService;
     }
 
     /**
