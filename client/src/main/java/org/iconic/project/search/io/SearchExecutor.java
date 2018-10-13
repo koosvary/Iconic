@@ -82,6 +82,7 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
     @Override
     public void run() {
         setRunning(true);
+        log.debug("Starting search");
         Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
 
         while (isRunning()) {
@@ -126,6 +127,7 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
             } finally {
                 setUpdates("\nFinished!" + getUpdates());
                 setRunning(false);
+                log.debug("Stopping search");
             }
         }
     }
@@ -161,19 +163,19 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
         return datasetModel;
     }
 
-    @Synchronized
     public String getUpdates() {
         return updates.get();
     }
 
-    @Synchronized
     public ObjectProperty<String> updatesProperty() {
         return updates;
     }
 
     @Synchronized
     private void setUpdates(String updates) {
-        this.updates.set(updates);
+        Platform.runLater(() ->
+                this.updates.set(updates)
+        );
     }
 
     public boolean isRunning() {

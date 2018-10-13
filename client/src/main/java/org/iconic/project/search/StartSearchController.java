@@ -75,7 +75,7 @@ public class StartSearchController implements Initializable {
         this.viewService = viewService;
         this.workspaceService = workspaceService;
 
-        // Update the workspace whenever the active dataset changes
+        // Update the workspace whenever the active item changes
         InvalidationListener selectionChangedListener = observable -> updateWorkspace();
         getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedListener);
         getSearchService().searchesProperty().addListener(selectionChangedListener);

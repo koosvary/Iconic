@@ -22,6 +22,8 @@
 package org.iconic.workspace.console;
 
 import com.google.inject.Inject;
+import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.collections.MapChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -33,8 +35,11 @@ import javafx.scene.layout.AnchorPane;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.control.SearchLogTextArea;
+import org.iconic.project.Displayable;
+import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.project.search.SearchService;
+import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
 import java.util.*;
@@ -55,10 +60,10 @@ import java.util.stream.Collectors;
  */
 @Log4j2
 public class ConsoleController implements Initializable {
-    private final SearchService searchService;
+    private final WorkspaceService workspaceService;
 
     @FXML
-    private TabPane consoleTabs;
+    private ScrollPane consoleArea;
 
     /**
      * <p>
@@ -66,67 +71,14 @@ public class ConsoleController implements Initializable {
      * </p>
      */
     @Inject
-    public ConsoleController(final SearchService searchService) {
-        this.searchService = searchService;
+    public ConsoleController(
+            final WorkspaceService workspaceService
+    ) {
+        this.workspaceService = workspaceService;
 
         // Update the console whenever the searches change
-        MapChangeListener<UUID, SearchExecutor<?>> searchChangeListener = change -> {
-            // Check the console tab pane as there's no guarantee it will exist when this is triggered
-            if (this.consoleTabs == null) {
-                return;
-            }
-
-            // If a search was added we'll first check if it already exists in the tab pane -
-            // this can happen if a duplicate is added which will trigger an addition and removal (update) operation
-            if (change.wasAdded() && change.getKey() != null && change.getValueAdded() != null) {
-                final List<Tab> tabs = consoleTabs.getTabs().filtered(
-                        t -> t.getId().equals(change.getKey().toString())
-                );
-
-                // If this isn't an update operation, add a new tab - but first make sure everything's not null
-                if (tabs.size() < 1 && change.getValueAdded().getDatasetModel() != null) {
-                    Tab newTab = new Tab();
-                    SearchExecutor<?> searchExecutor = change.getValueAdded();
-
-                    newTab.setText(searchExecutor.getDatasetModel().getLabel());
-                    // Set the ID so we can modify the tab pane later without re-rendering the entire thing
-                    newTab.setId(change.getKey().toString());
-
-                    AnchorPane p = new AnchorPane();
-                    ScrollPane s = new ScrollPane();
-                    TextArea textArea = new SearchLogTextArea(searchExecutor);
-
-                    s.setFitToHeight(true);
-                    s.setFitToWidth(true);
-                    s.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-                    // Fit the textarea and scroll pane to the anchor pane
-                    // *Both* of them need to be set or they'll fall back to the size of their contents
-                    AnchorPane.setTopAnchor(textArea, 0.0);
-                    AnchorPane.setLeftAnchor(textArea, 0.0);
-                    AnchorPane.setRightAnchor(textArea, 0.0);
-                    AnchorPane.setBottomAnchor(textArea, 0.0);
-                    AnchorPane.setTopAnchor(s, 0.0);
-                    AnchorPane.setLeftAnchor(s, 0.0);
-                    AnchorPane.setRightAnchor(s, 0.0);
-                    AnchorPane.setBottomAnchor(s, 0.0);
-                    s.setContent(textArea);
-                    p.getChildren().add(s);
-
-                    newTab.setContent(p);
-
-                    this.consoleTabs.getTabs().add(newTab);
-                }
-                // Otherwise don't do anything - but for future reference, this may be undesirable if we want to change
-                // tab names
-            }
-
-            // If a search was removed then remove the corresponding tab by comparing IDs
-            if (change.wasRemoved() && change.getKey() != null) {
-                this.consoleTabs.getTabs().removeIf(t -> t.getId().equals(change.getKey().toString()));
-            }
-        };
-
-        getSearchService().searchesProperty().addListener(searchChangeListener);
+        InvalidationListener selectionChangedListener = observable -> updateConsole();
+        getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedListener);
     }
 
     /**
@@ -138,31 +90,44 @@ public class ConsoleController implements Initializable {
      */
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
-        val searches = getSearchService().searchesProperty();
+        updateConsole();
+    }
 
-        // Check that the console tab pane actually exists
-        if (consoleTabs != null) {
-            // Add every search as a new tab to the pane
-            final List<Tab> s = searches.entrySet().stream().map(model -> {
-                val tab = new Tab();
-                tab.setText(model.getValue().getDatasetModel().getLabel());
-                // Set the ID so we can modify the tab pane later without re-rendering the entire thing
-                tab.setId(model.getKey().toString());
-                return tab;
-            }).collect(Collectors.toList());
+    public void updateConsole() {
+        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
-            consoleTabs.getTabs().setAll(s);
+        // Check the console tab pane as there's no guarantee it will exist when this is triggered
+        if (this.consoleArea == null || !(item instanceof SearchConfigurationModel)) {
+            return;
         }
+
+        SearchConfigurationModel search = (SearchConfigurationModel) item;
+
+        if (!search.getSearchExecutor().isPresent()) {
+            Platform.runLater(() -> consoleArea.setContent(null));
+            return;
+        }
+        search.getSearchExecutor().ifPresent(executor -> {
+            TextArea textArea = new SearchLogTextArea(executor);
+            // Fit the textarea and scroll pane to the anchor pane
+            // *Both* of them need to be set or they'll fall back to the size of their contents
+            AnchorPane.setTopAnchor(textArea, 0.0);
+            AnchorPane.setLeftAnchor(textArea, 0.0);
+            AnchorPane.setRightAnchor(textArea, 0.0);
+            AnchorPane.setBottomAnchor(textArea, 0.0);
+            consoleArea.setContent(textArea);
+            Platform.runLater(() -> consoleArea.setContent(textArea));
+        });
     }
 
     /**
      * <p>
-     * Returns the search service of this controller
+     * Returns the workspace service of this controller
      * </p>
      *
-     * @return the search service of the controller
+     * @return the workspace service of the controller
      */
-    private SearchService getSearchService() {
-        return searchService;
+    private WorkspaceService getWorkspaceService() {
+        return workspaceService;
     }
 }
