@@ -66,7 +66,7 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
             int numGenerations
     ) {
         this.datasetModel = datasetModel;
-        this.numGenerations = getNumGenerations();
+        this.numGenerations = numGenerations;
         this.plots = new XYChart.Series<>();
         this.updates = new SimpleObjectProperty<>(null);
         this.running = false;
