@@ -22,13 +22,13 @@
 package org.iconic.project.search;
 
 import com.google.inject.Inject;
-import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
+import javafx.scene.text.Text;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.project.Displayable;
@@ -38,6 +38,8 @@ import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A controller class for handling the StartSearch view.
@@ -52,12 +54,27 @@ public class StartSearchController implements Initializable {
     private final WorkspaceService workspaceService;
     private final DefineSearchService defineSearchService;
 
+    private Lock updating;
+
     @FXML
     private Button btnSearch;
     @FXML
     private Button btnStopSearch;
     @FXML
     private LineChart<Number, Number> lcSearchProgress;
+
+    @FXML
+    private Text txtTime;
+    @FXML
+    private Text txtGen;
+    @FXML
+    private Text txtGenSec;
+    @FXML
+    private Text txtLastImprov;
+    @FXML
+    private Text txtAvgImprov;
+    @FXML
+    private Text txtCores;
 
     /**
      * Constructs a new StartSearchController that attaches an invalidation listener onto the search and workspace
@@ -68,6 +85,7 @@ public class StartSearchController implements Initializable {
         this.defineSearchService = defineSearchService;
         this.searchService = searchService;
         this.workspaceService = workspaceService;
+        this.updating = new ReentrantLock();
 
         // Update the workspace whenever the active dataset changes
         InvalidationListener selectionChangedListener = observable -> updateWorkspace();
@@ -113,13 +131,28 @@ public class StartSearchController implements Initializable {
             btnSearch.setDisable(true);
             btnStopSearch.setDisable(false);
             updatePlots(search);
+            updateStatistics(search);
         }
 
     }
 
-    private synchronized void updatePlots(SearchExecutor search) {
+    /**
+     * Update the search progress over time graph.
+     * @param search SearchModel in use
+     */
+    private void updatePlots(SearchExecutor search) {
         lcSearchProgress.getData().clear();
         lcSearchProgress.getData().add(search.getPlots());
+    }
+
+    /**
+     * Update the statistics section
+     * @param search SearchModel in use
+     */
+    private void updateStatistics(SearchExecutor search) {
+        if (updating.tryLock()) {
+            new SearchStatistics(this, search, updating).start();
+        }
     }
 
     /**
@@ -165,6 +198,7 @@ public class StartSearchController implements Initializable {
             DatasetModel dataset = (DatasetModel) item;
             SearchExecutor search = getSearchService().searchesProperty().get(dataset.getId());
 
+            updateStatistics(search);
             search.stop();
             getSearchService().searchesProperty().remove(dataset.getId());
         }
@@ -189,6 +223,8 @@ public class StartSearchController implements Initializable {
         }
     }
 
+    // -- Getters --
+
     /**
      * Returns the workspace service of this controller
      * @return the workspace service of the controller
@@ -203,5 +239,53 @@ public class StartSearchController implements Initializable {
      */
     private SearchService getSearchService() {
         return searchService;
+    }
+
+    /**
+     * Get the Text for time
+     * @return Text for time
+     */
+    public Text getTxtTime() {
+        return txtTime;
+    }
+
+    /**
+     * Get the Text for current generation
+     * @return Text for current generation
+     */
+    public Text getTxtGen() {
+        return txtGen;
+    }
+
+    /**
+     * Get the Text for generations per second
+     * @return Text for generations per second
+     */
+    public Text getTxtGenSec() {
+        return txtGenSec;
+    }
+
+    /**
+     * Get the Text for last time of improvement
+     * @return Text for last time of improvement
+     */
+    public Text getTxtLastImprov() {
+        return txtLastImprov;
+    }
+
+    /**
+     * Get the Text for average time between improvements
+     * @return Text for average time between improvements
+     */
+    public Text getTxtAvgImprov() {
+        return txtAvgImprov;
+    }
+
+    /**
+     * Get the Text for cores in use
+     * @return Text for cores in use
+     */
+    public Text getTxtCores() {
+        return txtCores;
     }
 }

@@ -44,13 +44,13 @@
         <Screen fx:factory="getPrimary" fx:id="screen"/>
     </fx:define>
 
-	<graphic>
-		<ImageView fitWidth="24" fitHeight="24">
-			<image>
-				<Image url="@/images/play-button.png"/>
-			</image>
-		</ImageView>
-	</graphic>
+    <graphic>
+        <ImageView fitWidth="24" fitHeight="24">
+            <image>
+                <Image url="@/images/play-button.png"/>
+            </image>
+        </ImageView>
+    </graphic>
 
     <SplitPane orientation="VERTICAL">
         <items>
@@ -89,25 +89,46 @@
                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="70.0" prefWidth="100.0" />
                                         </columnConstraints>
                                         <children>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Time" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                                <font>
-                                                    <Font size="12.0"/>
-                                                </font>
+                                            <Text text="Time Elapsed" GridPane.columnIndex="0" GridPane.rowIndex="0" >
+                                                <font><Font size="12.0" /></font>
                                             </Text>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="CPU Cores" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                                <font>
-                                                    <Font size="12.0" />
-                                                </font>
+                                            <Text fx:id="txtTime" text="0.000s" GridPane.columnIndex="1" GridPane.rowIndex="0" >
+                                                <font><Font size="12.0" /></font>
                                             </Text>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="0s" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                                <font>
-                                                    <Font size="12.0" />
-                                                </font>
+
+                                            <Text text="Generation" GridPane.columnIndex="0" GridPane.rowIndex="1" >
+                                                <font><Font size="12.0" /></font>
                                             </Text>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                                <font>
-                                                    <Font size="12.0" />
-                                                </font>
+                                            <Text fx:id="txtGen" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                <font><Font size="12.0" /></font>
+                                            </Text>
+
+                                            <Text text="Generations / Second" GridPane.columnIndex="0" GridPane.rowIndex="2" >
+                                                <font><Font size="12.0" /></font>
+                                            </Text>
+                                            <Text fx:id="txtGenSec" text="0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                                <font><Font size="12.0" /></font>
+                                            </Text>
+
+                                            <Text text="Time Since Improvement" GridPane.columnIndex="0" GridPane.rowIndex="3" >
+                                                <font><Font size="12.0" /></font>
+                                            </Text>
+                                            <Text fx:id="txtLastImprov" text="0.000s" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                                <font><Font size="12.0" /></font>
+                                            </Text>
+
+                                            <Text text="Average Improvement Time" GridPane.columnIndex="0" GridPane.rowIndex="4" >
+                                                <font><Font size="12.0" /></font>
+                                            </Text>
+                                            <Text fx:id="txtAvgImprov" text="0.000s" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                                <font><Font size="12.0" /></font>
+                                            </Text>
+
+                                            <Text text="CPU Cores" GridPane.columnIndex="0" GridPane.rowIndex="5" >
+                                                <font><Font size="12.0" /></font>
+                                            </Text>
+                                            <Text fx:id="txtCores" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                                <font><Font size="12.0" /></font>
                                             </Text>
                                         </children>
                                     </GridPane>
