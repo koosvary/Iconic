@@ -50,10 +50,16 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
     private final DatasetModel datasetModel;
     private final ObjectProperty<String> updates;
     private final int numGenerations;
-    private final SolutionStorage<Double> solutionStorage; // Stores the solutions found
+    private final SolutionStorage<T> solutionStorage; // Stores the solutions found
     private final List<FunctionalPrimitive<Double, Double>> primitives;
     private EvolutionaryAlgorithm<T, Double> evolutionaryAlgorithm;
     private boolean running;
+
+    private transient Long startTime;
+    private transient Long elapsedDuration;
+    private transient Long lastImproveTime;
+    private transient int improvedCount;
+    private transient int generation;
 
     /**
      * Constructs a new search model with the provided dataset.
@@ -74,6 +80,8 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
         this.plots.setName(this.datasetModel.getName());
         this.primitives = primitives;
         this.solutionStorage = new SolutionStorage<>();
+        this.startTime = null;
+        this.elapsedDuration = null;
     }
 
     /**
@@ -82,6 +90,7 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
     @Override
     public void run() {
         setRunning(true);
+        setup();
         log.debug("Starting search");
         Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
 
@@ -92,34 +101,35 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
                 addPlot(0, bestCandidate);
                 setUpdates("\nStarting..." + getUpdates());
 
-                for (int i = 0; (i < getNumGenerations() || getNumGenerations() == 0) && isRunning(); ++i) {
+                for (generation = 1; (generation <= getNumGenerations() || getNumGenerations() == 0) && isRunning(); ++generation) {
                     List<T> oldPopulation = getEvolutionaryAlgorithm().getChromosomes();
                     List<T> newPopulation = getEvolutionaryAlgorithm().evolve(oldPopulation);
                     getEvolutionaryAlgorithm().setChromosomes(newPopulation);
 
-                    T newBestCandidate = getEvolutionaryAlgorithm().getChromosomes()
-                            .stream().min(comparator).get();
+                    // Evaluate the new population of solutions and store the best ones
+                    solutionStorage.evaluate(newPopulation);
+
+                    T newBestCandidate = getEvolutionaryAlgorithm().getChromosomes().stream().min(comparator).get();
 
                     // Only add a new plot point if the fitness value improves
                     boolean newCandidate = bestCandidate.getFitness() > newBestCandidate.getFitness();
 
                     if (newCandidate) {
                         bestCandidate = newBestCandidate;
-                        addPlot(i + 1, bestCandidate);
-                    }
+                        setImproved(bestCandidate);
 
-                    final String generation = "\nGeneration: " + (i + 1);
-                    final String candidate = "\n\tNew Best candidate: " + bestCandidate.toString();
-                    final String fitness = "\n\tFitness: " + bestCandidate.getFitness();
-                    final String size = "\n\tSize: " + bestCandidate.getSize();
+                        final String gen = "\nGeneration: " + getGeneration();
+                        final String candidate = "\n\tNew Best candidate: " + bestCandidate.toString();
+                        final String fitness = "\n\tFitness: " + bestCandidate.getFitness();
+                        final String size = "\n\tSize: " + bestCandidate.getSize();
 
-                    // Append the current generation's best results in front of the list of updates
-                    if (newCandidate) {
+                        // Append the current generation's best results in front of the list of updates
                         setUpdates(
-                                generation + candidate + fitness + size + getUpdates()
+                                gen + candidate + fitness + size + getUpdates()
                         );
+                        log.debug(generation + candidate + fitness + size);
                     }
-                    log.debug(generation + candidate + fitness + size);
+                    elapsedDuration = System.currentTimeMillis() - startTime;
                 }
             } catch (Exception ex) {
                 log.error("{}: ", ex::getMessage);
@@ -127,9 +137,27 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
             } finally {
                 setUpdates("\nFinished!" + getUpdates());
                 setRunning(false);
+                elapsedDuration = System.currentTimeMillis() - startTime;
                 log.debug("Stopping search");
             }
         }
+    }
+
+    /**
+     * Set the transient variables for an execution
+     */
+    private void setup() {
+        startTime = System.currentTimeMillis();
+        elapsedDuration = 0L;
+        lastImproveTime = startTime;
+        improvedCount = 0;
+        generation = 0;
+    }
+
+    private void setImproved(Chromosome<?> bestCandidate) {
+        addPlot(getGeneration(), bestCandidate);
+        lastImproveTime = System.currentTimeMillis();
+        improvedCount++;
     }
 
     /**
@@ -207,7 +235,31 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
         return primitives;
     }
 
-    public SolutionStorage<Double> getSolutionStorage() {
+    public SolutionStorage<T> getSolutionStorage() {
         return solutionStorage;
+    }
+
+    public Long getStartTime() {
+        return startTime;
+    }
+
+    public Long getElapsedDuration() {
+        return elapsedDuration;
+    }
+
+    public Long getLastImproveTime() {
+        return lastImproveTime;
+    }
+
+    public Long getAverageImproveDuration() {
+        if (improvedCount != 0L) {
+            return getElapsedDuration() / improvedCount;
+        } else {
+            return 0L;
+        }
+    }
+
+    public int getGeneration() {
+        return generation;
     }
 }

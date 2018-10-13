@@ -56,7 +56,7 @@
         <VBox>
             <Label text="Variable Preparation Options">
                 <font>
-                    <Font size="16.0"/>
+                    <Font size="18.0"/>
                 </font>
             </Label>
 
@@ -70,15 +70,29 @@
                 <VBox prefWidth="${screen.visualBounds.width*0.66}" spacing="5">
                     <padding><Insets top="10" bottom="10" left="10" right="10"/></padding>
 
-                    <CheckBox fx:id="cbSmoothData" text="Smooth data points" disable="true"/>
+                    <HBox>
+                        <CheckBox fx:id="cbSmoothData" text="Smooth data points" disable="true"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lbSmoothOrder" textAlignment="RIGHT">
+                            <tooltip><Tooltip text="The order in which the preprocessor was applied."/></tooltip>
+                        </Label>
+                    </HBox>
                     <VBox fx:id="vbSmoothData" visible="false" managed="false">
                         <HBox>
-                            <Button text="Smooth Automatically" onAction="#smoothDatasetFeature"/>
+                            <Label text="Smoothing window:"><padding><Insets left="25" right="10"/></padding></Label>
+                            <TextField fx:id="tfSmoothingWindow" text="2" onAction="#smoothDatasetFeature"/>
                         </HBox>
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbHandleMissingValues" text="Handle missing values" disable="true"/>
+
+                    <HBox>
+                        <CheckBox fx:id="cbHandleMissingValues" text="Handle missing values" disable="true"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lbHandleMissingValuesOrder" textAlignment="RIGHT">
+                            <tooltip><Tooltip text="The order in which the preprocessor was applied."/></tooltip>
+                        </Label>
+                    </HBox>
                     <VBox fx:id="vbHandleMissingValues" visible="false" managed="false">
                         <HBox>
                             <Label text="Method:"><padding><Insets left="25" right="10"/></padding></Label>
@@ -98,7 +112,13 @@
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbRemoveOutliers" text="Remove outliers" disable="true"/>
+                    <HBox>
+                        <CheckBox fx:id="cbRemoveOutliers" text="Remove outliers" disable="true"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lbRemoveOutliersOrder" textAlignment="RIGHT">
+                            <tooltip><Tooltip text="The order in which the preprocessor was applied."/></tooltip>
+                        </Label>
+                    </HBox>
                     <VBox fx:id="vbRemoveOutliers" visible="false" managed="false">
                         <HBox>
                             <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
@@ -111,7 +131,13 @@
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbNormalise" text="Normalise scale" disable="true"/>
+                    <HBox>
+                        <CheckBox fx:id="cbNormalise" text="Normalise scale" disable="true"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lbNormaliseOrder" textAlignment="RIGHT">
+                            <tooltip><Tooltip text="The order in which the preprocessor was applied."/></tooltip>
+                        </Label>
+                    </HBox>
                     <VBox fx:id="vbNormalise" visible="false" managed="false">
                         <HBox>
                             <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
@@ -124,7 +150,13 @@
                     </VBox>
                     <Separator/>
 
-                    <CheckBox fx:id="cbOffset" text="Offset data" disable="true"/>
+                    <HBox>
+                        <CheckBox fx:id="cbOffset" text="Offset data" disable="true"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lbOffsetValuesOrder" textAlignment="RIGHT">
+                            <tooltip><Tooltip text="The order in which the preprocessor was applied."/></tooltip>
+                        </Label>
+                    </HBox>
                     <VBox fx:id="vbOffset" visible="false" managed="false">
                         <HBox>
                             <Label text="Offset values by:"><padding><Insets left="25" right="10"/></padding></Label>

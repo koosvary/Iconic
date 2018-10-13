@@ -204,6 +204,7 @@ public class ProjectTreeController implements Initializable {
             // If there's no item in the cell, don't display anything
             if (empty) {
                 setText(null);
+                setGraphic(null);
             }
             // Otherwise display the item's icon and name
             else {
@@ -376,7 +377,7 @@ public class ProjectTreeController implements Initializable {
                             // Update the active workspace item to the new project (modified)
                             getWorkspaceService().setActiveWorkspaceItem(null);
                             getProjectService().getProjects()
-                                    .set(getProjectService().getProjects().indexOf(project), (ProjectModel) newProject);
+                                    .set(getProjectService().getProjects().indexOf(project), newProject);
                             getWorkspaceService().setActiveWorkspaceItem(newProject);
                         }
                 );

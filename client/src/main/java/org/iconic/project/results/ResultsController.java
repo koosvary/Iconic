@@ -33,6 +33,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.extern.log4j.Log4j2;
+import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
@@ -55,9 +56,8 @@ import java.util.ResourceBundle;
 public class ResultsController implements Initializable {
 
     private final WorkspaceService workspaceService;
-    private final SearchService searchService;
 
-    private SolutionStorage<Double> storage;
+    private SolutionStorage<Chromosome<?>> storage;
     private SearchConfigurationModel lastSearch;
     private InvalidationListener resultAddedListener;
 
@@ -68,14 +68,12 @@ public class ResultsController implements Initializable {
      * Constructs a new ResultsController that attaches an invalidation listener onto the workspace service.
      */
     @Inject
-    public ResultsController(final WorkspaceService workspaceService, final SearchService searchService) {
+    public ResultsController(final WorkspaceService workspaceService) {
         this.workspaceService = workspaceService;
-        this.searchService = searchService;
 
         // Update the workspace whenever the active dataset changes
         resultAddedListener = observable -> updateWorkspace();
         getWorkspaceService().activeWorkspaceItemProperty().addListener(resultAddedListener);
-        getSearchService().searchesProperty().addListener(resultAddedListener);
     }
 
     /**
@@ -102,7 +100,8 @@ public class ResultsController implements Initializable {
         search.getSearchExecutor().ifPresent(executor -> {
             if (search != lastSearch) {
                 // If a search is running, use that current one for results. Else use the last search
-                storage = executor.getSolutionStorage();
+                //noinspection unchecked
+                storage = (SolutionStorage<Chromosome<?>>) executor.getSolutionStorage();
                 storage.getSolutions().addListener(resultAddedListener);
                 lastSearch = search;
             }
@@ -121,8 +120,8 @@ public class ResultsController implements Initializable {
      */
     private synchronized void updateWorkspaceMainThread() {
         List<ResultDisplay> resultDisplays = new ArrayList<>();
-        for (Map.Entry<Integer, List<ExpressionChromosome<Double>>> entry : storage.getSolutions().entrySet()) {
-            ExpressionChromosome<Double> result = entry.getValue().get(0);
+        for (Map.Entry<Integer, List<Chromosome<?>>> entry : storage.getSolutions().entrySet()) {
+            Chromosome<?> result = entry.getValue().get(0);
             resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.toString()));
         }
 
@@ -147,27 +146,10 @@ public class ResultsController implements Initializable {
     }
 
     /**
-     * Get search model given a dataset
-     * @param dataset DatasetModel to use
-     * @return Search model for that dataset, or null if no search is running
-     */
-    private SearchExecutor<?> getSearchExecutor(DatasetModel dataset) {
-        return getSearchService().searchesProperty().get(dataset.getId());
-    }
-
-    /**
      * Get the workspace service
      * @return Workspace service
      */
     private WorkspaceService getWorkspaceService() {
         return workspaceService;
-    }
-
-    /**
-     * Get the search service
-     * @return Search service
-     */
-    public SearchService getSearchService() {
-        return searchService;
     }
 }

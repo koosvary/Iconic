@@ -29,6 +29,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.text.Text;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
@@ -40,6 +42,8 @@ import org.iconic.workspace.WorkspaceService;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A controller class for handling the StartSearch view.
@@ -54,12 +58,27 @@ public class StartSearchController implements Initializable {
     private final ViewService viewService;
     private final WorkspaceService workspaceService;
 
+    private Lock updating;
+
     @FXML
     private Button btnSearch;
     @FXML
     private Button btnStopSearch;
     @FXML
     private LineChart<Number, Number> lcSearchProgress;
+
+    @FXML
+    private Label txtTime;
+    @FXML
+    private Label txtGen;
+    @FXML
+    private Label txtGenSec;
+    @FXML
+    private Label txtLastImprov;
+    @FXML
+    private Label txtAvgImprov;
+    @FXML
+    private Label txtCores;
 
     /**
      * Constructs a new StartSearchController that attaches an invalidation listener onto the search and workspace
@@ -74,6 +93,7 @@ public class StartSearchController implements Initializable {
         this.searchService = searchService;
         this.viewService = viewService;
         this.workspaceService = workspaceService;
+        this.updating = new ReentrantLock();
 
         // Update the workspace whenever the active item changes
         InvalidationListener selectionChangedListener = observable -> updateWorkspace();
@@ -103,6 +123,8 @@ public class StartSearchController implements Initializable {
             // If there's a search let the user start or pause it
             if (search.getSearchExecutor().isPresent()) {
                 SearchExecutor<?> executor = search.getSearchExecutor().get();
+                updatePlots(executor);
+                updateStatistics(executor);
 
                 if (!executor.isRunning()) {
                     Platform.runLater(() -> {
@@ -138,17 +160,28 @@ public class StartSearchController implements Initializable {
                         btnStopSearch.setDisable(false);
                     }
             );
-            updatePlots(search);
         }
     }
 
-    private synchronized void updatePlots(final SearchConfigurationModel search) {
-        search.getSearchExecutor().ifPresent(executor -> {
-            Platform.runLater(() -> {
-                lcSearchProgress.getData().clear();
-                lcSearchProgress.getData().add(executor.getPlots());
-            });
+    /**
+     * Update the search progress over time graph.
+     * @param executor Executor in use
+     */
+    private synchronized void updatePlots(final SearchExecutor<?> executor) {
+        Platform.runLater(() -> {
+            lcSearchProgress.getData().clear();
+            lcSearchProgress.getData().add(executor.getPlots());
         });
+    }
+
+    /**
+     * Update the statistics section
+     * @param executor Executor in use
+     */
+    private void updateStatistics(final SearchExecutor<?> executor) {
+        if (updating.tryLock()) {
+            new SearchStatistics(this, executor, updating).start();
+        }
     }
 
     /**
@@ -176,12 +209,12 @@ public class StartSearchController implements Initializable {
             else {
                 executor.setRunning(true);
                 Platform.runLater(() -> {
-                    getSearchService().searchesProperty().put(search.getId(), executor);
-                    Thread thread = new Thread(getSearchService().searchesProperty().get(search.getId()));
+                    Thread thread = new Thread(executor);
                     thread.start();
                 });
             }
         });
+        updateWorkspace();
     }
 
     /**
@@ -199,10 +232,8 @@ public class StartSearchController implements Initializable {
         SearchConfigurationModel search = (SearchConfigurationModel) item;
 
         search.getSearchExecutor().ifPresent(executor -> {
-            lcSearchProgress.getData().clear();
-            lcSearchProgress.getData().add(executor.getPlots());
+            updateStatistics(executor);
             executor.stop();
-            searchService.searchesProperty().remove(search.getId());
         });
         updateWorkspace();
     }
@@ -226,6 +257,8 @@ public class StartSearchController implements Initializable {
         }
     }
 
+    // -- Getters --
+
     /**
      * Returns the workspace service of this controller
      *
@@ -242,5 +275,53 @@ public class StartSearchController implements Initializable {
      */
     private SearchService getSearchService() {
         return searchService;
+    }
+
+    /**
+     * Get the Text for time
+     * @return Text for time
+     */
+    public Label getTxtTime() {
+        return txtTime;
+    }
+
+    /**
+     * Get the Text for current generation
+     * @return Text for current generation
+     */
+    public Label getTxtGen() {
+        return txtGen;
+    }
+
+    /**
+     * Get the Text for generations per second
+     * @return Text for generations per second
+     */
+    public Label getTxtGenSec() {
+        return txtGenSec;
+    }
+
+    /**
+     * Get the Text for last time of improvement
+     * @return Text for last time of improvement
+     */
+    public Label getTxtLastImprov() {
+        return txtLastImprov;
+    }
+
+    /**
+     * Get the Text for average time between improvements
+     * @return Text for average time between improvements
+     */
+    public Label getTxtAvgImprov() {
+        return txtAvgImprov;
+    }
+
+    /**
+     * Get the Text for cores in use
+     * @return Text for cores in use
+     */
+    public Label getTxtCores() {
+        return txtCores;
     }
 }

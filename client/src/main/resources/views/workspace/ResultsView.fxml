@@ -58,11 +58,11 @@
                 <padding>
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
-                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Best Solutions of Different Sizes">
+                <Label text="Best Solutions of Different Sizes">
                     <font>
                         <Font size="18.0" />
                     </font>
-                </Text>
+                </Label>
             </HBox>
             <!-- Right-header -->
             <HBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
@@ -129,11 +129,11 @@
                 <padding>
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
-                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Solution Details">
+                <Label text="Solution Details">
                     <font>
                         <Font size="18.0" />
                     </font>
-                </Text>
+                </Label>
                 <ScrollPane fitToWidth="true">
                     <content>
                         <GridPane alignment="CENTER" gridLinesVisible="true">
@@ -147,21 +147,21 @@
                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             </rowConstraints>
                             <children>
-                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Text" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                                <Label GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                                     <font>
                                         <Font size="12.0" />
                                     </font>
-                                </Text>
-                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Text" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+                                </Label>
+                                <Label text="Text" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
                                     <font>
                                         <Font size="12.0" />
                                     </font>
-                                </Text>
-                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Text" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                                </Label>
+                                <Label text="Text" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                                     <font>
                                         <Font size="12.0" />
                                     </font>
-                                </Text>
+                                </Label>
                             </children>
                         </GridPane>
                     </content>

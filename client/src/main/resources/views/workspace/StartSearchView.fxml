@@ -63,8 +63,8 @@
                         </padding>
                         <ButtonBar buttonMinWidth="150">
                             <buttons>
-                                <Button fx:id="btnSearch" text="%workspace.search" onAction="#startSearch"/>
-                                <Button fx:id="btnStopSearch" text="%workspace.search.stop" onAction="#stopSearch"/>
+                                <Button fx:id="btnSearch" text="%workspace.search" prefWidth="100" onAction="#startSearch"/>
+                                <Button fx:id="btnStopSearch" text="%workspace.search.stop" prefWidth="100" onAction="#stopSearch"/>
                             </buttons>
                         </ButtonBar>
                     </HBox>
@@ -75,11 +75,11 @@
                             <padding>
                                 <Insets top="10" bottom="10" left="10" right="10"/>
                             </padding>
-                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Search Progress">
+                            <Label text="Search Progress">
                                 <font>
                                     <Font size="18.0"/>
                                 </font>
-                            </Text>
+                            </Label>
                             <ScrollPane fitToWidth="true">
                                 <content>
                                     <GridPane alignment="CENTER">
@@ -90,30 +90,47 @@
                                                                prefWidth="100.0"/>
                                         </columnConstraints>
                                         <children>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Time"
-                                                  GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                                <font>
-                                                    <Font size="12.0"/>
-                                                </font>
-                                            </Text>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="CPU Cores"
-                                                  GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                                <font>
-                                                    <Font size="12.0"/>
-                                                </font>
-                                            </Text>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="0s"
-                                                  GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                                <font>
-                                                    <Font size="12.0"/>
-                                                </font>
-                                            </Text>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="0"
-                                                  GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                                <font>
-                                                    <Font size="12.0"/>
-                                                </font>
-                                            </Text>
+                                            <Label text="Time Elapsed" GridPane.columnIndex="0" GridPane.rowIndex="0" >
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+                                            <Label fx:id="txtTime" text="0.000s" GridPane.columnIndex="1" GridPane.rowIndex="0" >
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+
+                                            <Label text="Generation" GridPane.columnIndex="0" GridPane.rowIndex="1" >
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+                                            <Label fx:id="txtGen" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+
+                                            <Label text="Generations / Second" GridPane.columnIndex="0" GridPane.rowIndex="2" >
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+                                            <Label fx:id="txtGenSec" text="0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+
+                                            <Label text="Time Since Improvement" GridPane.columnIndex="0" GridPane.rowIndex="3" >
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+                                            <Label fx:id="txtLastImprov" text="0.000s" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+
+                                            <Label text="Average Improvement Time" GridPane.columnIndex="0" GridPane.rowIndex="4" >
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+                                            <Label fx:id="txtAvgImprov" text="0.000s" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+
+                                            <Label text="CPU Cores" GridPane.columnIndex="0" GridPane.rowIndex="5" >
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+                                            <Label fx:id="txtCores" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
                                         </children>
                                     </GridPane>
                                 </content>

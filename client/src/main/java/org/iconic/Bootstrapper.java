@@ -108,7 +108,7 @@ public class Bootstrapper extends Application {
             Scene scene = new Scene(root, 720, 480);
 
             // Load our stylesheets
-            val stylesheet = getClass().getClassLoader().getResource("stylesheet.css");
+            val stylesheet = getClass().getClassLoader().getResource("css/light-theme.css");
 
             if (stylesheet != null) {
                 scene.getStylesheets().add(stylesheet.toExternalForm());
