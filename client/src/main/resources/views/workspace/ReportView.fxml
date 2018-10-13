@@ -56,11 +56,11 @@
                 <padding>
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
-                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Reports">
+                <Label text="Reports">
                     <font>
                         <Font size="18.0"/>
                     </font>
-                </Text>
+                </Label>
             </HBox>
         </HBox>
         <Separator/>

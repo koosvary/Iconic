@@ -50,7 +50,7 @@
 			<Label text="Target Expression:">
 				<padding><Insets left="20" right="20"/></padding>
 				<font>
-					<Font size="16.0"/>
+					<Font size="18.0"/>
 				</font>
 			</Label>
 			
