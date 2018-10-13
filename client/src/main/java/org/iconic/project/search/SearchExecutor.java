@@ -69,7 +69,9 @@ public class SearchExecutor implements Runnable {
     private ArrayList<BlockDisplay> blockDisplays;
 
     private transient Long startTime;
-    private transient Long elapsedTime;
+    private transient Long elapsedDuration;
+    private transient Long lastImproveTime;
+    private transient int improvedCount;
     private transient int generation;
 
     /**
@@ -115,7 +117,7 @@ public class SearchExecutor implements Runnable {
         this.plots.setName(this.datasetModel.getName());
 
         this.startTime = null;
-        this.elapsedTime = null;
+        this.elapsedDuration = null;
 
         ea.setCrossoverProbability(1.0);
         ea.setMutationProbability(1.0);
@@ -140,8 +142,7 @@ public class SearchExecutor implements Runnable {
     public void run() {
         log.debug("Starting search...");
         setRunning(true);
-        startTime = System.currentTimeMillis();
-        generation = 0;
+        setup();
 
         final int populationSize = 5;
         Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
@@ -168,7 +169,7 @@ public class SearchExecutor implements Runnable {
 
                 if (newCandidate) {
                     bestCandidate = newBestCandidate;
-                    addPlot(bestCandidate);
+                    setImproved(bestCandidate);
                 }
 
                 final String gen = "\nGeneration: " + generation;
@@ -180,7 +181,7 @@ public class SearchExecutor implements Runnable {
                     setUpdates(gen + candidate + fitness + getUpdates());
                 }
 
-                elapsedTime = System.currentTimeMillis() - startTime;
+                elapsedDuration = System.currentTimeMillis() - startTime;
                 log.info(gen + candidate + fitness);
             }
 
@@ -189,9 +190,26 @@ public class SearchExecutor implements Runnable {
             Arrays.stream(ex.getStackTrace()).forEach(log::error);
         } finally {
             setUpdates("\nFinished!" + getUpdates());
-            elapsedTime = System.currentTimeMillis() - startTime;
+            elapsedDuration = System.currentTimeMillis() - startTime;
             setRunning(false);
         }
+    }
+
+    /**
+     * Set the transient variables for an execution
+     */
+    private void setup() {
+        startTime = System.currentTimeMillis();
+        elapsedDuration = 0L;
+        lastImproveTime = startTime;
+        improvedCount = 0;
+        generation = 0;
+    }
+
+    private void setImproved(ExpressionChromosome<Double> bestCandidate) {
+        addPlot(bestCandidate);
+        lastImproveTime = System.currentTimeMillis();
+        improvedCount++;
     }
 
     /**
@@ -261,8 +279,16 @@ public class SearchExecutor implements Runnable {
         return startTime;
     }
 
-    public Long getElapsedTime() {
-        return elapsedTime;
+    public Long getElapsedDuration() {
+        return elapsedDuration;
+    }
+
+    public Long getLastImproveTime() {
+        return lastImproveTime;
+    }
+
+    public Long getAverageImproveDuration() {
+        return getElapsedDuration() / improvedCount;
     }
 
     public int getGeneration() {

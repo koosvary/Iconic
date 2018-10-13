@@ -66,11 +66,13 @@ public class SearchStatistics extends Service<Void> {
                     while (search.isRunning()) {
                         Platform.runLater(() -> {
 
-                            controller.getTxtTime().setText(timeElapsed());
+                            controller.getTxtTime().setText(getTimeElapsed());
                             controller.getTxtGen().setText(search.getGeneration() + "");
                             controller.getTxtGenSec().setText(
-                                  String.format("%.3f", search.getGeneration() * 1.0 / getSecondsElapsed())
+                                  String.format("%.3f", search.getGeneration() * 1000.0 / getMillisecondsElapsed())
                             );
+                            controller.getTxtLastImprov().setText(getTimeSinceImprovement());
+                            controller.getTxtAvgImprov().setText(getAverageImprovementTime());
                             controller.getTxtCores().setText(Runtime.getRuntime().availableProcessors() + "");
 
                         });
@@ -86,24 +88,58 @@ public class SearchStatistics extends Service<Void> {
     }
 
     /**
-     * Get the time elapsed in the current search as a string
+     * Convert seconds to a minute and seconds strings
+     * @param elapsed time elapsed as a long in seconds
      * @return Time elapsed
      */
-    private String timeElapsed() {
-        long elapsed = getSecondsElapsed();
-        long seconds = elapsed % 60;
+    private String timeElapsed(long elapsed) {
+        double seconds = (elapsed % 60000) / 1000.0;
+        elapsed /= 1000;
         long minutes = elapsed / 60;
-        return String.format("%dm %ds", minutes, seconds);
+
+        // If over one minute, start showing minutes
+        String format = minutes > 0 ? "%1$dm %2$.3fs" : "%2$.3fs";
+        return String.format(format, minutes, seconds);
     }
 
     /**
      * Gets seconds elapsed in the search
      * @return Seconds as a long
      */
-    private long getSecondsElapsed() {
+    private long getMillisecondsElapsed() {
         if (search == null || search.getStartTime() == null) {
             return 0L;
         }
-        return Math.max(search.getElapsedTime() / 1000, 1);
+        return Math.max(search.getElapsedDuration(), 1);
+    }
+
+    /**
+     * Gets time elapsed as a string
+     * @return Time elapsed as a string
+     */
+    private String getTimeElapsed() {
+        return timeElapsed(getMillisecondsElapsed());
+    }
+
+    /**
+     * Gets time since the last improvement
+     * @return Time since the last improvement
+     */
+    private String getTimeSinceImprovement() {
+        if (search == null || search.getLastImproveTime() == null) {
+            return timeElapsed(0L);
+        }
+        return timeElapsed(Math.max((search.getElapsedDuration() + search.getStartTime() - search.getLastImproveTime()), 1));
+    }
+
+    /**
+     * Gets time since the last improvement
+     * @return Time since the last improvement
+     */
+    private String getAverageImprovementTime() {
+        if (search == null || search.getAverageImproveDuration() == null) {
+            return timeElapsed(0L);
+        }
+        return timeElapsed(Math.max(search.getAverageImproveDuration(), 1));
     }
 }

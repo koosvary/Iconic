@@ -92,7 +92,7 @@
                                             <Text text="Time Elapsed" GridPane.columnIndex="0" GridPane.rowIndex="0" >
                                                 <font><Font size="12.0" /></font>
                                             </Text>
-                                            <Text fx:id="txtTime" text="0m 0s" GridPane.columnIndex="1" GridPane.rowIndex="0" >
+                                            <Text fx:id="txtTime" text="0.000s" GridPane.columnIndex="1" GridPane.rowIndex="0" >
                                                 <font><Font size="12.0" /></font>
                                             </Text>
 
@@ -110,10 +110,24 @@
                                                 <font><Font size="12.0" /></font>
                                             </Text>
 
-                                            <Text text="CPU Cores" GridPane.columnIndex="0" GridPane.rowIndex="3" >
+                                            <Text text="Time Since Improvement" GridPane.columnIndex="0" GridPane.rowIndex="3" >
                                                 <font><Font size="12.0" /></font>
                                             </Text>
-                                            <Text fx:id="txtCores" text="0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                            <Text fx:id="txtLastImprov" text="0.000s" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                                <font><Font size="12.0" /></font>
+                                            </Text>
+
+                                            <Text text="Average Improvement Time" GridPane.columnIndex="0" GridPane.rowIndex="4" >
+                                                <font><Font size="12.0" /></font>
+                                            </Text>
+                                            <Text fx:id="txtAvgImprov" text="0.000s" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                                <font><Font size="12.0" /></font>
+                                            </Text>
+
+                                            <Text text="CPU Cores" GridPane.columnIndex="0" GridPane.rowIndex="5" >
+                                                <font><Font size="12.0" /></font>
+                                            </Text>
+                                            <Text fx:id="txtCores" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5">
                                                 <font><Font size="12.0" /></font>
                                             </Text>
                                         </children>

@@ -70,6 +70,10 @@ public class StartSearchController implements Initializable {
     @FXML
     private Text txtGenSec;
     @FXML
+    private Text txtLastImprov;
+    @FXML
+    private Text txtAvgImprov;
+    @FXML
     private Text txtCores;
 
     /**
@@ -259,6 +263,22 @@ public class StartSearchController implements Initializable {
      */
     public Text getTxtGenSec() {
         return txtGenSec;
+    }
+
+    /**
+     * Get the Text for last time of improvement
+     * @return Text for last time of improvement
+     */
+    public Text getTxtLastImprov() {
+        return txtLastImprov;
+    }
+
+    /**
+     * Get the Text for average time between improvements
+     * @return Text for average time between improvements
+     */
+    public Text getTxtAvgImprov() {
+        return txtAvgImprov;
     }
 
     /**
