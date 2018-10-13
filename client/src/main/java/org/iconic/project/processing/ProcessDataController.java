@@ -31,10 +31,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
@@ -45,9 +42,7 @@ import org.iconic.project.dataset.DatasetModel;
 import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * A controller class for handling the ProcessData view.
@@ -76,6 +71,10 @@ public class ProcessDataController implements Initializable {
     private ComboBox<String> cbHandleMissingValuesOptions;
     @FXML
     private TextField tfSmoothingWindow, tfNormaliseMin, tfNormaliseMax, tfOffsetValue;
+    @FXML
+    private Label lbSmoothOrder, lbHandleMissingValuesOrder, lbRemoveOutliersOrder, lbNormaliseOrder, lbOffsetValuesOrder;
+
+    private List<Label> orderLabels = new ArrayList<>();
 
     /**
      * <p>
@@ -116,6 +115,10 @@ public class ProcessDataController implements Initializable {
                 updateCheckBoxes(selectedIndex);
             });
         }
+
+        // Adds all order of operations labels to a collection for simplified processing
+        Collections.addAll(orderLabels, lbSmoothOrder, lbHandleMissingValuesOrder, lbRemoveOutliersOrder,
+                           lbNormaliseOrder, lbOffsetValuesOrder);
 
         // A quick way to add a listener for the checkboxes
         addCheckBoxChangeListener(cbSmoothData, vbSmoothData);
@@ -446,6 +449,8 @@ public class ProcessDataController implements Initializable {
 
         if (dataManager.isPresent()) {
             dataManager.get().getDataset().get(header).addPreprocessor(preprocessor);
+
+            updateOrderOfOperationsLabels(header);
         }
     }
 
@@ -463,9 +468,47 @@ public class ProcessDataController implements Initializable {
 
             // Remove selected preprocessor and reapply the other active ones
             dataManager.get().getDataset().get(selectedHeader).removePreprocessor(transformType);
+
+            updateOrderOfOperationsLabels(selectedHeader);
         }
 
         featureSelected(lvFeatures.getSelectionModel().getSelectedIndex());
+    }
+
+    /**
+     * Updates the order of operations labels to the right of each preprocessor checkbox. The updated number reflects
+     * the order in which that preprocessor was applied.
+     *
+     * @param header Header to identify the current feature
+     */
+    private void updateOrderOfOperationsLabels(String header) {
+        Optional<DataManager<Double>> dataManager = getDataManager();
+
+        if (dataManager.isPresent()) {
+            List<Preprocessor<Number>> preprocessors = dataManager.get().getDataset().get(header).getPreprocessors();
+
+            for (int i=0; i < orderLabels.size(); i++) {
+                if (preprocessors.size() == 0) {
+                    orderLabels.get(i).setText("");
+                } else {
+                    for (int j=0; j < preprocessors.size(); j++) {
+                        Label preprocessorLabel = convertTransformTypeToLabel(preprocessors.get(j).getTransformType());
+
+                        if (preprocessorLabel != null) {
+                            if (orderLabels.get(i).equals(preprocessorLabel)) {
+                                orderLabels.get(i).setText("[" + (j+1) + "]");
+                                break;
+                            }
+                        }
+
+                        if (j+1 == preprocessors.size()) {
+                            orderLabels.get(i).setText("");
+                        }
+                    }
+
+                }
+            }
+        }
     }
 
     /**
@@ -611,7 +654,7 @@ public class ProcessDataController implements Initializable {
     /**
      * Given one of transform types, this method determines its corresponding function.
      *
-     * @param transformType
+     * @param transformType Given TransformType
      */
     private void convertTransformTypeToFunction(TransformType transformType) {
         switch (transformType) {
@@ -634,7 +677,35 @@ public class ProcessDataController implements Initializable {
             case Offset:
                 offsetDatasetFeature();
                 break;
+
         }
+    }
+
+    /**
+     * Converts a given TransformType to its corresponding order of operations label
+     *
+     * @param transformType Given TransformType
+     * @return Corresponding Label
+     */
+    private Label convertTransformTypeToLabel(TransformType transformType) {
+        switch (transformType) {
+            case Smoothed:
+                return lbSmoothOrder;
+
+            case MissingValuesHandled:
+                return lbHandleMissingValuesOrder;
+
+            case OutliersRemoved:
+                return lbRemoveOutliersOrder;
+
+            case Normalised:
+                return lbNormaliseOrder;
+
+            case Offset:
+                return lbOffsetValuesOrder;
+        }
+
+        return null;
     }
 
     /**

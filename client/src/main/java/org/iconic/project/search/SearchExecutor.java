@@ -68,6 +68,11 @@ public class SearchExecutor implements Runnable {
     private boolean running;
     private ArrayList<BlockDisplay> blockDisplays;
 
+    private transient Long startTime;
+    private transient Long elapsedDuration;
+    private transient Long lastImproveTime;
+    private transient int improvedCount;
+    private transient int generation;
 
     /**
      * Constructs a new search model with the provided dataset.
@@ -111,6 +116,9 @@ public class SearchExecutor implements Runnable {
         this.updates.set("");
         this.plots.setName(this.datasetModel.getName());
 
+        this.startTime = null;
+        this.elapsedDuration = null;
+
         ea.setCrossoverProbability(1.0);
         ea.setMutationProbability(1.0);
 
@@ -134,6 +142,7 @@ public class SearchExecutor implements Runnable {
     public void run() {
         log.debug("Starting search...");
         setRunning(true);
+        setup();
 
         final int populationSize = 5;
         Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
@@ -142,10 +151,10 @@ public class SearchExecutor implements Runnable {
             ea.initialisePopulation(populationSize);
 
             ExpressionChromosome<Double> bestCandidate = ea.getChromosomes().stream().min(comparator).get();
-            addPlot(0, bestCandidate);
+            addPlot(bestCandidate);
 
             setUpdates("\nStarting..." + getUpdates());
-            for (int i = 0; isRunning(); ++i) {
+            for (generation = 1; isRunning(); generation++) {
                 List<ExpressionChromosome<Double>> oldPopulation = ea.getChromosomes();
                 List<ExpressionChromosome<Double>> newPopulation = ea.evolve(oldPopulation);
                 ea.setChromosomes(newPopulation);
@@ -160,20 +169,20 @@ public class SearchExecutor implements Runnable {
 
                 if (newCandidate) {
                     bestCandidate = newBestCandidate;
-                    addPlot(i+1, bestCandidate);
+                    setImproved(bestCandidate);
                 }
 
-                final String generation = "\nGeneration: " + (i + 1);
+                final String gen = "\nGeneration: " + generation;
                 final String candidate = "\n\tNew Best candidate: " + bestCandidate.toString();
                 final String fitness = "\n\tFitness: " + bestCandidate.getFitness();
-                final String size = "\n\tSize: " + bestCandidate.getSize();
 
                 // Append the current generation's best results in front of the list of updates
                 if (newCandidate) {
-                    setUpdates(generation + candidate + fitness + getUpdates());
+                    setUpdates(gen + candidate + fitness + getUpdates());
                 }
 
-                log.info(generation + candidate + fitness + size);
+                elapsedDuration = System.currentTimeMillis() - startTime;
+                log.info(gen + candidate + fitness);
             }
 
         } catch (Exception ex) {
@@ -181,8 +190,26 @@ public class SearchExecutor implements Runnable {
             Arrays.stream(ex.getStackTrace()).forEach(log::error);
         } finally {
             setUpdates("\nFinished!" + getUpdates());
+            elapsedDuration = System.currentTimeMillis() - startTime;
             setRunning(false);
         }
+    }
+
+    /**
+     * Set the transient variables for an execution
+     */
+    private void setup() {
+        startTime = System.currentTimeMillis();
+        elapsedDuration = 0L;
+        lastImproveTime = startTime;
+        improvedCount = 0;
+        generation = 0;
+    }
+
+    private void setImproved(ExpressionChromosome<Double> bestCandidate) {
+        addPlot(bestCandidate);
+        lastImproveTime = System.currentTimeMillis();
+        improvedCount++;
     }
 
     /**
@@ -196,7 +223,7 @@ public class SearchExecutor implements Runnable {
      * Add a plot point for progress over time
      * @param candidate Candidate to plot
      */
-    private void addPlot(int generation, final ExpressionChromosome<Double> candidate) {
+    private void addPlot(final ExpressionChromosome<Double> candidate) {
         Platform.runLater(() -> {
             double fitness = candidate.getFitness();
             XYChart.Data<Number, Number> plot = new XYChart.Data<>(generation, fitness);
@@ -246,5 +273,25 @@ public class SearchExecutor implements Runnable {
 
     public static FunctionalPrimitive[] getFunctionalPrimitives() {
         return FUNCTIONAL_PRIMITIVES;
+    }
+
+    public Long getStartTime() {
+        return startTime;
+    }
+
+    public Long getElapsedDuration() {
+        return elapsedDuration;
+    }
+
+    public Long getLastImproveTime() {
+        return lastImproveTime;
+    }
+
+    public Long getAverageImproveDuration() {
+        return getElapsedDuration() / improvedCount;
+    }
+
+    public int getGeneration() {
+        return generation;
     }
 }
