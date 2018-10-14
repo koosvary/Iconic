@@ -39,8 +39,12 @@ public class Offset extends Preprocessor<Number> {
      */
     public List<Number> apply(List<Number> values) {
         for (int i = 0; i < values.size(); i++) {
-            Double value = values.get(i).doubleValue() + offset.doubleValue();
-            values.set(i, value);
+            Number value = values.get(i);
+            if (value == null) {
+                continue;
+            }
+            Double doubleValue = values.get(i).doubleValue() + offset.doubleValue();
+            values.set(i, doubleValue);
         }
 
         return values;

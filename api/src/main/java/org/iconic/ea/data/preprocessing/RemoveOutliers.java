@@ -26,9 +26,28 @@ import java.util.List;
 public class RemoveOutliers extends Preprocessor<Number> {
     private Number minCutoff, maxCutoff;
 
-    public List<Number> apply(List<Number> values) {
+    public RemoveOutliers(Number minCutoff, Number maxCutoff) {
+        this.minCutoff = minCutoff;
+        this.maxCutoff = maxCutoff;
+    }
 
-        // Remove outliers functionality
+    // Replaces any number outside of the range with null
+    public List<Number> apply(List<Number> values) {
+        System.out.println("RemoveOutliers  apply   values.size(): " + values.size());
+        System.out.println("RemoveOutliers  apply   minCutoff: " + minCutoff + ", maxCutoff: " + maxCutoff);
+        for (int i = 0; i < values.size(); i++) {
+            Number value = values.get(i);
+
+            if (value == null) {
+                continue;
+            }
+
+            Double doubleValue = value.doubleValue();
+
+            if (doubleValue < minCutoff.doubleValue() || doubleValue > maxCutoff.doubleValue()) {
+                values.set(i, null);
+            }
+        }
 
         return values;
     }

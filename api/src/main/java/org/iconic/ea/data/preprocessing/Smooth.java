@@ -66,7 +66,11 @@ public class Smooth extends Preprocessor<Number> {
             // Find the sum of all values in the span
             Double sum = 0.0;
             for (int j = i - span; j <= i + span; j++) {
-                sum += values.get(j).doubleValue();
+                Number value = values.get(j);
+                if (value == null) {
+                    continue;
+                }
+                sum += value.doubleValue();
             }
 
             // Average of the span size
