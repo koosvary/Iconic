@@ -46,7 +46,7 @@ public class InputNode<T> extends Node<T> {
 
     @Override
     public String toString() {
-        return " F" + featureIndex + " ";
+        return "F" + featureIndex + "";
     }
 
     @Override
