@@ -146,7 +146,7 @@ public class Client {
                 out.append("\r")
                         .append("Progress: ").append(percent).append("%")
                         // And include the current best fitness
-//                        .append("\t|\tFitness: ").append(String.format("%.4f", bestCandidate.getFitness())).append(global)
+                        .append("\t|\tGlobal Bests: ").append(global)
                         .append("\t|\tGeneration: ").append(i + 1)
                         .append("\t|\tTime: ").append(Duration.between(start, Instant.now())).append(" ");
                 System.out.print(out);
