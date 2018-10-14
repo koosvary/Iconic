@@ -63,7 +63,18 @@ public interface Objective<T extends Comparable<T>> {
      * @return True if the first value is not worse than the second value.
      */
     default boolean isNotWorse(double x, double y) {
+        return x <= y || isEqual(x, y);
+    }
+
+    /**
+     * Returns true if the first value is <i>equivalent</i> to the second value.
+     *
+     * @param x The value to test
+     * @param y The value to test against
+     * @return True if the first value is equivalent to the second value.
+     */
+    default boolean isEqual(double x, double y) {
         double epsilon = 1E-6;
-        return x <= y || Math.abs(x - y) < epsilon;
+        return Math.abs(x - y) < epsilon;
     }
 }

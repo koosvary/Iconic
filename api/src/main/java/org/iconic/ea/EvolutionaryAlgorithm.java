@@ -73,7 +73,7 @@ public abstract class EvolutionaryAlgorithm<T extends Chromosome<R>, R extends C
     }
 
     @SuppressWarnings("unchecked cast")
-    protected Objective<R> getObjective() {
+    public Objective<R> getObjective() {
         if (isCached(objective)) {
             CacheableObjective<R> cacheableObjective = (CacheableObjective<R>) getObjective();
             return cacheableObjective.getObjective();

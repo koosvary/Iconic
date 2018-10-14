@@ -24,10 +24,10 @@ package org.iconic.project.dataset;
 import javafx.beans.property.SimpleStringProperty;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
+import org.controlsfx.glyphfont.FontAwesome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.project.Displayable;
 
-import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -42,8 +42,6 @@ public class DatasetModel implements Displayable {
     private final SimpleStringProperty name;
     private final SimpleStringProperty absolutePath;
     private final DataManager<Double> dataManager;
-
-
 
     /**
      * <p>Constructs a new DatasetModel with the provided name.</p>
@@ -66,7 +64,7 @@ public class DatasetModel implements Displayable {
     public DatasetModel(@NonNull final String name, @NonNull final String absolutePath) {
         this.name = new SimpleStringProperty(name);
         this.absolutePath = new SimpleStringProperty(absolutePath);
-        this.dataManager = new DataManager<Double>(absolutePath);
+        this.dataManager = new DataManager<>(absolutePath);
         this.id = UUID.randomUUID();
     }
 
@@ -93,8 +91,8 @@ public class DatasetModel implements Displayable {
      * @return
      */
     @Override
-    public Optional<URI> getIcon() {
-        return Optional.empty();
+    public Optional<Enum<?>> getIcon() {
+        return Optional.of(FontAwesome.Glyph.DATABASE);
     }
 
     /**

@@ -82,7 +82,7 @@ public class FunctionalPrimitive<T, R> implements UncheckedFunctionalPrimitive<T
             }
             parameters.setLength(parameters.length() - 2);
 
-            return String.format("%s (%s): %s", symbol, parameters.toString(), description);
+            return String.format("%s (%s):\n%s", symbol, parameters.toString(), description);
         }
         return description;
     }

@@ -133,10 +133,42 @@ public class MenuController implements Initializable {
         // Create the project only if a name was provided
         dialog.showAndWait().ifPresent(
                 name -> {
-                    final ProjectModel project = ProjectModel.builder().name(name).build();
-                    getProjectService().getProjects().add(project);
+                    if (!name.isEmpty()) {
+                        final ProjectModel project = ProjectModel.builder().name(name).build();
+                        getProjectService().getProjects().add(project);
+                    }
                 }
         );
+    }
+
+    public void loadLightTheme() {
+        loadStylesheet("light-theme.css");
+    }
+
+    public void loadDarkTheme() {
+        loadStylesheet("dark-theme.css");
+    }
+
+    public void loadBootstrap2() {
+        loadStylesheet("bootstrap2.css");
+    }
+
+    public void loadBootStrap3() {
+        loadStylesheet("bootstrap3.css");
+    }
+
+    /**
+     * Loads a new stylesheet with the specified name and removes the other active stylesheet.
+     *
+     * @param stylesheetName New stylesheet file name
+     */
+    private void loadStylesheet(String stylesheetName) {
+        val stylesheet = getClass().getClassLoader().getResource("css/" + stylesheetName);
+
+        if (stylesheet != null) {
+            getPane().getScene().getStylesheets().add(stylesheet.toExternalForm());
+            getPane().getScene().getStylesheets().remove(0);
+        }
     }
 
     /**

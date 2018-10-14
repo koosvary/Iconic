@@ -25,7 +25,7 @@ public class Multiplication extends ArithmeticPrimitive<Number> {
     public Multiplication() {
         super(
                 args -> args.stream().reduce(1.d, (a, b) -> a * b),
-                2, "MUL", "Returns a * b", 1
+                2, "MUL", "Returns a * b.", 1
         );
     }
 }

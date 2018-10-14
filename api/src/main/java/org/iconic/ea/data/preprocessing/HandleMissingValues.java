@@ -98,12 +98,22 @@ public class HandleMissingValues extends Preprocessor<Number> {
     private List<Number> copyPreviousRow(List<Number> values) {
         // Loop through all values in the array
         for (int i = 0; i < values.size(); i++) {
+            if (values.get(i) != null) {
+                continue;
+            }
             // The currentIndex is equal to i - 1 (with wrapping)
-            int currentIndex = (values.size() + i - 1) % values.size();
+            int currentIndex = i - 1;
+
+            if (currentIndex < 0) {
+                currentIndex = values.size() - 1;
+            }
 
             // While the currentIndex value in the array is equal to null, decrement currentIndex
             while (values.get(currentIndex) == null) {
-                currentIndex = (values.size() + currentIndex - 1) % values.size();
+                // Decrement and check if its less than 0 in the same line.
+                if (--currentIndex < 0) {
+                    currentIndex = values.size() - 1;
+                }
 
                 // If currentIndex loops all the way back to i, then the entire array is null and nothing
                 // can be done, therefore exit the method.
@@ -114,15 +124,15 @@ public class HandleMissingValues extends Preprocessor<Number> {
 
             // Once an index has been found != null, loop forwards from that point to i updating each value
             // to the previous value
-            while (currentIndex != i) {
-                // Index to replace is currentIndex + 1 (with wrapping)
-                int index = (values.size() + currentIndex + 1) % values.size();
+            // Index to replace is currentIndex + 1 (with wrapping)
+            int index = currentIndex;
+            while (index != i) {
+                if (++index >= values.size()) {
+                    index = 0;
+                }
 
                 // Update the current array index is currentIndex (currentIndex = index - 1)
                 values.set(index, values.get(currentIndex));
-
-                // Incriment currentIndex (with wrapping)
-                currentIndex = (values.size() + currentIndex + 1) % values.size();
             }
         }
 

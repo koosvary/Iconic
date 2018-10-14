@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.project;
+package org.iconic.project.input;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.value.ObservableValue;
@@ -31,11 +31,18 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import org.controlsfx.control.spreadsheet.*;
+import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.data.DataManager;
+import org.iconic.project.Displayable;
+import org.iconic.project.ProjectModel;
+import org.iconic.project.ProjectService;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.workspace.WorkspaceService;
 
@@ -43,10 +50,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class InputDataController implements Initializable {
     private final ProjectService projectService;
@@ -55,6 +59,8 @@ public class InputDataController implements Initializable {
     private ObservableList<String> rowHeaders = FXCollections.observableArrayList();
     private String infoPlaceholder = "Enter variable description here.";
 
+    @FXML
+    private WorkspaceTab inputTab;
     @FXML
     private SpreadsheetView spreadsheet;
     @FXML
@@ -97,6 +103,7 @@ public class InputDataController implements Initializable {
             createButtonHBox.setVisible(false);
             importButtonHBox.setVisible(false);
             welcomeMessage.setText("Save this dataset to a file.");
+            setupContextMenu();
         }
     }
 
@@ -120,6 +127,285 @@ public class InputDataController implements Initializable {
         btnExportDataset.visibleProperty().bind(spreadsheet.visibleProperty());
 
         updateWorkspace();
+
+        inputTab.setOnSelectionChanged(event -> updateWorkspace());
+    }
+
+    /**
+     * Sets up the right click menu for copying and pasting
+     */
+    private void setupContextMenu(){
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem copy = new MenuItem("Copy");
+        copy.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
+        copy.setOnAction(actionEvent -> {
+            copySelectionToClipboard();
+        });
+        MenuItem paste = new MenuItem("Paste");
+        paste.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
+        paste.setOnAction(actionEvent -> {
+            extendWithClipboard();
+            pasteFromClipboard();
+        });
+        contextMenu.getItems().addAll(copy,paste);
+        spreadsheet.setContextMenu(contextMenu);
+    }
+
+    /**
+     * Reads the selected cells and places them in the clipboard formatted as a spreadsheet
+     */
+    private void copySelectionToClipboard() {
+        StringBuilder clipboardString = new StringBuilder();
+
+        ObservableList<TablePosition> positionList = spreadsheet.getSelectionModel().getSelectedCells();
+
+        int prevRow = -1;
+
+        for (TablePosition position : positionList) {
+
+            int row = position.getRow();
+            int col = position.getColumn();
+
+            // determine whether we advance in a row (tab) or a column
+            // (newline).
+            if (prevRow == row) {
+                clipboardString.append('\t');
+            }
+            else if (prevRow != -1) {
+                clipboardString.append('\n');
+            }
+
+            Object observableValue = spreadsheet.getGrid().getRows().get(row).get(col).getItem();
+
+            // add new item to clipboard
+            clipboardString.append(String.valueOf(observableValue));
+
+            // remember previous
+            prevRow = row;
+        }
+
+        // create clipboard content
+        final ClipboardContent clipboardContent = new ClipboardContent();
+        clipboardContent.putString(clipboardString.toString());
+
+        // set clipboard content
+        Clipboard.getSystemClipboard().setContent(clipboardContent);
+    }
+
+    /**
+     * If there is excel cells in the clipboard they will be pasted into the current cells
+     */
+    private void pasteFromClipboard() {
+        // abort if there's not cell selected to start with
+        if(spreadsheet.getSelectionModel().getSelectedCells().size() == 0) {
+            return;
+        }
+
+        // get the cell position to start with
+        TablePosition pasteCellPosition = spreadsheet.getSelectionModel().getSelectedCells().get(0);
+
+        String pasteString = Clipboard.getSystemClipboard().getString();
+
+        int rowClipboard = -1;
+
+        StringTokenizer rowTokenizer = new StringTokenizer( pasteString, "\n");
+        while(rowTokenizer.hasMoreTokens()) {
+
+            rowClipboard++;
+
+            String rowString = rowTokenizer.nextToken();
+
+            StringTokenizer columnTokenizer = new StringTokenizer(rowString, "\t");
+
+            int colClipboard = -1;
+
+            while(columnTokenizer.hasMoreTokens()) {
+
+                colClipboard++;
+
+                // get next cell data from clipboard
+                String clipboardCellContent = columnTokenizer.nextToken();
+
+                // calculate the position in the table cell
+                int rowTable = pasteCellPosition.getRow() + rowClipboard;
+                int colTable = pasteCellPosition.getColumn() + colClipboard;
+
+                // skip if we reached the end of the table
+                if(rowTable >= spreadsheet.getItems().size()) {
+                    continue;
+                }
+                if(colTable >= spreadsheet.getColumns().size()) {
+                    continue;
+                }
+
+                // get cell
+                try{
+                    double content = Double.parseDouble(clipboardCellContent);
+                    spreadsheet.getGrid().getRows().get(rowTable).get(colTable).setItem(String.valueOf(content));
+                }catch (Exception ignored) {}
+            }
+
+        }
+
+    }
+
+    /**
+     * Calculates the size of the extended spreadsheet after the clipboard will be pasted
+     */
+    private void extendWithClipboard() {
+
+        int selectedRow = spreadsheet.getGrid().getRowCount() - 1;
+        int selectColumn = spreadsheet.getGrid().getColumnCount() - 1;
+
+        // abort if there's not cell selected to start with
+        if(spreadsheet.getSelectionModel().getSelectedCells().size() != 0) {
+            TablePosition pasteCellPosition = spreadsheet.getSelectionModel().getSelectedCells().get(0);
+
+            selectedRow = pasteCellPosition.getRow();
+            selectColumn = pasteCellPosition.getColumn();
+        }
+
+        int spreadsheetRowCount = spreadsheet.getGrid().getRowCount();
+        int spreadsheetColumnCount = spreadsheet.getGrid().getColumnCount();
+
+        String pasteString = Clipboard.getSystemClipboard().getString();
+
+
+        StringTokenizer rowTokenizer = new StringTokenizer( pasteString, "\n");
+        if(rowTokenizer.hasMoreTokens()){
+
+            int clipboardRowCount;
+            int clipboardColumnCount;
+
+            clipboardRowCount = rowTokenizer.countTokens();
+            String rowString = rowTokenizer.nextToken();
+            StringTokenizer columnTokenizer = new StringTokenizer(rowString, "\t");
+            clipboardColumnCount = columnTokenizer.countTokens();
+
+            int extendedRowPos = selectedRow + clipboardRowCount;
+            int extendedColumnPos = selectColumn + clipboardColumnCount;
+
+            if(extendedRowPos > spreadsheetRowCount && extendedColumnPos > spreadsheetColumnCount) {
+                extendGrid(extendedRowPos, extendedColumnPos);
+            }
+            else if(extendedRowPos > spreadsheetRowCount){
+                extendGrid(extendedRowPos, spreadsheetColumnCount);
+            }
+            else if(extendedColumnPos > spreadsheetColumnCount){
+                extendGrid(spreadsheetRowCount, extendedColumnPos);
+            }
+        }
+    }
+
+    /**
+     * Given a new row and column count will extend the spreadsheet's size
+     *
+     * @param newRowSize
+     * @param newColumnSize
+     */
+    private void extendGrid(int newRowSize, int newColumnSize){
+        Grid oldGrid = spreadsheet.getGrid();
+        //The column index where the new column will be added
+        ObservableList<ObservableList<SpreadsheetCell>> rows = FXCollections.observableArrayList();
+        rows.addAll(oldGrid.getRows());
+
+        int oldRowCount = oldGrid.getRowCount();
+        int oldColumnCount = oldGrid.getColumnCount();
+
+        for(int currentColumn = oldColumnCount;  currentColumn < newColumnSize; currentColumn++) {
+            //Create and adds the new column description cell with an appropriate change listener
+            SpreadsheetCell infoCell = SpreadsheetCellType.STRING.createCell(0, currentColumn, 1, 1, infoPlaceholder);
+            int finalCurrentColumn = currentColumn;
+            infoCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+                try {
+                    String newHeader = String.valueOf(newValue);
+                    addNewColumnsFromSpreadsheet(0, finalCurrentColumn);
+                    updateVariableDescriptions(finalCurrentColumn, newHeader);
+                } catch (Exception e) {
+                    infoCell.setItem(oldValue);
+                }
+            });
+            rows.get(0).add(infoCell);
+
+            //Create and adds the new column name cell with an appropriate change listener
+            SpreadsheetCell headerCell = SpreadsheetCellType.STRING.createCell(1, currentColumn, 1, 1, getDataManager().get().intToHeader(currentColumn));
+            int finalCurrentColumn1 = currentColumn;
+            headerCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+                try {
+                    String newHeader = String.valueOf(newValue);
+                    addNewColumnsFromSpreadsheet(1, finalCurrentColumn1);
+                    updateProjectHeaders(finalCurrentColumn1, newHeader);
+                } catch (Exception e) {
+                    headerCell.setItem(oldValue);
+                }
+            });
+            rows.get(1).add(headerCell);
+        }
+
+
+        //Adds an empty cell to each new row, this loop starts at 2 to account for the previous two cells already being added
+        for (int row = 2; row < oldRowCount; ++row) {
+            for(int currentColumn = oldColumnCount;  currentColumn < newColumnSize; currentColumn++){
+                String cellContents = "";
+                SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(row, currentColumn, 1, 1, cellContents);
+                //Set unused cell to be grey
+                nextCell.setStyle("-fx-background-color: #dcdcdc;");
+                int finalRow = row;
+                //When a value is added to this new cell, add the columns up to and including the column of this cell
+                int finalCurrentColumn = currentColumn;
+                nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+                    try{
+                        //Check that entered value is a number
+                        Double.parseDouble(String.valueOf(newValue));
+                        addNewColumnsFromSpreadsheet(finalRow, finalCurrentColumn);
+                    }catch (Exception e) {
+                        if(!newValue.equals("")) {
+                            nextCell.setItem(oldValue);
+                        }
+                    }
+                });
+                rows.get(row).add(nextCell);
+            }
+        }
+        int currentRow = oldRowCount;
+        rowHeaders = FXCollections.observableArrayList();
+        rowHeaders.addAll(oldGrid.getRowHeaders());
+        while(currentRow < newRowSize){
+            ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
+            for(int currentColumn = 0; currentColumn < newColumnSize; currentColumn ++){
+                String cellContents = "";
+                SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(currentColumn, currentColumn, 1, 1, cellContents);
+                //Set unused cell to be grey
+                nextCell.setStyle("-fx-background-color: #dcdcdc;");
+                int finalColumn = currentColumn;
+                int finalCurrentRow = currentRow;
+                //When a value is added to the new cell add the rows up to and including the row of this cell
+                nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+                    try{
+                        //Check that entered value is a number
+                        Double.parseDouble(String.valueOf(newValue));
+                        addNewRowsFromSpreadsheet(finalCurrentRow, finalColumn);
+                    }catch (Exception e) {
+                        if(!newValue.equals("")) {
+                            nextCell.setItem(oldValue);
+                        }
+                    }
+                });
+                list.add(nextCell);
+            }
+            rows.add(list);
+            rowHeaders.add(String.valueOf(currentRow+1));
+            currentRow++;
+        }
+        //Create a new grid a column wider than the current grid
+        //This needs to be done as there is no method to add a new column to a grid base
+        Grid newGrid = new GridBase(rows.size(),newColumnSize);
+        newGrid.setRows(rows);
+        newGrid.getRowHeaders().setAll(rowHeaders);
+
+        //Change the existing grid to the new wider grid
+        spreadsheet.setGrid(newGrid);
+        spreadsheet.setRowHeaderWidth(50);
     }
 
     /**
@@ -133,6 +419,9 @@ public class InputDataController implements Initializable {
         double cellHeight = spreadsheet.getRowHeight(1);
         for(int i = 0; i < spreadsheetHeight; i += cellHeight){
             spreadsheetAddRow();
+        }
+        for(int i = 0; i < 26; i ++){
+            spreadsheetAddColumn();
         }
     }
 
@@ -585,9 +874,11 @@ public class InputDataController implements Initializable {
             // Create the project only if a name was provided
             dialog.showAndWait().ifPresent(
                     name -> {
-                        final ProjectModel project = ProjectModel.builder().name(name).build();
-                        getWorkspaceService().setActiveWorkspaceItem(project);
-                        getProjectService().getProjects().add(project);
+                        if (!name.isEmpty()) {
+                            final ProjectModel project = ProjectModel.builder().name(name).build();
+                            getWorkspaceService().setActiveWorkspaceItem(project);
+                            getProjectService().getProjects().add(project);
+                        }
                     }
             );
         }

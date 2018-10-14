@@ -31,66 +31,84 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import java.lang.*?>
-<Tab text="   Define Search" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="org.iconic.project.definition.DefineSearchController">
-	<graphic>
+<?import org.iconic.control.WorkspaceTab?>
+<?import org.iconic.control.DatasetComboBox?>
+<?import javafx.stage.Screen?>
+<WorkspaceTab fx:id="defineTab" text="   Define Search" tabType="SEARCH"
+              xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+              fx:controller="org.iconic.project.definition.DefineSearchController">
+    <graphic>
         <ImageView fitWidth="24" fitHeight="24">
-            <Image url="@/images/file.png"/>
+            <image>
+                <Image url="@/images/file.png"/>
+            </image>
         </ImageView>
-	</graphic>
-	
-	<VBox>
-		<padding><Insets topRightBottomLeft="25"/></padding>
-		<HBox>
-			<Label text="Target Expression:">
-				<padding><Insets left="20" right="20"/></padding>
-				<font>
-					<Font size="16.0"/>
-				</font>
-			</Label>
-			
-			<TextField fx:id="tfTargetExpression" text="y = f(x)"/>
-		</HBox>
-		
-		<HBox>
-			<padding><Insets top="25" left="20"/></padding>
-			<TableView fx:id="blockDisplayTableView"/>
-			<Label><padding><Insets left="20" right="20"/></padding></Label>
-			<TextArea fx:id="selectedBlockDisplayDescription"/>
-		</HBox>
-		
-		<HBox>
-			<padding><Insets top="25"/></padding>
-			<Label text="Error metric:">
-				<padding><Insets left="20" right="20"/></padding>
-				<font>
-					<Font size="16.0"/>
-				</font>
-			</Label>
-		
-			<ComboBox value="Absolute error (default)">
-				<items>
-					<FXCollections fx:factory="observableArrayList">
-						<String fx:value="Absolute error (default)"/>
-						<String fx:value="Squared error"/>
-						<String fx:value="Mean Squared Error (MSE)"/>
-						<String fx:value="Root Mean Squared Error (RMSE)"/>
-						<String fx:value="Maximum error"/>
-						<String fx:value="Median error"/>
-					</FXCollections>
-				</items>
-			</ComboBox>
-		</HBox>
-		
-		<HBox>
-			<padding><Insets top="25"/></padding>
-			<Label text="Base Solutions:">
-				<padding><Insets left="20" right="20"/></padding>
-				<font>
-					<Font size="16.0"/>
-				</font>
-			</Label>
-			
-			<TextField/>
-		</HBox>
-	</VBox>
-</Tab>
+    </graphic>
+
+    <fx:define>
+        <Screen fx:factory="getPrimary" fx:id="screen"/>
+    </fx:define>
+
+    <VBox>
+        <padding>
+            <Insets topRightBottomLeft="25"/>
+        </padding>
+        <VBox spacing="5" alignment="CENTER">
+            <HBox spacing="5">
+                <Label text="Target Expression:">
+                    <padding>
+                        <Insets left="20" right="20"/>
+                    </padding>
+                    <font>
+                        <Font size="18.0"/>
+                    </font>
+                </Label>
+                <TextField fx:id="tfTargetExpression" text="y = f(x)"/>
+                <DatasetComboBox fx:id="cbDatasets"/>
+                <ComboBox value="Absolute error (default)">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Mean Squared Error (MSE)"/>
+                            <String fx:value="Absolute Error"/>
+                            <String fx:value="Squared Error"/>
+                            <String fx:value="Root Mean Squared Error (RMSE)"/>
+                            <String fx:value="Maximum Error"/>
+                            <String fx:value="Median Error"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+            </HBox>
+            <VBox fx:id="vbConfiguration"/>
+        </VBox>
+
+        <HBox>
+            <padding>
+                <Insets top="25" left="20"/>
+            </padding>
+            <TableView fx:id="blockDisplayTableView"/>
+            <Label><padding><Insets left="20" right="20"/></padding></Label>
+            <TextArea fx:id="selectedBlockDisplayDescription"/>
+            <Label>
+                <padding>
+                    <Insets left="20" right="20"/>
+                </padding>
+            </Label>
+        </HBox>
+
+        <HBox>
+            <padding>
+                <Insets top="25"/>
+            </padding>
+            <Label text="Base Solutions:">
+                <padding>
+                    <Insets left="20" right="20"/>
+                </padding>
+                <font>
+                    <Font size="16.0"/>
+                </font>
+            </Label>
+
+            <TextField/>
+        </HBox>
+    </VBox>
+</WorkspaceTab>

@@ -221,14 +221,12 @@ public class DataManager<T> {
                     Double value = Double.parseDouble(values[i]);
                     featureClasses.get(i).addSampleValue(value);
                 }catch (Exception e) {
-                    //TODO Change 0 to null when handled
-                    featureClasses.get(i).addSampleValue(0.0);
+                    featureClasses.get(i).addSampleValue(null);
                 }
                 i++;
             }
             while(i < featureSize){
-                //TODO Change 0 to null when handled
-                featureClasses.get(i).addSampleValue(0.0);
+                featureClasses.get(i).addSampleValue(null);
                 i++;
             }
 
@@ -257,7 +255,7 @@ public class DataManager<T> {
 
     private void createNewDataset(){
         sampleSize = 0;
-        featureSize = 26;
+        featureSize = 1;
         dataset = new HashMap<>();
 
         // Generate all the header names such as: A, B, C, ..., Z, AA, BB, etc

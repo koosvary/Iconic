@@ -52,8 +52,35 @@ public class FunctionNode<T> extends Node<T> {
         StringBuilder output = new StringBuilder();
 
         if (getChildren().size() > 0) {
-            output.append(" ( ").append(getLambda());
-            getChildren().forEach(output::append);
+            output.append(getLambda()).append(" ( ");
+            List<Node<T>> children = getChildren();
+            for(int i = 0; i < children.size(); i++){
+                if(i < children.size()-1){
+//                    if(children.get(i) instanceof InputNode){
+//                        if(getLambda().getArity() == 1){
+//                            output.append(children.get(i).toString());
+//                        }
+//                        else{
+//                            for(int j = i; j < children.size(); j++){
+//                                if(j < children.size()-1){
+//                                    output.append(children.get(i).toString() + ", ");
+//                                }
+//                                else{
+//                                    output.append(children.get(i).toString());
+//                                }
+//                                i++;
+//                            }
+//                        }
+//                    }
+//                    else{
+//                        output.append(children.get(i).toString() + ", ");
+//                    }
+                    output.append(children.get(i).toString() + ", ");
+                }
+                else{
+                    output.append(children.get(i).toString());
+                }
+            }
             output.append(" ) ");
         }
         else {

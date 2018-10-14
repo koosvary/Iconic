@@ -21,19 +21,28 @@
  */
 package org.iconic.control;
 
-import javafx.scene.control.TextArea;
-import org.iconic.project.search.SearchModel;
+import javafx.scene.control.Tab;
 
-public class SearchLogTextArea extends TextArea {
-    private final SearchModel model;
+public class WorkspaceTab extends Tab {
+    private TabType tabType;
 
-    public SearchLogTextArea(final SearchModel model) {
-        this.model = model;
-        this.setWrapText(false);
-        this.textProperty().bind(model.updatesProperty());
+    public WorkspaceTab() {
+        super();
+        this.tabType = TabType.OTHER;
     }
 
-    public SearchModel getModel() {
-        return model;
+    public TabType getTabType() {
+        return tabType;
+    }
+
+    public void setTabType(TabType tabType) {
+        this.tabType = tabType;
+    }
+
+    public enum TabType {
+        ALL,
+        DATASET,
+        SEARCH,
+        OTHER
     }
 }

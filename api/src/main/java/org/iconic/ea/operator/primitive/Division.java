@@ -38,7 +38,7 @@ public class Division extends ArithmeticPrimitive<Number> {
 
                         return identity;
                     },
-                2, "DIV", "Returns the division of a / b", 2
+                2, "DIV", "Returns the division of a / b.", 2
         );
     }
 }

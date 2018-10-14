@@ -23,17 +23,18 @@
 
 -->
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.geometry.Insets?>
-
+<?import javafx.scene.text.Text?>
+<?import org.iconic.control.WorkspaceTab?>
 <?import org.controlsfx.control.spreadsheet.SpreadsheetView?>
-<Tab text="   Input Data" closable="false"
-     xmlns="http://javafx.com/javafx"
-     xmlns:fx="http://javafx.com/fxml"
-     fx:controller="org.iconic.project.InputDataController">
+<WorkspaceTab fx:id="inputTab" text="   Input Data" closable="false" tabType="ALL"
+              xmlns="http://javafx.com/javafx"
+              xmlns:fx="http://javafx.com/fxml"
+              fx:controller="org.iconic.project.input.InputDataController">
     <graphic>
         <ImageView fitWidth="24" fitHeight="24">
             <image>
@@ -66,4 +67,4 @@
         </HBox>
 
     </VBox>
-</Tab>
+</WorkspaceTab>

@@ -29,9 +29,12 @@ import org.iconic.ea.chromosome.ChromosomeFactory;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosomeFactory;
 import org.iconic.ea.data.DataManager;
+import org.iconic.ea.data.FeatureClass;
+import org.iconic.ea.data.preprocessing.HandleMissingValues;
 import org.iconic.ea.operator.evolutionary.mutation.cgp.CartesianSingleActiveMutator;
 import org.iconic.ea.operator.objective.*;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
+import org.iconic.ea.operator.objective.multiobjective.SimpleMultiObjective;
 import org.iconic.ea.operator.primitive.*;
 import org.iconic.ea.strategies.seamo.ElitistSEAMO;
 import org.iconic.ea.strategies.seamo.SEAMO;
@@ -64,6 +67,9 @@ public class Client {
         // Don't do anything if they didn't
         if (inputFile != null && !inputFile.isEmpty()) {
             final DataManager<Double> dm = new DataManager<>(inputFile);
+
+            // Sanatise the dataset for any missing values
+            handleMissingValues(dm);
 
             // Collect all relevant parameters for convenience
             int featureSize = dm.getFeatureSize();
@@ -99,13 +105,13 @@ public class Client {
             // Add in the objectives the algorithm should aim for
             ea.setObjective(
 //                    new CacheableObjective<>(
-                        new DefaultMultiObjective(
+                        new SimpleMultiObjective(
                             Arrays.asList(
                                     new CacheableObjective<>(
                                             new DefaultObjective(new MeanSquaredError(), dm)
                                     ),
                                     new CacheableObjective<>(
-                                            new DefaultObjective(new MeanSquaredError(), dm)
+                                            new SizeObjective()
                                     )
                             )
                     )
@@ -116,7 +122,7 @@ public class Client {
             ea.initialisePopulation(client.getArgs().getPopulation());
 
             List<CartesianChromosome<Double>> population = ea.getChromosomes();
-            Chromosome<Double> bestCandidate = population.stream().min(comparator).get();
+//            Chromosome<Double> bestCandidate = population.stream().min(comparator).get();
 
             Instant start = Instant.now();
             int percent;
@@ -128,7 +134,7 @@ public class Client {
 
                 population = ea.evolve(population);
                 // Retrieve the individual with the best fitness
-                bestCandidate = population.stream().min(comparator).get();
+//                bestCandidate = population.stream().min(comparator).get();
                 percent = intToPercent(i, generations);
 
                 String global = (ea instanceof SEAMO)
@@ -140,17 +146,17 @@ public class Client {
                 out.append("\r")
                         .append("Progress: ").append(percent).append("%")
                         // And include the current best fitness
-                        .append("\t|\tFitness: ").append(String.format("%.4f", bestCandidate.getFitness())).append(global)
+//                        .append("\t|\tFitness: ").append(String.format("%.4f", bestCandidate.getFitness())).append(global)
                         .append("\t|\tGeneration: ").append(i + 1)
                         .append("\t|\tTime: ").append(Duration.between(start, Instant.now())).append(" ");
                 System.out.print(out);
             }
             // When it ends print out the actual genome of the best candidate
-            log.info("\n\tBest candidate: {}\n\tFitness: {}",
-                    bestCandidate.toString(), String.format("%.4f", bestCandidate.getFitness())
-            );
-            System.out.println("y = " + (bestCandidate).getExpression(
-                    bestCandidate.toString(), supplier.getFunctionalPrimitives(),true));
+//            log.info("\n\tBest candidate: {}\n\tFitness: {}",
+//                    bestCandidate.toString(), String.format("%.4f", bestCandidate.getFitness())
+//            );
+//            System.out.println("y = " + bestCandidate.simplifyExpression(bestCandidate.getExpression(
+//                    bestCandidate.toString(), new ArrayList<>(supplier.getFunctionalPrimitives()),true)));
         }
     }
 
@@ -189,5 +195,32 @@ public class Client {
      */
     private static int intToPercent(final int progress, final int total) {
         return (progress * 100) / total;
+    }
+
+    /**
+     * Sanitises the dataset for any missing values, if any missing values occur in the columns they will be replaced
+     * with the value '1'.
+     */
+    private static void handleMissingValues(DataManager<Double> dm) {
+        // Get the dataset Feature classes
+        HashMap<String, FeatureClass<Number>> dataset = dm.getDataset();
+
+        // Check each feature class to see if any column is missing values
+        for (HashMap.Entry<String, FeatureClass<Number>> entry : dataset.entrySet()) {
+            String key = entry.getKey();
+            FeatureClass<Number> featureClass = entry.getValue();
+
+            // If the column is missing values - apply the HandleMissingValues pre-processing and change all null
+            // values to a '1'
+            if (featureClass.isMissingValues()) {
+                log.info("Dataset is missing values in column '" + key + "' replacing those values with the value '1'");
+
+                // Create the handle missing values pre-processing object and set its type
+                HandleMissingValues handleMissingValues = new HandleMissingValues();
+                handleMissingValues.setMode(HandleMissingValues.Mode.ONE);
+
+                featureClass.addPreprocessor(handleMissingValues);
+            }
+        }
     }
 }

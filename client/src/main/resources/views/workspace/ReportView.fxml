@@ -23,27 +23,21 @@
 
 -->
 
-<?import java.lang.*?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
-<?import javafx.scene.control.Tab?>
 <?import javafx.stage.Screen?>
-<?import javafx.scene.image.*?>
-<?import javafx.collections.*?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.TitledPane?>
-
-<Tab text="   Reports"
-     xmlns="http://javafx.com/javafx"
-     xmlns:fx="http://javafx.com/fxml"
-     fx:controller="org.iconic.workspace.WorkspaceController">
+<?import org.iconic.control.WorkspaceTab?>
+<?import java.lang.String?>
+<WorkspaceTab text="   Reports" tabType="SEARCH"
+              xmlns="http://javafx.com/javafx"
+              xmlns:fx="http://javafx.com/fxml"
+              fx:controller="org.iconic.workspace.WorkspaceController">
 
     <!-- Define the primary screen so we can use percentage based widths -->
     <fx:define>
@@ -62,11 +56,11 @@
                 <padding>
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
-                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Reports">
+                <Label text="Reports">
                     <font>
                         <Font size="18.0"/>
                     </font>
-                </Text>
+                </Label>
             </HBox>
         </HBox>
         <Separator/>
@@ -104,4 +98,4 @@
             </TitledPane>
         </VBox>
     </VBox>
-</Tab>
+</WorkspaceTab>
