@@ -29,6 +29,7 @@ import java.util.List;
 public abstract class FeatureClass<T> {
     private boolean output;
     private boolean active;
+    private boolean missingValues;
 
     private List<T> originalSamples, modifiedSamples;
 
@@ -42,11 +43,16 @@ public abstract class FeatureClass<T> {
         this.originalSamples = new ArrayList<>();
         this.modifiedSamples = new ArrayList<>();
         this.preprocessors = new ArrayList<>();
+        this.missingValues = false;
     }
 
     public void addSampleValue(T value) {
         originalSamples.add(value);
         modifiedSamples.add(value);
+
+        if (value == null) {
+            setMissingValues(true);
+        }
     }
 
     public T getSampleValue(int row) {
@@ -102,23 +108,27 @@ public abstract class FeatureClass<T> {
     }
 
     /**
-     * Reapplies all currently active preprocessors to the original samples, and then updates modifised samples
+     * Reapplies all currently active preprocessors to the original samples, and then updates modified samples
      * with these values.
      */
     private void applyPreprocessors() {
         List<T> values = new ArrayList<>(originalSamples);
 
         if (!preprocessors.isEmpty()) {
-            // Apply the first preprocessor using the original samples
-            values = preprocessors.get(0).apply(values);
-
-            // Apply each subsequent preprocessor using the newly modified samples
-            for (int i=1; i < preprocessors.size(); i++) {
+            // Apply each subsequent preprocessor
+            for (int i=0; i < preprocessors.size(); i++) {
                 values = preprocessors.get(i).apply(values);
             }
         }
 
         modifiedSamples = values;
+
+        // Check if the new modified samples contain a missing value or not.
+        if (modifiedSamples.contains(null)) {
+            setMissingValues(true);
+        } else {
+            setMissingValues(false);
+        }
     }
 
     public boolean isOutput() {
@@ -150,6 +160,14 @@ public abstract class FeatureClass<T> {
         } else {
             return false;
         }
+    }
+
+    public void setMissingValues(boolean value) {
+        missingValues = value;
+    }
+
+    public boolean isMissingValues() {
+        return missingValues;
     }
 
     /**
