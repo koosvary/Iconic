@@ -55,11 +55,11 @@ public class SimpleMultiObjective extends MultiObjective<Double> {
     @Override
     public boolean isNotWorse(double x, double y) {
         for (Objective<Double> goal : getGoals()) {
-            if (!goal.isNotWorse(x, y)) {
-                return false;
+            if (goal.isNotWorse(x, y)) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
 
     /**

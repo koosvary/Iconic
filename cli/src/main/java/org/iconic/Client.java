@@ -63,7 +63,7 @@ public class Client {
         final Client client = new Client();
         client.parse(args);
 
-        // Check if the user included the help flag
+        // Check if the user passed in the help flag
         if (client.getArgs().isHelp()) {
             client.usage();
         }
@@ -71,11 +71,11 @@ public class Client {
         // Check if the user passed in an input file
         final String inputFile = client.getArgs().getInput();
 
-        // Don't do anything if they didn't
+        // Don't do anything if they didn't pass in an input file
         if (inputFile != null && !inputFile.isEmpty()) {
             final DataManager<Double> dm = new DataManager<>(inputFile);
 
-            // Sanatise the dataset for any missing values
+            // Sanitise the dataset for any missing values
             handleMissingValues(dm);
 
             // Collect all relevant parameters for convenience
@@ -89,15 +89,18 @@ public class Client {
             log.info("Feature Size: {}", () -> featureSize - 1);
             log.info("Sample Size: {}", () -> sampleSize);
 
-            // Create a supplier for Gene Expression Programming chromosomes
+            // Create a supplier for chromosomes
             ChromosomeFactory<CartesianChromosome<Double>, Double> supplier = new CartesianChromosomeFactory<>(
                     outputs, featureSize - 1, columns, rows, levelsBack
             );
 
-            // Add in the functions the chromosomes can use
+            // Add all of the functions the chromosomes can use
             supplier.addFunction(Arrays.asList(
                     new Addition(), new Subtraction(), new Multiplication(), new Division(),
-                    new Power(), new Root(), new Sin(), new Cos(), new Tan()
+                    new Power(), new Root(), new SquareRoot(), new Tan()
+//                    new ArithmeticPrimitive<>(x -> x.get(0) * 2,
+//                            1, "NEW", "My new primitive", 1
+//                    )
             ));
 
             // Create an evolutionary algorithm using Gene Expression Programming
@@ -111,8 +114,7 @@ public class Client {
 
             // Add in the objectives the algorithm should aim for
             ea.setObjective(
-//                    new CacheableObjective<>(
-                        new SimpleMultiObjective(
+                    new SimpleMultiObjective(
                             Arrays.asList(
                                     new CacheableObjective<>(
                                             new DefaultObjective(new MeanSquaredError(), dm)
@@ -124,73 +126,67 @@ public class Client {
                     )
             );
 
+            // Initialise the population
             final int generations = client.getArgs().getGenerations();
-            final Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
             ea.initialisePopulation(client.getArgs().getPopulation());
-
             List<CartesianChromosome<Double>> population = ea.getChromosomes();
-//            Chromosome<Double> bestCandidate = population.stream().min(comparator).get();
-
-            int maxGenerations = generations;
-
             Instant start = Instant.now();
-            int percent;
-            // Pretty-print a summarised progress indicator
-            StringBuilder out = new StringBuilder();
+
             // Start the evolutionary loop
             for (int i = 0; i < generations; ++i) {
                 population = ea.evolve(population);
-                // Retrieve the individual with the best fitness
-//                bestCandidate = population.stream().min(comparator).get();
-                percent = intToPercent(i, generations);
-
-                String global = (ea instanceof SEAMO)
-                        ? " (" + ((SEAMO<?, Double>) ea).getGlobals().values().stream()
-                        .map(v -> String.format("%.4f", v)).collect(Collectors.joining(", ")) + ")"
-                        : "";
-
-                // And include the current best fitness
-                out.append("\r")
-                        .append("Progress: ").append(percent).append("%")
-                        // And include the current best fitness
-                        .append("\t|\tGlobal Bests: ").append(global)
-                        .append("\t|\tGeneration: ").append(i + 1)
-                        .append("\t|\tTime: ").append(Duration.between(start, Instant.now())).append(" ");
-                System.out.print(out);
-
-                final int currentGeneration = i + 1;
+                // Pretty-print a summarised progress indicator
+                printOutput(ea, generations, start, new StringBuilder(), i);
             }
-            // When it ends print out the actual genome of the best candidate
-//            log.info("\n\tBest candidate: {}\n\tFitness: {}",
-//                    bestCandidate.toString(), String.format("%.4f", bestCandidate.getFitness())
-//            );
-//            System.out.println("y = " + bestCandidate.simplifyExpression(bestCandidate.getExpression(
-//                    bestCandidate.toString(), new ArrayList<>(supplier.getFunctionalPrimitives()),true)));
+            // When it ends print a graph of the solutions plotted by their dimensions
             if (client.getArgs().isGraph()) {
-                // Create a chart for plotting the final goals
-                XYChart chart = new XYChartBuilder().width(720).height(480).title("Fitness-vs-Size")
-                        .xAxisTitle("Fitness").yAxisTitle("Size")
-                        .theme(Styler.ChartTheme.GGPlot2).build();
-                chart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
-                chart.getStyler().setChartTitleVisible(false);
-                chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideSW);
-                chart.getStyler().setMarkerSize(16);
-
-                LinkedList<Number> fitnessSeries = new LinkedList<>();
-                LinkedList<Number> sizeSeries = new LinkedList<>();
-
-                population.forEach(chromosome -> {
-                    if (chromosome.getFitness() != Double.POSITIVE_INFINITY &&
-                    chromosome.getFitness() != Double.NEGATIVE_INFINITY) {
-                        fitnessSeries.add(chromosome.getFitness());
-                        sizeSeries.add(chromosome.getSize());
-                    }
-                });
-
-                chart.addSeries("Solutions", fitnessSeries, sizeSeries);
-                new SwingWrapper<>(chart).displayChart();
+                drawGraph(population);
             }
         }
+    }
+
+    private static void drawGraph(List<CartesianChromosome<Double>> population) {
+        // Create a chart for plotting the final goals
+        XYChart chart = new XYChartBuilder().width(720).height(480).title("Squared-Error-vs-Size")
+                .xAxisTitle("Squared Error").yAxisTitle("Size")
+                .theme(Styler.ChartTheme.GGPlot2).build();
+        chart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
+        chart.getStyler().setChartTitleVisible(false);
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideSW);
+        chart.getStyler().setMarkerSize(16);
+
+        LinkedList<Number> fitnessSeries = new LinkedList<>();
+        LinkedList<Number> sizeSeries = new LinkedList<>();
+
+        population.forEach(chromosome -> {
+            if (chromosome.getFitness() != Double.POSITIVE_INFINITY &&
+                    chromosome.getFitness() != Double.NEGATIVE_INFINITY) {
+                fitnessSeries.add(chromosome.getFitness());
+                sizeSeries.add(chromosome.getSize());
+            }
+        });
+
+        chart.addSeries("Solutions", fitnessSeries, sizeSeries);
+        new SwingWrapper<>(chart).displayChart();
+    }
+
+    private static void printOutput(EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea, int generations, Instant start, StringBuilder out, int i) {
+        int percent;
+        percent = intToPercent(i, generations);
+
+        String global = (ea instanceof SEAMO)
+                ? " (" + ((SEAMO<?, Double>) ea).getGlobals().values().stream()
+                .map(v -> String.format("%.4f", v)).collect(Collectors.joining(", ")) + ")"
+                : "";
+
+        // And include the current best fitness
+        out.append("\r")
+                .append("Progress: ").append(percent).append("%")
+                // And include the current best fitness
+                .append("\t|\tGlobal Bests: ").append(global)
+                .append("\t|\tGeneration: ").append(i + 1)
+                .append("\t|\tTime: ").append(Duration.between(start, Instant.now())).append(" ");
+        System.out.print(out);
     }
 
     private Client() {
