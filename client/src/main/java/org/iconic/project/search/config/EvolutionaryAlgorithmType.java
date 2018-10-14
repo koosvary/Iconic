@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.project.search;
+package org.iconic.project.search.config;
 
 public enum EvolutionaryAlgorithmType {
     GENE_EXPRESSION_PROGRAMMING("Gene Expression Programming"),

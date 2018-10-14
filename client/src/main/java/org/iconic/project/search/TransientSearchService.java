@@ -25,6 +25,7 @@ import com.google.inject.Singleton;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import lombok.extern.log4j.Log4j2;
+import org.iconic.project.search.io.SearchExecutor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +40,7 @@ import java.util.UUID;
 @Log4j2
 @Singleton
 public class TransientSearchService implements SearchService {
-    private final ObservableMap<UUID, SearchExecutor> searches;
+    private final ObservableMap<UUID, SearchExecutor<?>> searches;
 
     /**
      * <p>
@@ -47,7 +48,7 @@ public class TransientSearchService implements SearchService {
      * </p>
      */
     public TransientSearchService() {
-        Map<UUID, SearchExecutor> map = new HashMap<>();
+        Map<UUID, SearchExecutor<?>> map = new HashMap<>();
 
         this.searches = FXCollections.observableMap(map);
     }
@@ -55,7 +56,7 @@ public class TransientSearchService implements SearchService {
     /**
      * {@inheritDoc}
      */
-    public ObservableMap<UUID, SearchExecutor> searchesProperty() {
+    public ObservableMap<UUID, SearchExecutor<?>> searchesProperty() {
         return searches;
     }
 }

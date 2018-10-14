@@ -39,6 +39,7 @@
               xmlns="http://javafx.com/javafx"
               xmlns:fx="http://javafx.com/fxml"
               fx:controller="org.iconic.project.search.StartSearchController">
+
     <!-- Define the primary screen so we can use percentage based widths -->
     <fx:define>
         <Screen fx:factory="getPrimary" fx:id="screen"/>
@@ -56,19 +57,21 @@
         <items>
             <AnchorPane minHeight="0.0" minWidth="0.0">
                 <VBox>
-
                     <HBox>
                         <padding>
                             <Insets top="10" bottom="10" left="10" right="10"/>
                         </padding>
-                        <ButtonBar>
+                        <ButtonBar buttonMinWidth="150">
                             <buttons>
-                                <Button fx:id="btnSearch" text="%workspace.search" prefWidth="100" onAction="#startSearch"/>
-                                <Button fx:id="btnStopSearch" text="%workspace.search.stop" prefWidth="100" onAction="#stopSearch"/>
+                                <Button fx:id="btnStartSearch" text="%workspace.search.start" prefWidth="100"
+                                        onAction="#startSearch"/>
+                                <Button fx:id="btnPauseSearch" text="%workspace.search.pause" prefWidth="100"
+                                        onAction="#pauseSearch" disable="true"/>
+                                <Button fx:id="btnStopSearch" text="%workspace.search.stop" prefWidth="100"
+                                        onAction="#stopSearch" disable="true"/>
                             </buttons>
                         </ButtonBar>
                     </HBox>
-
                     <Separator/>
 
                     <HBox>
@@ -78,15 +81,17 @@
                             </padding>
                             <Label text="Search Progress">
                                 <font>
-                                    <Font size="18.0" />
+                                    <Font size="18.0"/>
                                 </font>
                             </Label>
                             <ScrollPane fitToWidth="true">
                                 <content>
-                                    <GridPane alignment="CENTER" >
+                                    <GridPane alignment="CENTER">
                                         <columnConstraints>
-                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="30.0" prefWidth="100.0" />
-                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="70.0" prefWidth="100.0" />
+                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="30.0"
+                                                               prefWidth="100.0"/>
+                                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="70.0"
+                                                               prefWidth="100.0"/>
                                         </columnConstraints>
                                         <children>
                                             <Label text="Time Elapsed" GridPane.columnIndex="0" GridPane.rowIndex="0" >
@@ -141,7 +146,8 @@
                                 <Insets top="10" bottom="10" left="10" right="10"/>
                             </padding>
                             <AnchorPane>
-                                <ProgressIndicator progress="0.17" AnchorPane.topAnchor="10" AnchorPane.rightAnchor="20"/>
+                                <ProgressIndicator progress="0.17" AnchorPane.topAnchor="10"
+                                                   AnchorPane.rightAnchor="20"/>
                                 <LineChart fx:id="lcSearchProgress" title="%search.progress.chart.title"
                                            AnchorPane.topAnchor="0"
                                            AnchorPane.leftAnchor="0"
@@ -161,8 +167,14 @@
 
                 </VBox>
             </AnchorPane>
-            <AnchorPane minHeight="0.0" minWidth="0.0">
-                <fx:include source="ConsoleView.fxml"/>
+
+            <AnchorPane fx:id="consoleArea" prefHeight="400.0" prefWidth="Infinity" styleClass="console-pane"
+                        minWidth="0" minHeight="0"
+                        xmlns="http://javafx.com/javafx/8.0.121"
+                        xmlns:fx="http://javafx.com/fxml/1">
+                <ListView fx:id="consoleContent" styleClass="console-content"
+                          AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0"
+                          AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" />
             </AnchorPane>
         </items>
     </SplitPane>

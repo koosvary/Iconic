@@ -24,10 +24,10 @@ package org.iconic.config;
 import com.google.inject.AbstractModule;
 import org.iconic.project.ProjectService;
 import org.iconic.project.TransientProjectService;
-import org.iconic.project.definition.DefineSearchController;
-import org.iconic.project.definition.DefineSearchService;
 import org.iconic.project.search.SearchService;
 import org.iconic.project.search.TransientSearchService;
+import org.iconic.views.DefaultViewService;
+import org.iconic.views.ViewService;
 import org.iconic.workspace.DefaultWorkspaceService;
 import org.iconic.workspace.WorkspaceService;
 
@@ -44,10 +44,10 @@ public class InMemoryModule extends AbstractModule {
      */
     @Override
     protected void configure() {
+        bind(IconService.class).to(FontAwesomeIconService.class);
         bind(ProjectService.class).to(TransientProjectService.class);
         bind(SearchService.class).to(TransientSearchService.class);
+        bind(ViewService.class).to(DefaultViewService.class);
         bind(WorkspaceService.class).to(DefaultWorkspaceService.class);
-        bind(DefineSearchService.class).to(DefineSearchController.class);
-        bind(IconService.class).to(FontAwesomeIconService.class);
     }
 }

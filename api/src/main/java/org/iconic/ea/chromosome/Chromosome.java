@@ -122,7 +122,7 @@ public abstract class Chromosome<T> {
      * @return the processed expression string
      */
 
-    public String getExpression(String preorderExpression, List<FunctionalPrimitive<T, T>> primitives, boolean topLevelFlag){
+    public String getExpression(String preorderExpression, List<FunctionalPrimitive<?, ?>> primitives, boolean topLevelFlag){
         HashMap<String, String> symbolMap = getSymbolMap();
         /* if the input is only one term, return it */
         if(preorderExpression.split(" ").length==1){
@@ -150,10 +150,10 @@ public abstract class Chromosome<T> {
         }
 
         /* the functional primitive at the start of the input string */
-        FunctionalPrimitive<T, T> leadingPrimitive=null;
+        FunctionalPrimitive<?, ?> leadingPrimitive;
 
         /* getting the string of the leading primitive by cutting the front off the input and trimming it */
-        if(preorderExpression.indexOf("(") == -1){
+        if(!preorderExpression.contains("(")){
             return "";
         }
         String firstFunction = preorderExpression.substring(0, preorderExpression.indexOf("(")).trim();
@@ -319,9 +319,9 @@ public abstract class Chromosome<T> {
     /* this loops through all of the primitives in the input primitive list to match the text of the input primitive
      * string and return the matched primitive
      */
-    private FunctionalPrimitive<T, T> matchPrimitive(String primString, List<FunctionalPrimitive<T, T>> primitives){
+    private FunctionalPrimitive<?, ?> matchPrimitive(String primString, List<FunctionalPrimitive<?, ?>> primitives){
 
-        FunctionalPrimitive<T, T> tempPrim = null;
+        FunctionalPrimitive<?, ?> tempPrim = null;
         for(FunctionalPrimitive f :
                 primitives){
             if(f.getSymbol().toLowerCase().equals(primString.toLowerCase())){

@@ -155,7 +155,7 @@ public class Client {
                     bestCandidate.toString(), String.format("%.4f", bestCandidate.getFitness())
             );
             System.out.println("y = " + bestCandidate.simplifyExpression(bestCandidate.getExpression(
-                    bestCandidate.toString(), supplier.getFunctionalPrimitives(),true)));
+                    bestCandidate.toString(), new ArrayList<>(supplier.getFunctionalPrimitives()),true)));
         }
     }
 

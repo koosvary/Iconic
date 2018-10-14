@@ -19,30 +19,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.control;
+package org.iconic.project.search.config;
 
-import javafx.scene.control.Tab;
-
-public class WorkspaceTab extends Tab {
-    private TabType tabType;
-
-    public WorkspaceTab() {
-        super();
-        this.tabType = TabType.OTHER;
+public class SearchConfigurationModelFactory  {
+    public SearchConfigurationModelFactory() {
+        // Do nothing
     }
 
-    public TabType getTabType() {
-        return tabType;
-    }
-
-    public void setTabType(TabType tabType) {
-        this.tabType = tabType;
-    }
-
-    public enum TabType {
-        ALL,
-        DATASET,
-        SEARCH,
-        OTHER
+    public SearchConfigurationModel getSearchConfigurationModel(String name, EvolutionaryAlgorithmType type) {
+        switch (type) {
+            case GENE_EXPRESSION_PROGRAMMING: return new GepConfigurationModel(name);
+            case CARTESIAN_GENETIC_PROGRAMMING: return new CgpConfigurationModel(name);
+            default: return new GepConfigurationModel(name);
+        }
     }
 }

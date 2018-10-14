@@ -25,8 +25,12 @@ import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import lombok.extern.log4j.Log4j2;
-
 import java.util.concurrent.locks.Lock;
+
+import org.iconic.project.Displayable;
+import org.iconic.project.search.config.SearchConfigurationModel;
+import org.iconic.project.search.io.SearchExecutor;
+import org.iconic.workspace.WorkspaceService;
 
 /**
  * Worker service to update the GUI on the Start Search screen
@@ -37,17 +41,25 @@ public class SearchStatistics extends Service<Void> {
     private static final int START_PAUSE = 500;
     private static final int SLEEP_TIME = 250;
 
+    private final WorkspaceService workspaceService;
     private StartSearchController controller;
-    private SearchExecutor search;
+    private SearchExecutor<?> search;
     private Lock updating;
 
     /**
      * Worker service to update the GUI on the Start Search screen
+     * @param workspaceService The workspace service
      * @param controller The controller
      * @param search Current search
      * @param updating Lock for updating
      */
-    public SearchStatistics(StartSearchController controller, SearchExecutor search, Lock updating) {
+    public SearchStatistics(
+            WorkspaceService workspaceService,
+            StartSearchController controller,
+            SearchExecutor<?> search,
+            Lock updating
+    ) {
+        this.workspaceService = workspaceService;
         this.controller = controller;
         this.search = search;
         this.updating = updating;
@@ -64,20 +76,42 @@ public class SearchStatistics extends Service<Void> {
                 try {
                     Thread.sleep(START_PAUSE);
                     while (search.isRunning()) {
-                        Platform.runLater(() -> {
+                        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
-                            controller.getTxtTime().setText(getTimeElapsed());
-                            controller.getTxtGen().setText(search.getGeneration() + "");
-                            controller.getTxtGenSec().setText(
-                                  String.format("%.3f", search.getGeneration() * 1000.0 / getMillisecondsElapsed())
-                            );
-                            controller.getTxtLastImprov().setText(getTimeSinceImprovement());
-                            controller.getTxtAvgImprov().setText(getAverageImprovementTime());
-                            controller.getTxtCores().setText(Runtime.getRuntime().availableProcessors() + "");
+                        if (!(item instanceof SearchConfigurationModel)) {
+                            Thread.sleep(SLEEP_TIME);
+                            continue;
+                        }
 
-                        });
+                        SearchConfigurationModel activeSearch = (SearchConfigurationModel) item;
+
+                        if (!activeSearch.getSearchExecutor().isPresent()) {
+                            Thread.sleep(SLEEP_TIME);
+                            continue;
+                        }
+                        if (activeSearch.getSearchExecutor().get() == search) {
+                            Platform.runLater(() -> {
+                                controller.getTxtTime().setText(getTimeElapsed());
+                                controller.getTxtGen().setText(search.getGeneration() + "");
+                                controller.getTxtGenSec().setText(
+                                        String.format("%.3f", search.getGeneration() * 1000.0 / getMillisecondsElapsed())
+                                );
+                                controller.getTxtLastImprov().setText(getTimeSinceImprovement());
+                                controller.getTxtAvgImprov().setText(getAverageImprovementTime());
+                                controller.getTxtCores().setText(Runtime.getRuntime().availableProcessors() + "");
+                                controller.getBtnStartSearch().setDisable(true);
+                                controller.getBtnPauseSearch().setDisable(false);
+                                controller.getBtnStopSearch().setDisable(false);
+                            });
+                        }
+
                         Thread.sleep(SLEEP_TIME);
                     }
+                    Platform.runLater(() -> {
+                        controller.getBtnStartSearch().setDisable(false);
+                        controller.getBtnPauseSearch().setDisable(true);
+                        controller.getBtnStopSearch().setDisable(true);
+                    });
                 } catch (InterruptedException ex) {
                     log.error("{}: ", ex::getMessage);
                 }
@@ -141,5 +175,9 @@ public class SearchStatistics extends Service<Void> {
             return timeElapsed(0L);
         }
         return timeElapsed(Math.max(search.getAverageImproveDuration(), 1));
+    }
+
+    public WorkspaceService getWorkspaceService() {
+        return workspaceService;
     }
 }

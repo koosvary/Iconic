@@ -19,30 +19,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.control;
+package org.iconic.views;
 
-import javafx.scene.control.Tab;
+import com.google.inject.Singleton;
+import org.iconic.View;
 
-public class WorkspaceTab extends Tab {
-    private TabType tabType;
+import java.util.HashMap;
+import java.util.Map;
 
-    public WorkspaceTab() {
-        super();
-        this.tabType = TabType.OTHER;
+/**
+ * {@inheritDoc}
+ */
+@Singleton
+public class DefaultViewService implements ViewService {
+    private final Map<String, View> views;
+
+    public DefaultViewService() {
+        this.views = new HashMap<>();
     }
 
-    public TabType getTabType() {
-        return tabType;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<String, View> getViews() {
+        return views;
     }
 
-    public void setTabType(TabType tabType) {
-        this.tabType = tabType;
-    }
-
-    public enum TabType {
-        ALL,
-        DATASET,
-        SEARCH,
-        OTHER
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void put(final String key, final View value) {
+        getViews().put(key, value);
     }
 }

@@ -60,4 +60,9 @@ public class SimpleExpressionCrossover<R> implements Crossover<ExpressionChromos
 
         return newChromosome;
     }
+
+    @Override
+    public String toString() {
+        return "Simple Expression Crossover";
+    }
 }

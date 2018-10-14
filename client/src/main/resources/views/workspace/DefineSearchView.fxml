@@ -32,7 +32,8 @@
 <?import javafx.scene.text.Font?>
 <?import java.lang.*?>
 <?import org.iconic.control.WorkspaceTab?>
-
+<?import org.iconic.control.DatasetComboBox?>
+<?import javafx.stage.Screen?>
 <WorkspaceTab fx:id="defineTab" text="   Define Search" tabType="SEARCH"
               xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
               fx:controller="org.iconic.project.definition.DefineSearchController">
@@ -44,52 +45,61 @@
         </ImageView>
     </graphic>
 
+    <fx:define>
+        <Screen fx:factory="getPrimary" fx:id="screen"/>
+    </fx:define>
+
     <VBox>
         <padding>
             <Insets topRightBottomLeft="25"/>
         </padding>
+        <VBox spacing="5" alignment="CENTER">
+            <HBox spacing="5">
+                <Label text="Target Expression:">
+                    <padding>
+                        <Insets left="20" right="20"/>
+                    </padding>
+                    <font>
+                        <Font size="18.0"/>
+                    </font>
+                </Label>
+                <TextField fx:id="tfTargetExpression" text="y = f(x)"/>
+                <DatasetComboBox fx:id="cbDatasets"/>
+                <ComboBox value="Absolute error (default)">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Mean Squared Error (MSE)"/>
+                            <String fx:value="Absolute Error"/>
+                            <String fx:value="Squared Error"/>
+                            <String fx:value="Root Mean Squared Error (RMSE)"/>
+                            <String fx:value="Maximum Error"/>
+                            <String fx:value="Median Error"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+            </HBox>
+            <VBox fx:id="vbConfiguration"/>
+        </VBox>
+
         <HBox>
-            <Label text="Target Expression">
+            <padding>
+                <Insets top="25" left="20"/>
+            </padding>
+            <TableView fx:id="blockDisplayTableView"/>
+            <Label><padding><Insets left="20" right="20"/></padding></Label>
+            <TextArea fx:id="selectedBlockDisplayDescription"/>
+            <Label>
                 <padding>
                     <Insets left="20" right="20"/>
                 </padding>
-                <font>
-                    <Font size="18.0"/>
-                </font>
             </Label>
-
-            <TextField fx:id="tfTargetExpression" text="y = f(x)" prefWidth="580"/>
-        </HBox>
-        <HBox>
-            <VBox>
-                <padding>
-                    <Insets top="25" left="20"/>
-                </padding>
-                <Label text="Included Building Blocks">
-                    <font>
-                        <Font size="18.0"/>
-                    </font>
-                </Label>
-                <TableView fx:id="blockDisplayTableView"/>
-            </VBox>
-            <VBox>
-                <padding>
-                    <Insets top="25" left="20"/>
-                </padding>
-                <Label text="Description">
-                    <font>
-                        <Font size="18.0"/>
-                    </font>
-                </Label>
-                <TextArea fx:id="selectedBlockDisplayDescription" wrapText="true"/>
-            </VBox>
         </HBox>
 
         <HBox>
             <padding>
                 <Insets top="25"/>
             </padding>
-            <Label text="Error metric:">
+            <Label text="Base Solutions:">
                 <padding>
                     <Insets left="20" right="20"/>
                 </padding>
@@ -98,18 +108,7 @@
                 </font>
             </Label>
 
-            <ComboBox value="Absolute error (default)">
-                <items>
-                    <FXCollections fx:factory="observableArrayList">
-                        <String fx:value="Absolute error (default)"/>
-                        <String fx:value="Squared error"/>
-                        <String fx:value="Mean Squared Error (MSE)"/>
-                        <String fx:value="Root Mean Squared Error (RMSE)"/>
-                        <String fx:value="Maximum error"/>
-                        <String fx:value="Median error"/>
-                    </FXCollections>
-                </items>
-            </ComboBox>
+            <TextField/>
         </HBox>
     </VBox>
 </WorkspaceTab>

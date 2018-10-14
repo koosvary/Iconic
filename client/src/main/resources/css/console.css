@@ -19,30 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.control;
 
-import javafx.scene.control.Tab;
+.console-content {
+    -fx-background-color: black;
+}
 
-public class WorkspaceTab extends Tab {
-    private TabType tabType;
+.console-content .list-cell:hover {
+    -fx-background-color: black;
+}
 
-    public WorkspaceTab() {
-        super();
-        this.tabType = TabType.OTHER;
-    }
+.console-content .list-cell:selected {
+    -fx-background-color: #434343;
+}
 
-    public TabType getTabType() {
-        return tabType;
-    }
+.console-content .list-cell {
+    -fx-background-color: #232323 !important;
+    -fx-text-fill: white;
+}
 
-    public void setTabType(TabType tabType) {
-        this.tabType = tabType;
-    }
+.console-content .label {
+    -fx-text-fill: white;
+}
 
-    public enum TabType {
-        ALL,
-        DATASET,
-        SEARCH,
-        OTHER
-    }
+.console-pane {
+    -fx-background-color: red;
 }

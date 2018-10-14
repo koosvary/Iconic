@@ -22,6 +22,7 @@
 package org.iconic.project.search;
 
 import javafx.collections.ObservableMap;
+import org.iconic.project.search.io.SearchExecutor;
 
 import java.util.UUID;
 
@@ -42,5 +43,5 @@ public interface SearchService {
      *
      * @return The property of searches attached to the service
      */
-    ObservableMap<UUID, SearchExecutor> searchesProperty();
+    ObservableMap<UUID, SearchExecutor<?>> searchesProperty();
 }

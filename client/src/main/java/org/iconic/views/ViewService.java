@@ -19,21 +19,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.control;
+package org.iconic.views;
 
-import javafx.scene.control.TextArea;
-import org.iconic.project.search.SearchExecutor;
+import org.iconic.View;
 
-public class SearchLogTextArea extends TextArea {
-    private final SearchExecutor model;
+import java.util.Map;
 
-    public SearchLogTextArea(final SearchExecutor model) {
-        this.model = model;
-        this.setWrapText(false);
-        this.textProperty().bind(model.updatesProperty());
-    }
+/**
+ * <p>A view service that maintains a list of views</p>
+ */
+public interface ViewService {
+    /**
+     * <p>Returns a list of views owned by this service</p>
+     *
+     * @return The list of views
+     */
+    Map<String, View> getViews();
 
-    public SearchExecutor getModel() {
-        return model;
-    }
+    /**
+     * <p>Adds the provided key value pair to this service's map of views</p>
+     *
+     * @param key
+     * @param value
+     */
+    void put(final String key, final View value);
 }

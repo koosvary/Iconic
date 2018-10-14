@@ -22,40 +22,53 @@
 package org.iconic.project.definition;
 
 import com.google.inject.Inject;
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.VBox;
 import javafx.util.converter.NumberStringConverter;
 import lombok.extern.log4j.Log4j2;
+import org.iconic.control.DatasetComboBox;
 
 import java.net.URL;
 import java.util.*;
 
 import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.data.DataManager;
-import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.iconic.project.BlockDisplay;
 import org.iconic.project.Displayable;
+import org.iconic.project.ProjectModel;
 import org.iconic.project.ProjectService;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.SearchExecutor;
+import org.iconic.project.search.config.CgpConfigurationModel;
+import org.iconic.views.ViewService;
+import org.iconic.project.search.config.SearchConfigurationModel;
+import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.workspace.WorkspaceService;
+
+import java.io.IOException;
+import java.util.stream.Collectors;
 
 @Log4j2
 public class DefineSearchController implements Initializable, DefineSearchService {
 
     private final ProjectService projectService;
+    private final ViewService viewService;
     private final WorkspaceService workspaceService;
+
+    @FXML
+    private DatasetComboBox cbDatasets;
+
+    @FXML
+    VBox vbConfiguration;
 
     @FXML
     private WorkspaceTab defineTab;
@@ -67,33 +80,39 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
     private HashMap<String, String> functionDefinitions;
 
-    private static ArrayList<BlockDisplay> blockDisplays;
+    private List<BlockDisplay> blockDisplays;
 
     @FXML
     private TextField tfTargetExpression;
 
+    final private Map<String, Node> configViews;
+
     @Inject
-    public DefineSearchController(final ProjectService projectService, final WorkspaceService workspaceService) {
+    public DefineSearchController(
+            final ProjectService projectService,
+            final ViewService viewService,
+            final WorkspaceService workspaceService
+    ) {
         this.projectService = projectService;
+        this.viewService = viewService;
         this.workspaceService = workspaceService;
         this.functionDefinitions = new HashMap<>();
+        this.blockDisplays = new ArrayList<>();
+        this.configViews = new HashMap<>();
 
-        InvalidationListener selectionChangedListener = observable -> loadFunction();
+        InvalidationListener selectionChangedListener = observable -> updateTab();
         workspaceService.activeWorkspaceItemProperty().addListener(selectionChangedListener);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        tfTargetExpression.focusedProperty().addListener(focusListener);
-        blockDisplayTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> selectedBlockDisplayDescription.setText(newSelection.getDescription()));
-
-        blockDisplays = new ArrayList<>(SearchExecutor.getFunctionalPrimitives().length);
-        for (FunctionalPrimitive primitive :
-                SearchExecutor.getFunctionalPrimitives()) {
-            blockDisplays.add(new BlockDisplay(true, primitive.getSymbol(), primitive.getDefaultComplexity(), primitive.getDescription()));
+        try {
+            getConfigViews().put("cgp-config", getViewService().getViews().get("cgp-config").load());
+            getConfigViews().put("gep-config", getViewService().getViews().get("gep-config").load());
+        } catch (IOException ex) {
+            // TODO: display error screen to the user
+            log.error("{}: {}", ex::getMessage, ex::getStackTrace);
         }
-
-        blockDisplayTableView.setItems(FXCollections.observableArrayList(blockDisplays));
 
         TableColumn<BlockDisplay, String> nameCol = new TableColumn<>("Symbol");
         TableColumn<BlockDisplay, Boolean> enabledCol = new TableColumn<>("Enabled");
@@ -109,15 +128,65 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         nameCol.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
         enabledCol.setCellValueFactory(cellData -> cellData.getValue().enabledProperty());
         complexityCol.setCellValueFactory(cellData -> cellData.getValue().complexityProperty());
-
         blockDisplayTableView.getColumns().addAll(enabledCol, nameCol, complexityCol);
 
-        defineTab.setOnSelectionChanged(event -> loadFunction());
+        cbDatasets.valueProperty().addListener(this::updateDataset);
+        defineTab.setOnSelectionChanged(event -> updateTab());
+
+        updateTab();
     }
 
-    @Override
-    public SearchExecutor getSearchModel(DatasetModel datasetModel) {
-        return new SearchExecutor(datasetModel, blockDisplays);
+    private void updateTab() {
+        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
+
+        if (!(item instanceof SearchConfigurationModel)) {
+            return;
+        }
+
+        SearchConfigurationModel search = (SearchConfigurationModel) item;
+        blockDisplays = search.getPrimitives().entrySet().stream()
+                .map(BlockDisplay::new)
+                .sorted(Comparator
+                        .comparing(BlockDisplay::getComplexity)
+                        .thenComparing(BlockDisplay::getName)
+                )
+                .collect(Collectors.toList());
+
+        Platform.runLater(() -> {
+            Node node;
+            vbConfiguration.getChildren().clear();
+            blockDisplayTableView.setItems(FXCollections.observableArrayList(blockDisplays));
+
+            if (search instanceof CgpConfigurationModel) {
+                node = getConfigViews().get("cgp-config");
+            } else {
+                node = getConfigViews().get("gep-config");
+            }
+
+            // Add all of the datasets within the project to the datasets combo box
+            Optional<ProjectModel> parent = getProjectService().findParentProject(item);
+
+            if (parent.isPresent() && parent.get().getDatasets().size() > 0) {
+                ObservableList<DatasetModel> options = parent.get().getDatasets();
+                cbDatasets.setItems(options);
+                cbDatasets.setPromptText("Select a dataset");
+                cbDatasets.setDisable(false);
+
+                search.getDatasetModel().ifPresent(dataset ->
+                        cbDatasets.getSelectionModel().select(dataset)
+                );
+
+                if (!search.getDatasetModel().isPresent()) {
+                    cbDatasets.getSelectionModel().clearSelection();
+                }
+            } else {
+                cbDatasets.setItems(FXCollections.emptyObservableList());
+                cbDatasets.setPromptText("No datasets available");
+                cbDatasets.setDisable(true);
+            }
+
+            vbConfiguration.getChildren().add(node);
+        });
     }
 
     @Override
@@ -134,13 +203,11 @@ public class DefineSearchController implements Initializable, DefineSearchServic
             // Get the dataset, if exists
             functionStr = functionDefinitions.get(datasetID);
         }
-
         return functionStr;
     }
 
     public void setFunction() {
-        String functionStr = null;
-
+        String functionStr;
         Optional<DataManager<Double>> dataset = getDataManager();
 
         if (dataset.isPresent()) {
@@ -153,6 +220,17 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
             functionDefinitions.put(datasetID, functionStr);
         }
+    }
+
+    private void updateDataset(ObservableValue<? extends DatasetModel> observer, DatasetModel oldValue, DatasetModel newValue) {
+        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
+
+        if (!(item instanceof SearchConfigurationModel)) {
+            return;
+        }
+
+        SearchConfigurationModel configModel = (SearchConfigurationModel) item;
+        configModel.setDatasetModel(newValue);
     }
 
     private void loadFunction() {
@@ -200,28 +278,44 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     private Optional<DataManager<Double>> getDataManager() {
         Displayable item = workspaceService.getActiveWorkspaceItem();
 
-        if (item instanceof DatasetModel) {
-            DatasetModel dataset = (DatasetModel) item;
-            return Optional.of(dataset.getDataManager());
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    private ChangeListener<Boolean> focusListener = new ChangeListener<Boolean>() {
-        @Override
-        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-            if (!newValue) {
-                // Get the data from the definition field, send it to the data manager to parse
-                Optional<DataManager<Double>> dataset = getDataManager();
-
-                String functionDefinition = tfTargetExpression.getText();
-
-                if(dataset.isPresent()) {
-                    setFunction();
-                    dataset.get().defineFunction(functionDefinition);
-                }
+        if (item instanceof SearchConfigurationModel) {
+            SearchConfigurationModel search = (SearchConfigurationModel) item;
+            if (search.getDatasetModel().isPresent()) {
+                return Optional.of(search.getDatasetModel().get().getDataManager());
             }
         }
-    };
+
+        return Optional.empty();
+    }
+
+    /**
+     * <p>Returns the view service of this controller</p>
+     *
+     * @return the view service of the controller
+     */
+    private ViewService getViewService() {
+        return viewService;
+    }
+
+    /**
+     * <p>Returns the workspace service of this controller</p>
+     *
+     * @return the workspace service of the controller
+     */
+    private WorkspaceService getWorkspaceService() {
+        return workspaceService;
+    }
+
+    /**
+     * <p>Returns the project service of this controller</p>
+     *
+     * @return the project service of the controller
+     */
+    private ProjectService getProjectService() {
+        return projectService;
+    }
+
+    private Map<String, Node> getConfigViews() {
+        return configViews;
+    }
 }

@@ -50,7 +50,7 @@ public class CacheableObjective<T extends Comparable<T>>  implements Objective<T
     public CacheableObjective(final Objective<T> objective) {
         this.objective = objective;
         this.cache = CacheBuilder.newBuilder()
-                .maximumSize(2000)
+                .maximumSize(500)
                 .expireAfterWrite(5, TimeUnit.MINUTES)
                 .build(
                         new CacheLoader<Chromosome<T>, Double>() {
