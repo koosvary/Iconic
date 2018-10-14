@@ -25,7 +25,7 @@ public class Floor extends ArithmeticPrimitive<Number> {
     public Floor() {
         super(
                 args -> Math.floor(args.get(0)),
-                1, "FLOOR", "Returns the integer of a rounded down", 4
+                1, "FLOOR", "Returns the integer of a rounded down.", 4
         );
     }
 }
