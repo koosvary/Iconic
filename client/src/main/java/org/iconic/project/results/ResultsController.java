@@ -36,6 +36,7 @@ import lombok.extern.log4j.Log4j2;
 import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
+import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.io.SearchExecutor;
@@ -46,6 +47,7 @@ import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A controller for the Results view
@@ -125,7 +127,9 @@ public class ResultsController implements Initializable {
         for (Map.Entry<Integer, List<Chromosome<?>>> entry : storage.getSolutions().entrySet()) {
             Chromosome<?> result = entry.getValue().get(0);
             resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.toString()));
-            resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.simplifyExpression(result.getExpression(result.toString(), Arrays.asList(lastSearch.getFunctionalPrimitives()), true))));
+            resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.simplifyExpression(
+                    result.getExpression(result.toString(), new ArrayList<>(lastSearch.getEnabledPrimitives()), true)
+            )));
         }
 
         // Add all the results as FX observables

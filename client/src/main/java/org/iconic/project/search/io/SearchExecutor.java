@@ -135,7 +135,9 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
                         bestCandidate = newBestCandidate;
                         setImproved(bestCandidate);
                         final String gen = "Generation: " + generation;
-                        final String candidate = bestCandidate.toString();
+                        final String candidate = bestCandidate.simplifyExpression(
+                                bestCandidate.getExpression(bestCandidate.toString(), new ArrayList<>(primitives), true)
+                        );
                         final String fitness = "Fitness: " + bestCandidate.getFitness();
                         final String size = "Size: " + bestCandidate.getSize();
                         addUpdate(gen);
