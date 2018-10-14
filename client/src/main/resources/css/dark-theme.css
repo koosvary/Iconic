@@ -19,29 +19,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.project.definition;
+.root  {
+	-fx-base: rgba(60, 63, 65, 255);
+}
 
-import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.SearchExecutor;
-
-
-public interface DefineSearchService {
-    /**
-     * <p>
-     * Returns a list of projects owned by this service.
-     * </p>
-     *
-     * @return The function defined by the user
-     */
-    String getFunction();
-
-    /**
-     * <p>
-     * Returns a search model using settings in define search controller.
-     * </p>
-     *
-     * @return the search model as per settings
-     */
-    SearchExecutor getSearchModel(DatasetModel datasetModel);
-
+.tab-pane {
+	-fx-tab-min-width:140px;
+	-fx-tab-max-width:140px;
+	-fx-tab-min-height:30px;
+	-fx-tab-max-height:30px;
+	
+	-fx-focus-color: transparent;
 }

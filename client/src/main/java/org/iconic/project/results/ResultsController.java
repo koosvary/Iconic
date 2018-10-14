@@ -33,10 +33,11 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.extern.log4j.Log4j2;
+import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.SearchModel;
+import org.iconic.project.search.SearchExecutor;
 import org.iconic.project.search.SearchService;
 import org.iconic.project.search.SolutionStorage;
 import org.iconic.workspace.WorkspaceService;
@@ -57,9 +58,11 @@ public class ResultsController implements Initializable {
     private final SearchService searchService;
 
     private SolutionStorage<Double> storage;
-    private SearchModel lastSearch;
-    private InvalidationListener selectionChangedListener;
+    private SearchExecutor lastSearch;
+    private InvalidationListener resultAddedListener;
 
+    @FXML
+    private WorkspaceTab resultsTab;
     @FXML
     private TableView<ResultDisplay> solutionsTableView;
 
@@ -72,9 +75,9 @@ public class ResultsController implements Initializable {
         this.searchService = searchService;
 
         // Update the workspace whenever the active dataset changes
-        selectionChangedListener = observable -> updateWorkspace();
-        getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedListener);
-        getSearchService().searchesProperty().addListener(selectionChangedListener);
+        resultAddedListener = observable -> updateWorkspace();
+        getWorkspaceService().activeWorkspaceItemProperty().addListener(resultAddedListener);
+        getSearchService().searchesProperty().addListener(resultAddedListener);
     }
 
     /**
@@ -83,10 +86,12 @@ public class ResultsController implements Initializable {
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
         updateWorkspace();
+
+        resultsTab.setOnSelectionChanged(event -> updateWorkspace());
     }
 
     /**
-     * Updates the workspace to match the current active dataset.
+     * Calls the main thread to update the workspace when it can.
      */
     private synchronized void updateWorkspace() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
@@ -98,11 +103,11 @@ public class ResultsController implements Initializable {
         }
 
         DatasetModel dataset = (DatasetModel) item;
-        SearchModel search = getSearchModel(dataset);
+        SearchExecutor search = getSearchModel(dataset);
         if (search != null && search != lastSearch) {
             // If a search is running, use that current one for results. Else use the last search
             storage = search.getSolutionStorage();
-            storage.getSolutions().addListener(selectionChangedListener);
+            storage.getSolutions().addListener(resultAddedListener);
             lastSearch = search;
         }
 
@@ -114,6 +119,9 @@ public class ResultsController implements Initializable {
         Platform.runLater(() -> updateWorkspaceMainThread());
     }
 
+    /**
+     * Updates the workspace to match the current active dataset.
+     */
     private synchronized void updateWorkspaceMainThread() {
         List<ResultDisplay> resultDisplays = new ArrayList<>();
         for (Map.Entry<Integer, List<ExpressionChromosome<Double>>> entry : storage.getSolutions().entrySet()) {
@@ -146,7 +154,7 @@ public class ResultsController implements Initializable {
      * @param dataset DatasetModel to use
      * @return Search model for that dataset, or null if no search is running
      */
-    private SearchModel getSearchModel(DatasetModel dataset) {
+    private SearchExecutor getSearchModel(DatasetModel dataset) {
         return getSearchService().searchesProperty().get(dataset.getId());
     }
 

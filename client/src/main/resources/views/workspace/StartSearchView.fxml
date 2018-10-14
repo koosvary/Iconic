@@ -22,66 +22,65 @@
     SOFTWARE.
 
 -->
+<!--&lt;!&ndash;-->
 
 <?import javafx.scene.control.*?>
-<?import javafx.scene.text.Font?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.stage.Screen?>
-<?import javafx.scene.image.*?>
-
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.text.Text?>
-
-<Tab text="   Start Search" closable="false"
-     xmlns="http://javafx.com/javafx"
-     xmlns:fx="http://javafx.com/fxml"
-     fx:controller="org.iconic.project.search.StartSearchController">
+<?import org.iconic.control.WorkspaceTab?>
+<?import javafx.geometry.Insets?>
+<WorkspaceTab fx:id="searchTab" text="   Start Search" tabType="SEARCH" closable="false"
+              xmlns="http://javafx.com/javafx"
+              xmlns:fx="http://javafx.com/fxml"
+              fx:controller="org.iconic.project.search.StartSearchController">
     <!-- Define the primary screen so we can use percentage based widths -->
     <fx:define>
         <Screen fx:factory="getPrimary" fx:id="screen"/>
     </fx:define>
 
-	<graphic>
-		<ImageView fitWidth="24" fitHeight="24">
-			<image>
-				<Image url="@/images/play-button.png"/>
-			</image>
-		</ImageView>
-	</graphic>
+    <graphic>
+        <ImageView fitWidth="24" fitHeight="24">
+            <image>
+                <Image url="@/images/play-button.png"/>
+            </image>
+        </ImageView>
+    </graphic>
 
     <SplitPane orientation="VERTICAL">
         <items>
             <AnchorPane minHeight="0.0" minWidth="0.0">
                 <VBox>
+
                     <HBox>
                         <padding>
                             <Insets top="10" bottom="10" left="10" right="10"/>
                         </padding>
                         <ButtonBar>
                             <buttons>
-                                <Button fx:id="btnSearch" text="%workspace.search" onAction="#startSearch"/>
-                                <Button fx:id="btnStopSearch" text="%workspace.search.stop" onAction="#stopSearch"/>
+                                <Button fx:id="btnSearch" text="%workspace.search" prefWidth="100" onAction="#startSearch"/>
+                                <Button fx:id="btnStopSearch" text="%workspace.search.stop" prefWidth="100" onAction="#stopSearch"/>
                             </buttons>
                         </ButtonBar>
                     </HBox>
+
                     <Separator/>
+
                     <HBox>
-                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.33}">
+                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.3}">
                             <padding>
                                 <Insets top="10" bottom="10" left="10" right="10"/>
                             </padding>
-                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Search Progress">
+                            <Label text="Search Progress">
                                 <font>
                                     <Font size="18.0" />
                                 </font>
-                            </Text>
+                            </Label>
                             <ScrollPane fitToWidth="true">
                                 <content>
                                     <GridPane alignment="CENTER" >
@@ -90,32 +89,54 @@
                                             <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="70.0" prefWidth="100.0" />
                                         </columnConstraints>
                                         <children>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Time" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                                <font>
-                                                    <Font size="12.0"/>
-                                                </font>
-                                            </Text>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="CPU Cores" GridPane.columnIndex="0" GridPane.rowIndex="1">
-                                                <font>
-                                                    <Font size="12.0" />
-                                                </font>
-                                            </Text>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="0s" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                                <font>
-                                                    <Font size="12.0" />
-                                                </font>
-                                            </Text>
-                                            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                                                <font>
-                                                    <Font size="12.0" />
-                                                </font>
-                                            </Text>
+                                            <Label text="Time Elapsed" GridPane.columnIndex="0" GridPane.rowIndex="0" >
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+                                            <Label fx:id="txtTime" text="0.000s" GridPane.columnIndex="1" GridPane.rowIndex="0" >
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+
+                                            <Label text="Generation" GridPane.columnIndex="0" GridPane.rowIndex="1" >
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+                                            <Label fx:id="txtGen" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+
+                                            <Label text="Generations / Second" GridPane.columnIndex="0" GridPane.rowIndex="2" >
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+                                            <Label fx:id="txtGenSec" text="0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+
+                                            <Label text="Time Since Improvement" GridPane.columnIndex="0" GridPane.rowIndex="3" >
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+                                            <Label fx:id="txtLastImprov" text="0.000s" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+
+                                            <Label text="Average Improvement Time" GridPane.columnIndex="0" GridPane.rowIndex="4" >
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+                                            <Label fx:id="txtAvgImprov" text="0.000s" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+
+                                            <Label text="CPU Cores" GridPane.columnIndex="0" GridPane.rowIndex="5" >
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
+                                            <Label fx:id="txtCores" text="0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                                <font><Font size="12.0" /></font>
+                                            </Label>
                                         </children>
                                     </GridPane>
                                 </content>
                             </ScrollPane>
                         </VBox>
-                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.66}">
+
+                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.5}">
                             <padding>
                                 <Insets top="10" bottom="10" left="10" right="10"/>
                             </padding>
@@ -125,9 +146,10 @@
                                            AnchorPane.topAnchor="0"
                                            AnchorPane.leftAnchor="0"
                                            AnchorPane.rightAnchor="0"
-                                           AnchorPane.BottomAnchor="0">
+                                           AnchorPane.BottomAnchor="0"
+                                           animated="false">
                                     <xAxis>
-                                        <NumberAxis label="Generations" side="BOTTOM"/>
+                                        <NumberAxis label="Generation" side="BOTTOM"/>
                                     </xAxis>
                                     <yAxis>
                                         <NumberAxis label="Fitness" side="LEFT"/>
@@ -136,6 +158,7 @@
                             </AnchorPane>
                         </VBox>
                     </HBox>
+
                 </VBox>
             </AnchorPane>
             <AnchorPane minHeight="0.0" minWidth="0.0">
@@ -143,4 +166,4 @@
             </AnchorPane>
         </items>
     </SplitPane>
-</Tab>
+</WorkspaceTab>
