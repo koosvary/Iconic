@@ -31,21 +31,21 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.text.Text;
+import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.AnchorPane;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.control.WorkspaceTab;
 import org.iconic.project.Displayable;
-import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.views.ViewService;
 import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -85,6 +85,10 @@ public class StartSearchController implements Initializable {
     private Label txtAvgImprov;
     @FXML
     private Label txtCores;
+    @FXML
+    private AnchorPane consoleArea;
+    @FXML
+    private ListView<String> consoleContent;
 
     /**
      * Constructs a new StartSearchController that attaches an invalidation listener onto the search and workspace
@@ -101,23 +105,60 @@ public class StartSearchController implements Initializable {
         this.workspaceService = workspaceService;
         this.updating = new ReentrantLock();
 
-        // Update the workspace whenever the active item changes
-        InvalidationListener selectionChangedListener = observable -> updateWorkspace();
-        getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedListener);
-        getSearchService().searchesProperty().addListener(selectionChangedListener);
+        // Update the connsole and workspace whenever the active item changes
+        InvalidationListener selectionChangedWorkspaceListener = observable -> updateWorkspace();
+        InvalidationListener selectionChangedConsoleListener = observable -> updateConsole();
+        getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedWorkspaceListener);
+        getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedConsoleListener);
     }
 
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
         updateWorkspace();
 
+        consoleContent.prefHeightProperty().bind(consoleArea.prefHeightProperty());
+        consoleContent.prefWidthProperty().bind(consoleArea.prefWidthProperty());
+        consoleContent.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+
+        MenuItem miCopy = new MenuItem("Copy");
+        miCopy.setOnAction(this::copyAction);
+        miCopy.setAccelerator(KeyCombination.keyCombination("Shortcut+C"));
+
+        ContextMenu menu = new ContextMenu();
+        menu.getItems().add(miCopy);
+        consoleContent.setContextMenu(menu);
+        updateConsole();
+
         searchTab.setOnSelectionChanged(event -> updateWorkspace());
     }
-
     /**
      * Updates the workspace to match the current active dataset.
      */
-    private void updateWorkspace() {
+    private synchronized void updateConsole() {
+        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
+
+        Platform.runLater(() -> {
+            consoleContent.itemsProperty().unbind();
+            consoleContent.setItems(FXCollections.emptyObservableList());
+        });
+
+        // Check the console tab pane as there's no guarantee it will exist when this is triggered
+        if (!(item instanceof SearchConfigurationModel)) {
+            return;
+        }
+
+        SearchConfigurationModel search = (SearchConfigurationModel) item;
+
+        search.getSearchExecutor().ifPresent(executor -> {
+            Platform.runLater(() -> {
+                consoleContent.itemsProperty().bind(executor.updatesProperty());
+            });
+        });
+    }
+    /**
+     * Updates the workspace to match the current active dataset.
+     */
+    private synchronized void updateWorkspace() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
         if (!(item instanceof SearchConfigurationModel)) {
@@ -187,7 +228,7 @@ public class StartSearchController implements Initializable {
      */
     private void updateStatistics(SearchExecutor<?> executor) {
         if (updating.tryLock()) {
-            new SearchStatistics(this, executor, updating).start();
+            new SearchStatistics(workspaceService, this, executor, updating).start();
         }
     }
 
@@ -222,6 +263,7 @@ public class StartSearchController implements Initializable {
             }
         });
         updateWorkspace();
+        updateConsole();
     }
 
     /**
@@ -242,6 +284,18 @@ public class StartSearchController implements Initializable {
             executor.stop();
         });
         updateWorkspace();
+        updateConsole();
+    }
+
+    private void copyAction(ActionEvent actionEvent) {
+        final ClipboardContent clipboard = new ClipboardContent();
+        final StringBuilder out = new StringBuilder();
+
+        consoleContent.getSelectionModel().getSelectedItems().stream().filter(Objects::nonNull)
+                .forEach(item -> out.append(item).append("\n"));
+
+        clipboard.putString(out.toString());
+        Clipboard.getSystemClipboard().setContent(clipboard);
     }
 
     /**
