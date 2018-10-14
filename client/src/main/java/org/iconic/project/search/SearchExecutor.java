@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2018 Iconic
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -51,15 +51,15 @@ import java.util.*;
  */
 @Log4j2
 public class SearchExecutor implements Runnable {
-    private static final FunctionalPrimitive[] FUNCTIONAL_PRIMITIVES = {new AbsoluteValue(), new Addition(), new And(), new ArcCos(), new ArcSin(),
-            new ArcTan(), new Ceiling(), new Cos(), new Division(), new EqualTo(),
-            new Exponential(), new Floor(), new GaussianFunction(), new GreaterThan(),
-            new GreaterThanOrEqual(), new IfThenElse(), new LessThan(), new LessThanOrEqual(),
-            new LogisticFunction(), new Maximum(), new Minimum(), new Modulo(), new Multiplication(),
-            new NaturalLog(), new Negation(), new Not(), new Or(), new Power(), new Root(),
-            new SignFunction(), new Sin(), new SquareRoot(), new StepFunction(), new Subtraction(),
-            new Tan(), new Tanh(), new TwoArcTan(), new Xor()};
-
+    private static final FunctionalPrimitive[] FUNCTIONAL_PRIMITIVES = {
+            new Addition(), new Subtraction(), new Multiplication(), new Division(), new Negation(),
+            new Sin(), new Cos(), new Tan(),
+            new ArcCos(), new ArcSin(), new ArcTan(),
+            new Exponential(), new NaturalLog(), new Power(), new SquareRoot(), new Root(),
+            new LogisticFunction(), new StepFunction(), new SignFunction(), new GaussianFunction(), new Tanh(),
+            new IfThenElse(), new EqualTo(), new LessThan(), new LessThanOrEqual(), new GreaterThan(), new GreaterThanOrEqual(), new And(), new Or(), new Xor(), new Not(),
+            new Minimum(), new Maximum(), new Modulo(), new Floor(), new Ceiling(), new AbsoluteValue(),
+    };
     private final XYChart.Series<Number, Number> plots;
     private final DatasetModel datasetModel;
     private final ObjectProperty<String> updates;
@@ -76,6 +76,7 @@ public class SearchExecutor implements Runnable {
 
     /**
      * Constructs a new search model with the provided dataset.
+     *
      * @param datasetModel The dataset to perform the search on
      */
     public SearchExecutor(@NonNull final DatasetModel datasetModel, ArrayList<BlockDisplay> blockDisplays) {
@@ -221,6 +222,7 @@ public class SearchExecutor implements Runnable {
 
     /**
      * Add a plot point for progress over time
+     *
      * @param candidate Candidate to plot
      */
     private void addPlot(final ExpressionChromosome<Double> candidate) {
@@ -233,6 +235,7 @@ public class SearchExecutor implements Runnable {
 
     /**
      * Returns the dataset that's being trained on.
+     *
      * @return The dataset that this search model is training on
      */
     public DatasetModel getDatasetModel() {
