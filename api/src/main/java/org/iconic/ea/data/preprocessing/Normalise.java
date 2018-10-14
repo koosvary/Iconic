@@ -36,16 +36,27 @@ public class Normalise extends Preprocessor<Number> {
         Number oldMax = values.get(0);
 
         for (Number value : values) {
-            if (value.doubleValue() < oldMin.doubleValue()) {
+            if (value == null) {
+                continue;
+            }
+            if (oldMin == null || value.doubleValue() < oldMin.doubleValue()) {
                 oldMin = value;
             }
 
-            if (value.doubleValue() > oldMax.doubleValue()) {
+            if (oldMax == null || value.doubleValue() > oldMax.doubleValue()) {
                 oldMax = value;
             }
         }
 
+        // If the whole list has null values, just return
+        if (oldMin == null || oldMax == null) {
+            return values;
+        }
+
         for (int i = 0; i < values.size(); i++) {
+            if (values.get(i) == null) {
+                continue;
+            }
             Number value = map(values.get(i), oldMin, oldMax, newMin, newMax);
             values.set(i, value);
         }

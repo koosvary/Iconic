@@ -221,14 +221,12 @@ public class DataManager<T> {
                     Double value = Double.parseDouble(values[i]);
                     featureClasses.get(i).addSampleValue(value);
                 }catch (Exception e) {
-                    //TODO Change 0 to null when handled
-                    featureClasses.get(i).addSampleValue(0.0);
+                    featureClasses.get(i).addSampleValue(null);
                 }
                 i++;
             }
             while(i < featureSize){
-                //TODO Change 0 to null when handled
-                featureClasses.get(i).addSampleValue(0.0);
+                featureClasses.get(i).addSampleValue(null);
                 i++;
             }
 
