@@ -23,7 +23,7 @@ package org.iconic.ea.data.preprocessing;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Iterator;
+import java.util.Comparator;
 
 public class RemoveOutliers extends Preprocessor<Number> {
     private double threshold = 2.00;
@@ -36,8 +36,10 @@ public class RemoveOutliers extends Preprocessor<Number> {
 
         for (int i=0; i < values.size(); i++) {
             // Checks if the distance between the point and the mean is greater than the threshold multiplied by the IQR
-            if (Math.abs(mean - values.get(i).doubleValue()) > threshold * IQR) {
-                values.set(i, null);
+            if (values.get(i) != null) {
+                if (Math.abs(mean - values.get(i).doubleValue()) > threshold * IQR) {
+                    values.set(i, null);
+                }
             }
         }
 
@@ -48,26 +50,47 @@ public class RemoveOutliers extends Preprocessor<Number> {
         double total = 0;
 
         for (Number value : values) {
-            total += value.doubleValue();
+            if (value != null) {
+                total += value.doubleValue();
+            }
         }
 
         return total / values.size();
     }
 
     private double calculateMedian(Double[] values) {
+        Double center = values[values.length / 2];
+
         if (values.length % 2 == 0) {
-            return (values[values.length / 2] + values[values.length / 2] - 1) / 2;
+            if (center != null) {
+                return (center + (center - 1) / 2);
+            } else {
+                return 0;
+            }
         } else {
-            return values[values.length / 2];
+            if (center != null) {
+                return center;
+            } else {
+                return 0;
+            }
         }
     }
 
     private double calculateIQR(List<Number> values) {
         // Convert values to an array and sort
         Double[] numbers = values.toArray(new Double[values.size()]);
-        Arrays.sort(numbers);
+        Arrays.sort(numbers, new Comparator<Double>() {
+                    @Override
+                    public int compare(Double o1, Double o2) {
+                        if (o1 != null && o2 != null) {
+                            return o1.compareTo(o2);
+                        } else {
+                            return 0;
+                        }
+                    }
+                });
 
-        // Calculate the size of the first/second half sets
+                // Calculate the size of the first/second half sets
         int splitSize = (int)Math.floor(numbers.length / 2);
 
         Double[] firstHalf = new Double[splitSize];
