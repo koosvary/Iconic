@@ -111,7 +111,7 @@ public class ProcessDataController implements Initializable {
             // lvFeatures - One of the items in the list is selected and the other objects need to be updates
             lvFeatures.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                 // Once a feature is selected, the pre-processing checkboxes are enabled
-                disablePreprocessingCheckBoxes();
+                enablePreprocessingCheckBoxes();
 
                 // Update the data view and pre-processing text fields
                 int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();

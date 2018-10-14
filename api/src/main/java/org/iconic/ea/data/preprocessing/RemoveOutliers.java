@@ -34,13 +34,10 @@ public class RemoveOutliers extends Preprocessor<Number> {
         double mean = calculateMean(values);
         double IQR = calculateIQR(values);
 
-        // Use iterator to safely remove outlier values
-        Iterator<Number> iterator = values.iterator();
-
-        while (iterator.hasNext()) {
+        for (int i=0; i < values.size(); i++) {
             // Checks if the distance between the point and the mean is greater than the threshold multiplied by the IQR
-            if (Math.abs(mean - iterator.next().doubleValue()) > threshold * IQR) {
-                iterator.remove();
+            if (Math.abs(mean - values.get(i).doubleValue()) > threshold * IQR) {
+                values.set(i, null);
             }
         }
 
