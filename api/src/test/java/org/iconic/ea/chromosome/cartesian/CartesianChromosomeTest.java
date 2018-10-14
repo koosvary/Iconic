@@ -100,6 +100,7 @@ public class CartesianChromosomeTest {
         c.generateOutput(activeNodes, genome, inputs, outputs, primitives, samples);
     }
 
+    @Disabled
     @Test
     @DisplayName("Test that the expression generated is correct")
     public void getExpressionTest(){
