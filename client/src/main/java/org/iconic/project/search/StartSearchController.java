@@ -129,7 +129,10 @@ public class StartSearchController implements Initializable {
         consoleContent.setContextMenu(menu);
         updateConsole();
 
-        searchTab.setOnSelectionChanged(event -> updateWorkspace());
+        searchTab.setOnSelectionChanged(event -> {
+            updateWorkspace();
+            updateConsole();
+        });
     }
     /**
      * Updates the workspace to match the current active dataset.

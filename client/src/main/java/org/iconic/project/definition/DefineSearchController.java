@@ -176,6 +176,9 @@ public class DefineSearchController implements Initializable, DefineSearchServic
                         cbDatasets.getSelectionModel().select(dataset)
                 );
 
+                if (!search.getDatasetModel().isPresent()) {
+                    cbDatasets.getSelectionModel().clearSelection();
+                }
             } else {
                 cbDatasets.setItems(FXCollections.emptyObservableList());
                 cbDatasets.setPromptText("No datasets available");

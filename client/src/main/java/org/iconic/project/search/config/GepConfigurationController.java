@@ -23,12 +23,16 @@ package org.iconic.project.search.config;
 
 import com.google.inject.Inject;
 import javafx.beans.InvalidationListener;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.Property;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Control;
 import javafx.scene.control.TextField;
+import javafx.util.converter.NumberStringConverter;
 import org.iconic.control.LabelledSlider;
 import org.iconic.control.operator.evolutionary.CrossoverComboBox;
 import org.iconic.control.operator.evolutionary.MutatorComboBox;
@@ -46,6 +50,7 @@ import java.util.ResourceBundle;
 
 public class GepConfigurationController implements Initializable {
     private final WorkspaceService workspaceService;
+    private GepConfigurationModel previousModel;
 
     @FXML
     private TextField tfHeadLength;
@@ -73,13 +78,18 @@ public class GepConfigurationController implements Initializable {
     private void updateView() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
+        if (previousModel != null) {
+            Bindings.unbindBidirectional(tfHeadLength.textProperty(), previousModel.headLengthProperty());
+        }
+
         if (!(item instanceof GepConfigurationModel)) {
             return;
         }
 
         GepConfigurationModel configModel = (GepConfigurationModel) item;
+        previousModel = configModel;
 
-        @SuppressWarnings("unchecked")
+                @SuppressWarnings("unchecked")
         ObservableList<Mutator<ExpressionChromosome<Double>, Double>> mutators =
                 FXCollections.observableArrayList(
                         new ExpressionMutator<>()
@@ -94,18 +104,7 @@ public class GepConfigurationController implements Initializable {
         cbMutators.setItems(mutators);
         cbCrossovers.setItems(crossovers);
 
-        // TODO: switch to a TextFormatter
-        tfHeadLength.setText(String.valueOf(configModel.getHeadLength()));
-        tfHeadLength.textProperty().addListener((obs, oldValue, newValue) -> {
-            int i;
-            try {
-                i = Integer.parseInt(newValue);
-                configModel.setHeadLength(i);
-            }
-            catch (NumberFormatException ex) {
-                // Do nothing
-            }
-        });
+        bindTextProperty(configModel.headLengthProperty(), tfHeadLength.textProperty());
 
         sldrCrossoverRate.getSlider().valueProperty().unbind();
         sldrMutationRate.getSlider().valueProperty().unbind();
@@ -114,6 +113,17 @@ public class GepConfigurationController implements Initializable {
 
         disableControlIfEmpty(cbMutators, mutators);
         disableControlIfEmpty(cbCrossovers, crossovers);
+    }
+
+    private void bindTextProperty(
+            final Property<Number> property,
+            final StringProperty field
+    ) {
+        Bindings.bindBidirectional(
+                field,
+                property,
+                new NumberStringConverter()
+        );
     }
 
     private void disableControlIfEmpty(final Control control, Collection<?> options) {

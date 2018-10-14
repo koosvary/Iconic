@@ -176,6 +176,9 @@ public abstract class SearchConfigurationModel implements Displayable {
      */
     public Optional<SearchExecutor<?>> getSearchExecutor() {
         if (isChanged()) {
+            if (searchExecutor != null) {
+                searchExecutor.stop();
+            }
             setSearchExecutor(buildSearchExecutor());
         }
 
