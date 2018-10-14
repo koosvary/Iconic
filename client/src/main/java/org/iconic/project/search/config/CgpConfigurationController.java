@@ -23,12 +23,16 @@ package org.iconic.project.search.config;
 
 import com.google.inject.Inject;
 import javafx.beans.InvalidationListener;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.Property;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Control;
 import javafx.scene.control.TextField;
+import javafx.util.converter.NumberStringConverter;
 import org.iconic.control.LabelledSlider;
 import org.iconic.control.operator.evolutionary.CrossoverComboBox;
 import org.iconic.control.operator.evolutionary.MutatorComboBox;
@@ -45,6 +49,8 @@ import java.util.ResourceBundle;
 
 public class CgpConfigurationController implements Initializable {
     private final WorkspaceService workspaceService;
+
+    private CgpConfigurationModel previousModel;
 
     @FXML
     private TextField tfNumOutputs;
@@ -78,11 +84,19 @@ public class CgpConfigurationController implements Initializable {
     private void updateView() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
+        if (previousModel != null) {
+            Bindings.unbindBidirectional(tfNumOutputs.textProperty(), previousModel.numOutputsProperty());
+            Bindings.unbindBidirectional(tfNumColumns.textProperty(), previousModel.numColumnsProperty());
+            Bindings.unbindBidirectional(tfNumRows.textProperty(), previousModel.numRowsProperty());
+            Bindings.unbindBidirectional(tfNumLevelsBack.textProperty(), previousModel.numLevelsBackProperty());
+        }
+
         if (!(item instanceof CgpConfigurationModel)) {
             return;
         }
 
         CgpConfigurationModel configModel = (CgpConfigurationModel) item;
+        previousModel = configModel;
 
         @SuppressWarnings("unchecked")
         ObservableList<Mutator<CartesianChromosome<Double>, Double>> mutators =
@@ -97,53 +111,10 @@ public class CgpConfigurationController implements Initializable {
         cbMutators.setItems(mutators);
         cbCrossovers.setItems(crossovers);
 
-        tfNumOutputs.setText(String.valueOf(configModel.getNumOutputs()));
-        tfNumOutputs.textProperty().addListener((obs, oldValue, newValue) -> {
-            int i;
-            try {
-                i = Integer.parseInt(newValue);
-                configModel.setNumOutputs(i);
-            }
-            catch (NumberFormatException ex) {
-                // Do nothing
-            }
-        });
-
-        tfNumColumns.setText(String.valueOf(configModel.getNumColumns()));
-        tfNumColumns.textProperty().addListener((obs, oldValue, newValue) -> {
-            int i;
-            try {
-                i = Integer.parseInt(newValue);
-                configModel.setNumColumns(i);
-            }
-            catch (NumberFormatException ex) {
-                // Do nothing
-            }
-        });
-
-        tfNumRows.setText(String.valueOf(configModel.getNumRows()));
-        tfNumRows.textProperty().addListener((obs, oldValue, newValue) -> {
-            int i;
-            try {
-                i = Integer.parseInt(newValue);
-                configModel.setNumRows(i);
-            }
-            catch (NumberFormatException ex) {
-                // Do nothing
-            }
-        });
-
-        tfNumLevelsBack.setText(String.valueOf(configModel.getNumLevelsBack()));
-        tfNumLevelsBack.textProperty().addListener((obs, oldValue, newValue) -> {
-            int i;
-            try {
-                i = Integer.parseInt(newValue);
-                configModel.setNumLevelsBack(i);
-            }
-            catch (NumberFormatException ex) {
-                // Do nothing
-            }
-        });
+        bindTextProperty(configModel.numOutputsProperty(), tfNumOutputs.textProperty());
+        bindTextProperty(configModel.numColumnsProperty(), tfNumColumns.textProperty());
+        bindTextProperty(configModel.numRowsProperty(), tfNumRows.textProperty());
+        bindTextProperty(configModel.numLevelsBackProperty(), tfNumLevelsBack.textProperty());
 
         sldrCrossoverRate.getSlider().valueProperty().unbind();
         sldrMutationRate.getSlider().valueProperty().unbind();
@@ -152,6 +123,17 @@ public class CgpConfigurationController implements Initializable {
 
         disableControlIfEmpty(cbMutators, mutators);
         disableControlIfEmpty(cbCrossovers, crossovers);
+    }
+
+    private void bindTextProperty(
+            final Property<Number> property,
+            final StringProperty field
+    ) {
+        Bindings.bindBidirectional(
+                field,
+                property,
+                new NumberStringConverter()
+        );
     }
 
     private void disableControlIfEmpty(final Control control, Collection<?> options) {
