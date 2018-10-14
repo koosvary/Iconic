@@ -126,7 +126,10 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
                     boolean newCandidate = objective.isNotWorse(
                             newBestCandidate.getFitness(),
                             bestCandidate.getFitness()
-                    ) && !newBestCandidate.equals(bestCandidate);
+                    ) && !objective.isEqual(
+                            newBestCandidate.getFitness(),
+                            bestCandidate.getFitness()
+                    );
 
                     if (newCandidate) {
                         bestCandidate = newBestCandidate;
