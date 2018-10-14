@@ -315,7 +315,7 @@ public class ProcessDataController implements Initializable {
         // Updates the pre-processing methods text fields to reflect the respective header
         String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
         updatePreprocessingTextFields(selectedHeader);
-
+        updateOrderOfOperationsLabels(selectedHeader);
     }
 
     /**
