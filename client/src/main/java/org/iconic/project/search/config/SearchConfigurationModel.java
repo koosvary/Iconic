@@ -99,6 +99,10 @@ public abstract class SearchConfigurationModel implements Displayable {
         primitives.put(new Tanh(), true);
         primitives.put(new TwoArcTan(), true);
         primitives.put(new Xor(), true);
+        this.populationSizeProperty().addListener(obs -> setChanged(true));
+        this.numGenerationsProperty().addListener(obs -> setChanged(true));
+        this.crossoverRateProperty().addListener(obs -> setChanged(true));
+        this.mutationRateProperty().addListener(obs -> setChanged(true));
     }
 
     /**

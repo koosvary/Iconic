@@ -55,6 +55,10 @@ public class CgpConfigurationModel extends SearchConfigurationModel {
         this.numColumns = new SimpleIntegerProperty(1);
         this.numRows = new SimpleIntegerProperty(1);
         this.numLevelsBack = new SimpleIntegerProperty(1);
+        this.numOutputsProperty().addListener(obs -> setChanged(true));
+        this.numColumnsProperty().addListener(obs -> setChanged(true));
+        this.numRowsProperty().addListener(obs -> setChanged(true));
+        this.numLevelsBackProperty().addListener(obs -> setChanged(true));
     }
 
     @Override

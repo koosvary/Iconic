@@ -46,6 +46,16 @@
     <padding>
         <Insets top="10" bottom="10" left="10" right="10"/>
     </padding>
+    <Separator/>
+    <VBox spacing="10">
+        <Label labelFor="$tfPopulationSize" text="Population Size: "/>
+        <TextField fx:id="tfPopulationSize" promptText="Size of the Population"/>
+    </VBox>
+    <VBox spacing="10">
+        <Label labelFor="$tfNumGenerations" text="Generations: "/>
+        <TextField fx:id="tfNumGenerations" promptText="Number of generations to evolve for. Leave this at zero to stop manually"/>
+    </VBox>
+    <Separator/>
     <VBox spacing="10">
         <Label labelFor="$tfHeadLength" text="Head Length: "/>
         <TextField fx:id="tfHeadLength" promptText="Head Length"/>

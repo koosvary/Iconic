@@ -45,6 +45,7 @@ public class GepConfigurationModel extends SearchConfigurationModel {
     public GepConfigurationModel(@NonNull final String name) {
         super(name);
         this.headLength = new SimpleIntegerProperty(1);
+        this.headLengthProperty().addListener(obs -> setChanged(true));
     }
 
     @Override

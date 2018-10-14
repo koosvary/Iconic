@@ -53,6 +53,10 @@ public class CgpConfigurationController implements Initializable {
     private CgpConfigurationModel previousModel;
 
     @FXML
+    private TextField tfPopulationSize;
+    @FXML
+    private TextField tfNumGenerations;
+    @FXML
     private TextField tfNumOutputs;
     @FXML
     private TextField tfNumColumns;
@@ -85,6 +89,8 @@ public class CgpConfigurationController implements Initializable {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
         if (previousModel != null) {
+            Bindings.unbindBidirectional(tfPopulationSize.textProperty(), previousModel.populationSizeProperty());
+            Bindings.unbindBidirectional(tfNumGenerations.textProperty(), previousModel.numGenerationsProperty());
             Bindings.unbindBidirectional(tfNumOutputs.textProperty(), previousModel.numOutputsProperty());
             Bindings.unbindBidirectional(tfNumColumns.textProperty(), previousModel.numColumnsProperty());
             Bindings.unbindBidirectional(tfNumRows.textProperty(), previousModel.numRowsProperty());
@@ -111,6 +117,8 @@ public class CgpConfigurationController implements Initializable {
         cbMutators.setItems(mutators);
         cbCrossovers.setItems(crossovers);
 
+        bindTextProperty(configModel.populationSizeProperty(), tfPopulationSize.textProperty());
+        bindTextProperty(configModel.numGenerationsProperty(), tfNumGenerations.textProperty());
         bindTextProperty(configModel.numOutputsProperty(), tfNumOutputs.textProperty());
         bindTextProperty(configModel.numColumnsProperty(), tfNumColumns.textProperty());
         bindTextProperty(configModel.numRowsProperty(), tfNumRows.textProperty());

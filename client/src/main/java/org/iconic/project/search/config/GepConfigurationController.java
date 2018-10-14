@@ -53,6 +53,10 @@ public class GepConfigurationController implements Initializable {
     private GepConfigurationModel previousModel;
 
     @FXML
+    private TextField tfPopulationSize;
+    @FXML
+    private TextField tfNumGenerations;
+    @FXML
     private TextField tfHeadLength;
     @FXML
     private LabelledSlider sldrMutationRate;
@@ -79,6 +83,8 @@ public class GepConfigurationController implements Initializable {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
         if (previousModel != null) {
+            Bindings.unbindBidirectional(tfPopulationSize.textProperty(), previousModel.populationSizeProperty());
+            Bindings.unbindBidirectional(tfNumGenerations.textProperty(), previousModel.numGenerationsProperty());
             Bindings.unbindBidirectional(tfHeadLength.textProperty(), previousModel.headLengthProperty());
         }
 
@@ -104,6 +110,8 @@ public class GepConfigurationController implements Initializable {
         cbMutators.setItems(mutators);
         cbCrossovers.setItems(crossovers);
 
+        bindTextProperty(configModel.populationSizeProperty(), tfPopulationSize.textProperty());
+        bindTextProperty(configModel.numGenerationsProperty(), tfNumGenerations.textProperty());
         bindTextProperty(configModel.headLengthProperty(), tfHeadLength.textProperty());
 
         sldrCrossoverRate.getSlider().valueProperty().unbind();

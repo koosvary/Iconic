@@ -31,7 +31,6 @@
 <?import org.iconic.control.operator.evolutionary.MutatorComboBox?>
 <?import org.iconic.control.LabelledSlider?>
 <?import org.iconic.control.operator.evolutionary.CrossoverComboBox?>
-<?import javafx.scene.text.Font?>
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
       spacing="10"
@@ -45,6 +44,16 @@
     <padding>
         <Insets top="10" bottom="10" left="10" right="10"/>
     </padding>
+    <Separator/>
+    <VBox spacing="10">
+        <Label labelFor="$tfPopulationSize" text="Population Size: "/>
+        <TextField fx:id="tfPopulationSize" promptText="Size of the Population"/>
+    </VBox>
+    <VBox spacing="10">
+        <Label labelFor="$tfNumGenerations" text="Generations: "/>
+        <TextField fx:id="tfNumGenerations" promptText="Number of generations to evolve for. Leave this at zero to stop manually"/>
+    </VBox>
+    <Separator/>
     <HBox spacing="5">
         <VBox spacing="10">
             <Label labelFor="$tfNumOutputs" text="Number of Outputs: "/>
