@@ -29,7 +29,7 @@
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.iconic.workspace.WorkspaceController">
-    <TabPane AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" tabClosingPolicy="UNAVAILABLE">
+    <TabPane fx:id="tbpWorkspace" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" tabClosingPolicy="UNAVAILABLE">
         <fx:include source="InputDataView.fxml"/>
         <fx:include source="ProcessDataView.fxml"/>
         <fx:include source="DefineSearchView.fxml"/>

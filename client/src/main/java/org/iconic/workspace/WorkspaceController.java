@@ -109,7 +109,7 @@ public class WorkspaceController implements Initializable {
 
         tbpWorkspace.getTabs().forEach(tab -> {
             WorkspaceTab wTab = (WorkspaceTab) tab;
-            if (wTab.getTabType().equals(availableTabs)) {
+            if (wTab.getTabType().equals(availableTabs) || wTab.getTabType().equals(WorkspaceTab.TabType.ALL)) {
                 tab.setDisable(false);
             } else {
                 tab.setDisable(true);
