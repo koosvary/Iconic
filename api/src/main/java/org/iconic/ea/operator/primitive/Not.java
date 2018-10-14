@@ -25,7 +25,7 @@ public class Not extends ArithmeticPrimitive<Number> {
     public Not() {
         super(
                 args -> (args.get(0) > 0) ? 0.d : 1.d,
-                1, "NOT", "Returns 0 if a is greater than 0, 1 otherwise", 4
+                1, "NOT", "Returns 0 if a is greater than 0, 1 otherwise.", 4
         );
     }
 }
