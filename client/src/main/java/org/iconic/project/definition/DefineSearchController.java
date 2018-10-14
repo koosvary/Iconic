@@ -41,6 +41,7 @@ import org.iconic.control.DatasetComboBox;
 import java.net.URL;
 import java.util.*;
 
+import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.data.DataManager;
 import org.iconic.project.BlockDisplay;
 import org.iconic.project.Displayable;
@@ -69,6 +70,8 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     @FXML
     VBox vbConfiguration;
 
+    @FXML
+    private WorkspaceTab defineTab;
     @FXML
     public TableView<BlockDisplay> blockDisplayTableView;
 
@@ -129,6 +132,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
         cbDatasets.valueProperty().addListener(this::updateDataset);
         updateTab();
+        defineTab.setOnSelectionChanged(event -> loadFunction());
     }
 
     private void updateTab() {
@@ -233,19 +237,16 @@ public class DefineSearchController implements Initializable, DefineSearchServic
             String[] splitString = dataset.toString().split("@");
             String datasetID = splitString[splitString.length - 1].replace("]", ""); // There's a trailing ']' from the toString
 
-            // No need to redefine the function if one already exists, just insert instead
             String functionStr = functionDefinitions.get(datasetID);
-            if (functionStr == null) {
-                List<String> headers = dataset.get().getSampleHeaders();
+            List<String> headers = dataset.get().getSampleHeaders();
 
-                if (!headers.isEmpty()) {
-                    functionStr = generateDefaultFunction(headers);
+            if (!headers.isEmpty()) {
+                functionStr = generateDefaultFunction(headers);
 
-                    // Save the function defined in the hashmap of all the functions definitions
-                    functionDefinitions.put(datasetID, functionStr);
-                } else {
-                    log.error("No headers found in this dataset");
-                }
+                // Save the function defined in the hashmap of all the functions definitions
+                functionDefinitions.put(datasetID, functionStr);
+            } else {
+                log.error("No headers found in this dataset");
             }
 
             // NOTE(Meyer): Must check if not null otherwise injection will cause an NPE (it's dumb, I know)

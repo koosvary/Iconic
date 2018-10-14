@@ -22,7 +22,6 @@
 package org.iconic.project.search;
 
 import com.google.inject.Inject;
-import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
@@ -34,6 +33,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.text.Text;
 import lombok.extern.log4j.Log4j2;
+import org.iconic.control.WorkspaceTab;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.config.SearchConfigurationModel;
@@ -63,11 +63,26 @@ public class StartSearchController implements Initializable {
     private Lock updating;
 
     @FXML
+    private WorkspaceTab searchTab;
+    @FXML
     private Button btnSearch;
     @FXML
     private Button btnStopSearch;
     @FXML
     private LineChart<Number, Number> lcSearchProgress;
+    @FXML
+    private Label txtTime;
+    @FXML
+    private Label txtGen;
+    @FXML
+    private Label txtGenSec;
+    @FXML
+    private Label txtLastImprov;
+    @FXML
+    private Label txtAvgImprov;
+    @FXML
+    private Label txtCores;
+
     @FXML
     private Label txtTime;
     @FXML
@@ -105,6 +120,8 @@ public class StartSearchController implements Initializable {
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
         updateWorkspace();
+
+        searchTab.setOnSelectionChanged(event -> updateWorkspace());
     }
 
     /**
@@ -174,13 +191,18 @@ public class StartSearchController implements Initializable {
         );
     }
 
+    private synchronized void updatePlots(SearchExecutor search) {
+        lcSearchProgress.getData().clear();
+        lcSearchProgress.getData().add(search.getPlots());
+    }
+
     /**
      * Update the statistics section
-     * @param executor Executor in use
+     * @param search SearchModel in use
      */
-    private void updateStatistics(final SearchExecutor<?> executor) {
+    private void updateStatistics(SearchExecutor search) {
         if (updating.tryLock()) {
-            new SearchStatistics(this, executor, updating).start();
+            new SearchStatistics(this, search, updating).start();
         }
     }
 

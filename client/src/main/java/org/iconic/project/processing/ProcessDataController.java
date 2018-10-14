@@ -35,6 +35,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
+import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.preprocessing.*;
 import org.iconic.project.Displayable;
@@ -59,6 +60,8 @@ public class ProcessDataController implements Initializable {
     // event when manually enabling/disabling checkboxes.
     private boolean resetCheckboxFlag = false;
 
+    @FXML
+    private WorkspaceTab processTab;
     @FXML
     private ListView<String> lvFeatures;
     @FXML
@@ -133,6 +136,8 @@ public class ProcessDataController implements Initializable {
         addTextFieldChangeListener(tfNormaliseMin, true);
         addTextFieldChangeListener(tfNormaliseMax, true);
         addTextFieldChangeListener(tfOffsetValue, true);
+
+        processTab.setOnSelectionChanged(event -> updateWorkspace());
     }
 
     /**
@@ -204,6 +209,30 @@ public class ProcessDataController implements Initializable {
                 convertTransformTypeToFunction(convertCheckBoxToTransformType(checkbox));
 
                 updateModifiedText(selectedIndex, selectedHeader);
+            }
+        });
+    }
+
+    /**
+     * Adds a change listener to a specified TextField which strips out all non-numerical characters to ensure
+     * that the field only contains integer values.
+     *
+     * @param textField The selected TextField
+     * @param allowDecimals A boolean flag denoting whether or not to allow decimal points in the TextField
+     */
+    private void addTextFieldChangeListener(TextField textField, Boolean allowDecimals) {
+        textField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (allowDecimals) {
+                    if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                        textField.setText(oldValue);
+                    }
+                } else {
+                    if (!newValue.matches("\\d*")) {
+                        textField.setText(newValue.replaceAll("[^\\d]", ""));
+                    }
+                }
             }
         });
     }

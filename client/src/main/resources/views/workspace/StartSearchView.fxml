@@ -35,7 +35,7 @@
 <?import javafx.stage.Screen?>
 <?import org.iconic.control.WorkspaceTab?>
 <?import javafx.geometry.Insets?>
-<WorkspaceTab text="   Start Search" tabType="SEARCH" closable="false"
+<WorkspaceTab fx:id="searchTab" text="   Start Search" tabType="SEARCH" closable="false"
               xmlns="http://javafx.com/javafx"
               xmlns:fx="http://javafx.com/fxml"
               fx:controller="org.iconic.project.search.StartSearchController">
@@ -148,7 +148,8 @@
                                            AnchorPane.topAnchor="0"
                                            AnchorPane.leftAnchor="0"
                                            AnchorPane.rightAnchor="0"
-                                           AnchorPane.BottomAnchor="0">
+                                           AnchorPane.BottomAnchor="0"
+                                           animated="false">
                                     <xAxis>
                                         <NumberAxis label="Generation" side="BOTTOM"/>
                                     </xAxis>

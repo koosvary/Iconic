@@ -29,12 +29,12 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
-<?import org.controlsfx.control.spreadsheet.SpreadsheetView?>
 <?import org.iconic.control.WorkspaceTab?>
-<WorkspaceTab text="   Input Data" closable="false" tabType="DATASET"
+<?import org.controlsfx.control.spreadsheet.SpreadsheetView?>
+<WorkspaceTab fx:id="inputTab" text="   Input Data" closable="false" tabType="DATASET"
               xmlns="http://javafx.com/javafx"
               xmlns:fx="http://javafx.com/fxml"
-              fx:controller="org.iconic.project.InputDataController">
+              fx:controller="org.iconic.project.input.InputDataController">
     <graphic>
         <ImageView fitWidth="24" fitHeight="24">
             <image>
