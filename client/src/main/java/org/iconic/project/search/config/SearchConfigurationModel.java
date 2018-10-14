@@ -231,11 +231,11 @@ public abstract class SearchConfigurationModel implements Displayable {
 
     protected abstract boolean isValid();
 
-    protected boolean isChanged() {
+    public boolean isChanged() {
         return changed;
     }
 
-    protected void setChanged(boolean changed) {
+    public void setChanged(boolean changed) {
         this.changed = changed;
     }
 

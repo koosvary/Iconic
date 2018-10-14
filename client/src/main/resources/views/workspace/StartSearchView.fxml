@@ -63,8 +63,12 @@
                         </padding>
                         <ButtonBar buttonMinWidth="150">
                             <buttons>
-                                <Button fx:id="btnSearch" text="%workspace.search" prefWidth="100" onAction="#startSearch"/>
-                                <Button fx:id="btnStopSearch" text="%workspace.search.stop" prefWidth="100" onAction="#stopSearch"/>
+                                <Button fx:id="btnStartSearch" text="%workspace.search.start" prefWidth="100"
+                                        onAction="#startSearch"/>
+                                <Button fx:id="btnPauseSearch" text="%workspace.search.pause" prefWidth="100"
+                                        onAction="#pauseSearch" disable="true"/>
+                                <Button fx:id="btnStopSearch" text="%workspace.search.stop" prefWidth="100"
+                                        onAction="#stopSearch" disable="true"/>
                             </buttons>
                         </ButtonBar>
                     </HBox>

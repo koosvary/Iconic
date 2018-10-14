@@ -99,11 +99,19 @@ public class SearchStatistics extends Service<Void> {
                                 controller.getTxtLastImprov().setText(getTimeSinceImprovement());
                                 controller.getTxtAvgImprov().setText(getAverageImprovementTime());
                                 controller.getTxtCores().setText(Runtime.getRuntime().availableProcessors() + "");
+                                controller.getBtnStartSearch().setDisable(true);
+                                controller.getBtnPauseSearch().setDisable(false);
+                                controller.getBtnStopSearch().setDisable(false);
                             });
                         }
 
                         Thread.sleep(SLEEP_TIME);
                     }
+                    Platform.runLater(() -> {
+                        controller.getBtnStartSearch().setDisable(false);
+                        controller.getBtnPauseSearch().setDisable(true);
+                        controller.getBtnStopSearch().setDisable(true);
+                    });
                 } catch (InterruptedException ex) {
                     log.error("{}: ", ex::getMessage);
                 }

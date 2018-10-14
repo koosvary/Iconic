@@ -37,6 +37,8 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import lombok.extern.log4j.Log4j2;
+import org.controlsfx.glyphfont.FontAwesome;
+import org.iconic.config.IconService;
 import org.iconic.control.WorkspaceTab;
 import org.iconic.project.Displayable;
 import org.iconic.project.search.config.SearchConfigurationModel;
@@ -60,7 +62,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class StartSearchController implements Initializable {
 
     private final SearchService searchService;
-    private final ViewService viewService;
+    private final IconService iconService;
     private final WorkspaceService workspaceService;
 
     private Lock updating;
@@ -68,7 +70,9 @@ public class StartSearchController implements Initializable {
     @FXML
     private WorkspaceTab searchTab;
     @FXML
-    private Button btnSearch;
+    private Button btnStartSearch;
+    @FXML
+    private Button btnPauseSearch;
     @FXML
     private Button btnStopSearch;
     @FXML
@@ -98,10 +102,10 @@ public class StartSearchController implements Initializable {
     public StartSearchController(
             final WorkspaceService workspaceService,
             final SearchService searchService,
-            final ViewService viewService
+            final IconService iconService
     ) {
         this.searchService = searchService;
-        this.viewService = viewService;
+        this.iconService = iconService;
         this.workspaceService = workspaceService;
         this.updating = new ReentrantLock();
 
@@ -115,6 +119,10 @@ public class StartSearchController implements Initializable {
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
         updateWorkspace();
+
+        btnStartSearch.setGraphic(getIconService().getIcon(FontAwesome.Glyph.PLAY));
+        btnPauseSearch.setGraphic(getIconService().getIcon(FontAwesome.Glyph.PAUSE));
+        btnStopSearch.setGraphic(getIconService().getIcon(FontAwesome.Glyph.STOP));
 
         consoleContent.prefHeightProperty().bind(consoleArea.prefHeightProperty());
         consoleContent.prefWidthProperty().bind(consoleArea.prefWidthProperty());
@@ -171,7 +179,7 @@ public class StartSearchController implements Initializable {
         SearchConfigurationModel search = (SearchConfigurationModel) item;
 
         // Make sure that all the UI elements actually exist
-        if (btnSearch != null && btnStopSearch != null) {
+        if (btnStartSearch != null && btnStopSearch != null) {
             // If there's a search let the user start or pause it
             if (search.getSearchExecutor().isPresent()) {
                 SearchExecutor<?> executor = search.getSearchExecutor().get();
@@ -180,15 +188,15 @@ public class StartSearchController implements Initializable {
 
                 if (!executor.isRunning()) {
                     Platform.runLater(() -> {
-                                btnSearch.setText("Start Search");
-                                btnSearch.setDisable(false);
+                                btnStartSearch.setText("Start Search");
+                                btnStartSearch.setDisable(false);
                                 btnStopSearch.setDisable(true);
                             }
                     );
                 } else {
                     Platform.runLater(() -> {
-                                btnSearch.setText("Pause");
-                                btnSearch.setDisable(false);
+                                btnStartSearch.setText("Pause");
+                                btnStartSearch.setDisable(false);
                                 btnStopSearch.setDisable(false);
                             }
                     );
@@ -197,8 +205,8 @@ public class StartSearchController implements Initializable {
             // Otherwise the search configuration needs to be changed
             else {
                 Platform.runLater(() -> {
-                            btnSearch.setText("Start Search");
-                            btnSearch.setDisable(true);
+                            btnStartSearch.setText("Start Search");
+                            btnStartSearch.setDisable(true);
                             btnStopSearch.setDisable(true);
                         }
                 );
@@ -207,8 +215,8 @@ public class StartSearchController implements Initializable {
         // Otherwise...
         else {
             Platform.runLater(() -> {
-                        btnSearch.setText("Pause");
-                        btnSearch.setDisable(true);
+                        btnStartSearch.setText("Pause");
+                        btnStartSearch.setDisable(true);
                         btnStopSearch.setDisable(false);
                     }
             );
@@ -236,7 +244,7 @@ public class StartSearchController implements Initializable {
     }
 
     /**
-     * Starts a search using the currently selected dataset.
+     * Starts a search using the currently selected search configuration.
      *
      * @param actionEvent The action that triggered this event
      */
@@ -252,17 +260,41 @@ public class StartSearchController implements Initializable {
         // If there's no search already being performed on the dataset, the configuration is invalid
         // so ignore it
         search.getSearchExecutor().ifPresent(executor -> {
-            // If the search is running stop it
-            if (executor.isRunning()) {
-                stopSearch(actionEvent);
-            }
-            // Otherwise start it
-            else {
-                executor.setRunning(true);
+            // If the search is not running start one
+            if (!executor.isRunning()) {
                 Platform.runLater(() -> {
+                    executor.setRunning(true);
                     Thread thread = new Thread(executor);
                     thread.start();
                 });
+            }
+        });
+        updateWorkspace();
+        updateConsole();
+    }
+
+
+    /**
+     * Pauses a search using the currently selected search configuration.
+     *
+     * @param actionEvent The action that triggered this event
+     */
+    public void pauseSearch(ActionEvent actionEvent) {
+        Displayable item = getWorkspaceService().getActiveWorkspaceItem();
+
+        // Check that there's an active search configuration before pausing the search
+        if (!(item instanceof SearchConfigurationModel)) {
+            return;
+        }
+
+        SearchConfigurationModel search = (SearchConfigurationModel) item;
+        // If there's no search already being performed on the dataset, the configuration is invalid
+        // so ignore it
+        search.getSearchExecutor().ifPresent(executor -> {
+            // If the search is running stop it
+            if (executor.isRunning()) {
+                updateStatistics(executor);
+                executor.stop();
             }
         });
         updateWorkspace();
@@ -285,6 +317,7 @@ public class StartSearchController implements Initializable {
         search.getSearchExecutor().ifPresent(executor -> {
             updateStatistics(executor);
             executor.stop();
+            search.setChanged(true);
         });
         updateWorkspace();
         updateConsole();
@@ -311,9 +344,9 @@ public class StartSearchController implements Initializable {
         }
 
         // Disable the search buttons
-        if (btnSearch != null) {
-            btnSearch.setText("Start Search");
-            btnSearch.setDisable(true);
+        if (btnStartSearch != null) {
+            btnStartSearch.setText("Start Search");
+            btnStartSearch.setDisable(true);
         }
         if (btnStopSearch != null) {
             btnStopSearch.setDisable(true);
@@ -321,6 +354,14 @@ public class StartSearchController implements Initializable {
     }
 
     // -- Getters --
+    /**
+     * Returns the icon service of this controller
+     *
+     * @return the icon service of the controller
+     */
+    public IconService getIconService() {
+        return iconService;
+    }
 
     /**
      * Returns the workspace service of this controller
@@ -338,6 +379,30 @@ public class StartSearchController implements Initializable {
      */
     private SearchService getSearchService() {
         return searchService;
+    }
+
+    /**
+     * Get the Button for starting a search
+     * @return Button for starting a search
+     */
+    public Button getBtnStartSearch() {
+        return btnStartSearch;
+    }
+
+    /**
+     * Get the Button for pausing a search
+     * @return Button for pausing a search
+     */
+    public Button getBtnPauseSearch() {
+        return btnPauseSearch;
+    }
+
+    /**
+     * Get the Button for stopping a search
+     * @return Button for stopping a search
+     */
+    public Button getBtnStopSearch() {
+        return btnStopSearch;
     }
 
     /**
