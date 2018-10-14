@@ -49,6 +49,8 @@ public class GepConfigurationModel extends SearchConfigurationModel {
 
     @Override
     protected SearchExecutor<?> buildSearchExecutor() {
+        setChanged(false);
+
         if (!isValid()) {
             return null;
         }

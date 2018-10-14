@@ -34,6 +34,7 @@ import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
+import org.iconic.ea.operator.objective.Objective;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.SolutionStorage;
@@ -119,9 +120,13 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
                     solutionStorage.evaluate(newPopulation);
 
                     T newBestCandidate = getEvolutionaryAlgorithm().getChromosomes().stream().min(comparator).get();
+                    Objective<?> objective = getEvolutionaryAlgorithm().getObjective();
 
                     // Only add a new plot point if the fitness value improves
-                    boolean newCandidate = bestCandidate.getFitness() > newBestCandidate.getFitness();
+                    boolean newCandidate = objective.isNotWorse(
+                            newBestCandidate.getFitness(),
+                            bestCandidate.getFitness()
+                    ) && !newBestCandidate.equals(bestCandidate);
 
                     if (newCandidate) {
                         bestCandidate = newBestCandidate;
