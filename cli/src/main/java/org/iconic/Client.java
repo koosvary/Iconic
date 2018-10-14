@@ -39,7 +39,14 @@ import org.iconic.ea.operator.primitive.*;
 import org.iconic.ea.strategies.seamo.ElitistSEAMO;
 import org.iconic.ea.strategies.seamo.SEAMO;
 import org.iconic.io.ArgsConverterFactory;
+import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.XYSeries;
+import org.knowm.xchart.style.Styler;
+import org.knowm.xchart.style.markers.SeriesMarkers;
 
+import javax.swing.*;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -124,14 +131,14 @@ public class Client {
             List<CartesianChromosome<Double>> population = ea.getChromosomes();
 //            Chromosome<Double> bestCandidate = population.stream().min(comparator).get();
 
+            int maxGenerations = generations;
+
             Instant start = Instant.now();
             int percent;
             // Pretty-print a summarised progress indicator
             StringBuilder out = new StringBuilder();
             // Start the evolutionary loop
             for (int i = 0; i < generations; ++i) {
-
-
                 population = ea.evolve(population);
                 // Retrieve the individual with the best fitness
 //                bestCandidate = population.stream().min(comparator).get();
@@ -150,6 +157,8 @@ public class Client {
                         .append("\t|\tGeneration: ").append(i + 1)
                         .append("\t|\tTime: ").append(Duration.between(start, Instant.now())).append(" ");
                 System.out.print(out);
+
+                final int currentGeneration = i + 1;
             }
             // When it ends print out the actual genome of the best candidate
 //            log.info("\n\tBest candidate: {}\n\tFitness: {}",
@@ -157,6 +166,30 @@ public class Client {
 //            );
 //            System.out.println("y = " + bestCandidate.simplifyExpression(bestCandidate.getExpression(
 //                    bestCandidate.toString(), new ArrayList<>(supplier.getFunctionalPrimitives()),true)));
+            if (client.getArgs().isGraph()) {
+                // Create a chart for plotting the final goals
+                XYChart chart = new XYChartBuilder().width(720).height(480).title("Fitness-vs-Size")
+                        .xAxisTitle("Fitness").yAxisTitle("Size")
+                        .theme(Styler.ChartTheme.GGPlot2).build();
+                chart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
+                chart.getStyler().setChartTitleVisible(false);
+                chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideSW);
+                chart.getStyler().setMarkerSize(16);
+
+                LinkedList<Number> fitnessSeries = new LinkedList<>();
+                LinkedList<Number> sizeSeries = new LinkedList<>();
+
+                population.forEach(chromosome -> {
+                    if (chromosome.getFitness() != Double.POSITIVE_INFINITY &&
+                    chromosome.getFitness() != Double.NEGATIVE_INFINITY) {
+                        fitnessSeries.add(chromosome.getFitness());
+                        sizeSeries.add(chromosome.getSize());
+                    }
+                });
+
+                chart.addSeries("Solutions", fitnessSeries, sizeSeries);
+                new SwingWrapper<>(chart).displayChart();
+            }
         }
     }
 
