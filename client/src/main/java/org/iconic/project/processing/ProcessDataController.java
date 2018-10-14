@@ -33,6 +33,7 @@ import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.control.WorkspaceTab;
@@ -73,11 +74,13 @@ public class ProcessDataController implements Initializable {
     @FXML
     private ComboBox<String> cbHandleMissingValuesOptions;
     @FXML
-    private TextField tfSmoothingWindow, tfNormaliseMin, tfNormaliseMax, tfOffsetValue, tfRemoveOutliersMin, tfRemoveOutliersMax;
+    private TextField tfSmoothingWindow, tfNormaliseMin, tfNormaliseMax, tfOffsetValue;
     @FXML
     private Label lbSmoothOrder, lbHandleMissingValuesOrder, lbRemoveOutliersOrder, lbNormaliseOrder, lbOffsetValuesOrder;
-
+    @FXML
     private List<Label> orderLabels = new ArrayList<>();
+    @FXML
+    private Spinner<Double> spRemoveOutliersThreshold;
 
     /**
      * <p>
@@ -138,6 +141,35 @@ public class ProcessDataController implements Initializable {
         addTextFieldChangeListener(tfOffsetValue, true);
 
         processTab.setOnSelectionChanged(event -> updateWorkspace());
+
+        initializeSpinner();
+        addSpinnerChangeListener(spRemoveOutliersThreshold, cbRemoveOutliers);
+    }
+
+    /**
+     * Creates a ValueFactory for the spinner with the specified parameters, and also formats the spinners values to
+     * 2 decimal places.
+     */
+    private void initializeSpinner() {
+        SpinnerValueFactory.DoubleSpinnerValueFactory valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 99.99, 2.00, 0.10);
+
+        valueFactory.setConverter(new StringConverter<Double>() {
+            @Override
+            public String toString(Double value) {
+                return String.format("%.2f", value);
+            }
+
+            @Override
+            public Double fromString(String string) {
+                if (string.isEmpty()) {
+                    return 0.0;
+                } else {
+                    return Double.parseDouble(string);
+                }
+            }
+        });
+
+        spRemoveOutliersThreshold.setValueFactory(valueFactory);
     }
 
     /**
@@ -200,7 +232,30 @@ public class ProcessDataController implements Initializable {
 
                 if (dataManager.isPresent()) {
                     removeExistingPreprocessor(checkbox);
-                    handleMissingValuesOfDatasetFeature();
+
+                    int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+                    String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+
+                    convertTransformTypeToFunction(convertCheckBoxToTransformType(checkbox));
+
+                    updateModifiedText(selectedIndex, selectedHeader);
+                }
+            }
+        });
+    }
+
+    private void addSpinnerChangeListener(Spinner<Double> spinner, CheckBox checkbox) {
+        if (spinner == null) {
+            return;
+        }
+
+        spinner.valueProperty().addListener(new ChangeListener<Double>() {
+            @Override
+            public void changed(ObservableValue<? extends Double> observable, Double oldValue, Double newValue) {
+                Optional<DataManager<Double>> dataManager = getDataManager();
+
+                if (dataManager.isPresent()) {
+                    removeExistingPreprocessor(checkbox);
 
                     int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
                     String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
@@ -372,31 +427,26 @@ public class ProcessDataController implements Initializable {
         }
     }
 
-    // TODO: once RemoveOutliers class has been implemented
+    /**
+     * Creates a RemoveOutliers object which is added to the list of currently active preprocessors.
+     */
     public void removeOutliersInDatasetFeature() {
         if (lvFeatures == null) {
             return;
         }
 
-        resetEmptyTextField(tfRemoveOutliersMin, "0");
-        resetEmptyTextField(tfRemoveOutliersMax, "1");
-
         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
-            try {
-                double min = Double.parseDouble(tfRemoveOutliersMin.getText());
-                double max = Double.parseDouble(tfRemoveOutliersMax.getText());
+            if (cbRemoveOutliers.isSelected() && dataManager.isPresent()) {
+                double threshold = spRemoveOutliersThreshold.getValue();
 
-                if (min < max) {
-                    RemoveOutliers removeOutliers = new RemoveOutliers(min, max);
-                    removeOutliers.setTransformType(TransformType.OutliersRemoved);
+                RemoveOutliers removeOutliers = new RemoveOutliers();
+                removeOutliers.setTransformType(TransformType.OutliersRemoved);
+                removeOutliers.setThreshold(threshold);
 
-                    addNewPreprocessor(dataManager.get().getSampleHeaders().get(selectedIndex), removeOutliers);
-                }
-            } catch (Exception e) {
-                log.error("Min and Max values must be a Number");
+                addNewPreprocessor(dataManager.get().getSampleHeaders().get(selectedIndex), removeOutliers);
             }
 
             featureSelected(selectedIndex);

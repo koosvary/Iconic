@@ -120,12 +120,8 @@
                     </HBox>
                     <VBox fx:id="vbRemoveOutliers" visible="false" managed="false">
                         <HBox>
-                            <Label text="Min Value:"><padding><Insets left="25" right="10"/></padding></Label>
-                            <TextField fx:id="tfRemoveOutliersMin" text="0" onAction="#removeOutliersInDatasetFeature"/>
-                        </HBox>
-                        <HBox>
-                            <Label text="Max Value:"><padding><Insets left="25" right="10"/></padding></Label>
-                            <TextField fx:id="tfRemoveOutliersMax" text="1" onAction="#removeOutliersInDatasetFeature"/>
+                            <Label text="Threshold:"><padding><Insets left="25" right="10"/></padding></Label>
+                            <Spinner fx:id="spRemoveOutliersThreshold" editable="true"/>
                         </HBox>
                     </VBox>
                     <Separator/>
