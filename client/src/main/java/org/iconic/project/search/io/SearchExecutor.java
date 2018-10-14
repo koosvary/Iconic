@@ -110,6 +110,7 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
                         .stream().min(comparator).get();
                 addPlot(0, bestCandidate);
                 addUpdate("Starting...");
+                addChromosomeUpdate(bestCandidate);
 
                 for (generation = 1; (generation <= getNumGenerations() || getNumGenerations() == 0) && isRunning(); ++generation) {
                     List<T> oldPopulation = getEvolutionaryAlgorithm().getChromosomes();
@@ -133,18 +134,7 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
 
                     if (newCandidate) {
                         bestCandidate = newBestCandidate;
-                        setImproved(bestCandidate);
-                        final String gen = "Generation: " + generation;
-                        final String candidate = bestCandidate.simplifyExpression(
-                                bestCandidate.getExpression(bestCandidate.toString(), new ArrayList<>(primitives), true)
-                        );
-                        final String fitness = "Fitness: " + bestCandidate.getFitness();
-                        final String size = "Size: " + bestCandidate.getSize();
-                        addUpdate(gen);
-                        addUpdate(candidate);
-                        addUpdate(fitness);
-                        addUpdate(size);
-                        log.debug(gen + candidate + fitness + size);
+                        addChromosomeUpdate(bestCandidate);
                     }
                     elapsedDuration = System.currentTimeMillis() - startTime;
                 }
@@ -158,6 +148,21 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
                 log.debug("Stopping search");
             }
         }
+    }
+
+    private void addChromosomeUpdate(Chromosome<?> chromosome) {
+        setImproved(chromosome);
+        final String gen = "Generation: " + generation;
+        final String candidate = chromosome.simplifyExpression(
+                chromosome.getExpression(chromosome.toString(), new ArrayList<>(primitives), true)
+        );
+        final String fitness = "Fitness: " + chromosome.getFitness();
+        final String size = "Size: " + chromosome.getSize();
+        addUpdate(gen);
+        addUpdate(candidate);
+        addUpdate(fitness);
+        addUpdate(size);
+        log.debug(gen + candidate + fitness + size);
     }
 
     private void addUpdate(final String value) {

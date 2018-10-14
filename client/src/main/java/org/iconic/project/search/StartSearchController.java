@@ -185,41 +185,7 @@ public class StartSearchController implements Initializable {
                 SearchExecutor<?> executor = search.getSearchExecutor().get();
                 updatePlots(executor);
                 updateStatistics(executor);
-
-                if (!executor.isRunning()) {
-                    Platform.runLater(() -> {
-                                btnStartSearch.setText("Start Search");
-                                btnStartSearch.setDisable(false);
-                                btnStopSearch.setDisable(true);
-                            }
-                    );
-                } else {
-                    Platform.runLater(() -> {
-                                btnStartSearch.setText("Pause");
-                                btnStartSearch.setDisable(false);
-                                btnStopSearch.setDisable(false);
-                            }
-                    );
-                }
             }
-            // Otherwise the search configuration needs to be changed
-            else {
-                Platform.runLater(() -> {
-                            btnStartSearch.setText("Start Search");
-                            btnStartSearch.setDisable(true);
-                            btnStopSearch.setDisable(true);
-                        }
-                );
-            }
-        }
-        // Otherwise...
-        else {
-            Platform.runLater(() -> {
-                        btnStartSearch.setText("Pause");
-                        btnStartSearch.setDisable(true);
-                        btnStopSearch.setDisable(false);
-                    }
-            );
         }
     }
 
