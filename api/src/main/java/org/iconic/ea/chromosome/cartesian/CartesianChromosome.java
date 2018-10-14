@@ -537,7 +537,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
      * {@inheritDoc}
      */
     public int getSize() {
-        return outputs.size() + phenome.size();
+        return getPhenome().size() + getPhenome().values().stream().mapToInt(List::size).sum();
     }
 
     /**

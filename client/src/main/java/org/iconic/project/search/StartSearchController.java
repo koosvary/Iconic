@@ -22,8 +22,10 @@
 package org.iconic.project.search;
 
 import com.google.inject.Inject;
+import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -43,6 +45,7 @@ import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -70,19 +73,6 @@ public class StartSearchController implements Initializable {
     private Button btnStopSearch;
     @FXML
     private LineChart<Number, Number> lcSearchProgress;
-    @FXML
-    private Label txtTime;
-    @FXML
-    private Label txtGen;
-    @FXML
-    private Label txtGenSec;
-    @FXML
-    private Label txtLastImprov;
-    @FXML
-    private Label txtAvgImprov;
-    @FXML
-    private Label txtCores;
-
     @FXML
     private Label txtTime;
     @FXML
@@ -183,26 +173,21 @@ public class StartSearchController implements Initializable {
 
     /**
      * Update the search progress over time graph.
-     * @param search SearchModel in use
+     * @param executor Executor in use
      */
-    private synchronized void updatePlots(SearchExecutor<?> search) {
-        lcSearchProgress.setData(
-                FXCollections.observableArrayList(search.getPlots())
-        );
-    }
-
-    private synchronized void updatePlots(SearchExecutor search) {
-        lcSearchProgress.getData().clear();
-        lcSearchProgress.getData().add(search.getPlots());
+    @SuppressWarnings("unchecked")
+    private synchronized void updatePlots(SearchExecutor<?> executor) {
+        ObservableList<XYChart.Series<Number, Number>> data = FXCollections.observableArrayList(executor.getPlots());
+        lcSearchProgress.setData(data);
     }
 
     /**
      * Update the statistics section
-     * @param search SearchModel in use
+     * @param executor Executor in use
      */
-    private void updateStatistics(SearchExecutor search) {
+    private void updateStatistics(SearchExecutor<?> executor) {
         if (updating.tryLock()) {
-            new SearchStatistics(this, search, updating).start();
+            new SearchStatistics(this, executor, updating).start();
         }
     }
 

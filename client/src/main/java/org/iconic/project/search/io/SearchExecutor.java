@@ -81,6 +81,7 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
     ) {
         this.datasetModel = datasetModel;
         this.numGenerations = numGenerations;
+        this.generation = 0;
         this.plots = new XYChart.Series<>();
         this._updates = FXCollections.observableArrayList();
         this.updates = new SimpleListProperty<>(_updates);
@@ -160,8 +161,6 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
         startTime = System.currentTimeMillis();
         elapsedDuration = 0L;
         lastImproveTime = startTime;
-        improvedCount = 0;
-        generation = 0;
     }
 
     private void setImproved(Chromosome<?> bestCandidate) {

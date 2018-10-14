@@ -238,30 +238,6 @@ public class ProcessDataController implements Initializable {
     }
 
     /**
-     * Adds a change listener to a specified TextField which strips out all non-numerical characters to ensure
-     * that the field only contains integer values.
-     *
-     * @param textField The selected TextField
-     * @param allowDecimals A boolean flag denoting whether or not to allow decimal points in the TextField
-     */
-    private void addTextFieldChangeListener(TextField textField, Boolean allowDecimals) {
-        textField.textProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                if (allowDecimals) {
-                    if (!newValue.matches("\\d*(\\.\\d*)?")) {
-                        textField.setText(oldValue);
-                    }
-                } else {
-                    if (!newValue.matches("\\d*")) {
-                        textField.setText(newValue.replaceAll("[^\\d]", ""));
-                    }
-                }
-            }
-        });
-    }
-
-    /**
      * Called after a checkbox has been selected. A check is done to determine whether the feature
      * has been modified. If so, a 'modified' keyword is appended to the header and the feature list
      * is updated.

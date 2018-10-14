@@ -131,8 +131,9 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         blockDisplayTableView.getColumns().addAll(enabledCol, nameCol, complexityCol);
 
         cbDatasets.valueProperty().addListener(this::updateDataset);
+        defineTab.setOnSelectionChanged(event -> updateTab());
+
         updateTab();
-        defineTab.setOnSelectionChanged(event -> loadFunction());
     }
 
     private void updateTab() {

@@ -37,7 +37,6 @@ import javafx.stage.FileChooser;
 import javafx.util.Pair;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.val;
 import org.iconic.config.IconService;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.config.EvolutionaryAlgorithmType;
@@ -152,7 +151,7 @@ public class ProjectTreeController implements Initializable {
      */
     private void setTreeViewSelection(TreeItem<Displayable> cell) {
         if (cell != null) {
-            val item = cell.getValue();
+            Displayable item = cell.getValue();
 
             if (item != null) {
                 getWorkspaceService().setActiveWorkspaceItem(item);
@@ -233,7 +232,7 @@ public class ProjectTreeController implements Initializable {
                     );
 
                     // Add a menu item for renaming the project
-                    val miRenameProject = createMenuItem(
+                    MenuItem miRenameProject = createMenuItem(
                             "_Rename...", KeyCombination.keyCombination("Shortcut+R"), this::renameProject
                     );
 
@@ -393,12 +392,12 @@ public class ProjectTreeController implements Initializable {
          * @param actionEvent The action that triggered the event
          */
         private void renameProject(ActionEvent actionEvent) {
-            val item = getWorkspaceService().getActiveWorkspaceItem();
+            Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
             // If the current active item isn't a project don't do anything
             if (item instanceof ProjectModel) {
-                val project = (ProjectModel) item;
-                val defaultName = project.getLabel();
+                ProjectModel project = (ProjectModel) item;
+                String defaultName = project.getLabel();
 
                 // Open a text input dialog to get the new name and only do anything if the new name
                 // is different
@@ -408,7 +407,7 @@ public class ProjectTreeController implements Initializable {
                 dialog.showAndWait().ifPresent(
                         name -> {
                             if (!name.trim().equals(project.getLabel())) {
-                                val newProject = project.toBuilder().name(name).build();
+                                ProjectModel newProject = project.toBuilder().name(name).build();
                                 getWorkspaceService().setActiveWorkspaceItem(null);
                                 getProjectService().getProjects().set(getProjectService().getProjects().indexOf(project), newProject);
                                 getWorkspaceService().setActiveWorkspaceItem(newProject);

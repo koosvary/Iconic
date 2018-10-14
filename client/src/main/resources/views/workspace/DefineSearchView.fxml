@@ -34,8 +34,7 @@
 <?import org.iconic.control.WorkspaceTab?>
 <?import org.iconic.control.DatasetComboBox?>
 <?import javafx.stage.Screen?>
-<?import org.iconic.control.operator.evolutionary.MutatorComboBox?>
-<WorkspaceTab text="   Define Search" tabType="SEARCH"
+<WorkspaceTab fx:id="defineTab" text="   Define Search" tabType="SEARCH"
               xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
               fx:controller="org.iconic.project.definition.DefineSearchController">
     <graphic>
@@ -61,7 +60,7 @@
                         <Insets left="20" right="20"/>
                     </padding>
                     <font>
-                        <Font size="16.0"/>
+                        <Font size="18.0"/>
                     </font>
                 </Label>
                 <TextField fx:id="tfTargetExpression" text="y = f(x)"/>

@@ -104,9 +104,13 @@ public class ConsoleController implements Initializable {
     public void updateConsole() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
+        Platform.runLater(() -> {
+            consoleContent.itemsProperty().unbind();
+            consoleContent.getItems().clear();
+        });
+
         // Check the console tab pane as there's no guarantee it will exist when this is triggered
         if (!(item instanceof SearchConfigurationModel)) {
-            consoleContent.itemsProperty().unbind();
             return;
         }
 
