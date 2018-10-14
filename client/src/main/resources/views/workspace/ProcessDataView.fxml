@@ -112,21 +112,6 @@
                     <Separator/>
 
                     <HBox>
-                        <CheckBox fx:id="cbRemoveOutliers" text="Remove outliers" disable="true"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Label fx:id="lbRemoveOutliersOrder" textAlignment="RIGHT">
-                            <tooltip><Tooltip text="The order in which the preprocessor was applied."/></tooltip>
-                        </Label>
-                    </HBox>
-                    <VBox fx:id="vbRemoveOutliers" visible="false" managed="false">
-                        <HBox>
-                            <Label text="Threshold:"><padding><Insets left="25" right="10"/></padding></Label>
-                            <Spinner fx:id="spRemoveOutliersThreshold" editable="true"/>
-                        </HBox>
-                    </VBox>
-                    <Separator/>
-
-                    <HBox>
                         <CheckBox fx:id="cbNormalise" text="Normalise scale" disable="true"/>
                         <Region HBox.hgrow="ALWAYS"/>
                         <Label fx:id="lbNormaliseOrder" textAlignment="RIGHT">
@@ -141,6 +126,21 @@
                         <HBox>
                             <Label text="Max Value:"><padding><Insets left="25" right="10"/></padding></Label>
                             <TextField fx:id="tfNormaliseMax" text="1" onAction="#normalizeDatasetFeature"/>
+                        </HBox>
+                    </VBox>
+                    <Separator/>
+
+                    <HBox>
+                        <CheckBox fx:id="cbRemoveOutliers" text="Remove outliers" disable="true"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lbRemoveOutliersOrder" textAlignment="RIGHT">
+                            <tooltip><Tooltip text="The order in which the preprocessor was applied."/></tooltip>
+                        </Label>
+                    </HBox>
+                    <VBox fx:id="vbRemoveOutliers" visible="false" managed="false">
+                        <HBox>
+                            <Label text="Threshold:"><padding><Insets left="25" right="10"/></padding></Label>
+                            <Spinner fx:id="spRemoveOutliersThreshold" editable="true"/>
                         </HBox>
                     </VBox>
                     <Separator/>
