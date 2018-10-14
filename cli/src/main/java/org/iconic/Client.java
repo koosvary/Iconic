@@ -149,8 +149,8 @@ public class Client {
             log.info("\n\tBest candidate: {}\n\tFitness: {}",
                     bestCandidate.toString(), String.format("%.4f", bestCandidate.getFitness())
             );
-            System.out.println("y = " + (bestCandidate).getExpression(
-                    bestCandidate.toString(), supplier.getFunctionalPrimitives(),true));
+            System.out.println("y = " + bestCandidate.simplifyExpression(bestCandidate.getExpression(
+                    bestCandidate.toString(), supplier.getFunctionalPrimitives(),true)));
         }
     }
 

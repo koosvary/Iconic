@@ -45,10 +45,7 @@ import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * A controller for the Results view
@@ -128,6 +125,7 @@ public class ResultsController implements Initializable {
         for (Map.Entry<Integer, List<Chromosome<?>>> entry : storage.getSolutions().entrySet()) {
             Chromosome<?> result = entry.getValue().get(0);
             resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.toString()));
+            resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.simplifyExpression(result.getExpression(result.toString(), Arrays.asList(lastSearch.getFunctionalPrimitives()), true))));
         }
 
         // Add all the results as FX observables

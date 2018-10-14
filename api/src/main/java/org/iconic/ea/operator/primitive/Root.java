@@ -37,7 +37,7 @@ public class Root extends ArithmeticPrimitive<Number> {
                     }
                     return Double.NaN;
                 },
-                2, "ROOT", "Returns the b-th root of a if a is greater than 0, NaN otherwise", 5
+                2, "ROOT", "Returns the b-th root of a if a is greater than 0, NaN otherwise.", 5
         );
     }
 }
