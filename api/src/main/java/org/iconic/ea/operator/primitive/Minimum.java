@@ -25,7 +25,7 @@ public class Minimum extends ArithmeticPrimitive<Number> {
     public Minimum() {
         super(
                 args -> Math.min(args.get(0),args.get(1)),
-                2, "MIN", "Returns the minimum value of a and b", 4
+                2, "MIN", "Returns the minimum value of a and b.", 4
         );
     }
 }

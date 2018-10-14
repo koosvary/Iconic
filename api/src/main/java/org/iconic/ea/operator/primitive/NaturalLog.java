@@ -25,7 +25,7 @@ public class NaturalLog extends ArithmeticPrimitive<Number> {
     public NaturalLog() {
         super(
                 args -> Math.log(args.get(0)),
-                1, "LN", "Returns the natural logarithm (base e) of a", 4
+                1, "LN", "Returns the natural logarithm (base e) of a.", 4
         );
     }
 }
