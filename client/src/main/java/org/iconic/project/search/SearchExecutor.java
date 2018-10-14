@@ -173,7 +173,8 @@ public class SearchExecutor implements Runnable {
                 }
 
                 final String gen = "\nGeneration: " + generation;
-                final String candidate = "\n\tNew Best candidate: " + bestCandidate.toString();
+                final String candidate = "\n\tNew Best candidate: " + bestCandidate.simplifyExpression(bestCandidate.getExpression(bestCandidate.toString(),
+                        Arrays.asList(FUNCTIONAL_PRIMITIVES), true));
                 final String fitness = "\n\tFitness: " + bestCandidate.getFitness();
 
                 // Append the current generation's best results in front of the list of updates
