@@ -311,6 +311,7 @@ public abstract class Chromosome<T> {
         output.put("POW", "^");
         output.put("SGN", "SIGN");
         output.put("SUB", "-");
+        output.put("-", "NEG");
 
         return output;
     }
