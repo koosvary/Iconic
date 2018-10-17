@@ -80,7 +80,7 @@
                     <Label labelFor="$blockDisplayTableView" text="Enabled Building Blocks"/>
                     <TableView fx:id="blockDisplayTableView"/>
                 </VBox>
-                <VBox>
+                <VBox spacing="10">
                     <Label labelFor="$selectedBlockDisplayDescription" text="Description"/>
                     <TextArea fx:id="selectedBlockDisplayDescription"/>
                 </VBox>
