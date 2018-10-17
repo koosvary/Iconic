@@ -49,66 +49,42 @@
         <Screen fx:factory="getPrimary" fx:id="screen"/>
     </fx:define>
 
-    <VBox>
-        <padding>
-            <Insets topRightBottomLeft="25"/>
-        </padding>
-        <VBox spacing="5" alignment="CENTER">
-            <HBox spacing="5">
-                <Label text="Target Expression:">
-                    <padding>
-                        <Insets left="20" right="20"/>
-                    </padding>
-                    <font>
-                        <Font size="18.0"/>
-                    </font>
-                </Label>
-                <TextField fx:id="tfTargetExpression" text="y = f(x)"/>
-                <DatasetComboBox fx:id="cbDatasets"/>
-                <ComboBox value="Absolute error (default)">
-                    <items>
-                        <FXCollections fx:factory="observableArrayList">
-                            <String fx:value="Mean Squared Error (MSE)"/>
-                            <String fx:value="Absolute Error"/>
-                            <String fx:value="Squared Error"/>
-                            <String fx:value="Root Mean Squared Error (RMSE)"/>
-                            <String fx:value="Maximum Error"/>
-                            <String fx:value="Median Error"/>
-                        </FXCollections>
-                    </items>
-                </ComboBox>
+    <ScrollPane>
+        <VBox>
+            <padding>
+                <Insets topRightBottomLeft="25"/>
+            </padding>
+            <VBox spacing="10" alignment="CENTER">
+                <HBox spacing="10">
+                    <Label labelFor="$tfTargetExpression" text="Target Expression:"/>
+                    <TextField fx:id="tfTargetExpression" text="y = f(x)"/>
+                    <DatasetComboBox fx:id="cbDatasets"/>
+                    <ComboBox value="Absolute error (default)">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Mean Squared Error (MSE)"/>
+                                <String fx:value="Absolute Error"/>
+                                <String fx:value="Squared Error"/>
+                                <String fx:value="Root Mean Squared Error (RMSE)"/>
+                                <String fx:value="Maximum Error"/>
+                                <String fx:value="Median Error"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </HBox>
+                <VBox fx:id="vbConfiguration"/>
+            </VBox>
+
+            <HBox spacing="10">
+                <VBox spacing="10">
+                    <Label labelFor="$blockDisplayTableView" text="Enabled Building Blocks"/>
+                    <TableView fx:id="blockDisplayTableView"/>
+                </VBox>
+                <VBox>
+                    <Label labelFor="$selectedBlockDisplayDescription" text="Description"/>
+                    <TextArea fx:id="selectedBlockDisplayDescription"/>
+                </VBox>
             </HBox>
-            <VBox fx:id="vbConfiguration"/>
         </VBox>
-
-        <HBox>
-            <padding>
-                <Insets top="25" left="20"/>
-            </padding>
-            <TableView fx:id="blockDisplayTableView"/>
-            <Label><padding><Insets left="20" right="20"/></padding></Label>
-            <TextArea fx:id="selectedBlockDisplayDescription"/>
-            <Label>
-                <padding>
-                    <Insets left="20" right="20"/>
-                </padding>
-            </Label>
-        </HBox>
-
-        <HBox>
-            <padding>
-                <Insets top="25"/>
-            </padding>
-            <Label text="Base Solutions:">
-                <padding>
-                    <Insets left="20" right="20"/>
-                </padding>
-                <font>
-                    <Font size="16.0"/>
-                </font>
-            </Label>
-
-            <TextField/>
-        </HBox>
-    </VBox>
+    </ScrollPane>
 </WorkspaceTab>
