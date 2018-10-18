@@ -68,7 +68,7 @@ public class CgpConfigurationModel extends SearchConfigurationModel {
                         getNumOutputs(), getDatasetModel().get().getDataManager().getFeatureSize() - 1,
                         getNumColumns(), getNumRows(), getNumLevelsBack()
                 );
-        supplier.addFunction(new ArrayList<>(getPrimitives().keySet()));
+        supplier.addFunction(new ArrayList<>(getEnabledPrimitives()));
 
         EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea =
                 new CartesianGeneticProgramming<>(supplier);

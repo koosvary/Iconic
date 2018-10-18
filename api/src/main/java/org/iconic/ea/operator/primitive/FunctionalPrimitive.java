@@ -15,6 +15,7 @@
  */
 package org.iconic.ea.operator.primitive;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import lombok.extern.log4j.Log4j2;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class FunctionalPrimitive<T, R> implements UncheckedFunctionalPrimitive<T
     private final int arity;
     private final String symbol;
     private final String description;
+    private final SimpleIntegerProperty complexity;
     private final int defaultComplexity;
 
     public FunctionalPrimitive(Function<List<T>, R> lambda, int arity, String symbol, String description, int defaultComplexity) {
@@ -38,6 +40,7 @@ public class FunctionalPrimitive<T, R> implements UncheckedFunctionalPrimitive<T
         this.symbol = symbol;
         this.description = description;
         this.defaultComplexity = defaultComplexity;
+        this.complexity = new SimpleIntegerProperty(defaultComplexity);
     }
 
     @Override
@@ -83,5 +86,9 @@ public class FunctionalPrimitive<T, R> implements UncheckedFunctionalPrimitive<T
 
     public int getDefaultComplexity() {
         return defaultComplexity;
+    }
+
+    public SimpleIntegerProperty getComplexity() {
+        return complexity;
     }
 }

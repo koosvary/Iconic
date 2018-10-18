@@ -19,6 +19,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.control.SplitPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import lombok.extern.log4j.Log4j2;
@@ -96,14 +97,16 @@ public class Bootstrapper extends Application {
             getViewService().put("cgp-config", cgpConfigView);
             getViewService().put("gep-config", gepConfigView);
 
+
+            SplitPane splitPane = new SplitPane();
             try {
+                splitPane.getItems().add(projectView.load());
+                splitPane.getItems().add(workspaceView.load());
+                root.setCenter(splitPane);
                 root.setTop(menuView.load());
-                root.setLeft(projectView.load());
-                root.setCenter(workspaceView.load());
             } catch (IOException ex) {
                 log.debug(ex.getMessage());
             }
-
             Scene scene = new Scene(root, 720, 480);
 
             // Load our stylesheets
@@ -116,6 +119,7 @@ public class Bootstrapper extends Application {
             primaryStage.setScene(scene);
             primaryStage.setMaximized(true);
             primaryStage.show();
+            splitPane.setDividerPositions(0.1);
         } catch (Exception ex) {
             log.error("{}:\n{}", ex::getMessage, ex::getStackTrace);
         }
