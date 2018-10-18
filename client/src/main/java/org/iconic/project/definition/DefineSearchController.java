@@ -245,6 +245,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
                     alert.setHeaderText("Dataset Missing Values");
                     alert.setContentText("The dataset contains missing values! Please visit the 'Process Data' tab to handle these missing values.");
                     alert.showAndWait();
+                    cbDatasets.getSelectionModel().select(-1);
                     return;
                 }
             }
