@@ -23,7 +23,6 @@
 
 -->
 
-<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -32,9 +31,7 @@
 <?import javafx.stage.Screen?>
 <?import org.iconic.control.WorkspaceTab?>
 <?import javafx.geometry.Insets?>
-<?import javafx.collections.FXCollections?>
 <?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
 <WorkspaceTab fx:id="resultsTab" text="   Results" tabType="SEARCH"
               xmlns="http://javafx.com/javafx"
@@ -44,13 +41,13 @@
     <fx:define>
         <Screen fx:factory="getPrimary" fx:id="screen"/>
     </fx:define>
-	
-	<graphic>
-		<ImageView fitWidth="24" fitHeight="24">
-			<image><Image url="@/images/graph.png"/></image>
-		</ImageView>
-	</graphic>
-	
+
+    <graphic>
+        <ImageView fitWidth="24" fitHeight="24">
+            <image><Image url="@/images/graph.png"/></image>
+        </ImageView>
+    </graphic>
+
     <VBox>
         <HBox>
             <!-- Left-header -->
@@ -63,26 +60,6 @@
                         <Font size="18.0" />
                     </font>
                 </Label>
-            </HBox>
-            <!-- Right-header -->
-            <HBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
-                <padding>
-                    <Insets top="10" bottom="10" left="10" right="10"/>
-                </padding>
-                <Label text="Plot Type: ">
-                    <font>
-                        <Font size="18.0" />
-                    </font>
-                </Label>
-				<ComboBox value="Solution Fit Plot (default)">
-					<items>
-						<FXCollections fx:factory="observableArrayList">
-							<String fx:value="Solution Fit Plot (default)"/>
-							<String fx:value="Observed vs. Predicted Plot"/>
-							<String fx:value="Classification ROC Plot"/>
-						</FXCollections>
-					</items>
-				</ComboBox>
             </HBox>
         </HBox>
 
@@ -105,19 +82,26 @@
 
             <!-- Plot -->
             <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
+                <ButtonBar buttonMinWidth="150">
+                    <buttons>
+                        <Button id="solutionsPlot" fx:id="btnSolutionPlotTest" text="Test Button" prefWidth="100"
+                                onAction="#solutionPlotTest"/>
+                    </buttons>
+                </ButtonBar>
                 <padding>
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
                 <AnchorPane>
-                    <LineChart AnchorPane.topAnchor="0"
+                    <LineChart fx:id="solutionsPlot" title="Solution Fit Plot"
+                               AnchorPane.topAnchor="0"
                                AnchorPane.leftAnchor="0"
                                AnchorPane.rightAnchor="0"
                                AnchorPane.BottomAnchor="0">
                         <xAxis>
-                            <CategoryAxis side="BOTTOM"/>
+                            <NumberAxis side="BOTTOM" />
                         </xAxis>
                         <yAxis>
-                            <NumberAxis side="LEFT"/>
+                            <NumberAxis side="LEFT" />
                         </yAxis>
                     </LineChart>
                 </AnchorPane>
@@ -166,25 +150,6 @@
                         </GridPane>
                     </content>
                 </ScrollPane>
-            </VBox>
-            <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
-                <padding>
-                    <Insets top="10" bottom="10" left="10" right="10"/>
-                </padding>
-                <AnchorPane>
-                    <LineChart title="Accuracy vs Complexity"
-                               AnchorPane.topAnchor="0"
-                               AnchorPane.leftAnchor="0"
-                               AnchorPane.rightAnchor="0"
-                               AnchorPane.BottomAnchor="0">
-                        <xAxis>
-                            <CategoryAxis side="BOTTOM"/>
-                        </xAxis>
-                        <yAxis>
-                            <NumberAxis side="LEFT"/>
-                        </yAxis>
-                    </LineChart>
-                </AnchorPane>
             </VBox>
         </HBox>
     </VBox>
