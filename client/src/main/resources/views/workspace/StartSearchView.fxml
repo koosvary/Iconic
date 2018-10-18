@@ -69,7 +69,7 @@
                     <Separator/>
 
                     <HBox>
-                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.3}">
+                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.2}">
                             <padding>
                                 <Insets top="10" bottom="10" left="10" right="10"/>
                             </padding>
@@ -135,7 +135,7 @@
                             </ScrollPane>
                         </VBox>
 
-                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.5}">
+                        <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
                             <padding>
                                 <Insets top="10" bottom="10" left="10" right="10"/>
                             </padding>

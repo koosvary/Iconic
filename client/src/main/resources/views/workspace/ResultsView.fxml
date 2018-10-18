@@ -16,7 +16,7 @@
     limitations under the License.
 
 -->
-<?import java.lang.*?>
+
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -25,9 +25,7 @@
 <?import javafx.stage.Screen?>
 <?import org.iconic.control.WorkspaceTab?>
 <?import javafx.geometry.Insets?>
-<?import javafx.collections.FXCollections?>
 <?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
 <WorkspaceTab fx:id="resultsTab" text="   Results" tabType="SEARCH"
               xmlns="http://javafx.com/javafx"
@@ -37,13 +35,13 @@
     <fx:define>
         <Screen fx:factory="getPrimary" fx:id="screen"/>
     </fx:define>
-	
-	<graphic>
-		<ImageView fitWidth="24" fitHeight="24">
-			<image><Image url="@/images/graph.png"/></image>
-		</ImageView>
-	</graphic>
-	
+
+    <graphic>
+        <ImageView fitWidth="24" fitHeight="24">
+            <image><Image url="@/images/graph.png"/></image>
+        </ImageView>
+    </graphic>
+
     <VBox>
         <HBox>
             <!-- Left-header -->
@@ -82,16 +80,16 @@
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
                 <AnchorPane>
-                    <LineChart title="Solution Fit Plot"
+                    <LineChart fx:id="solutionsPlot" title="Solution Fit Plot"
                                AnchorPane.topAnchor="0"
                                AnchorPane.leftAnchor="0"
                                AnchorPane.rightAnchor="0"
                                AnchorPane.BottomAnchor="0">
                         <xAxis>
-                            <CategoryAxis side="BOTTOM"/>
+                            <NumberAxis side="BOTTOM" />
                         </xAxis>
                         <yAxis>
-                            <NumberAxis side="LEFT"/>
+                            <NumberAxis side="LEFT" />
                         </yAxis>
                     </LineChart>
                 </AnchorPane>
