@@ -108,7 +108,10 @@ public class GepConfigurationController implements Initializable {
                 );
 
         cbMutators.setItems(mutators);
+        cbMutators.getSelectionModel().selectFirst();
+
         cbCrossovers.setItems(crossovers);
+        cbCrossovers.getSelectionModel().selectFirst();
 
         bindTextProperty(configModel.populationSizeProperty(), tfPopulationSize.textProperty());
         bindTextProperty(configModel.numGenerationsProperty(), tfNumGenerations.textProperty());

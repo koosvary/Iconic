@@ -94,7 +94,7 @@
                     </Tooltip>
                 </tooltip>
             </Label>
-            <MutatorComboBox fx:id="cbMutators" promptText="Select a mutator"/>
+            <MutatorComboBox fx:id="cbMutators"/>
         </VBox>
         <LabelledSlider fx:id="sldrMutationRate" text="Mutation Rate"/>
     </HBox>
@@ -110,7 +110,7 @@
                     </Tooltip>
                 </tooltip>
             </Label>
-            <CrossoverComboBox fx:id="cbCrossovers" promptText="Select a crossover operator"/>
+            <CrossoverComboBox fx:id="cbCrossovers"/>
         </VBox>
         <LabelledSlider fx:id="sldrCrossoverRate" text="Crossover Rate"/>
     </HBox>

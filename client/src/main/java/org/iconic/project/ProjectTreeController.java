@@ -320,7 +320,7 @@ public class ProjectTreeController implements Initializable {
                     );
             ComboBox<EvolutionaryAlgorithmType> availableAlgorithms = new ComboBox<>(options);
 
-            availableAlgorithms.setPromptText("Evolutionary Algorithm");
+            availableAlgorithms.getSelectionModel().selectFirst();
 
             VBox contentArea = new VBox();
             contentArea.getChildren().add(configurationName);
