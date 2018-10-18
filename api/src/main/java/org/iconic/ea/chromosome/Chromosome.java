@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.ea.chromosome;
 
@@ -129,14 +123,14 @@ public abstract class Chromosome<T> {
             return preorderExpression;
         }
 
-        String[] expressionSplit = preorderExpression.split("\nOutput = ");
+        String[] expressionSplit = preorderExpression.split("\n");
         if(expressionSplit.length > 2){
             String output = "";
             for(int i = 1; i < expressionSplit.length; i++){
                 if(i == expressionSplit.length-1)
                     output += getExpression(expressionSplit[i], primitives, true);
                 else
-                    output += getExpression(expressionSplit[i], primitives, true) + "\ny"+ (i+1) +" = ";
+                    output += getExpression(expressionSplit[i], primitives, true) + "\n";
             }
             return output;
         }
@@ -217,7 +211,10 @@ public abstract class Chromosome<T> {
 
                     /* return this method called on the left input to the function
                      * + the function string
-                     * + this method called on the right input to the function*/
+                     * + this method called on the right input to the function
+                     *
+                     * If it's either max or min it has to be displayed in a different order
+                     * */
                     if(!leadingPrimitive.getSymbol().equals("MAX") && !leadingPrimitive.getSymbol().equals("MIN")){
                         return "(" + getExpression(preorderExpression.substring(0, i - subValue), primitives, false) + ")"
                                 + (symbolMap.containsKey(leadingPrimitive.getSymbol()) ? symbolMap.get(leadingPrimitive.getSymbol()) : leadingPrimitive.getSymbol())
@@ -296,6 +293,7 @@ public abstract class Chromosome<T> {
         return "Something went wrong";
     }
 
+    /* this is just used to map some pre-order symbols to maths symbols */
     private HashMap<String, String> getSymbolMap(){
         HashMap<String, String> output = new HashMap<>();
 
@@ -332,14 +330,24 @@ public abstract class Chromosome<T> {
         return tempPrim;
     }
 
+    /**
+     * Basic simplifcation of infix expressions v0.2
+     *
+     * @param expression - the expression to be simplified
+     * @return
+     */
     public String simplifyExpression(String expression){
+
+        /* these are the regexes used to find common patterns that can be simplified */
         String coXPlusCoXPattern = "\\(([-?0-9]+)?\\*?([A-Za-z0-9_]+)\\)\\+\\(([-?0-9]+)?\\*?\\2\\)";
         String coXMinusCoXPattern = "\\(([-?0-9]+)?\\*?([A-Za-z0-9_]+)\\)\\-\\(([-?0-9]+)?\\*?\\2\\)";
         String coXTimesCoXPattern = "\\(([-?0-9]+)?\\*?([A-Za-z0-9_]+)\\)\\*\\(([-?0-9]+)?\\*?\\2\\)";
         String coXDividesCoXPattern = "\\(([-?0-9]+)?\\*?([A-Za-z0-9_]+)\\)\\/\\(([-?0-9]+)?\\*?\\2\\)";
-
         String anythingOpAnythingPattern = "\\(([A-Za-z0-9_]+)\\)([\\+\\-\\/\\*\\,\\<\\=\\>\\=])\\(([A-Za-z0-9_]+)\\)";
         String xTimesRootPattern = "\\(([A-Za-z0-9_]+)\\)ROOT";
+
+        /* still in progress */
+
 //        String parenVarParenPattern = "\\(([A-Za-z0-9_]+)\\)";
 //
 //        Pattern pattern = Pattern.compile(parenVarParenPattern);
