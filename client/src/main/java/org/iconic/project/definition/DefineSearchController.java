@@ -38,6 +38,7 @@ import java.util.*;
 
 import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.data.DataManager;
+import org.iconic.ea.data.FeatureClass;
 import org.iconic.project.BlockDisplay;
 import org.iconic.project.Displayable;
 import org.iconic.project.ProjectModel;
@@ -227,6 +228,26 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         }
 
         SearchConfigurationModel configModel = (SearchConfigurationModel) item;
+
+        if (newValue != null) {
+            // Get the new dataset
+            DataManager<Double> dataManager = newValue.getDataManager();
+            HashMap<String, FeatureClass<Number>> dataset = dataManager.getDataset();
+
+            // Check the dataset for any missing values
+            for (FeatureClass<Number> featureClass : dataset.values()) {
+                if (featureClass.isMissingValues()) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Data set Invalid");
+                    alert.setHeaderText("Dataset Missing Values");
+                    alert.setContentText("The dataset contains missing values! Please visit the 'Process Data' tab to handle these missing values.");
+                    alert.showAndWait();
+                    cbDatasets.getSelectionModel().select(-1);
+                    return;
+                }
+            }
+        }
+
         configModel.setDatasetModel(newValue);
         loadFunction();
     }
