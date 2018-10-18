@@ -140,8 +140,6 @@
                                 <Insets top="10" bottom="10" left="10" right="10"/>
                             </padding>
                             <AnchorPane>
-                                <ProgressIndicator progress="0.17" AnchorPane.topAnchor="10"
-                                                   AnchorPane.rightAnchor="20"/>
                                 <LineChart fx:id="lcSearchProgress" title="%search.progress.chart.title"
                                            AnchorPane.topAnchor="0"
                                            AnchorPane.leftAnchor="0"
