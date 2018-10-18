@@ -43,6 +43,7 @@ public class WorkspaceTab extends Tab {
         ALL,
         DATASET,
         SEARCH,
-        OTHER
+        REPORT,
+        OTHER,
     }
 }
