@@ -232,19 +232,21 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
         SearchConfigurationModel configModel = (SearchConfigurationModel) item;
 
-        // Get the new dataset
-        DataManager<Double> dataManager = newValue.getDataManager();
-        HashMap<String, FeatureClass<Number>> dataset = dataManager.getDataset();
+        if (newValue != null) {
+            // Get the new dataset
+            DataManager<Double> dataManager = newValue.getDataManager();
+            HashMap<String, FeatureClass<Number>> dataset = dataManager.getDataset();
 
-        // Check the dataset for any missing values
-        for (FeatureClass<Number> featureClass : dataset.values()) {
-            if (featureClass.isMissingValues()) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Data set Invalid");
-                alert.setHeaderText("Dataset Missing Values");
-                alert.setContentText("The dataset contains missing values! Please visit the 'Process Data' tab to handle these missing values.");
-                alert.showAndWait();
-                return;
+            // Check the dataset for any missing values
+            for (FeatureClass<Number> featureClass : dataset.values()) {
+                if (featureClass.isMissingValues()) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Data set Invalid");
+                    alert.setHeaderText("Dataset Missing Values");
+                    alert.setContentText("The dataset contains missing values! Please visit the 'Process Data' tab to handle these missing values.");
+                    alert.showAndWait();
+                    return;
+                }
             }
         }
 

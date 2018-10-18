@@ -235,8 +235,9 @@ public class StartSearchController implements Initializable {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Search Invalid");
             alert.setHeaderText("Missing Dataset");
-            alert.setContentText("The Defined Search is missing a dataset to operate on! Please visit the 'Define Search' tab and select a dataset .");
+            alert.setContentText("The Defined Search is missing a dataset to operate on! Please visit the 'Define Search' tab and select a dataset.");
             alert.showAndWait();
+            return;
         }
 
         // Get the dataset Model - Check that the dataset doesn't have any missing values
