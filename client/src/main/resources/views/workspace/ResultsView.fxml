@@ -64,26 +64,6 @@
                     </font>
                 </Label>
             </HBox>
-            <!-- Right-header -->
-            <HBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
-                <padding>
-                    <Insets top="10" bottom="10" left="10" right="10"/>
-                </padding>
-                <Label text="Plot Type: ">
-                    <font>
-                        <Font size="18.0" />
-                    </font>
-                </Label>
-				<ComboBox value="Solution Fit Plot (default)">
-					<items>
-						<FXCollections fx:factory="observableArrayList">
-							<String fx:value="Solution Fit Plot (default)"/>
-							<String fx:value="Observed vs. Predicted Plot"/>
-							<String fx:value="Classification ROC Plot"/>
-						</FXCollections>
-					</items>
-				</ComboBox>
-            </HBox>
         </HBox>
 
         <Separator/>
@@ -109,7 +89,8 @@
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
                 <AnchorPane>
-                    <LineChart AnchorPane.topAnchor="0"
+                    <LineChart title="Solution Fit Plot"
+                               AnchorPane.topAnchor="0"
                                AnchorPane.leftAnchor="0"
                                AnchorPane.rightAnchor="0"
                                AnchorPane.BottomAnchor="0">
@@ -166,25 +147,6 @@
                         </GridPane>
                     </content>
                 </ScrollPane>
-            </VBox>
-            <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
-                <padding>
-                    <Insets top="10" bottom="10" left="10" right="10"/>
-                </padding>
-                <AnchorPane>
-                    <LineChart title="Accuracy vs Complexity"
-                               AnchorPane.topAnchor="0"
-                               AnchorPane.leftAnchor="0"
-                               AnchorPane.rightAnchor="0"
-                               AnchorPane.BottomAnchor="0">
-                        <xAxis>
-                            <CategoryAxis side="BOTTOM"/>
-                        </xAxis>
-                        <yAxis>
-                            <NumberAxis side="LEFT"/>
-                        </yAxis>
-                    </LineChart>
-                </AnchorPane>
             </VBox>
         </HBox>
     </VBox>

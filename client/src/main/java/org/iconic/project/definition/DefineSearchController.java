@@ -24,6 +24,7 @@ package org.iconic.project.definition;
 import com.google.inject.Inject;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -133,6 +134,8 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         cbDatasets.valueProperty().addListener(this::updateDataset);
         defineTab.setOnSelectionChanged(event -> updateTab());
 
+        tfTargetExpression.focusedProperty().addListener(focusListener);
+
         updateTab();
     }
 
@@ -231,6 +234,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
         SearchConfigurationModel configModel = (SearchConfigurationModel) item;
         configModel.setDatasetModel(newValue);
+        loadFunction();
     }
 
     private void loadFunction() {
@@ -253,7 +257,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
                 log.error("No headers found in this dataset");
             }
 
-            // NOTE(Meyer): Must check if not null otherwise injection will cause an NPE (it's dumb, I know)
+            // NOTE(Meyer): Must check if not null otherwise injection will cause an NPE
             if (tfTargetExpression != null) {
                 tfTargetExpression.setText(functionStr);
                 dataset.get().defineFunction(functionStr);
@@ -318,4 +322,22 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     private Map<String, Node> getConfigViews() {
         return configViews;
     }
+
+
+    private ChangeListener<Boolean> focusListener = new ChangeListener<Boolean>() {
+        @Override
+        public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+            if (!newValue) {
+                // Get the data from the definition field, send it to the data manager to parse
+                Optional<DataManager<Double>> dataset = getDataManager();
+
+                String functionDefinition = tfTargetExpression.getText();
+
+                if(dataset.isPresent()) {
+                    setFunction();
+                    dataset.get().defineFunction(functionDefinition);
+                }
+            }
+        }
+    };
 }
