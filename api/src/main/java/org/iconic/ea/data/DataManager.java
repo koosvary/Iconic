@@ -437,4 +437,23 @@ public class DataManager<T> {
 
         return featureName;
     }
+    
+    // Note(Meyer): This is only for single target expressions, not sure how we'd be graphing multi-objective anyway.
+    public List<Number> getExpectedOutputValues()
+    {
+        List<Number> expectedOutputValues = null;
+
+        for(String header : sampleHeaders)
+        {
+            FeatureClass fClass = dataset.get(header);
+
+            if(fClass.isOutput())
+            {
+                log.info(header + " is output");
+                expectedOutputValues = fClass.getSamples();
+            }
+        }
+
+        return expectedOutputValues;
+    }
 }
