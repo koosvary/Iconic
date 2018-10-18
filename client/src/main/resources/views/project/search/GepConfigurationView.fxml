@@ -20,6 +20,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.stage.Screen?>
+<?import javafx.scene.text.Font?>
 
 <?import org.iconic.control.operator.evolutionary.MutatorComboBox?>
 <?import org.iconic.control.LabelledSlider?>
@@ -41,24 +42,52 @@
     </padding>
     <Separator/>
     <VBox spacing="10">
-        <Label labelFor="$tfPopulationSize" text="Population Size: "/>
+        <Label labelFor="$tfPopulationSize" text="Population Size: ">
+            <tooltip>
+                <Tooltip wrapText="true" maxWidth="500"
+                         text="The number of 'children' generated for each generation of the search.">
+                    <font><Font size="12.0"/></font>
+                </Tooltip>
+            </tooltip>
+        </Label>
         <TextField fx:id="tfPopulationSize" promptText="Size of the Population"/>
     </VBox>
     <VBox spacing="10">
-        <Label labelFor="$tfNumGenerations" text="Generations: "/>
+        <Label labelFor="$tfNumGenerations" text="Generations: ">
+            <tooltip>
+                <Tooltip wrapText="true" maxWidth="500"
+                         text="The number of iterations that the algorithm should run for. A value of 0 means that the algorithm will run indefinitely until the user pauses or stops the search.">
+                    <font><Font size="12.0"/></font>
+                </Tooltip>
+            </tooltip>
+        </Label>
         <TextField fx:id="tfNumGenerations" promptText="Number of generations to evolve for. Leave this at zero to stop manually"/>
     </VBox>
     <Separator/>
     <VBox spacing="10">
-        <Label labelFor="$tfHeadLength" text="Head Length: "/>
+        <Label labelFor="$tfHeadLength" text="Head Length: ">
+            <tooltip>
+                <Tooltip wrapText="true" maxWidth="500"
+                         text="Head length is the number of non-terminal nodes in the chromosome.">
+                    <font><Font size="12.0"/></font>
+                </Tooltip>
+            </tooltip>
+        </Label>
         <TextField fx:id="tfHeadLength" promptText="Head Length"/>
     </VBox>
     <Separator/>
     <HBox spacing="20">
         <padding><Insets top="25"/></padding>
         <VBox spacing="10">
-            <Label labelFor="$cbMutators" prefWidth="150" text="Mutation: "/>
-            <MutatorComboBox fx:id="cbMutators" promptText="Select a mutator"/>
+            <Label labelFor="$cbMutators" prefWidth="150" text="Mutation: ">
+                <tooltip>
+                    <Tooltip wrapText="true" maxWidth="500"
+                             text="Mutation is a small random change within each 'child's' chromosomes. It is used to maintain and introduce diversity within the genetic population. The chance of a mutation occurring can be controlled by the mutation rate slider.">
+                        <font><Font size="12.0"/></font>
+                    </Tooltip>
+                </tooltip>
+            </Label>
+            <MutatorComboBox fx:id="cbMutators"/>
         </VBox>
         <LabelledSlider fx:id="sldrMutationRate" text="Mutation Rate"/>
     </HBox>
@@ -66,8 +95,15 @@
     <HBox spacing="20">
         <padding><Insets top="25"/></padding>
         <VBox spacing="10">
-            <Label labelFor="$cbCrossovers" prefWidth="150" text="Crossover: "/>
-            <CrossoverComboBox fx:id="cbCrossovers" promptText="Select a crossover operator"/>
+            <Label labelFor="$cbCrossovers" prefWidth="150" text="Crossover: ">
+                <tooltip>
+                    <Tooltip wrapText="true" maxWidth="500"
+                             text="Crossover is the act of replacing part of a 'child's' genes with those of a parents within the existing population. The crossover rate controls how likely it is that this process will occur for each individual.">
+                        <font><Font size="12.0"/></font>
+                    </Tooltip>
+                </tooltip>
+            </Label>
+            <CrossoverComboBox fx:id="cbCrossovers"/>
         </VBox>
         <LabelledSlider fx:id="sldrCrossoverRate" text="Crossover Rate"/>
     </HBox>

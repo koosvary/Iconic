@@ -49,6 +49,13 @@
         <VBox spacing="5" alignment="CENTER">
             <HBox spacing="5">
                 <Label text="Target Expression:">
+                    <tooltip>
+                        <Tooltip wrapText="true" maxWidth="500"
+                                 text="The equation which the search will attempt to satisfy.">
+                            <font><Font size="12.0"/></font>
+                        </Tooltip>
+                    </tooltip>
+
                     <padding>
                         <Insets left="20" right="20"/>
                     </padding>
@@ -58,15 +65,10 @@
                 </Label>
                 <TextField fx:id="tfTargetExpression" text="y = f(x)"/>
                 <DatasetComboBox fx:id="cbDatasets"/>
-                <ComboBox value="Absolute error (default)">
+                <ComboBox value="Mean Absolute Error">
                     <items>
                         <FXCollections fx:factory="observableArrayList">
-                            <String fx:value="Mean Squared Error (MSE)"/>
-                            <String fx:value="Absolute Error"/>
-                            <String fx:value="Squared Error"/>
-                            <String fx:value="Root Mean Squared Error (RMSE)"/>
-                            <String fx:value="Maximum Error"/>
-                            <String fx:value="Median Error"/>
+                            <String fx:value="Mean Absolute Error"/>
                         </FXCollections>
                     </items>
                 </ComboBox>

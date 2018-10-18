@@ -163,27 +163,4 @@ public abstract class FeatureClass<T> {
     public boolean isMissingValues() {
         return missingValues;
     }
-
-    /**
-     *  TEMPORARY DEBUG METHODS
-     */
-    private void printValues(List<T> values) {
-        String valueString = "";
-
-        for (int i=0; i < values.size(); i++) {
-            valueString += values.get(i) + " ";
-        }
-
-        System.out.println(valueString);
-    }
-
-    private void printPreprocessors() {
-        String test="";
-
-        for (int i=0; i < preprocessors.size(); i++) {
-            test += " " + preprocessors.get(i).getTransformType();
-        }
-
-        System.out.println(test);
-    }
 }

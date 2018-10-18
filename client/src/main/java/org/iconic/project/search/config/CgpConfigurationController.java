@@ -109,7 +109,10 @@ public class CgpConfigurationController implements Initializable {
                 FXCollections.emptyObservableList();
 
         cbMutators.setItems(mutators);
+        cbMutators.getSelectionModel().selectFirst();
+
         cbCrossovers.setItems(crossovers);
+        cbCrossovers.getSelectionModel().selectFirst();
 
         bindTextProperty(configModel.populationSizeProperty(), tfPopulationSize.textProperty());
         bindTextProperty(configModel.numGenerationsProperty(), tfNumGenerations.textProperty());

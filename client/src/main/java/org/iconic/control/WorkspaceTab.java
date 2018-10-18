@@ -35,8 +35,10 @@ public class WorkspaceTab extends Tab {
 
     public enum TabType {
         ALL,
+        INPUT,
         DATASET,
         SEARCH,
-        OTHER
+        REPORT,
+        OTHER,
     }
 }
