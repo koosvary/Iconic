@@ -20,7 +20,7 @@ import org.controlsfx.glyphfont.GlyphFont;
 import org.controlsfx.glyphfont.GlyphFontRegistry;
 
 /**
- * <p>An icon service that provides access to FontAwesome icons</p>
+ * <p>An icon service that provides access to FontAwesome icons
  *
  * @see IconService
  */
@@ -35,7 +35,7 @@ public class FontAwesomeIconService implements IconService {
     }
 
     /**
-     * <p>Returns the font registry used by this service</p>
+     * <p>Returns the font registry used by this service
      *
      * @return the font registry used by the service
      */

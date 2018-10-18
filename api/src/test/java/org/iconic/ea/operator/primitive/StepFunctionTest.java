@@ -47,7 +47,7 @@ public class StepFunctionTest {
     /**
      * <p>
      * Returns a stream of double n-tuples, returns 1 if x > 0, 0 otherwise
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

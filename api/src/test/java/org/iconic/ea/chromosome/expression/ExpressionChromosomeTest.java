@@ -36,12 +36,12 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * <p>
  * A test suite for the {@link ExpressionChromosome} class.
- * </p>
+ *
  *
  * <p>
  * This test suite ensures the following:
  *  - chromosomes are always unique objects that don't share <b>any</b> references
- * </p>
+ *
  */
 public class ExpressionChromosomeTest {
     @ParameterizedTest
@@ -69,11 +69,11 @@ public class ExpressionChromosomeTest {
      * <p>
      * Returns a stream of expression chromosome tuples, where each tuple contains two identical
      * expression chromosome constructed from a randomly generated expression.
-     * </p>
+     *
      *
      * <p>
      * The contents of the expression aren't important.
-     * </p>
+     *
      *
      * @return a stream of identical expression chromosomes
      */

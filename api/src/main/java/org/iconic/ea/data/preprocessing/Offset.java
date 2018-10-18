@@ -27,7 +27,7 @@ public class Offset extends Preprocessor<Number> {
     /**
      * <p>
      * Transforms an array of values by shifting the values by a given offset.
-     * </p>
+     *
      *
      * @param values the array that will be transformed.
      */

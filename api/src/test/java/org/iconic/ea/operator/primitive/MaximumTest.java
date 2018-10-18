@@ -48,7 +48,7 @@ public class MaximumTest {
     /**
      * <p>
      * Returns a stream of double n-tuples, last in tuple is the maximum of first 2 arguments
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

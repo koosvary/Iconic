@@ -28,7 +28,7 @@ import java.util.UUID;
  * {@inheritDoc}
  * <p>
  * A transient dataset service doesn't persist its datasets.
- * </p>
+ *
  */
 @Log4j2
 @Singleton
@@ -38,7 +38,7 @@ public class TransientDatasetService implements DatasetService {
     /**
      * <p>
      * A constructor for a TransientDatasetService.
-     * </p>
+     *
      */
     public TransientDatasetService() {
         Map<UUID, DatasetModel> map = new HashMap<>();

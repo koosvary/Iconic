@@ -54,7 +54,7 @@ public class ResultsController implements Initializable {
 
     private SolutionStorage<Chromosome<?>> storage;
     private SearchConfigurationModel model;
-    private SearchExecutor lastSearch;
+    private SearchExecutor<?> lastSearch;
     private InvalidationListener resultAddedListener;
 
     @FXML
@@ -108,7 +108,7 @@ public class ResultsController implements Initializable {
 
         model = (SearchConfigurationModel) item;
         if (model.getSearchExecutor().isPresent()) {
-            SearchExecutor search = model.getSearchExecutor().get();
+            SearchExecutor<?> search = model.getSearchExecutor().get();
             if (search.isRunning() && search != lastSearch) {
                 // If a search is running, use that current one for results. Else use the last search
                 //noinspection unchecked
@@ -126,7 +126,6 @@ public class ResultsController implements Initializable {
     }
 
     public void graphExpectedValues() {
-        System.out.println("ResultsController   graphExpectedValues");
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
         // If no dataset, stop what you're doing.
@@ -162,8 +161,8 @@ public class ResultsController implements Initializable {
         }
 
         // Create the two new lines
-        XYChart.Series series1 = new XYChart.Series();
-        XYChart.Series series2 = new XYChart.Series();
+        XYChart.Series<Number, Number> series1 = new XYChart.Series<>();
+        XYChart.Series<Number, Number> series2 = new XYChart.Series<>();
 
         // Set the labels for the legend
         series1.setName("Expected Values");
@@ -172,7 +171,7 @@ public class ResultsController implements Initializable {
         // Get all the expected values
         List<Number> samples = outputFeatureClass.getSamples();
         for (int i = 0; i < samples.size(); i++) {
-            series1.getData().add(new XYChart.Data(i, samples.get(i)));
+            series1.getData().add(new XYChart.Data<>(i, samples.get(i)));
         }
 
         /*
@@ -191,15 +190,11 @@ public class ResultsController implements Initializable {
         // This is a list of chromosomes of size 'x'
         Integer[] solutionsSizes = solutions.keySet().toArray(new Integer[solutions.size()]);
 
-        for (int i = 0; i < solutionsSizes.length; i++) {
-            Integer key = solutionsSizes[i];
-            List<Chromosome<?>> chromosomeList = solutions.get(key);
-
+        for (Integer size : solutionsSizes) {
+            List<Chromosome<?>> chromosomeList = solutions.get(size);
 
             // This is all the chromosomes with the same size of 'x'
-            for (int j = 0; j < chromosomeList.size(); j++) {
-                Chromosome<?> chromosome = chromosomeList.get(j);
-
+            for (Chromosome<?> chromosome : chromosomeList) {
                 // Chromosome simplified expression
                 String simplifiedChromosome = chromosome.simplifyExpression(chromosome.getExpression(chromosome.toString(), new ArrayList<>(model.getEnabledPrimitives()), true));
 
@@ -247,13 +242,14 @@ public class ResultsController implements Initializable {
             Integer[] keys = rowOfResults.keySet().toArray(new Integer[rowOfResults.size()]);
 
             // My shit attempt to only display the "first" element in the list
-            series2.getData().add(new XYChart.Data(i, rowOfResults.get(keys[0])));
+            series2.getData().add(new XYChart.Data<>(i, rowOfResults.get(keys[0])));
         }
 
         // Update the graph
         solutionsPlot.setAnimated(false);
         solutionsPlot.setCreateSymbols(true);
         solutionsPlot.getData().clear();
+        //noinspection unchecked
         solutionsPlot.getData().addAll(series1, series2);
     }
 

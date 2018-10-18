@@ -73,7 +73,7 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
     /**
      * <p>
      * Generates either an input variable node or a constant node.
-     * </p>
+     *
      *
      * @param numFeatures The number of features that may be used as an input variable
      * @param p           The probability of picking an input variable versus a constant

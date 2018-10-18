@@ -22,12 +22,12 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * <p>Defines a functional interface for an objective</p>
+ * <p>Defines a functional interface for an objective
  *
  * <p>
  * An objective is a measure used by an {@see org.iconic.ea.EvolutionaryAlgorithm} to determine the fitness
  * of chromosomes.
- * </p>
+ *
  *
  */
 public abstract class MonoObjective<T extends Comparable<T>> implements Objective<T> {

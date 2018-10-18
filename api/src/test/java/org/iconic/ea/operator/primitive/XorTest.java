@@ -49,7 +49,7 @@ public class XorTest {
      * <p>
      * Returns a stream of double n-tuples, returns 1 if one of the two arguments are greater than 0,
      * 0 if otherwise
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

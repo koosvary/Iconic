@@ -50,7 +50,7 @@ public class ArcTanTest {
      * <p>
      * Returns a stream of double n-tuples, where the last member of the tuple is the value of ArcTan
      * of the operand
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

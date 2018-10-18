@@ -50,7 +50,7 @@ public class TwoArcTanTest {
     /**
      * <p>
      * Returns a stream of double n-tuples, returns arctan2(x,y), atan but with the angle from the vector made by x,y
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

@@ -32,10 +32,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>A test suite for the {@link CartesianSingleActiveMutator} class</p>
+ * <p>A test suite for the {@link CartesianSingleActiveMutator} class
  *
  * <p>This test suite ensures the following:
- * - when a chromosome is mutated it doesn't enter an invalid state</p>
+ * - when a chromosome is mutated it doesn't enter an invalid state
  */
 @Log4j2
 @Disabled

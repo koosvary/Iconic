@@ -41,10 +41,10 @@ import java.util.List;
 import static javafx.collections.FXCollections.emptyObservableList;
 
 /**
- * <p>A model for evolutionary searches, it maintains a dataset, data manager, and a trainer</p>
+ * <p>A model for evolutionary searches, it maintains a dataset, data manager, and a trainer
  *
  * <p>SearchExecutors implement the Runnable interface so that the search may be performed on a
- * separate thread.</p>
+ * separate thread.
  */
 @Log4j2
 public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {

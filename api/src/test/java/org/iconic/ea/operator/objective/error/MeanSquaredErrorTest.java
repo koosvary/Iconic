@@ -44,7 +44,7 @@ class MeanSquaredErrorTest {
     }
 
     /**
-     * <p>Returns a stream of two lists of doubles actual and expected, as well as the result</p>
+     * <p>Returns a stream of two lists of doubles actual and expected, as well as the result
      * @return a stream of double n-tuples
      */
     private static Stream<Arguments> doubleListProvider() {

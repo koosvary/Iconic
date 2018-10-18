@@ -22,18 +22,18 @@ import java.util.Optional;
 /**
  * <p>
  * A project service that maintains a list of projects.
- * </p>
+ *
  */
 public interface ProjectService {
     /**
-     * <p>Returns a list of projects owned by this service</p>
+     * <p>Returns a list of projects owned by this service
      *
      * @return The list of projects
      */
     ObservableList<ProjectModel> getProjects();
 
     /**
-     * <p>Returns the parent project of the provided item if one exists</p>
+     * <p>Returns the parent project of the provided item if one exists
      *
      * @param item the child to search for
      * @return The parent of the provided item if available

@@ -171,7 +171,7 @@ public class Client {
     }
 
     /**
-     * <p>Return the ArgsConverterFactory of this Client</p>
+     * <p>Return the ArgsConverterFactory of this Client
      *
      * @return the ArgsConverterFactory of the client
      */
@@ -180,7 +180,7 @@ public class Client {
     }
 
     /**
-     * <p>Converts the provided progress into a percentage of the provided total</p>
+     * <p>Converts the provided progress into a percentage of the provided total
      *
      * @param progress the current progress
      * @param total    the total

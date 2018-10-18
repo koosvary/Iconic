@@ -27,7 +27,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * {@inheritDoc}
  *
- * <P>Chromosomes constructed by this factory form an expression tree.</P>
+ * <P>Chromosomes constructed by this factory form an expression tree.
  *
  * @param <T> The type class of the data to pass through the chromosome
  */
@@ -40,7 +40,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
      * <p>
      * Constructs a new expression chromosome factory that constructs expression chromosomes with the provided head
      * length, and number of features.
-     * </p>
+     *
      *
      * @param headLength  The length of the chromosome's head for chromosome's constructed by the factory
      * @param numFeatures The number of features that may be expressed by the chromosome's constructed by the factory
@@ -81,7 +81,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
     /**
      * <p>
      * Returns the head length of chromosomes constructed by this factory.
-     * </p>
+     *
      *
      * @return the head length of chromosomes constructed by the factory
      */
@@ -92,7 +92,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
     /**
      * <p>
      * Returns the tail length of chromosomes constructed by this factory.
-     * </p>
+     *
      *
      * @return the tail length of chromosomes constructed by the factory
      */
@@ -103,7 +103,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
     /**
      * <p>
      * Returns the number of features that chromosomes constructed by this factory can express.
-     * </p>
+     *
      *
      * @return the number of features that can be expressed by chromosomes constructed by the factory
      */
@@ -144,7 +144,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
     /**
      * <p>
      *
-     * </p>
+     *
      *
      * @param headLength  The length of the expression's head
      * @param tailLength  The length of the expression's tail

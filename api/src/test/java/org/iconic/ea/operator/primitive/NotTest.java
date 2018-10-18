@@ -48,7 +48,7 @@ public class NotTest {
      * <p>
      * Returns a stream of double n-tuples, Last member of tuple is 0 if first argument is greater than 0,
      * 1 otherwise
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

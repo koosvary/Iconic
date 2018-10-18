@@ -44,7 +44,7 @@ class MultiplicationTest {
 
     /**
      * <p>Returns a stream of double n-tuples, where the last member is the multiplication
-     * of the first two</p>
+     * of the first two
      *
      * @return a stream of double n-tuples
      */

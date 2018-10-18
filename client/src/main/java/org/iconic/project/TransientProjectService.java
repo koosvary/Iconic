@@ -30,7 +30,7 @@ import java.util.Optional;
  * {@inheritDoc}
  * <p>
  * A transient project service doesn't persist its projects.
- * </p>
+ *
  */
 @Singleton
 @Log4j2
@@ -40,7 +40,7 @@ public class TransientProjectService implements ProjectService {
     /**
      * <p>
      * Constructs a new TransientProjectService
-     * </p>
+     *
      */
     public TransientProjectService() {
         this.projects = FXCollections.observableArrayList(project -> new Observable[]{

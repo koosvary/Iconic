@@ -47,7 +47,7 @@ public abstract class Node<T> implements Cloneable {
     /**
      * <p>
      * Recursively go through all children to determine the size of the Solution.
-     * </p>
+     *
      * @return the size of the solution.
      */
     public int getSize() {

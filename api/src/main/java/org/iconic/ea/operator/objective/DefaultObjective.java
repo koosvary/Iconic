@@ -29,13 +29,13 @@ import java.util.Map;
  * {@inheritDoc}
  * <p>
  * A default objective that uses a chromosome's error as the fitness.
- * </p>
+ *
  */
 @Log4j2
 public class DefaultObjective extends ErrorBasedObjective {
 
     /**
-     * <p>Constructs a new DefaultObjective</p>
+     * <p>Constructs a new DefaultObjective
      *
      * @param lambda      The error function to apply
      * @param dataManager The samples to use with the error function

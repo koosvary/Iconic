@@ -47,7 +47,7 @@ class SinTest {
     }
 
     /**
-     * <p>Returns a stream of double n-tuples, where the last number sin of the first</p>
+     * <p>Returns a stream of double n-tuples, where the last number sin of the first
      *
      * @return a stream of double n-tuples
      */
