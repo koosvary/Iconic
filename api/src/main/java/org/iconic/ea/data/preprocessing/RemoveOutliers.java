@@ -28,7 +28,14 @@ import java.util.Comparator;
 public class RemoveOutliers extends Preprocessor<Number> {
     private double threshold = 2.00;
 
-    // Replaces any number outside of the range with null
+    /**
+     * Replaces each value with null if it is deemed to be an outlier. A point is considered an outlier if the following
+     * comparison returns true:
+     *                                      ((mean - value) > threshold * IQR)
+     *
+     * @param values Values to operator on
+     * @return Returns the values with all outliers removed
+     */
     public List<Number> apply(List<Number> values) {
         // Calculate the mean and IQR
         double mean = calculateMean(values);
@@ -46,6 +53,12 @@ public class RemoveOutliers extends Preprocessor<Number> {
         return values;
     }
 
+    /**
+     * Calculates the mean of a given list of values.
+     *
+     * @param values Input values
+     * @return Mean value as a double
+     */
     private double calculateMean(List<Number> values) {
         double total = 0;
 
@@ -58,6 +71,12 @@ public class RemoveOutliers extends Preprocessor<Number> {
         return total / values.size();
     }
 
+    /**
+     * Calculates the median of a given list of values.
+     *
+     * @param values Input values
+     * @return Median value as a double
+     */
     private double calculateMedian(Double[] values) {
         Double center = values[values.length / 2];
 
@@ -76,23 +95,31 @@ public class RemoveOutliers extends Preprocessor<Number> {
         }
     }
 
+    /**
+     * Calculates the interquartile range (IQR) of a given set of values, using the formula:
+     *                            IQR = Quadrant 3 - Quadrant 1
+     *
+     * @param values Input values
+     * @return IQR value as a double
+     */
     private double calculateIQR(List<Number> values) {
         // Convert values to an array and sort
         Double[] numbers = values.toArray(new Double[values.size()]);
         Arrays.sort(numbers, new Comparator<Double>() {
-                    @Override
-                    public int compare(Double o1, Double o2) {
-                        if (o1 != null && o2 != null) {
-                            return o1.compareTo(o2);
-                        } else {
-                            return 0;
-                        }
-                    }
-                });
+            @Override
+            public int compare(Double o1, Double o2) {
+                if (o1 != null && o2 != null) {
+                    return o1.compareTo(o2);
+                } else {
+                    return 0;
+                }
+            }
+        });
 
-                // Calculate the size of the first/second half sets
+        // Calculate the size of the first/second half sets
         int splitSize = (int)Math.floor(numbers.length / 2);
 
+        // Instantiate first/second half arrays given the splitSize
         Double[] firstHalf = new Double[splitSize];
         Double[] secondHalf = new Double[splitSize];
 

@@ -133,8 +133,10 @@ public class ProcessDataController implements Initializable {
         addCheckBoxChangeListener(cbNormalise, vbNormalise);
         addCheckBoxChangeListener(cbOffset, vbOffset);
 
+        // Add a combobox listener for handle missing values options
         addComboBoxChangeListener(cbHandleMissingValuesOptions, cbHandleMissingValues);
 
+        // Add listeners to each input text field
         addTextFieldChangeListener(tfSmoothingWindow, false);
         addTextFieldChangeListener(tfNormaliseMin, true);
         addTextFieldChangeListener(tfNormaliseMax, true);
@@ -142,6 +144,7 @@ public class ProcessDataController implements Initializable {
 
         processTab.setOnSelectionChanged(event -> updateWorkspace());
 
+        // Setup spinners converter and add a listener
         initializeSpinner();
         addSpinnerChangeListener(spRemoveOutliersThreshold, cbRemoveOutliers);
     }
@@ -228,8 +231,8 @@ public class ProcessDataController implements Initializable {
         combobox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
-                if (dataManager.isPresent()) {
-                    removeExistingPreprocessor(checkbox);
+            if (dataManager.isPresent()) {
+                removeExistingPreprocessor(checkbox);
 
                 int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
                 String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
@@ -241,6 +244,12 @@ public class ProcessDataController implements Initializable {
         });
     }
 
+    /**
+     * Adds a ChangeListener to the specified spinner to fire an event when the spinner's value is changed.
+     *
+     * @param spinner The selected spinner
+     * @param checkbox The checkbox that the spinner belongs to
+     */
     private void addSpinnerChangeListener(Spinner<Double> spinner, CheckBox checkbox) {
         if (spinner == null) {
             return;
@@ -277,10 +286,12 @@ public class ProcessDataController implements Initializable {
             @Override
             public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
                 if (allowDecimals) {
+                    // Allows all numbers and decimal points
                     if (!newValue.matches("\\d*(\\.\\d*)?")) {
                         textField.setText(oldValue);
                     }
                 } else {
+                    // Allows only numbers
                     if (!newValue.matches("\\d*")) {
                         textField.setText(newValue.replaceAll("[^\\d]", ""));
                     }
@@ -714,10 +725,18 @@ public class ProcessDataController implements Initializable {
         cbOffset.setDisable(false);
     }
 
+    /**
+     * Enables a specific pre-processing checkbox that is provided as input
+     *
+     * @param checkbox Selected checkbox
+     */
     private void enablePreprocessingCheckBox(CheckBox checkbox) {
         checkbox.setDisable(false);
     }
 
+    /**
+     * Disables all pre-processing checkboxes at once.
+     */
     private void disablePreprocessingCheckBoxes() {
         cbSmoothData.setDisable(true);
         cbHandleMissingValues.setDisable(true);
@@ -847,6 +866,13 @@ public class ProcessDataController implements Initializable {
         resetCheckboxFlag = false;
     }
 
+    /**
+     * If an input text field is empty and the user tries to submit the field, then this method replaces the empty field
+     * with a reset value (e.g. 0).
+     *
+     * @param textField The text field to test if empty
+     * @param resetValue The reset value if the text field is empty
+     */
     private void resetEmptyTextField(TextField textField, String resetValue) {
         if (textField.getText().isEmpty()) {
             textField.setText(resetValue);
