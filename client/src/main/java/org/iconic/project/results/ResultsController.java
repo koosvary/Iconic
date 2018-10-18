@@ -179,7 +179,10 @@ public class ResultsController implements Initializable {
             series1.getData().add(new XYChart.Data(i, samples.get(i)));
         }
 
-        // TODO - This is where the actual values part starts
+        /*
+            ***** Actual Values calculated from the solution ****
+         */
+
         // These are all the solutions we have stored and that are currently displayed in the solutions table
         ObservableMap<Integer, List<Chromosome<?>>> solutions = storage.getSolutions();
 
@@ -189,12 +192,17 @@ public class ResultsController implements Initializable {
         // This will be the referenced chromosome that was selected if it finds a match
         Chromosome<?> selectedChromosome = null;
 
-        // TODO - Remove all the short for loops, causing concurrent modification exceptions
         // This is a list of chromosomes of size 'x'
-        for (List<Chromosome<?>> chromosomeList : solutions.values()) {
+        Integer[] solutionsSizes = solutions.keySet().toArray(new Integer[solutions.size()]);
+
+        for (int i = 0; i < solutionsSizes.length; i++) {
+            Integer key = solutionsSizes[i];
+            List<Chromosome<?>> chromosomeList = solutions.get(key);
+
 
             // This is all the chromosomes with the same size of 'x'
-            for (Chromosome<?> chromosome : chromosomeList) {
+            for (int j = 0; j < chromosomeList.size(); j++) {
+                Chromosome<?> chromosome = chromosomeList.get(j);
 
                 // If the chromosome equals the selected chromosome
                 if (chromosome.toString().equals(row.getSolution())) {
@@ -212,6 +220,7 @@ public class ResultsController implements Initializable {
         // If no chromosome was found (aka the block is missing and the strings dont match)
         if (selectedChromosome == null) {
             log.info("There was no chromosome found in the storage");
+            solutionsPlot.getData().clear();
             return;
         }
 
@@ -223,7 +232,6 @@ public class ResultsController implements Initializable {
 
         // Take the selected chromosome and run the evaluate function on it
         List<Map<Integer, Number>> results = selectedChromosome.evaluate(dataManager);
-        System.out.println("actualValues size: " + results.size());
 
         // If there are no results for some reason
         if (results.isEmpty()) {
@@ -237,18 +245,10 @@ public class ResultsController implements Initializable {
             Map<Integer, Number> rowOfResults = results.get(i);
 
             // Keys (They are random numbers, i think it might be the node id's of the output nodes in cgp
-            Set<Integer> keys = rowOfResults.keySet();
+            Integer[] keys = rowOfResults.keySet().toArray(new Integer[rowOfResults.size()]);
 
             // My shit attempt to only display the "first" element in the list
-            int alternate = 1;
-            for (Integer key : keys) {
-                if (alternate == 1) {
-                    // Add the "first" element to the graph
-                    series2.getData().add(new XYChart.Data(i, rowOfResults.get(key)));
-                }
-                alternate *= -1;
-                System.out.println("Key: " + key + ", value: " + rowOfResults.get(key));
-            }
+            series2.getData().add(new XYChart.Data(i, rowOfResults.get(keys[0])));
         }
 
         // Update the graph
