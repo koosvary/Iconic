@@ -223,6 +223,7 @@ public class StartSearchController implements Initializable {
 
         // Get the search model
         SearchConfigurationModel search = (SearchConfigurationModel) item;
+        search.setChanged(true);
 
         // Check the search model has a defined dataset to operate on
         if (!search.getDatasetModel().isPresent()) {
