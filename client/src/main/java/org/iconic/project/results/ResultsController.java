@@ -198,8 +198,11 @@ public class ResultsController implements Initializable {
             for (int j = 0; j < chromosomeList.size(); j++) {
                 Chromosome<?> chromosome = chromosomeList.get(j);
 
+                // Chromosome simplified expression
+                String simplifiedChromosome = chromosome.simplifyExpression(chromosome.getExpression(chromosome.toString(), new ArrayList<>(lastSearch.getEnabledPrimitives()), true));
+
                 // If the chromosome equals the selected chromosome
-                if (chromosome.toString().equals(row.getSolution())) {
+                if (simplifiedChromosome.equals(row.getSolution())) {
                     selectedChromosome = chromosome;
                     break;
                 }
