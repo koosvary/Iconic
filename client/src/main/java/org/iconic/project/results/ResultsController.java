@@ -38,6 +38,7 @@ import org.iconic.ea.data.FeatureClass;
 import org.iconic.project.Displayable;
 import org.iconic.project.search.SolutionStorage;
 import org.iconic.project.search.config.SearchConfigurationModel;
+import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
@@ -52,7 +53,8 @@ public class ResultsController implements Initializable {
     private final WorkspaceService workspaceService;
 
     private SolutionStorage<Chromosome<?>> storage;
-    private SearchConfigurationModel lastSearch;
+    private SearchConfigurationModel model;
+    private SearchExecutor lastSearch;
     private InvalidationListener resultAddedListener;
 
     @FXML
@@ -104,17 +106,17 @@ public class ResultsController implements Initializable {
             return;
         }
 
-        SearchConfigurationModel search = (SearchConfigurationModel) item;
-        search.getSearchExecutor().ifPresent(executor -> {
-            if (search != lastSearch) {
+        model = (SearchConfigurationModel) item;
+        if (model.getSearchExecutor().isPresent()) {
+            SearchExecutor search = model.getSearchExecutor().get();
+            if (search.isRunning() && search != lastSearch) {
                 // If a search is running, use that current one for results. Else use the last search
                 //noinspection unchecked
-                storage = (SolutionStorage<Chromosome<?>>) executor.getSolutionStorage();
+                storage = (SolutionStorage<Chromosome<?>>) search.getSolutionStorage();
                 storage.getSolutions().addListener(resultAddedListener);
                 lastSearch = search;
             }
-
-        });
+        }
         if (storage == null) {
             // No storage? No worries
             return;
@@ -199,7 +201,7 @@ public class ResultsController implements Initializable {
                 Chromosome<?> chromosome = chromosomeList.get(j);
 
                 // Chromosome simplified expression
-                String simplifiedChromosome = chromosome.simplifyExpression(chromosome.getExpression(chromosome.toString(), new ArrayList<>(lastSearch.getEnabledPrimitives()), true));
+                String simplifiedChromosome = chromosome.simplifyExpression(chromosome.getExpression(chromosome.toString(), new ArrayList<>(model.getEnabledPrimitives()), true));
 
                 // If the chromosome equals the selected chromosome
                 if (simplifiedChromosome.equals(row.getSolution())) {
@@ -263,7 +265,7 @@ public class ResultsController implements Initializable {
         for (Map.Entry<Integer, List<Chromosome<?>>> entry : storage.getSolutions().entrySet()) {
             Chromosome<?> result = entry.getValue().get(0);
             resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.simplifyExpression(
-                    result.getExpression(result.toString(), new ArrayList<>(lastSearch.getEnabledPrimitives()), true)
+                    result.getExpression(result.toString(), new ArrayList<>(model.getEnabledPrimitives()), true)
             )));
         }
 
