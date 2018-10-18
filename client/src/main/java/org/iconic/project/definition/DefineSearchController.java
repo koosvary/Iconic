@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2018 Iconic
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,6 +24,8 @@ package org.iconic.project.definition;
 import com.google.inject.Inject;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -43,7 +45,7 @@ import java.util.*;
 
 import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.data.DataManager;
-import org.iconic.project.BlockDisplay;
+import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.iconic.project.Displayable;
 import org.iconic.project.ProjectModel;
 import org.iconic.project.ProjectService;
@@ -51,11 +53,9 @@ import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.config.CgpConfigurationModel;
 import org.iconic.views.ViewService;
 import org.iconic.project.search.config.SearchConfigurationModel;
-import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.workspace.WorkspaceService;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
 
 @Log4j2
 public class DefineSearchController implements Initializable, DefineSearchService {
@@ -72,15 +72,14 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
     @FXML
     private WorkspaceTab defineTab;
+
     @FXML
-    public TableView<BlockDisplay> blockDisplayTableView;
+    public TableView<Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty>> blockDisplayTableView;
 
     @FXML
     public TextArea selectedBlockDisplayDescription;
 
     private HashMap<String, String> functionDefinitions;
-
-    private List<BlockDisplay> blockDisplays;
 
     @FXML
     private TextField tfTargetExpression;
@@ -97,7 +96,6 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         this.viewService = viewService;
         this.workspaceService = workspaceService;
         this.functionDefinitions = new HashMap<>();
-        this.blockDisplays = new ArrayList<>();
         this.configViews = new HashMap<>();
 
         InvalidationListener selectionChangedListener = observable -> updateTab();
@@ -114,22 +112,29 @@ public class DefineSearchController implements Initializable, DefineSearchServic
             log.error("{}: {}", ex::getMessage, ex::getStackTrace);
         }
 
-        TableColumn<BlockDisplay, String> nameCol = new TableColumn<>("Symbol");
-        TableColumn<BlockDisplay, Boolean> enabledCol = new TableColumn<>("Enabled");
-        TableColumn<BlockDisplay, Number> complexityCol = new TableColumn<>("Complexity");
+        TableColumn<Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty>, String> nameCol = new TableColumn<>("Symbol");
+        TableColumn<Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty>, Number> complexityCol = new TableColumn<>("Complexity");
+        TableColumn<Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty>, Boolean> enabledCol = new TableColumn<>("Enabled");
+
 
         blockDisplayTableView.setEditable(true);
-        enabledCol.setEditable(true);
-        complexityCol.setEditable(true);
 
+        complexityCol.setEditable(true);
+        enabledCol.setEditable(true);
         complexityCol.setCellFactory(TextFieldTableCell.forTableColumn(new NumberStringConverter()));
         enabledCol.setCellFactory(CheckBoxTableCell.forTableColumn(enabledCol));
 
-        nameCol.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
-        enabledCol.setCellValueFactory(cellData -> cellData.getValue().enabledProperty());
-        complexityCol.setCellValueFactory(cellData -> cellData.getValue().complexityProperty());
+        nameCol.setCellValueFactory(cellData -> new SimpleStringProperty((cellData.getValue().getKey()).getSymbol()));
+        enabledCol.setCellValueFactory(cellData -> cellData.getValue().getValue());
+        complexityCol.setCellValueFactory(cellData -> cellData.getValue().getKey().getComplexity());
+
         blockDisplayTableView.getColumns().addAll(enabledCol, nameCol, complexityCol);
 
+        blockDisplayTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                selectedBlockDisplayDescription.setText(newValue.getKey().getDescription());
+            }
+        });
         cbDatasets.valueProperty().addListener(this::updateDataset);
         defineTab.setOnSelectionChanged(event -> updateTab());
 
@@ -144,24 +149,22 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         }
 
         SearchConfigurationModel search = (SearchConfigurationModel) item;
-        blockDisplays = search.getPrimitives().entrySet().stream()
-                .map(BlockDisplay::new)
-                .sorted(Comparator
-                        .comparing(BlockDisplay::getComplexity)
-                        .thenComparing(BlockDisplay::getName)
-                )
-                .collect(Collectors.toList());
 
         Platform.runLater(() -> {
             Node node;
             vbConfiguration.getChildren().clear();
-            blockDisplayTableView.setItems(FXCollections.observableArrayList(blockDisplays));
+
 
             if (search instanceof CgpConfigurationModel) {
                 node = getConfigViews().get("cgp-config");
             } else {
                 node = getConfigViews().get("gep-config");
             }
+
+
+            ObservableList<Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty>> observableList = FXCollections.observableArrayList(search.getPrimitives().entrySet());
+
+            blockDisplayTableView.setItems(observableList);
 
             // Add all of the datasets within the project to the datasets combo box
             Optional<ProjectModel> parent = getProjectService().findParentProject(item);
