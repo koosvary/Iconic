@@ -82,12 +82,6 @@
 
             <!-- Plot -->
             <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
-                <ButtonBar buttonMinWidth="150">
-                    <buttons>
-                        <Button id="solutionsPlot" fx:id="btnSolutionPlotTest" text="Test Button" prefWidth="100"
-                                onAction="#solutionPlotTest"/>
-                    </buttons>
-                </ButtonBar>
                 <padding>
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>

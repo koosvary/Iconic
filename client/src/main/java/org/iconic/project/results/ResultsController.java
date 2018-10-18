@@ -25,6 +25,8 @@ import com.google.inject.Inject;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
@@ -163,7 +165,6 @@ public class ResultsController implements Initializable {
             return;
         }
 
-
         // Create the two new lines
         XYChart.Series series1 = new XYChart.Series();
         XYChart.Series series2 = new XYChart.Series();
@@ -178,13 +179,81 @@ public class ResultsController implements Initializable {
             series1.getData().add(new XYChart.Data(i, samples.get(i)));
         }
 
-        // TODO - Get the actual values
-        //series2.getData().add(new XYChart.Data(i, samples.get(i)));
+        // TODO - This is where the actual values part starts
+        // These are all the solutions we have stored and that are currently displayed in the solutions table
+        ObservableMap<Integer, List<Chromosome<?>>> solutions = storage.getSolutions();
 
+        // This is the row the user selected in that solutions table
+        ResultDisplay row = solutionsTableView.getSelectionModel().getSelectedItem();
 
+        // This will be the referenced chromosome that was selected if it finds a match
+        Chromosome<?> selectedChromosome = null;
+
+        // TODO - Remove all the short for loops, causing concurrent modification exceptions
+        // This is a list of chromosomes of size 'x'
+        for (List<Chromosome<?>> chromosomeList : solutions.values()) {
+
+            // This is all the chromosomes with the same size of 'x'
+            for (Chromosome<?> chromosome : chromosomeList) {
+
+                // If the chromosome equals the selected chromosome
+                if (chromosome.toString().equals(row.getSolution())) {
+                    selectedChromosome = chromosome;
+                    break;
+                }
+            }
+
+            // If the chromosome has been found exit the loop
+            if (selectedChromosome != null) {
+                break;
+            }
+        }
+
+        // If no chromosome was found (aka the block is missing and the strings dont match)
+        if (selectedChromosome == null) {
+            log.info("There was no chromosome found in the storage");
+            return;
+        }
+
+        // If the dataset doesnt exist for some reason
+        if (dataset == null) {
+            log.info("There is no dataset so the expected values cannot be checked");
+            return;
+        }
+
+        // Take the selected chromosome and run the evaluate function on it
+        List<Map<Integer, Number>> results = selectedChromosome.evaluate(dataManager);
+        System.out.println("actualValues size: " + results.size());
+
+        // If there are no results for some reason
+        if (results.isEmpty()) {
+            System.out.println("actualValues size is empty: ");
+            return;
+        }
+
+        // Go through all the results, There are multiple outputs
+        for (int i = 0; i < results.size(); i++) {
+            // This is the list of results for all the different outputs
+            Map<Integer, Number> rowOfResults = results.get(i);
+
+            // Keys (They are random numbers, i think it might be the node id's of the output nodes in cgp
+            Set<Integer> keys = rowOfResults.keySet();
+
+            // My shit attempt to only display the "first" element in the list
+            int alternate = 1;
+            for (Integer key : keys) {
+                if (alternate == 1) {
+                    // Add the "first" element to the graph
+                    series2.getData().add(new XYChart.Data(i, rowOfResults.get(key)));
+                }
+                alternate *= -1;
+                System.out.println("Key: " + key + ", value: " + rowOfResults.get(key));
+            }
+        }
+
+        // Update the graph
         solutionsPlot.setAnimated(false);
         solutionsPlot.setCreateSymbols(true);
-
         solutionsPlot.getData().clear();
         solutionsPlot.getData().addAll(series1, series2);
     }
@@ -228,26 +297,5 @@ public class ResultsController implements Initializable {
      */
     private WorkspaceService getWorkspaceService() {
         return workspaceService;
-    }
-
-    public void solutionPlotTest() {
-        System.out.println("ResultsController   solutionPlotTest");
-
-        XYChart.Series series1 = new XYChart.Series();
-        series1.setName("Equities");
-        series1.getData().add(new XYChart.Data(4.2, 193.2));
-        series1.getData().add(new XYChart.Data(2.8, 33.6));
-        series1.getData().add(new XYChart.Data(6.8, 23.6));
-
-        XYChart.Series series2 = new XYChart.Series();
-        series2.setName("Mutual funds");
-        series2.getData().add(new XYChart.Data(5.2, 229.2));
-        series2.getData().add(new XYChart.Data(2.4, 37.6));
-        series2.getData().add(new XYChart.Data(6.4, 15.6));
-
-        solutionsPlot.setAnimated(false);
-        solutionsPlot.setCreateSymbols(true);
-
-        solutionsPlot.getData().addAll(series1, series2);
     }
 }
