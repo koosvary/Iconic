@@ -55,7 +55,7 @@ public class GepConfigurationModel extends SearchConfigurationModel {
                         getHeadLength(),
                         getDatasetModel().get().getDataManager().getFeatureSize() - 1
                 );
-        supplier.addFunction(new ArrayList<>(getPrimitives().keySet()));
+        supplier.addFunction(new ArrayList<>(getEnabledPrimitives()));
 
         EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> ea =
                 new GeneExpressionProgramming<>(supplier);

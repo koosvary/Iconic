@@ -42,68 +42,53 @@
         <Screen fx:factory="getPrimary" fx:id="screen"/>
     </fx:define>
 
-    <VBox>
-        <padding>
-            <Insets topRightBottomLeft="25"/>
-        </padding>
-        <VBox spacing="5" alignment="CENTER">
-            <HBox spacing="5">
-                <Label text="Target Expression:">
-                    <tooltip>
-                        <Tooltip wrapText="true" maxWidth="500"
-                                 text="The equation which the search will attempt to satisfy.">
-                            <font><Font size="12.0"/></font>
-                        </Tooltip>
-                    </tooltip>
+    <ScrollPane>
+        <VBox>
+            <padding>
+                <Insets topRightBottomLeft="25"/>
+            </padding>
+            <VBox spacing="5" alignment="CENTER">
+                <HBox spacing="5">
+                    <Label text="Target Expression:">
+                        <tooltip>
+                            <Tooltip wrapText="true" maxWidth="500"
+                                     text="The equation which the search will attempt to satisfy.">
+                                <font>
+                                    <Font size="12.0"/>
+                                </font>
+                            </Tooltip>
+                        </tooltip>
 
-                    <padding>
-                        <Insets left="20" right="20"/>
-                    </padding>
-                    <font>
-                        <Font size="18.0"/>
-                    </font>
-                </Label>
-                <TextField fx:id="tfTargetExpression" text="y = f(x)"/>
-                <DatasetComboBox fx:id="cbDatasets"/>
-                <ComboBox value="Mean Absolute Error">
-                    <items>
-                        <FXCollections fx:factory="observableArrayList">
-                            <String fx:value="Mean Absolute Error"/>
-                        </FXCollections>
-                    </items>
-                </ComboBox>
+                        <padding>
+                            <Insets left="20" right="20"/>
+                        </padding>
+                        <font>
+                            <Font size="18.0"/>
+                        </font>
+                    </Label>
+                    <TextField fx:id="tfTargetExpression" text="y = f(x)"/>
+                    <DatasetComboBox fx:id="cbDatasets"/>
+                    <ComboBox value="Mean Absolute Error">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Mean Absolute Error"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </HBox>
+                <VBox fx:id="vbConfiguration"/>
+            </VBox>
+
+            <HBox spacing="10">
+                <VBox spacing="10">
+                    <Label labelFor="$blockDisplayTableView" text="Enabled Building Blocks"/>
+                    <TableView fx:id="blockDisplayTableView"/>
+                </VBox>
+                <VBox spacing="10">
+                    <Label labelFor="$selectedBlockDisplayDescription" text="Description"/>
+                    <TextArea fx:id="selectedBlockDisplayDescription"/>
+                </VBox>
             </HBox>
-            <VBox fx:id="vbConfiguration"/>
         </VBox>
-
-        <HBox>
-            <padding>
-                <Insets top="25" left="20"/>
-            </padding>
-            <TableView fx:id="blockDisplayTableView"/>
-            <Label><padding><Insets left="20" right="20"/></padding></Label>
-            <TextArea fx:id="selectedBlockDisplayDescription"/>
-            <Label>
-                <padding>
-                    <Insets left="20" right="20"/>
-                </padding>
-            </Label>
-        </HBox>
-
-        <HBox>
-            <padding>
-                <Insets top="25"/>
-            </padding>
-            <Label text="Base Solutions:">
-                <padding>
-                    <Insets left="20" right="20"/>
-                </padding>
-                <font>
-                    <Font size="16.0"/>
-                </font>
-            </Label>
-
-            <TextField/>
-        </HBox>
-    </VBox>
+    </ScrollPane>
 </WorkspaceTab>

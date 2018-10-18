@@ -15,9 +15,8 @@
  */
 package org.iconic.project.search.config;
 
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
+import javafx.collections.ObservableMap;
 import lombok.NonNull;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.iconic.ea.operator.primitive.*;
@@ -29,7 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class SearchConfigurationModel implements Displayable {
-    private final Map<FunctionalPrimitive<Double, Double>, Boolean> primitives;
+    private final Map<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty> primitives;
     private final UUID id;
     private final SimpleStringProperty name;
     private SimpleIntegerProperty populationSize;
@@ -54,45 +53,51 @@ public abstract class SearchConfigurationModel implements Displayable {
         this.mutationRate = new SimpleDoubleProperty(0.1);
         this.crossoverRate = new SimpleDoubleProperty(0.1);
         this.datasetModel = null;
-        this.primitives = new HashMap<>();
-        primitives.put(new AbsoluteValue(), true);
-        primitives.put(new Addition(), true);
-        primitives.put(new And(), true);
-        primitives.put(new ArcCos(), true);
-        primitives.put(new ArcSin(), true);
-        primitives.put(new ArcTan(), true);
-        primitives.put(new Ceiling(), true);
-        primitives.put(new Cos(), true);
-        primitives.put(new Division(), true);
-        primitives.put(new EqualTo(), true);
-        primitives.put(new Exponential(), true);
-        primitives.put(new Floor(), true);
-        primitives.put(new GaussianFunction(), true);
-        primitives.put(new GreaterThan(), true);
-        primitives.put(new GreaterThanOrEqual(), true);
-        primitives.put(new IfThenElse(), true);
-        primitives.put(new LessThan(), true);
-        primitives.put(new LessThanOrEqual(), true);
-        primitives.put(new LogisticFunction(), true);
-        primitives.put(new Maximum(), true);
-        primitives.put(new Minimum(), true);
-        primitives.put(new Modulo(), true);
-        primitives.put(new Multiplication(), true);
-        primitives.put(new NaturalLog(), true);
-        primitives.put(new Negation(), true);
-        primitives.put(new Not(), true);
-        primitives.put(new Or(), true);
-        primitives.put(new Power(), true);
-        primitives.put(new Root(), true);
-        primitives.put(new SignFunction(), true);
-        primitives.put(new Sin(), true);
-        primitives.put(new SquareRoot(), true);
-        primitives.put(new StepFunction(), true);
-        primitives.put(new Subtraction(), true);
-        primitives.put(new Tan(), true);
-        primitives.put(new Tanh(), true);
-        primitives.put(new TwoArcTan(), true);
-        primitives.put(new Xor(), true);
+        this.primitives = new LinkedHashMap<>();
+        primitives.put(new Addition(), new SimpleBooleanProperty(true));
+        primitives.put(new Subtraction(), new SimpleBooleanProperty(true));
+        primitives.put(new Multiplication(), new SimpleBooleanProperty(true));
+        primitives.put(new Division(), new SimpleBooleanProperty(true));
+        primitives.put(new Negation(), new SimpleBooleanProperty(true));
+
+        primitives.put(new Cos(), new SimpleBooleanProperty(true));
+        primitives.put(new Sin(), new SimpleBooleanProperty(true));
+        primitives.put(new Tan(), new SimpleBooleanProperty(true));
+        primitives.put(new ArcCos(), new SimpleBooleanProperty(true));
+        primitives.put(new ArcSin(), new SimpleBooleanProperty(true));
+        primitives.put(new ArcTan(), new SimpleBooleanProperty(true));
+        primitives.put(new TwoArcTan(), new SimpleBooleanProperty(true));
+
+        primitives.put(new Exponential(), new SimpleBooleanProperty(true));
+        primitives.put(new NaturalLog(), new SimpleBooleanProperty(true));
+        primitives.put(new Power(), new SimpleBooleanProperty(true));
+        primitives.put(new SquareRoot(), new SimpleBooleanProperty(true));
+        primitives.put(new Root(), new SimpleBooleanProperty(true));
+
+        primitives.put(new LogisticFunction(), new SimpleBooleanProperty(true));
+        primitives.put(new StepFunction(), new SimpleBooleanProperty(true));
+        primitives.put(new SignFunction(), new SimpleBooleanProperty(true));
+        primitives.put(new GaussianFunction(), new SimpleBooleanProperty(true));
+        primitives.put(new Tanh(), new SimpleBooleanProperty(true));
+
+        primitives.put(new EqualTo(), new SimpleBooleanProperty(true));
+        primitives.put(new LessThan(), new SimpleBooleanProperty(true));
+        primitives.put(new LessThanOrEqual(), new SimpleBooleanProperty(true));
+        primitives.put(new GreaterThan(), new SimpleBooleanProperty(true));
+        primitives.put(new GreaterThanOrEqual(), new SimpleBooleanProperty(true));
+        primitives.put(new IfThenElse(), new SimpleBooleanProperty(true));
+        primitives.put(new And(), new SimpleBooleanProperty(true));
+        primitives.put(new Or(), new SimpleBooleanProperty(true));
+        primitives.put(new Xor(), new SimpleBooleanProperty(true));
+        primitives.put(new Not(), new SimpleBooleanProperty(true));
+
+        primitives.put(new Minimum(), new SimpleBooleanProperty(true));
+        primitives.put(new Maximum(), new SimpleBooleanProperty(true));
+        primitives.put(new Modulo(), new SimpleBooleanProperty(true));
+        primitives.put(new Floor(), new SimpleBooleanProperty(true));
+        primitives.put(new Ceiling(), new SimpleBooleanProperty(true));
+        primitives.put(new AbsoluteValue(), new SimpleBooleanProperty(true));
+
         this.populationSizeProperty().addListener(obs -> setChanged(true));
         this.numGenerationsProperty().addListener(obs -> setChanged(true));
         this.crossoverRateProperty().addListener(obs -> setChanged(true));
@@ -189,12 +194,13 @@ public abstract class SearchConfigurationModel implements Displayable {
 
     protected abstract SearchExecutor<?> buildSearchExecutor();
 
-    public Map<FunctionalPrimitive<Double, Double>, Boolean> getPrimitives() {
+    public Map<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty> getPrimitives() {
         return primitives;
     }
 
     public List<FunctionalPrimitive<Double, Double>> getEnabledPrimitives() {
-        return primitives.keySet().stream().filter(primitives::get).collect(Collectors.toList());
+//        return primitives.keySet().stream().filter(primitives::get).collect(Collectors.toList());
+        return primitives.keySet().stream().filter(e -> primitives.get(e).get()).collect(Collectors.toList());
     }
 
     public double getMutationRate() {

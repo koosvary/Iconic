@@ -107,4 +107,5 @@
         </VBox>
         <LabelledSlider fx:id="sldrCrossoverRate" text="Crossover Rate"/>
     </HBox>
+    <Separator/>
 </VBox>
