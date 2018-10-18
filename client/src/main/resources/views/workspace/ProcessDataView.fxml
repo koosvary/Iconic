@@ -30,7 +30,6 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Font?>
 <?import javafx.stage.Screen?>
 <?import org.iconic.control.WorkspaceTab?>
 <?import java.lang.*?>
@@ -74,7 +73,7 @@
                     <HBox>
                         <CheckBox fx:id="cbSmoothData" text="Smooth data points" disable="true">
                             <tooltip>
-                                <Tooltip wrapText="true" prefWidth="500"
+                                <Tooltip wrapText="true" maxWidth="500"
                                          text="Applies a 'Moving Average Filtering' algorithm to smooth the selected feature. You can specify a smoothing window, which is the number of neighbouring values that will be summed either side of each point. The average of this sum will become the new value for that point.">
                                     <font><Font size="12.0"/></font>
                                 </Tooltip>
@@ -103,7 +102,7 @@
                     <HBox>
                         <CheckBox fx:id="cbHandleMissingValues" text="Handle missing values" disable="true">
                             <tooltip>
-                                <Tooltip wrapText="true" prefWidth="500"
+                                <Tooltip wrapText="true" maxWidth="500"
                                          text="Removes all null (empty) elements from the selected feature, and replaces them with the selected option in the drop down list.">
                                     <font><Font size="12.0"/></font>
                                 </Tooltip>
@@ -142,7 +141,7 @@
                     <HBox>
                         <CheckBox fx:id="cbNormalise" text="Normalise scale" disable="true">
                             <tooltip>
-                                <Tooltip wrapText="true" prefWidth="500"
+                                <Tooltip wrapText="true" maxWidth="500"
                                          text="Scales all values within the selected feature to be between the specified minimum and maximum values.">
                                     <font><Font size="12.0"/></font>
                                 </Tooltip>
@@ -175,7 +174,7 @@
                     <HBox>
                         <CheckBox fx:id="cbRemoveOutliers" text="Remove outliers" disable="true">
                             <tooltip>
-                                <Tooltip wrapText="true" prefWidth="500"
+                                <Tooltip wrapText="true" maxWidth="500"
                                          text="Removes all points in the selected feature that are considered outliers. You can specify a threshold value that controls the tolerance with which outliers are calculated. High threshold = less points considered outliers. Low threshold = more points considered outliers.">
                                     <font><Font size="12.0"/></font>
                                 </Tooltip>
@@ -204,7 +203,7 @@
                     <HBox>
                         <CheckBox fx:id="cbOffset" text="Offset data" disable="true">
                             <tooltip>
-                                <Tooltip wrapText="true" prefWidth="500"
+                                <Tooltip wrapText="true" maxWidth="500"
                                          text="Shifts all values within the selected feature by the given offset value.">
                                     <font><Font size="12.0"/></font>
                                 </Tooltip>
