@@ -349,7 +349,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
                     .append("\n");
         });
 
-        return outputBuilder.toString().trim();
+        return outputBuilder.toString();
     }
 
     public String getExpression() {

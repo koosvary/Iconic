@@ -259,7 +259,6 @@ public class ResultsController implements Initializable {
         List<ResultDisplay> resultDisplays = new ArrayList<>();
         for (Map.Entry<Integer, List<Chromosome<?>>> entry : storage.getSolutions().entrySet()) {
             Chromosome<?> result = entry.getValue().get(0);
-            resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.toString()));
             resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.simplifyExpression(
                     result.getExpression(result.toString(), new ArrayList<>(lastSearch.getEnabledPrimitives()), true)
             )));
