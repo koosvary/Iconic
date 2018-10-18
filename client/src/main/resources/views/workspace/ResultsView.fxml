@@ -1,29 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2018 Iconic
+    Copyright 2018 Iconic
 
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 
 -->
 
-<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -32,9 +25,7 @@
 <?import javafx.stage.Screen?>
 <?import org.iconic.control.WorkspaceTab?>
 <?import javafx.geometry.Insets?>
-<?import javafx.collections.FXCollections?>
 <?import javafx.scene.chart.LineChart?>
-<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
 <WorkspaceTab fx:id="resultsTab" text="   Results" tabType="SEARCH"
               xmlns="http://javafx.com/javafx"
@@ -44,13 +35,13 @@
     <fx:define>
         <Screen fx:factory="getPrimary" fx:id="screen"/>
     </fx:define>
-	
-	<graphic>
-		<ImageView fitWidth="24" fitHeight="24">
-			<image><Image url="@/images/graph.png"/></image>
-		</ImageView>
-	</graphic>
-	
+
+    <graphic>
+        <ImageView fitWidth="24" fitHeight="24">
+            <image><Image url="@/images/graph.png"/></image>
+        </ImageView>
+    </graphic>
+
     <VBox>
         <HBox>
             <!-- Left-header -->
@@ -63,26 +54,6 @@
                         <Font size="18.0" />
                     </font>
                 </Label>
-            </HBox>
-            <!-- Right-header -->
-            <HBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
-                <padding>
-                    <Insets top="10" bottom="10" left="10" right="10"/>
-                </padding>
-                <Label text="Plot Type: ">
-                    <font>
-                        <Font size="18.0" />
-                    </font>
-                </Label>
-				<ComboBox value="Solution Fit Plot (default)">
-					<items>
-						<FXCollections fx:factory="observableArrayList">
-							<String fx:value="Solution Fit Plot (default)"/>
-							<String fx:value="Observed vs. Predicted Plot"/>
-							<String fx:value="Classification ROC Plot"/>
-						</FXCollections>
-					</items>
-				</ComboBox>
             </HBox>
         </HBox>
 
@@ -109,15 +80,16 @@
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
                 <AnchorPane>
-                    <LineChart AnchorPane.topAnchor="0"
+                    <LineChart fx:id="solutionsPlot" title="Solution Fit Plot"
+                               AnchorPane.topAnchor="0"
                                AnchorPane.leftAnchor="0"
                                AnchorPane.rightAnchor="0"
                                AnchorPane.BottomAnchor="0">
                         <xAxis>
-                            <CategoryAxis side="BOTTOM"/>
+                            <NumberAxis side="BOTTOM" />
                         </xAxis>
                         <yAxis>
-                            <NumberAxis side="LEFT"/>
+                            <NumberAxis side="LEFT" />
                         </yAxis>
                     </LineChart>
                 </AnchorPane>
@@ -166,25 +138,6 @@
                         </GridPane>
                     </content>
                 </ScrollPane>
-            </VBox>
-            <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
-                <padding>
-                    <Insets top="10" bottom="10" left="10" right="10"/>
-                </padding>
-                <AnchorPane>
-                    <LineChart title="Accuracy vs Complexity"
-                               AnchorPane.topAnchor="0"
-                               AnchorPane.leftAnchor="0"
-                               AnchorPane.rightAnchor="0"
-                               AnchorPane.BottomAnchor="0">
-                        <xAxis>
-                            <CategoryAxis side="BOTTOM"/>
-                        </xAxis>
-                        <yAxis>
-                            <NumberAxis side="LEFT"/>
-                        </yAxis>
-                    </LineChart>
-                </AnchorPane>
             </VBox>
         </HBox>
     </VBox>

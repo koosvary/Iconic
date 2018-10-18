@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.project.search;
 
@@ -40,14 +34,19 @@ import lombok.extern.log4j.Log4j2;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.iconic.config.IconService;
 import org.iconic.control.WorkspaceTab;
+import org.iconic.ea.data.DataManager;
+import org.iconic.ea.data.FeatureClass;
 import org.iconic.project.Displayable;
+import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.views.ViewService;
 import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -222,7 +221,35 @@ public class StartSearchController implements Initializable {
             return;
         }
 
+        // Get the search model
         SearchConfigurationModel search = (SearchConfigurationModel) item;
+
+        // Check the search model has a defined dataset to operate on
+        if (!search.getDatasetModel().isPresent()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Search Invalid");
+            alert.setHeaderText("Missing Dataset");
+            alert.setContentText("The Defined Search is missing a dataset to operate on! Please visit the 'Define Search' tab and select a dataset.");
+            alert.showAndWait();
+            return;
+        }
+
+        // Get the dataset Model - Check that the dataset doesn't have any missing values
+        if (search.getDatasetModel().isPresent()) {
+            DatasetModel datasetModel = search.getDatasetModel().get();
+            DataManager<Double> dataManager = datasetModel.getDataManager();
+            HashMap<String, FeatureClass<Number>> dataset = dataManager.getDataset();
+
+            // Check the dataset for any missing values
+            for (FeatureClass<Number> featureClass : dataset.values()) {
+                if (featureClass.isMissingValues()) {
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION, "The dataset contains missing values! Please visit the 'Process Data' tab to remove these missing values.");
+                    alert.showAndWait();
+                    return;
+                }
+            }
+        }
+
         // If there's no search already being performed on the dataset, the configuration is invalid
         // so ignore it
         search.getSearchExecutor().ifPresent(executor -> {
