@@ -38,7 +38,9 @@ import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.config.SearchConfigurationModel;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.List;
 
 /**
  * <p>
@@ -82,14 +84,19 @@ public class WorkspaceController implements Initializable {
      */
     private void updateWorkspace() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
+        List<WorkspaceTab.TabType> activeTabs = new ArrayList<>();
 
         if (item instanceof DatasetModel) {
-            updateAvailableTabs(WorkspaceTab.TabType.DATASET);
+            activeTabs.add(WorkspaceTab.TabType.DATASET);
+            activeTabs.add(WorkspaceTab.TabType.INPUT);
         } else if (item instanceof SearchConfigurationModel) {
-            updateAvailableTabs(WorkspaceTab.TabType.SEARCH);
+            activeTabs.add(WorkspaceTab.TabType.SEARCH);
         } else {
-            updateAvailableTabs(WorkspaceTab.TabType.OTHER);
+            activeTabs.add(WorkspaceTab.TabType.INPUT);
         }
+
+        updateAvailableTabs(activeTabs);
+
         // If no dataset is selected clear the UI of dataset related elements
         // TODO: if a search is selected, do not clear the results
         if (!(item instanceof DatasetModel)) {
@@ -98,27 +105,30 @@ public class WorkspaceController implements Initializable {
     }
 
     /**
-     * <p>Update the tabs that are available for selection based on the provided tab type</p>
+     * <p>Update the tabs that are available for selection based on the provided tab types</p>
      *
-     * @param availableTabs The tab types to enable, tabs of other types will be disabled
+     * @param availableTabs The list of tab types to enable, tabs of other types will be disabled
      */
-    private void updateAvailableTabs(WorkspaceTab.TabType availableTabs) {
+    private void updateAvailableTabs(List<WorkspaceTab.TabType> availableTabs) {
         if (tbpWorkspace == null) {
             return;
         }
 
         tbpWorkspace.getTabs().forEach(tab -> {
             WorkspaceTab wTab = (WorkspaceTab) tab;
-            if (wTab.getTabType().equals(availableTabs) || wTab.getTabType().equals(WorkspaceTab.TabType.ALL)) {
-                tab.setDisable(false);
-            } else {
-                tab.setDisable(true);
+
+            for (int i=0; i < availableTabs.size(); i++) {
+                if (wTab.getTabType().equals(availableTabs.get(i)) || wTab.getTabType().equals(WorkspaceTab.TabType.ALL)) {
+                    tab.setDisable(false);
+                    break;
+                } else {
+                    tab.setDisable(true);
+                }
             }
         });
 
-        // If the current selected tab is disabled, change the user's
-        // selection to the first enabled tab if available
-//        updateTabSelection();
+        // If the current selected tab is disabled, change the user's selection to the first enabled tab if available
+        //updateTabSelection();
     }
 
     /**
