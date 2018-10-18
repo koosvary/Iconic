@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2018 Iconic
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+        http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.stage.Screen?>
+<?import javafx.scene.text.Font?>
+
+<?import org.iconic.control.operator.evolutionary.MutatorComboBox?>
+<?import org.iconic.control.LabelledSlider?>
+<?import org.iconic.control.operator.evolutionary.CrossoverComboBox?>
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      spacing="10"
+      prefWidth="${screen.visualBounds.width*0.2}"
+      alignment="CENTER_LEFT"
+      fx:controller="org.iconic.project.search.config.CgpConfigurationController">
+    <!-- Define the primary screen so we can use percentage based widths -->
+    <fx:define>
+        <Screen fx:factory="getPrimary" fx:id="screen"/>
+    </fx:define>
+    <padding>
+        <Insets top="10" bottom="10" left="10" right="10"/>
+    </padding>
+    <Separator/>
+    <VBox spacing="10">
+        <Label labelFor="$tfPopulationSize" text="Population Size: ">
+            <tooltip>
+                <Tooltip wrapText="true" maxWidth="500"
+                         text="The number of 'children' generated for each generation of the search.">
+                    <font><Font size="12.0"/></font>
+                </Tooltip>
+            </tooltip>
+        </Label>
+        <TextField fx:id="tfPopulationSize" promptText="Size of the Population"/>
+    </VBox>
+    <VBox spacing="10">
+        <Label labelFor="$tfNumGenerations" text="Generations: ">
+            <tooltip>
+                <Tooltip wrapText="true" maxWidth="500"
+                         text="The number of iterations that the algorithm should run for. A value of 0 means that the algorithm will run indefinitely until the user pauses or stops the search.">
+                    <font><Font size="12.0"/></font>
+                </Tooltip>
+            </tooltip>
+        </Label>
+        <TextField fx:id="tfNumGenerations" promptText="Number of generations to evolve for. Leave this at zero to stop manually"/>
+    </VBox>
+    <Separator/>
+    <HBox spacing="5">
+        <VBox spacing="10">
+            <Label labelFor="$tfNumOutputs" text="Number of Outputs: ">
+                <tooltip>
+                    <Tooltip wrapText="true" maxWidth="500"
+                             text="The number of outputs that the CGP chromosome can have, effectively splitting a solution into multiple parts.">
+                        <font><Font size="12.0"/></font>
+                    </Tooltip>
+                </tooltip>
+            </Label>
+            <TextField fx:id="tfNumOutputs" promptText="Number of Outputs"/>
+        </VBox>
+        <VBox spacing="10">
+            <Label labelFor="$tfNumColumns" text="Number of Columns: ">
+                <tooltip>
+                    <Tooltip wrapText="true" maxWidth="500"
+                             text="The number of columns in the CGP chromosomes dimensions.">
+                        <font><Font size="12.0"/></font>
+                    </Tooltip>
+                </tooltip>
+            </Label>
+            <TextField fx:id="tfNumColumns" promptText="Number of Columns"/>
+        </VBox>
+        <VBox spacing="10">
+            <Label labelFor="$tfNumRows" text="Number of Rows: ">
+                <tooltip>
+                    <Tooltip wrapText="true" maxWidth="500"
+                             text="The number of rows in the CGP chromosomes dimensions. It is recommended to set this value to 1 as default.">
+                        <font><Font size="12.0"/></font>
+                    </Tooltip>
+                </tooltip>
+            </Label>
+            <TextField fx:id="tfNumRows" promptText="Number of Rows"/>
+        </VBox>
+        <VBox spacing="10">
+            <Label labelFor="$tfNumLevelsBack" text="Number of Levels Back: ">
+                <tooltip>
+                    <Tooltip wrapText="true" maxWidth="500"
+                             text="The number of levels back that any node in the CGP chromosome can reach to connect to another node.">
+                        <font><Font size="12.0"/></font>
+                    </Tooltip>
+                </tooltip>
+            </Label>
+            <TextField fx:id="tfNumLevelsBack" promptText="Number of Levels Back"/>
+        </VBox>
+    </HBox>
+    <Separator/>
+    <HBox spacing="20">
+        <padding><Insets top="25"/></padding>
+        <VBox spacing="10">
+            <Label labelFor="$cbMutators" text="Mutation: ">
+                <tooltip>
+                    <Tooltip wrapText="true" maxWidth="500"
+                             text="Mutation is a small random change within each 'child's' chromosomes. It is used to maintain and introduce diversity within the genetic population. The chance of a mutation occurring can be controlled by the mutation rate slider.">
+                        <font><Font size="12.0"/></font>
+                    </Tooltip>
+                </tooltip>
+            </Label>
+            <MutatorComboBox fx:id="cbMutators"/>
+        </VBox>
+        <LabelledSlider fx:id="sldrMutationRate" text="Mutation Rate"/>
+    </HBox>
+
+    <HBox spacing="20">
+        <padding><Insets top="25"/></padding>
+        <VBox spacing="10">
+            <Label labelFor="$cbCrossovers" text="Crossover: ">
+                <tooltip>
+                    <Tooltip wrapText="true" maxWidth="500"
+                             text="Crossover is the act of replacing part of a 'child's' genes with those of a parents within the existing population. The crossover rate controls how likely it is that this process will occur for each individual.">
+                        <font><Font size="12.0"/></font>
+                    </Tooltip>
+                </tooltip>
+            </Label>
+            <CrossoverComboBox fx:id="cbCrossovers"/>
+        </VBox>
+        <LabelledSlider fx:id="sldrCrossoverRate" text="Crossover Rate" disable="true"/>
+    </HBox>
+</VBox>

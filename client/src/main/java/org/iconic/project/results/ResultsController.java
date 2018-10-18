@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.project.results;
 
@@ -33,19 +27,21 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.extern.log4j.Log4j2;
+import org.iconic.control.WorkspaceTab;
+import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
+import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
-import org.iconic.project.search.SearchModel;
+import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.project.search.SearchService;
 import org.iconic.project.search.SolutionStorage;
+import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A controller for the Results view
@@ -54,12 +50,13 @@ import java.util.ResourceBundle;
 public class ResultsController implements Initializable {
 
     private final WorkspaceService workspaceService;
-    private final SearchService searchService;
 
-    private SolutionStorage<Double> storage;
-    private SearchModel lastSearch;
-    private InvalidationListener selectionChangedListener;
+    private SolutionStorage<Chromosome<?>> storage;
+    private SearchConfigurationModel lastSearch;
+    private InvalidationListener resultAddedListener;
 
+    @FXML
+    private WorkspaceTab resultsTab;
     @FXML
     private TableView<ResultDisplay> solutionsTableView;
 
@@ -67,14 +64,12 @@ public class ResultsController implements Initializable {
      * Constructs a new ResultsController that attaches an invalidation listener onto the workspace service.
      */
     @Inject
-    public ResultsController(final WorkspaceService workspaceService, final SearchService searchService) {
+    public ResultsController(final WorkspaceService workspaceService) {
         this.workspaceService = workspaceService;
-        this.searchService = searchService;
 
         // Update the workspace whenever the active dataset changes
-        selectionChangedListener = observable -> updateWorkspace();
-        getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedListener);
-        getSearchService().searchesProperty().addListener(selectionChangedListener);
+        resultAddedListener = observable -> updateWorkspace();
+        getWorkspaceService().activeWorkspaceItemProperty().addListener(resultAddedListener);
     }
 
     /**
@@ -83,42 +78,52 @@ public class ResultsController implements Initializable {
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
         updateWorkspace();
+
+        resultsTab.setOnSelectionChanged(event -> updateWorkspace());
     }
 
     /**
-     * Updates the workspace to match the current active dataset.
+     * Calls the main thread to update the workspace when it can.
      */
     private synchronized void updateWorkspace() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
         // If no dataset, stop what you're doing.
-        if (!(item instanceof DatasetModel)) {
+        if (!(item instanceof SearchConfigurationModel)) {
             // TODO clear the UI?
             return;
         }
 
-        DatasetModel dataset = (DatasetModel) item;
-        SearchModel search = getSearchModel(dataset);
-        if (search != null && search != lastSearch) {
-            // If a search is running, use that current one for results. Else use the last search
-            storage = search.getSolutionStorage();
-            storage.getSolutions().addListener(selectionChangedListener);
-            lastSearch = search;
-        }
+        SearchConfigurationModel search = (SearchConfigurationModel) item;
+        search.getSearchExecutor().ifPresent(executor -> {
+            if (search != lastSearch) {
+                // If a search is running, use that current one for results. Else use the last search
+                //noinspection unchecked
+                storage = (SolutionStorage<Chromosome<?>>) executor.getSolutionStorage();
+                storage.getSolutions().addListener(resultAddedListener);
+                lastSearch = search;
+            }
 
+        });
         if (storage == null) {
             // No storage? No worries
             return;
         }
 
-        Platform.runLater(() -> updateWorkspaceMainThread());
+        Platform.runLater(this::updateWorkspaceMainThread);
     }
 
+    /**
+     * Updates the workspace to match the current active dataset.
+     */
     private synchronized void updateWorkspaceMainThread() {
         List<ResultDisplay> resultDisplays = new ArrayList<>();
-        for (Map.Entry<Integer, List<ExpressionChromosome<Double>>> entry : storage.getSolutions().entrySet()) {
-            ExpressionChromosome<Double> result = entry.getValue().get(0);
+        for (Map.Entry<Integer, List<Chromosome<?>>> entry : storage.getSolutions().entrySet()) {
+            Chromosome<?> result = entry.getValue().get(0);
             resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.toString()));
+            resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.simplifyExpression(
+                    result.getExpression(result.toString(), new ArrayList<>(lastSearch.getEnabledPrimitives()), true)
+            )));
         }
 
         // Add all the results as FX observables
@@ -142,27 +147,10 @@ public class ResultsController implements Initializable {
     }
 
     /**
-     * Get search model given a dataset
-     * @param dataset DatasetModel to use
-     * @return Search model for that dataset, or null if no search is running
-     */
-    private SearchModel getSearchModel(DatasetModel dataset) {
-        return getSearchService().searchesProperty().get(dataset.getId());
-    }
-
-    /**
      * Get the workspace service
      * @return Workspace service
      */
     private WorkspaceService getWorkspaceService() {
         return workspaceService;
-    }
-
-    /**
-     * Get the search service
-     * @return Search service
-     */
-    public SearchService getSearchService() {
-        return searchService;
     }
 }

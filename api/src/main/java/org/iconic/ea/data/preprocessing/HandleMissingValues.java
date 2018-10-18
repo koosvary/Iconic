@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.ea.data.preprocessing;
 
@@ -98,12 +92,22 @@ public class HandleMissingValues extends Preprocessor<Number> {
     private List<Number> copyPreviousRow(List<Number> values) {
         // Loop through all values in the array
         for (int i = 0; i < values.size(); i++) {
+            if (values.get(i) != null) {
+                continue;
+            }
             // The currentIndex is equal to i - 1 (with wrapping)
-            int currentIndex = (values.size() + i - 1) % values.size();
+            int currentIndex = i - 1;
+
+            if (currentIndex < 0) {
+                currentIndex = values.size() - 1;
+            }
 
             // While the currentIndex value in the array is equal to null, decrement currentIndex
             while (values.get(currentIndex) == null) {
-                currentIndex = (values.size() + currentIndex - 1) % values.size();
+                // Decrement and check if its less than 0 in the same line.
+                if (--currentIndex < 0) {
+                    currentIndex = values.size() - 1;
+                }
 
                 // If currentIndex loops all the way back to i, then the entire array is null and nothing
                 // can be done, therefore exit the method.
@@ -114,15 +118,15 @@ public class HandleMissingValues extends Preprocessor<Number> {
 
             // Once an index has been found != null, loop forwards from that point to i updating each value
             // to the previous value
-            while (currentIndex != i) {
-                // Index to replace is currentIndex + 1 (with wrapping)
-                int index = (values.size() + currentIndex + 1) % values.size();
+            // Index to replace is currentIndex + 1 (with wrapping)
+            int index = currentIndex;
+            while (index != i) {
+                if (++index >= values.size()) {
+                    index = 0;
+                }
 
                 // Update the current array index is currentIndex (currentIndex = index - 1)
                 values.set(index, values.get(currentIndex));
-
-                // Incriment currentIndex (with wrapping)
-                currentIndex = (values.size() + currentIndex + 1) % values.size();
             }
         }
 

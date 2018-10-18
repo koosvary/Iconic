@@ -1,28 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2018 Iconic
+    Copyright 2018 Iconic
 
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
+        http://www.apache.org/licenses/LICENSE-2.0
 
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 
 -->
-
 <?import javafx.collections.FXCollections?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
@@ -31,66 +24,86 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import java.lang.*?>
-<Tab text="   Define Search" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="org.iconic.project.definition.DefineSearchController">
-	<graphic>
+<?import org.iconic.control.WorkspaceTab?>
+<?import org.iconic.control.DatasetComboBox?>
+<?import javafx.stage.Screen?>
+<WorkspaceTab fx:id="defineTab" text="   Define Search" tabType="SEARCH"
+              xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+              fx:controller="org.iconic.project.definition.DefineSearchController">
+    <graphic>
         <ImageView fitWidth="24" fitHeight="24">
-            <Image url="@/images/file.png"/>
+            <image>
+                <Image url="@/images/file.png"/>
+            </image>
         </ImageView>
-	</graphic>
-	
-	<VBox>
-		<padding><Insets topRightBottomLeft="25"/></padding>
-		<HBox>
-			<Label text="Target Expression:">
-				<padding><Insets left="20" right="20"/></padding>
-				<font>
-					<Font size="16.0"/>
-				</font>
-			</Label>
-			
-			<TextField fx:id="tfTargetExpression" text="y = f(x)"/>
-		</HBox>
-		
-		<HBox>
-			<padding><Insets top="25" left="20"/></padding>
-			<TableView fx:id="blockDisplayTableView"/>
-			<Label><padding><Insets left="20" right="20"/></padding></Label>
-			<TextArea fx:id="selectedBlockDisplayDescription"/>
-		</HBox>
-		
-		<HBox>
-			<padding><Insets top="25"/></padding>
-			<Label text="Error metric:">
-				<padding><Insets left="20" right="20"/></padding>
-				<font>
-					<Font size="16.0"/>
-				</font>
-			</Label>
-		
-			<ComboBox value="Absolute error (default)">
-				<items>
-					<FXCollections fx:factory="observableArrayList">
-						<String fx:value="Absolute error (default)"/>
-						<String fx:value="Squared error"/>
-						<String fx:value="Mean Squared Error (MSE)"/>
-						<String fx:value="Root Mean Squared Error (RMSE)"/>
-						<String fx:value="Maximum error"/>
-						<String fx:value="Median error"/>
-					</FXCollections>
-				</items>
-			</ComboBox>
-		</HBox>
-		
-		<HBox>
-			<padding><Insets top="25"/></padding>
-			<Label text="Base Solutions:">
-				<padding><Insets left="20" right="20"/></padding>
-				<font>
-					<Font size="16.0"/>
-				</font>
-			</Label>
-			
-			<TextField/>
-		</HBox>
-	</VBox>
-</Tab>
+    </graphic>
+
+    <fx:define>
+        <Screen fx:factory="getPrimary" fx:id="screen"/>
+    </fx:define>
+
+    <VBox>
+        <padding>
+            <Insets topRightBottomLeft="25"/>
+        </padding>
+        <VBox spacing="5" alignment="CENTER">
+            <HBox spacing="5">
+                <Label text="Target Expression:">
+                    <tooltip>
+                        <Tooltip wrapText="true" maxWidth="500"
+                                 text="The equation which the search will attempt to satisfy.">
+                            <font><Font size="12.0"/></font>
+                        </Tooltip>
+                    </tooltip>
+
+                    <padding>
+                        <Insets left="20" right="20"/>
+                    </padding>
+                    <font>
+                        <Font size="18.0"/>
+                    </font>
+                </Label>
+                <TextField fx:id="tfTargetExpression" text="y = f(x)"/>
+                <DatasetComboBox fx:id="cbDatasets"/>
+                <ComboBox value="Mean Absolute Error">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Mean Absolute Error"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+            </HBox>
+            <VBox fx:id="vbConfiguration"/>
+        </VBox>
+
+        <HBox>
+            <padding>
+                <Insets top="25" left="20"/>
+            </padding>
+            <TableView fx:id="blockDisplayTableView"/>
+            <Label><padding><Insets left="20" right="20"/></padding></Label>
+            <TextArea fx:id="selectedBlockDisplayDescription"/>
+            <Label>
+                <padding>
+                    <Insets left="20" right="20"/>
+                </padding>
+            </Label>
+        </HBox>
+
+        <HBox>
+            <padding>
+                <Insets top="25"/>
+            </padding>
+            <Label text="Base Solutions:">
+                <padding>
+                    <Insets left="20" right="20"/>
+                </padding>
+                <font>
+                    <Font size="16.0"/>
+                </font>
+            </Label>
+
+            <TextField/>
+        </HBox>
+    </VBox>
+</WorkspaceTab>
