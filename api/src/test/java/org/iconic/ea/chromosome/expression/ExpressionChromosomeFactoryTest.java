@@ -29,13 +29,13 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * <p>
  * A test suite for the {@link ExpressionChromosomeFactory} class.
- * </p>
+ *
  *
  * <p>
  * This test suite ensures the following:
  * - chromosomes are always produced with the same parameters as its parent factory
  * - factories can't be instantiated with an invalid combination of parameters
- * </p>
+ *
  */
 public class ExpressionChromosomeFactoryTest {
     @ParameterizedTest
@@ -71,7 +71,7 @@ public class ExpressionChromosomeFactoryTest {
      * <p>
      * Returns a stream of integer tuples, where each tuple contains an invalid combination of a
      * head length and number of features.
-     * </p>
+     *
      *
      * @return a stream of integer tuples
      */
@@ -89,7 +89,7 @@ public class ExpressionChromosomeFactoryTest {
     /**
      * <p>
      * Returns a stream of integer tuples, where each tuple contains a head length and number of features.
-     * </p>
+     *
      *
      * @return a stream of integer tuples
      */

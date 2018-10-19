@@ -824,7 +824,7 @@ public class InputDataController implements Initializable {
     /**
      * <p>
      * Returns the workspace service of this controller
-     * </p>
+     *
      *
      * @return the workspace service of the controller
      */
@@ -835,7 +835,7 @@ public class InputDataController implements Initializable {
     /**
      * <p>
      * Returns the project service of this controller
-     * </p>
+     *
      *
      * @return the project service of the controller
      */
@@ -918,7 +918,7 @@ public class InputDataController implements Initializable {
     /**
      * <p>
      * Opens a file dialog for choosing a dataset to import.
-     * </p>
+     *
      *
      * @param actionEvent The action that triggered the event
      */

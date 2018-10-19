@@ -49,7 +49,7 @@ public class IfThenElseTest {
      * <p>
      * Returns a stream of double n-tuples, if the first argument is > 0, the last tuple is the second argument,
      * or the third argument if otherwise
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

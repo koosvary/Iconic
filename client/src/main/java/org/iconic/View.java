@@ -27,14 +27,14 @@ import java.util.ResourceBundle;
 /**
  * <p>
  * A view loads an FXML resource and  provides it with a dependency graph for constructing its controller.
- * </p>
+ *
  */
 public class View {
     private final Optional<Injector> injector;
     private final FXMLLoader loader;
 
     /**
-     * <p>Constructs a new View with the provided FXML resource URI and injector</p>
+     * <p>Constructs a new View with the provided FXML resource URI and injector
      *
      * @param uri      The location of the FXML resource
      * @param injector The dependency graph injector
@@ -62,7 +62,7 @@ public class View {
     }
 
     /**
-     * <p>Loads the FXML resource</p>
+     * <p>Loads the FXML resource
      *
      * @param <T> Any type of scene node
      * @return The scene node contained by the FXML resource
@@ -73,7 +73,7 @@ public class View {
     }
 
     /**
-     * <p>Returns the injector for this view</p>
+     * <p>Returns the injector for this view
      *
      * @return the injector of the view
      */
@@ -82,7 +82,7 @@ public class View {
     }
 
     /**
-     * <p>Returns the FXML loader for this view</p>
+     * <p>Returns the FXML loader for this view
      *
      * @return the FXML loader of the view
      */

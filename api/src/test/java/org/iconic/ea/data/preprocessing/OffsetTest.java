@@ -48,7 +48,7 @@ class OffsetTest {
     }
 
     /**
-     * <p>Get the list of inputs for testOffset</p>
+     * <p>Get the list of inputs for testOffset
      * @return Stream of arguments, two lists and the offset
      */
     private static Stream<Arguments> offsetProvider() {

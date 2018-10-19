@@ -42,7 +42,7 @@ class ConstantTest {
     }
 
     /**
-     * <p>Returns a stream of two identical doubles</p>
+     * <p>Returns a stream of two identical doubles
      *
      * @return a stream of double n-tuples
      */

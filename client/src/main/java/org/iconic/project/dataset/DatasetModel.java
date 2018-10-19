@@ -28,7 +28,7 @@ import java.util.UUID;
 /**
  * <p>
  * A model for datasets.
- * </p>
+ *
  */
 @Log4j2
 public class DatasetModel implements Displayable {
@@ -38,7 +38,7 @@ public class DatasetModel implements Displayable {
     private final DataManager<Double> dataManager;
 
     /**
-     * <p>Constructs a new DatasetModel with the provided name.</p>
+     * <p>Constructs a new DatasetModel with the provided name.
      *
      * @param name         The name of the dataset
      */
@@ -50,7 +50,7 @@ public class DatasetModel implements Displayable {
     }
 
     /**
-     * <p>Constructs a new DatasetModel with the provided name and absolute path.</p>
+     * <p>Constructs a new DatasetModel with the provided name and absolute path.
      *
      * @param name         The name of the dataset
      * @param absolutePath The absolute path to the dataset
@@ -90,7 +90,7 @@ public class DatasetModel implements Displayable {
     }
 
     /**
-     * <p>Returns the name property of this dataset.</p>
+     * <p>Returns the name property of this dataset.
      *
      * @return The name property of the dataset
      */
@@ -99,7 +99,7 @@ public class DatasetModel implements Displayable {
     }
 
     /**
-     * <p>Returns the absolute path of this dataset.</p>
+     * <p>Returns the absolute path of this dataset.
      *
      * @return The absolute path to the dataset
      */
@@ -108,7 +108,7 @@ public class DatasetModel implements Displayable {
     }
 
     /**
-     * <p>Returns the absolute path property of this dataset.</p>
+     * <p>Returns the absolute path property of this dataset.
      *
      * @return The absolute path property of the dataset
      */
@@ -117,7 +117,7 @@ public class DatasetModel implements Displayable {
     }
 
     /**
-     * <p>Sets the name of this dataset to the provided value.</p>
+     * <p>Sets the name of this dataset to the provided value.
      *
      * @param name The new name for this dataset
      */
@@ -126,7 +126,7 @@ public class DatasetModel implements Displayable {
     }
 
     /**
-     * <p>Sets the absolute path to this dataset to the provided value.</p>
+     * <p>Sets the absolute path to this dataset to the provided value.
      *
      * @param absolutePath The new absolute path for this dataset
      */
@@ -135,7 +135,7 @@ public class DatasetModel implements Displayable {
     }
 
     /**
-     * <p>Returns the UUID of this dataset.</p>
+     * <p>Returns the UUID of this dataset.
      *
      * @return The universally unique identifier of the dataset
      */

@@ -27,11 +27,11 @@ import java.util.*;
 /**
  * {@inheritDoc}
  * <p>Cartesian chromosomes encodes a graph and can have different graph dimensions, controlled by
- * the number of columns, rows, and the amount of connectivity between nodes.</p>
+ * the number of columns, rows, and the amount of connectivity between nodes.
  *
  * <p>This implementation of a cartesian chromosome is based on feed-forward Cartesian Genetic Programming.
  * Cycles in the graph are prevented by restricting nodes in the graph such that they can only connect to
- * preceding nodes. The genome is linearly encoded and can support multiple outputs.</p>
+ * preceding nodes. The genome is linearly encoded and can support multiple outputs.
  */
 @Log4j2
 public class CartesianChromosome<T> extends Chromosome<T> implements LinearChromosome<Integer>, Cloneable {
@@ -47,7 +47,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
 
     /**
      * <p>Constructs a new cartesian chromosome with the provided number of inputs, columns, rows, and
-     * maximum number of levels back that those nodes may connect to</p>
+     * maximum number of levels back that those nodes may connect to
      *
      * @param numInputs  The number of inputs that may be expressed by the chromosome
      * @param columns    The number of columns in the chromosome
@@ -92,7 +92,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the number of nodes in this chromosome's genome</p>
+     * <p>Returns the number of nodes in this chromosome's genome
      *
      * @return the number of nodes in the chromosome's genome
      */
@@ -101,7 +101,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Converts the node at the provided position in the graph to an index within the entire genome</p>
+     * <p>Converts the node at the provided position in the graph to an index within the entire genome
      *
      * @param node     the position of the node to produce an index for
      * @param inputs   the number of inputs in the chromosome the node belongs to
@@ -114,7 +114,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
 
 
     /**
-     * <p>Generates the output of all active nodes in this chromosome</p>
+     * <p>Generates the output of all active nodes in this chromosome
      *
      * @param activeNodes the active nodes in the chromosome to evaluate grouped by output node
      * @param genome      the genome of the chromosome
@@ -184,7 +184,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the active nodes for each output in the genome, a.k.a. the phenotype</p>
+     * <p>Returns the active nodes for each output in the genome, a.k.a. the phenotype
      *
      * @param inputs     The number of inputs in the chromosome
      * @param genome     The genome of the chromosome
@@ -283,7 +283,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns a human-readable representation of a node in this chromosome</p>
+     * <p>Returns a human-readable representation of a node in this chromosome
      *
      * @param node       the node to format
      * @param inputs     the number of inputs in the chromosome
@@ -335,7 +335,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     /**
      * {@inheritDoc}
      *
-     * <p>The string returned is a human-readable representation of this chromosome's phenotype</p>
+     * <p>The string returned is a human-readable representation of this chromosome's phenotype
      */
     @Override
     public String toString() {
@@ -385,7 +385,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Sets the genome of this chromosome to the specified value</p>
+     * <p>Sets the genome of this chromosome to the specified value
      *
      * @param genome The new genome of the chromosome
      */
@@ -397,7 +397,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Sets the outputs of this chromosome to the specified value</p>
+     * <p>Sets the outputs of this chromosome to the specified value
      *
      * @param outputs The new outputs of the chromosome
      */
@@ -409,7 +409,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Sets the phenome of this chromosome to the specified value</p>
+     * <p>Sets the phenome of this chromosome to the specified value
      *
      * @param phenome The new phenome of the chromosome
      */
@@ -424,7 +424,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the phenome of this chromosome</p>
+     * <p>Returns the phenome of this chromosome
      *
      * @return the phenome of the chromosome
      */
@@ -446,7 +446,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the maximum arity of the primitives available to this chromosome</p>
+     * <p>Returns the maximum arity of the primitives available to this chromosome
      *
      * @return the maximum arity of the primitive set used by the chromosome
      */
@@ -456,7 +456,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
 
 
     /**
-     * <p>Returns the number of outputs used by this chromosome</p>
+     * <p>Returns the number of outputs used by this chromosome
      *
      * @return the number of outputs used by the chromosome
      */
@@ -465,7 +465,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the number of columns used by this chromosome</p>
+     * <p>Returns the number of columns used by this chromosome
      *
      * @return the number of columns used by the chromosome
      */
@@ -474,7 +474,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the number of rows used by this chromosome</p>
+     * <p>Returns the number of rows used by this chromosome
      *
      * @return the number of rows used by the chromosome
      */
@@ -483,7 +483,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the maximum number of levels back that nodes in this chromosome may connect to</p>
+     * <p>Returns the maximum number of levels back that nodes in this chromosome may connect to
      *
      * @return the maximum number of levels back used by the chromosome
      */
@@ -492,7 +492,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the primitives available to this chromosome</p>
+     * <p>Returns the primitives available to this chromosome
      *
      * @return the primitives available to the chromosome
      */
@@ -501,7 +501,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Sets the primitives available to this chromosome to the provided value</p>
+     * <p>Sets the primitives available to this chromosome to the provided value
      *
      * @param primitives The new primitive set to make available to the chromosome
      */

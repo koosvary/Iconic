@@ -49,7 +49,7 @@ public class ExponentialTest {
      * <p>
      * Returns a stream of double n-tuples, where the last member of the tuple is the value of exponential
      * of the operand, (ie e^x)
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

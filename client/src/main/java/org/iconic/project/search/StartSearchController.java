@@ -60,7 +60,6 @@ import java.util.concurrent.locks.ReentrantLock;
 @Log4j2
 public class StartSearchController implements Initializable {
 
-    private final SearchService searchService;
     private final IconService iconService;
     private final WorkspaceService workspaceService;
 
@@ -100,10 +99,8 @@ public class StartSearchController implements Initializable {
     @Inject
     public StartSearchController(
             final WorkspaceService workspaceService,
-            final SearchService searchService,
             final IconService iconService
     ) {
-        this.searchService = searchService;
         this.iconService = iconService;
         this.workspaceService = workspaceService;
         this.updating = new ReentrantLock();
@@ -296,7 +293,7 @@ public class StartSearchController implements Initializable {
     }
 
     /**
-     * <p>Stops the provided search</p>
+     * <p>Stops the provided search
      *
      * @param actionEvent The action that triggered the event
      */
@@ -364,15 +361,6 @@ public class StartSearchController implements Initializable {
      */
     private WorkspaceService getWorkspaceService() {
         return workspaceService;
-    }
-
-    /**
-     * Returns the search service of this controller
-     *
-     * @return the search service of the controller
-     */
-    private SearchService getSearchService() {
-        return searchService;
     }
 
     /**

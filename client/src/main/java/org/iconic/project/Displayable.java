@@ -22,14 +22,14 @@ import java.util.Optional;
  */
 public interface Displayable {
     /**
-     * <p>Returns the label for this object</p>
+     * <p>Returns the label for this object
      *
      * @return The label of the object
      */
     String getLabel();
 
     /**
-     * <p>Returns the icon for for this object if present</p>
+     * <p>Returns the icon for for this object if present
      *
      * @return The icon of the object if present
      */

@@ -25,10 +25,7 @@ import javafx.stage.Stage;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.iconic.config.InMemoryModule;
-import org.iconic.project.ProjectModel;
 import org.iconic.project.ProjectService;
-import org.iconic.project.search.SearchService;
-import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.views.ViewService;
 
@@ -42,7 +39,7 @@ import java.util.stream.Collectors;
  * <p>
  * The bootstrapper defines the entry point for the graphical user interface and performs all the necessary setup
  * to link views to their controllers and models.
- * </p>
+ *
  */
 @Log4j2
 public class Bootstrapper extends Application {
@@ -53,7 +50,7 @@ public class Bootstrapper extends Application {
     /**
      * <p>
      * Launches the application with the provided arguments.
-     * </p>
+     *
      *
      * @param args The arguments to pass to the application
      */
@@ -62,7 +59,7 @@ public class Bootstrapper extends Application {
     }
 
     /**
-     * <p>Constructs a new Bootstrapper</p>
+     * <p>Constructs a new Bootstrapper
      */
     public Bootstrapper() {
         super();
@@ -135,7 +132,7 @@ public class Bootstrapper extends Application {
     }
 
     /**
-     * <p>Returns the default injector of this bootstrapper</p>
+     * <p>Returns the default injector of this bootstrapper
      *
      * @return the default injector of the bootstrapper
      */
@@ -144,7 +141,7 @@ public class Bootstrapper extends Application {
     }
 
     /**
-     * <p>Returns the project service of this bootstrapper</p>
+     * <p>Returns the project service of this bootstrapper
      *
      * @return the project service of the bootstrapper
      */
@@ -153,7 +150,7 @@ public class Bootstrapper extends Application {
     }
 
     /**
-     * <p>Returns the view service of this bootstrapper</p>
+     * <p>Returns the view service of this bootstrapper
      *
      * @return the view service of the bootstrapper
      */

@@ -49,7 +49,7 @@ public class GaussianFunctionTest {
      * <p>
      * Returns a stream of double n-tuples, where the last member of the tuple is the value of a simple Gaussian function
      * (ie exp(-x^2))
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

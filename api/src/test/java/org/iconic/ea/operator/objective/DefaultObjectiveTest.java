@@ -35,8 +35,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 /**
- * <p>Test class for {@link org.iconic.ea.operator.objective.DefaultObjective}</p>
- * <p><b>Mockito</b> is used, and shows how one should use mocks in their own tests.</p>
+ * <p>Test class for {@link org.iconic.ea.operator.objective.DefaultObjective}
+ * <p><b>Mockito</b> is used, and shows how one should use mocks in their own tests.
  * @author Scott Walker
  */
 @Disabled
@@ -51,7 +51,7 @@ class DefaultObjectiveTest {
     private Chromosome<Double> chromosome;
 
     /**
-     * <p>The setup method to run before EVERY test is started. (Not once overall)</p>
+     * <p>The setup method to run before EVERY test is started. (Not once overall)
      */
     @BeforeEach
     void setUp() {
@@ -85,8 +85,8 @@ class DefaultObjectiveTest {
     }
 
     /**
-     * <p>Test we get the expected results from apply()</p>
-     * <p>Because @BeforeEach was used, the test itself is quite small, yay!</p>
+     * <p>Test we get the expected results from apply()
+     * <p>Because @BeforeEach was used, the test itself is quite small, yay!
      */
     @Test
     void testApply() {

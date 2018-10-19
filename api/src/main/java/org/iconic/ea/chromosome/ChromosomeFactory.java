@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * <p>
  * A ChromosomeFactory is used for easily replicating chromosomes.
- * </p>
+ *
  *
  * @param <T> The type of chromosome to be constructed
  * @param <R> The type class of the data to pass through the chromosome
@@ -39,7 +39,7 @@ public abstract class ChromosomeFactory<T extends Chromosome<R>, R> {
     }
 
     /**
-     * <p>Returns a new chromosome constructed according to the parameters of this factory</p>
+     * <p>Returns a new chromosome constructed according to the parameters of this factory
      *
      * @return a chromosome constructed by the factory
      */
@@ -63,7 +63,7 @@ public abstract class ChromosomeFactory<T extends Chromosome<R>, R> {
     }
 
     /**
-     * <p>Returns the maximum arity of the functions used by this factory</p>
+     * <p>Returns the maximum arity of the functions used by this factory
      *
      * @return the maximum arity of the functions used by the factory
      */
@@ -72,7 +72,7 @@ public abstract class ChromosomeFactory<T extends Chromosome<R>, R> {
     }
 
     /**
-     *  <p>Sets the maximum arity of the functions used by this factory to the provided value</p>
+     *  <p>Sets the maximum arity of the functions used by this factory to the provided value
      *
      * @param maxArity the new maximum of the functions used by the factory
      */

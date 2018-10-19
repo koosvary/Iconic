@@ -33,14 +33,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * <p>
  * A test suite for the {@link CartesianChromosome} class.
- * </p>
+ *
  *
  * <p>
  * This test suite ensures the following:
  * - the active nodes of chromosomes are correctly evaluated
  * - the output of chromosomes are correctly evaluated
  * - nodes are correctly transformed into indices within the whole genome
- * </p>
+ *
  */
 @Log4j2
 public class CartesianChromosomeTest {
@@ -53,7 +53,7 @@ public class CartesianChromosomeTest {
     }
 
     /**
-     * <p>Test incomplete</p>
+     * <p>Test incomplete
      *
      * @param inputs
      * @param genome
@@ -70,7 +70,7 @@ public class CartesianChromosomeTest {
     }
 
     /**
-     * <p>Test incomplete</p>
+     * <p>Test incomplete
      *
      * @param inputs
      * @param genome
@@ -112,7 +112,7 @@ public class CartesianChromosomeTest {
     }
 
     /**
-     * <p>Helper method for fetching a chromosome</p>
+     * <p>Helper method for fetching a chromosome
      *
      * @param inputs
      * @param outputs
