@@ -41,6 +41,9 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.ResourceBundle;
 
+import static org.iconic.project.search.config.SearchConfigurationModel.bindTextProperty;
+import static org.iconic.project.search.config.SearchConfigurationModel.disableControlIfEmpty;
+
 public class CgpConfigurationController implements Initializable {
     private final WorkspaceService workspaceService;
 
@@ -130,29 +133,8 @@ public class CgpConfigurationController implements Initializable {
         disableControlIfEmpty(cbCrossovers, crossovers);
     }
 
-    private void bindTextProperty(
-            final Property<Number> property,
-            final StringProperty field
-    ) {
-        Bindings.bindBidirectional(
-                field,
-                property,
-                new NumberStringConverter()
-        );
-    }
-
-    private void disableControlIfEmpty(final Control control, Collection<?> options) {
-        if (options.size() < 1) {
-            control.setDisable(true);
-        } else {
-            control.setDisable(false);
-        }
-    }
-
     /**
-     * <p>Returns the workspace service of this controller</p>
-     *
-     * @return the workspace service of the controller
+     * @return The workspace service of the controller.
      */
     private WorkspaceService getWorkspaceService() {
         return workspaceService;
