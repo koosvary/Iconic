@@ -97,7 +97,7 @@
         </HBox>
 
         <HBox>
-            <VBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
+            <!--<VBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
                 <padding>
                     <Insets top="10" bottom="10" left="10" right="10"/>
                 </padding>
@@ -138,7 +138,7 @@
                         </GridPane>
                     </content>
                 </ScrollPane>
-            </VBox>
+            </VBox>-->
         </HBox>
     </VBox>
 </WorkspaceTab>
