@@ -43,7 +43,7 @@ public abstract class MultiObjective<T extends Comparable<T>> implements Objecti
         this.goals = new LinkedList<>(goals);
     }
 
-    public Collection<Objective<T>> getGoals() {
+    public List<Objective<T>> getGoals() {
         return goals;
     }
 

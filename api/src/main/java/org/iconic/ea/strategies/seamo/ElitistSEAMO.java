@@ -102,7 +102,7 @@ public class ElitistSEAMO<R extends Chromosome<T>, T extends Comparable<T>>
         // (unfortunately this makes the function impure)
         newPopulation.forEach(chromosome -> {
                     multiObjective.getGoals().parallelStream().forEach(goal ->
-                            addGlobal(getGlobals(), goal, goal.apply(chromosome)));
+                            addGlobal(getGlobals(), chromosome, goal, goal.apply(chromosome)));
                     multiObjective.apply(chromosome);
                 }
         );

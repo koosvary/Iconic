@@ -42,9 +42,8 @@ public class SimpleMultiObjective extends MultiObjective<Double> {
      */
     @Override
     public double apply(final Chromosome<Double> c) {
-        double fitness = getGoals().stream()
-                .mapToDouble(goal -> goal.apply(c))
-                .sum() / getGoals().size();
+        getGoals().forEach(goal -> goal.apply(c));
+        double fitness = getGoals().get(0).apply(c);
         c.setFitness(fitness);
         return fitness;
     }

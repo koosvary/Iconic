@@ -49,8 +49,10 @@ import java.util.stream.Collectors;
 public class SEAMO<R extends Chromosome<T>, T extends Comparable<T>>
         extends EvolutionaryAlgorithm<R, T> {
     private final Map<Objective<T>, Double> globals;
+    private final Map<Objective<T>, Chromosome<T>> globalChromosomes;
     private final Selector<R> defaultPrimarySelector;
     private final Selector<R> defaultSecondarySelector;
+    private final Set<Chromosome<T>> archive;
     private int lambda;
 
     /**
@@ -75,8 +77,10 @@ public class SEAMO<R extends Chromosome<T>, T extends Comparable<T>>
     public SEAMO(ChromosomeFactory<R, T> chromosomeFactory, int lambda) {
         super(chromosomeFactory);
         this.globals = new LinkedHashMap<>();
+        this.globalChromosomes = new LinkedHashMap<>();
         this.defaultPrimarySelector = new SequentialSelector<>();
         this.defaultSecondarySelector = new RandomUniformSelector<>();
+        this.archive = new LinkedHashSet<>();
         this.lambda = lambda;
     }
 
@@ -90,12 +94,13 @@ public class SEAMO<R extends Chromosome<T>, T extends Comparable<T>>
         for (int i = 0; i < populationSize; i++) {
             final MultiObjective<T> objective = (MultiObjective<T>) getObjective();
             final R chromosome = getChromosomeFactory().getChromosome();
-            getChromosomes().add(chromosome);
 
+            getObjective().apply(chromosome);
             objective.getGoals().forEach(goal ->
-                    addGlobal(getGlobals(), goal, goal.apply(chromosome))
+                    addGlobal(getGlobals(), chromosome, goal, goal.apply(chromosome))
             );
             getObjective().apply(chromosome);
+            getChromosomes().add(chromosome);
         }
     }
 
@@ -139,8 +144,8 @@ public class SEAMO<R extends Chromosome<T>, T extends Comparable<T>>
                 if (isDominatedBy(getObjective(), parent, offspring)) {
                     alreadyReplaced = replaceParent(getObjective(), newPopulation, parent, offspring);
                 }
-                // Otherwise check if the parent should still be replaced
-                else if (shouldReplace(getObjective(), newPopulation, parent, offspring)) {
+                // Otherwise check if the offspring should still replace the parent
+                else if (shouldReplace(getGlobals(), getObjective(), newPopulation, offspring)) {
                     // If the parent isn't a global best it can be replaced
                     if (!isGlobalBest(parent)) {
                         alreadyReplaced = replaceParent(getObjective(), newPopulation, parent, offspring);
@@ -193,7 +198,7 @@ public class SEAMO<R extends Chromosome<T>, T extends Comparable<T>>
         if (i > -1) {
             population.set(i, offspring);
             multiObjective.getGoals().parallelStream()
-                    .forEach(goal -> addGlobal(getGlobals(), goal, goal.apply(offspring)));
+                    .forEach(goal -> addGlobal(getGlobals(), offspring, goal, goal.apply(offspring)));
             multiObjective.apply(offspring);
 
             return true;
@@ -237,26 +242,36 @@ public class SEAMO<R extends Chromosome<T>, T extends Comparable<T>>
     }
 
     /**
-     * Returns true if the provided chromosome should be replaced and the replacement isn't
+     * Returns true if the provided chromosome is a new global best and isn't
      * a duplicate of an existing chromosome in the given population.
      *
      * @param objective   The objective to use as the determining factor.
      * @param population  The population both chromosomes belong to.
-     * @param chromosome  The chromosome to replace.
-     * @param replacement The chromosome to use as the replacement.
+     * @param chromosome  The chromosome to use as the replacement.
      * @return True if the chromosome should be replaced.
      */
     protected boolean shouldReplace(
+            final Map<Objective<T>, Double> globals,
             final Objective<T> objective,
             final List<R> population,
-            final R chromosome,
-            final R replacement
+            final R chromosome
     ) {
-        if (population.contains(replacement)) {
+        assert (objective instanceof MultiObjective);
+
+        if (population.contains(chromosome)) {
             return false;
         }
 
-        return objective.isNotWorse(replacement.getFitness(), chromosome.getFitness());
+        final MultiObjective<T> multiObjective = (MultiObjective<T>) objective;
+
+        // Check if the chromosome is a new global best
+        boolean isGlobal = multiObjective.getGoals().stream().map(goal ->
+                goal.isNotWorse(
+                        goal.apply(chromosome), globals.get(goal)
+                )
+        ).reduce(true, (x, y) -> x && y);
+
+        return isGlobal;
     }
 
     /**
@@ -322,6 +337,10 @@ public class SEAMO<R extends Chromosome<T>, T extends Comparable<T>>
         return globals;
     }
 
+    public Set<Chromosome<T>> getArchive() {
+        return archive;
+    }
+
     /**
      * Adds the provided fitness to the specified goal as a global best, given that it meets
      * all the criteria for being one.
@@ -332,6 +351,7 @@ public class SEAMO<R extends Chromosome<T>, T extends Comparable<T>>
      */
     protected void addGlobal(
             final Map<Objective<T>, Double> globals,
+            final Chromosome<T> chromosome,
             final Objective<T> goal,
             Double fitness
     ) {
@@ -345,6 +365,8 @@ public class SEAMO<R extends Chromosome<T>, T extends Comparable<T>>
         if (!globals.containsKey(goal) || goal.isNotWorse(fitness, globals.get(goal))
         ) {
             globals.put(goal, fitness);
+            globalChromosomes.put(goal, chromosome);
+            archive.add(chromosome);
         }
     }
 
@@ -380,5 +402,9 @@ public class SEAMO<R extends Chromosome<T>, T extends Comparable<T>>
     private void setLambda(int lambda) {
         // Set a minimum lambda of one
         this.lambda = (lambda < 1) ? 1 : lambda;
+    }
+
+    public Map<Objective<T>, Chromosome<T>> getGlobalChromosomes() {
+        return globalChromosomes;
     }
 }
