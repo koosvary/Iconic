@@ -76,8 +76,14 @@ public class Client {
             log.info("Sample Size: {}", () -> sampleSize);
 
             // Create a supplier for Gene Expression Programming chromosomes
+            List<String> inputs = new ArrayList<>(featureSize - 1);
+
+            for (int i = 0; i < featureSize - 1; ++i) {
+                inputs.add(String.valueOf(i));
+            }
+
             ChromosomeFactory<CartesianChromosome<Double>, Double> supplier = new CartesianChromosomeFactory<>(
-                    outputs, featureSize - 1, columns, rows, levelsBack
+                    outputs, inputs, columns, rows, levelsBack
             );
 
             // Add in the functions the chromosomes can use

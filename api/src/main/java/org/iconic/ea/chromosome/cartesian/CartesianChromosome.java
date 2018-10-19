@@ -35,6 +35,7 @@ import java.util.*;
  */
 @Log4j2
 public class CartesianChromosome<T> extends Chromosome<T> implements LinearChromosome<Integer>, Cloneable {
+    private Map<Integer, String> featureLabels;
     private Map<Integer, List<Integer>> phenome;
     private List<Integer> outputs;
     private List<Integer> genome;
@@ -63,11 +64,35 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
             List<Integer> outputs,
             List<Integer> genome
     ) {
+        this(primitives, numInputs, columns, rows, levelsBack, outputs, genome, new HashMap<>());
+    }
+
+
+    /**
+     * <p>Constructs a new cartesian chromosome with the provided number of inputs, columns, rows, and
+     * maximum number of levels back that those nodes may connect to
+     *
+     * @param numInputs  The number of inputs that may be expressed by the chromosome
+     * @param columns    The number of columns in the chromosome
+     * @param rows       The number of rows in the chromosome
+     * @param levelsBack The maximum number of levels back that nodes may connect to
+     */
+    public CartesianChromosome(
+            List<FunctionalPrimitive<T, T>> primitives,
+            int numInputs,
+            int columns,
+            int rows,
+            int levelsBack,
+            List<Integer> outputs,
+            List<Integer> genome,
+            Map<Integer, String> featureLabels
+    ) {
         super(numInputs);
         this.primitives = primitives;
         this.columns = columns;
         this.rows = rows;
         this.levelsBack = levelsBack;
+        this.featureLabels = featureLabels;
 
         assert (outputs.size() > 0);
 
@@ -300,7 +325,8 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         // FOr now just print F + the input number for input nodes
         // TODO: change to feature labels
         if (index < inputs) {
-            outputBuilder.append("F").append(node);
+            String label = getFeatureLabels().get(node);
+            outputBuilder.append(label);
         }
         // Any other node is treated as a function node
         else {
@@ -515,7 +541,8 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     @Override
     public CartesianChromosome<T> clone() {
         CartesianChromosome<T> clone = new CartesianChromosome<>(
-                getPrimitives(), getInputs(), getColumns(), getRows(), getLevelsBack(), getOutputs(), null
+                getPrimitives(), getInputs(), getColumns(), getRows(), getLevelsBack(), getOutputs(), null,
+                getFeatureLabels()
         );
 
         clone.setGenome(getGenome());
@@ -525,6 +552,13 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         clone.setChanged(isChanged());
 
         return clone;
+    }
+
+    /**
+     * @return The feature labels associated with each feature in the chromosome.
+     */
+    private Map<Integer, String> getFeatureLabels() {
+        return featureLabels;
     }
 
     /**
