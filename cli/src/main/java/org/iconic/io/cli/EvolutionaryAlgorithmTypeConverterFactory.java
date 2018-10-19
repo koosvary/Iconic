@@ -19,14 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.io;
+package org.iconic.io.cli;
 
 import com.beust.jcommander.IStringConverter;
+import com.beust.jcommander.IStringConverterFactory;
 import org.iconic.ea.EvolutionaryAlgorithmType;
 
-public class EvolutionaryAlgorithmTypeConverter implements IStringConverter<EvolutionaryAlgorithmType> {
+@SuppressWarnings({"unchecked", "rawtypes"})
+public class EvolutionaryAlgorithmTypeConverterFactory implements IStringConverterFactory {
     @Override
-    public EvolutionaryAlgorithmType convert(String value) {
-        return EvolutionaryAlgorithmType.valueOf(value);
+    public Class<? extends IStringConverter<?>> getConverter(Class forType) {
+        if (forType.equals(EvolutionaryAlgorithmType.class)) {
+            return EvolutionaryAlgorithmTypeConverter.class;
+        } else {
+            return null;
+        }
     }
 }

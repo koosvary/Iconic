@@ -23,6 +23,8 @@ package org.iconic;
 
 import com.beust.jcommander.JCommander;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.ChromosomeFactory;
@@ -36,27 +38,32 @@ import org.iconic.ea.operator.objective.*;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.operator.objective.multiobjective.SimpleMultiObjective;
 import org.iconic.ea.operator.primitive.*;
-import org.iconic.ea.strategies.seamo.ElitistSEAMO;
 import org.iconic.ea.strategies.seamo.SEAMO;
-import org.iconic.io.ArgsConverterFactory;
-import org.knowm.xchart.SwingWrapper;
-import org.knowm.xchart.XYChart;
-import org.knowm.xchart.XYChartBuilder;
-import org.knowm.xchart.XYSeries;
-import org.knowm.xchart.style.Styler;
-import org.knowm.xchart.style.markers.SeriesMarkers;
+import org.iconic.io.cli.ArgsConverterFactory;
+import org.iconic.utils.GraphWriter;
+import org.iconic.utils.XYGraphWriter;
+import org.knowm.xchart.*;
 
-import javax.swing.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Log4j2
 public class Client {
-    /** Parses an array of strings as tokens to be converted by a provided factory */
+    /**
+     * Parses an array of strings as tokens to be converted by a provided factory
+     */
     private final JCommander argParser;
     private final ArgsConverterFactory args;
+    private static final long NOW = Instant.now().getEpochSecond();
 
     public static void main(String[] args) {
         // Create a new client and parse the arguments passed in to the program
@@ -70,9 +77,11 @@ public class Client {
 
         // Check if the user passed in an input file
         final String inputFile = client.getArgs().getInput();
+        final String[] fileNameParts = inputFile.split(Pattern.quote("."));
+        final String fileName = fileNameParts[fileNameParts.length - 2];
 
         // Don't do anything if they didn't pass in an input file
-        if (inputFile != null && !inputFile.isEmpty()) {
+        if (!inputFile.isEmpty()) {
             final DataManager<Double> dm = new DataManager<>(inputFile);
 
             // Sanitise the dataset for any missing values
@@ -97,130 +106,249 @@ public class Client {
             // Add all of the functions the chromosomes can use
             supplier.addFunction(Arrays.asList(
                     new Addition(), new Subtraction(), new Multiplication(), new Division(),
-                    new Power(), new Root(), new SquareRoot(), new Tan()
-//                    new ArithmeticPrimitive<>(x -> x.get(0) * 2,
-//                            1, "NEW", "My new primitive", 1
-//                    )
+                    new Ceiling(), new Exponential(), new GaussianFunction(),
+                    new Power(), new Sin()
             ));
 
-            // Create an evolutionary algorithm using Gene Expression Programming
-            EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea =
-                    new SEAMO<>(supplier, 1);
-            ea.setCrossoverProbability(client.getArgs().getCrossoverProbability());
-            ea.setMutationProbability(client.getArgs().getMutationProbability());
+            Set<Chromosome<Double>> nonDominatedFinal = new LinkedHashSet<>();
+            Set<Chromosome<Double>> nonDominatedAll = new LinkedHashSet<>();
 
-            // Add in the evolutionary operators the algorithm can use
-            ea.addMutator(new CartesianSingleActiveMutator<>());
-
-            // Add in the objectives the algorithm should aim for
-            ea.setObjective(
-                    new SimpleMultiObjective(
-                            Arrays.asList(
-                                    new CacheableObjective<>(
-                                            new DefaultObjective(new MeanSquaredError(), dm)
-                                    ),
-                                    new CacheableObjective<>(
-                                            new SizeObjective()
-                                    )
-                            )
-                    )
-            );
-
-            // Initialise the population
-            final int generations = client.getArgs().getGenerations();
-            ea.initialisePopulation(client.getArgs().getPopulation());
-            List<CartesianChromosome<Double>> population = ea.getChromosomes();
-            Instant start = Instant.now();
+            final Instant start = Instant.now();
 
             // Start the evolutionary loop
-            for (int i = 0; i < generations; ++i) {
-                population = ea.evolve(population);
-                // Pretty-print a summarised progress indicator
-                printOutput(ea, generations, start, new StringBuilder(), i);
+            for (int trial = 0; trial < client.getArgs().getRepetitions(); ++trial) {
+                EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea = getEvolutionaryAlgorithm(
+                        client.getArgs(), dm, supplier
+                );
+
+                // Initialise the population
+                final int generations = client.getArgs().getGenerations();
+                ea.initialisePopulation(client.getArgs().getPopulation());
+                List<CartesianChromosome<Double>> population = ea.getChromosomes();
+
+                for (int i = 0; i < generations; ++i) {
+                    population = ea.evolve(population);
+                    // Pretty-print a summarised progress indicator
+                    printOutput(ea, generations, start, i, trial);
+                }
+
+                nonDominatedFinal.addAll(
+                        ((SEAMO<CartesianChromosome<Double>, Double>) ea)
+                                .getGlobalChromosomes().values()
+                );
+                nonDominatedAll.addAll(
+                        ((SEAMO<CartesianChromosome<Double>, Double>) ea)
+                                .getArchive()
+                );
             }
-            // When it ends print a graph of the solutions plotted by their dimensions
-            if (client.getArgs().isGraph()) {
-                drawGraph(population);
+
+            final String directory = fileName + "//" + NOW;
+
+            // Make sure the output directory exists
+            try {
+                Files.createDirectories(Paths.get(directory));
+                // Export the CLI arguments to a README file
+                writeReadme(client.getArgs(), directory, Duration.between(start, Instant.now()));
+                // Export the results to a CSV file
+                if (client.getArgs().isCsv()) {
+                    exportCsv(directory, "results-last-gen", nonDominatedFinal);
+                    exportCsv(directory, "results-all-gen", nonDominatedAll);
+                }
+                // Print and export a graph of the solutions plotted by their dimensions
+                if (client.getArgs().isGraph()) {
+                    GraphWriter writer = new XYGraphWriter(
+                            "Mean Squared Error", "Size", "Plot of Non-Dominated Solution",
+                            XYSeries.XYSeriesRenderStyle.Scatter, Chromosome::getFitness, Chromosome::getSize
+                    );
+
+                    drawGraph(nonDominatedFinal, writer);
+                    writer.export("Last Generation - Non-Dominated", directory, "results-last");
+                    writer.clear();
+
+                    drawGraph(nonDominatedAll, writer);
+                    writer.export("Last Generation - Non-Dominated", directory, "results-all");
+                }
+            } catch (IOException ex) {
+                log.error("{}: {}", ex::getMessage, ex::getCause);
             }
         }
     }
 
-    private static void drawGraph(List<CartesianChromosome<Double>> population) {
-        // Create a chart for plotting the final goals
-        XYChart chart = new XYChartBuilder().width(720).height(480).title("Squared-Error-vs-Size")
-                .xAxisTitle("Squared Error").yAxisTitle("Size")
-                .theme(Styler.ChartTheme.GGPlot2).build();
-        chart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
-        chart.getStyler().setChartTitleVisible(false);
-        chart.getStyler().setLegendPosition(Styler.LegendPosition.InsideSW);
-        chart.getStyler().setMarkerSize(16);
-
-        LinkedList<Number> fitnessSeries = new LinkedList<>();
-        LinkedList<Number> sizeSeries = new LinkedList<>();
-
-        population.forEach(chromosome -> {
-            if (chromosome.getFitness() != Double.POSITIVE_INFINITY &&
-                    chromosome.getFitness() != Double.NEGATIVE_INFINITY) {
-                fitnessSeries.add(chromosome.getFitness());
-                sizeSeries.add(chromosome.getSize());
-            }
-        });
-
-        chart.addSeries("Solutions", fitnessSeries, sizeSeries);
-        new SwingWrapper<>(chart).displayChart();
+    /**
+     * Writes a README to the user's filesystem using the arguments provided.
+     *
+     * @param args      The argument factory whose values are to be include in the README.
+     * @param directory The directory to write the README to.
+     * @param time      The time to record.
+     */
+    private static void writeReadme(final ArgsConverterFactory args, final String directory, final Duration time)
+            throws IOException {
+        try (FileWriter printer = new FileWriter(new File(directory + "//" + "README"))) {
+            printer.write(String.format("Input File:\t\t%s\n", args.getInput()));
+            printer.write(String.format("Eval. Time:\t\t%s\n", time.toString()));
+            printer.write(String.format("Repetitions:\t%s\n", args.getRepetitions()));
+            printer.write(String.format("Population:\t\t%s\n", args.getPopulation()));
+            printer.write(String.format("Generations:\t%s\n", args.getGenerations()));
+            printer.write(String.format("Outputs:\t\t\t%s\n", args.getOutputs()));
+            printer.write(String.format("Rows:\t\t\t\t\t%s\n", args.getRows()));
+            printer.write(String.format("Columns:\t\t\t%s\n", args.getColumns()));
+            printer.write(String.format("Levels Back:\t%s\n", args.getLevelsBack()));
+        }
     }
 
-    private static void printOutput(EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea, int generations, Instant start, StringBuilder out, int i) {
-        int percent;
-        percent = intToPercent(i, generations);
+    /**
+     * Exports a provided population of chromosomes to a CSV file with the specified directory and name.
+     * <p>
+     * The exported file uses an Excel-compatible CSV format.
+     *
+     * @param directory  The directory to write the CSV file to.
+     * @param fileName   The name of the file to write.
+     * @param population The population to write to the file.
+     */
+    private static void exportCsv(String directory, String fileName, Set<Chromosome<Double>> population)
+            throws IOException {
+        try (CSVPrinter printer = new CSVPrinter(
+                new FileWriter(new File(directory + "//" + fileName + ".csv")),
+                CSVFormat.EXCEL
+        )) {
+            for (final Chromosome<?> chromosome : population) {
+                printer.printRecord(chromosome.getFitness(), chromosome.getSize());
+            }
+        }
+    }
 
+    /**
+     * @param args     The argument factory whose values will be used in constructing the evolutionary algorithm.
+     * @param dm       The data manager.
+     * @param supplier The chromosome supplier.
+     * @return An evolutionary algorithm constructed according to the provided parameters.
+     */
+    private static EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> getEvolutionaryAlgorithm(
+            final ArgsConverterFactory args,
+            final DataManager<Double> dm,
+            final ChromosomeFactory<CartesianChromosome<Double>, Double> supplier
+    ) {
+        // Create the evolutionary algorithm
+        EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea =
+                // TODO: generify with a factory so it isn't always SEAMO
+                new SEAMO<>(supplier, 1);
+        ea.setCrossoverProbability(args.getCrossoverProbability());
+        ea.setMutationProbability(args.getMutationProbability());
+
+        // Add in the evolutionary operators the algorithm can use
+        ea.addMutator(new CartesianSingleActiveMutator<>());
+
+        // Add in the objectives the algorithm should aim for
+        ea.setObjective(
+                new SimpleMultiObjective(
+                        Arrays.asList(
+                                new CacheableObjective<>(
+                                        new DefaultObjective(new MeanSquaredError(), dm)
+                                ),
+                                new CacheableObjective<>(
+                                        new SizeObjective()
+                                )
+                        )
+                )
+        );
+        return ea;
+    }
+
+    /**
+     * Writes a given population to the specified graph writer.
+     *
+     * @param population The population to write
+     * @param writer     The graph writer instance to write to
+     */
+    private static void drawGraph(final Set<Chromosome<Double>> population, final GraphWriter writer) {
+        // Ignore malformed chromosomes
+        population.stream().filter(chromosome ->
+                chromosome.getFitness() != Double.POSITIVE_INFINITY &&
+                        chromosome.getFitness() != Double.NEGATIVE_INFINITY
+        ).forEach(writer::write);
+    }
+
+    /**
+     * Pretty-prints a formatted progress indicator to the standard output stream.
+     *
+     * @param ea                The evolutionary algorithm being used.
+     * @param generations       The maximum number of generations.
+     * @param start             The start time.
+     * @param currentGeneration The current generation.
+     * @param trial             The current trial.
+     */
+    private static void printOutput(
+            final EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea,
+            int generations,
+            final Instant start,
+            int currentGeneration,
+            int trial
+    ) {
+        int percent = intToPercent(currentGeneration, generations);
+        final StringBuilder out = new StringBuilder();
+
+        // Ensure the algorithm used is SEAMO when including global bests
         String global = (ea instanceof SEAMO)
                 ? " (" + ((SEAMO<?, Double>) ea).getGlobals().values().stream()
                 .map(v -> String.format("%.4f", v)).collect(Collectors.joining(", ")) + ")"
                 : "";
 
-        // And include the current best fitness
+        // Print the output on a single line so it look like it's being updated
         out.append("\r")
-                .append("Progress: ").append(percent).append("%")
+                .append("Trial: ").append(trial)
+                .append(" > Progress: ").append(percent).append("%")
                 // And include the current best fitness
                 .append("\t|\tGlobal Bests: ").append(global)
-                .append("\t|\tGeneration: ").append(i + 1)
-                .append("\t|\tTime: ").append(Duration.between(start, Instant.now())).append(" ");
+                .append("\t|\tGeneration: ").append(currentGeneration + 1)
+                .append("\t|\tTime: ").append(Duration.between(start, Instant.now()))
+                .append("           ");
         System.out.print(out);
     }
 
+    /**
+     * Constructs a new Client.
+     */
     private Client() {
         this.args = new ArgsConverterFactory();
         this.argParser = new JCommander.Builder().programName("Iconic CLI").addObject(this.args).build();
     }
 
+    /**
+     * Parses the specified arguments.
+     *
+     * @param args An array of arguments
+     */
     private void parse(final String[] args) {
         getArgParser().parse(args);
     }
 
+    /**
+     * Prints the usage instructions for the argument parser to the standard output stream.
+     */
     private void usage() {
         getArgParser().usage();
     }
 
+    /**
+     * @return The argument parser of the client.
+     */
     private JCommander getArgParser() {
         return argParser;
     }
 
     /**
-     * <p>Return the ArgsConverterFactory of this Client</p>
-     *
-     * @return the ArgsConverterFactory of the client
+     * @return The ArgsConverterFactory of the client.
      */
     private ArgsConverterFactory getArgs() {
         return args;
     }
 
     /**
-     * <p>Converts the provided progress into a percentage of the provided total</p>
+     * Converts the provided progress into a percentage of the provided total.
      *
-     * @param progress the current progress
-     * @param total    the total
-     * @return the current progress as a percentage of the total
+     * @param progress The current progress.
+     * @param total    The total.
+     * @return The current progress as a percentage of the total.
      */
     private static int intToPercent(final int progress, final int total) {
         return (progress * 100) / total;

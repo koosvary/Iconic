@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package org.iconic.io;
+package org.iconic.io.cli;
 
 import com.beust.jcommander.Parameter;
 import org.iconic.ea.EvolutionaryAlgorithmType;
@@ -55,11 +55,17 @@ public class ArgsConverterFactory {
     @Parameter(names= {"--levelsBack"}, description = "The number of levels back if supported by the chosen algorithm")
     private int levelsBack = 1;
 
+    @Parameter(names= {"--repeat", "-r"}, description = "The number of times to repeat the experiment. The results will be collated")
+    private int repetitions = 1;
+
     @Parameter(names = {"--help", "-h"}, help = true)
     private boolean help;
 
-    @Parameter(names = {"--graph"}, description = "Graph the fitness over time if true")
+    @Parameter(names = {"--graph"}, description = "Graph the solutions if true")
     private boolean graph;
+
+    @Parameter(names = {"--csv"}, description = "Export the pareto-optimal front to a CSV file if true")
+    private boolean csv;
 
     public EvolutionaryAlgorithmType getEaType() {
         return eaType;
@@ -107,5 +113,13 @@ public class ArgsConverterFactory {
 
     public boolean isGraph() {
         return graph;
+    }
+
+    public boolean isCsv() {
+        return csv;
+    }
+
+    public int getRepetitions() {
+        return repetitions;
     }
 }
