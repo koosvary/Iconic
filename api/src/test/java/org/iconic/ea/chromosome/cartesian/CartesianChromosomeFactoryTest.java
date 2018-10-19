@@ -37,13 +37,13 @@ import static org.mockito.Mockito.when;
 /**
  * <p>
  * A test suite for the {@link CartesianChromosomeFactory} class.
- * </p>
+ *
  *
  * <p>
  * This test suite ensures the following:
  * - the factory produces syntactically valid chromosomes
  * - the factory cannot be instantiated under invalid parameter combinations
- * </p>
+ *
  */
 @Log4j2
 class CartesianChromosomeFactoryTest {
@@ -140,7 +140,7 @@ class CartesianChromosomeFactoryTest {
     }
 
     /**
-     * <p>This test won't be needed after we change the data structure used to store primitives</p>
+     * <p>This test won't be needed after we change the data structure used to store primitives
      */
     @Test
     @DisplayName("Test that the add function method adds functions and correctly recalculates max arity")
@@ -172,9 +172,9 @@ class CartesianChromosomeFactoryTest {
      * <p>Returns an n-tuple of arguments where the first argument is the number of outputs
      * in a chromosome, the second is the number of inputs, the third is the number of columns,
      * the fourth is the number of rows and the fifth is the maximum number of levels back
-     * that a connection in the chromosome can be made.</p>
+     * that a connection in the chromosome can be made.
      *
-     * <p>Every argument combination should be able to produce a chromosome.</p>
+     * <p>Every argument combination should be able to produce a chromosome.
      *
      * @return the number of outputs, inputs, columns, rows, and levels back
      */

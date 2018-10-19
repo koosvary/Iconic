@@ -40,7 +40,7 @@ public abstract class SearchConfigurationModel implements Displayable {
     private boolean changed;
 
     /**
-     * <p>Constructs a new search configuration with the provided name.</p>
+     * <p>Constructs a new search configuration with the provided name.
      *
      * @param name The name of the search configuration
      */
@@ -132,7 +132,7 @@ public abstract class SearchConfigurationModel implements Displayable {
     }
 
     /**
-     * <p>Returns the name property of this dataset.</p>
+     * <p>Returns the name property of this dataset.
      *
      * @return The name property of the dataset
      */
@@ -141,7 +141,7 @@ public abstract class SearchConfigurationModel implements Displayable {
     }
 
     /**
-     * <p>Sets the name of this search configuration to the provided value.</p>
+     * <p>Sets the name of this search configuration to the provided value.
      *
      * @param name The new name for this search configuration
      */
@@ -150,7 +150,7 @@ public abstract class SearchConfigurationModel implements Displayable {
     }
 
     /**
-     * <p>Returns the UUID of this search configuration.</p>
+     * <p>Returns the UUID of this search configuration.
      *
      * @return The universally unique identifier of the search configuration
      */
@@ -159,7 +159,7 @@ public abstract class SearchConfigurationModel implements Displayable {
     }
 
     /**
-     * <p>Returns the dataset model associated with this search configuration.</p>
+     * <p>Returns the dataset model associated with this search configuration.
      *
      * @return The dataset model associated with the search configuration
      */
@@ -173,7 +173,7 @@ public abstract class SearchConfigurationModel implements Displayable {
     }
 
     /**
-     * <p>Returns the search executor associated with this search configuration.</p>
+     * <p>Returns the search executor associated with this search configuration.
      *
      * @return The search executor associated with the search configuration
      */

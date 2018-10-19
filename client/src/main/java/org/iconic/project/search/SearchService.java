@@ -21,19 +21,17 @@ import org.iconic.project.search.io.SearchExecutor;
 import java.util.UUID;
 
 /**
- * <p>
  * A search service that maintains a search map.
- * </p>
+ *
+ * @deprecated Searches should now be accessed through
+ * {@link org.iconic.workspace.WorkspaceService the workspace}.
  */
+@Deprecated
 public interface SearchService {
     /**
-     * <p>
      * Returns the property of all searches attached to this service.
-     * </p>
-     *
      * <p>
      * Properties may have listeners set on them.
-     * </p>
      *
      * @return The property of searches attached to the service
      */

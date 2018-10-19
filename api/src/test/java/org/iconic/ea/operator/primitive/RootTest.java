@@ -46,7 +46,7 @@ public class RootTest {
      * <p>
      * Returns a stream of double n-tuples, where the last member of the tuple is the sum of all the preceeding
      * members
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

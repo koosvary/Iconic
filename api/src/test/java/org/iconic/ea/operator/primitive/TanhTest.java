@@ -47,7 +47,7 @@ public class TanhTest {
     /**
      * <p>
      * Returns a stream of double n-tuples, returns tanh(x)
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

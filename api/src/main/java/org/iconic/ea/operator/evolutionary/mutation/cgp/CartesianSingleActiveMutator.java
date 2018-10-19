@@ -27,14 +27,14 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * {@inheritDoc}
  * <p>This class implements single active gene mutation which randomly selects genes from the child genotype and mutates them
- * When it has mutated an active gene, it stops mutating and returns the child</p>
+ * When it has mutated an active gene, it stops mutating and returns the child
  */
 public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromosome<R>, R> {
 
     /**
      * {@inheritDoc}
      *
-     * <p>A mutant is created by mutating every gene in the chromosome until an active gene is mutated.</p>
+     * <p>A mutant is created by mutating every gene in the chromosome until an active gene is mutated.
      */
     @Override
     public CartesianChromosome<R> apply(final List<FunctionalPrimitive<R, R>> functionalPrimitives,
@@ -120,7 +120,7 @@ public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromos
     }
 
     /**
-     * <p>Returns the index to a randomly selected node within the connectivity restraints of the graph</p>
+     * <p>Returns the index to a randomly selected node within the connectivity restraints of the graph
      *
      * @param index      The index of the originating node
      * @param numRows    The number of rows in the graph
@@ -144,7 +144,7 @@ public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromos
     }
 
     /**
-     * <p>Returns the index to a randomly selected node within the connectivity restraints of the graph</p>
+     * <p>Returns the index to a randomly selected node within the connectivity restraints of the graph
      *
      * @param mutant The chromosome being mutated
      * @param index  The index of the gene being mutated

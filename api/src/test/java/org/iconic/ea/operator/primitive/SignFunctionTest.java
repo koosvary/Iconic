@@ -47,7 +47,7 @@ public class SignFunctionTest {
      * <p>
      * Returns a stream of double n-tuples, Evaluates to the sign of the operand,
      * 0 if otherwise
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

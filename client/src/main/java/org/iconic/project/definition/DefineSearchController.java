@@ -312,7 +312,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     }
 
     /**
-     * <p>Returns the view service of this controller</p>
+     * <p>Returns the view service of this controller
      *
      * @return the view service of the controller
      */
@@ -321,7 +321,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     }
 
     /**
-     * <p>Returns the workspace service of this controller</p>
+     * <p>Returns the workspace service of this controller
      *
      * @return the workspace service of the controller
      */
@@ -330,7 +330,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     }
 
     /**
-     * <p>Returns the project service of this controller</p>
+     * <p>Returns the project service of this controller
      *
      * @return the project service of the controller
      */

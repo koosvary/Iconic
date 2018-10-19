@@ -50,7 +50,7 @@ public class ArcCosTest {
      * <p>
      * Returns a stream of double n-tuples, where the last member of the tuple is the value of ArcCos
      * of the operand
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

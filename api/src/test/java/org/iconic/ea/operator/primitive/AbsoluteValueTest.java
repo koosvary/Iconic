@@ -47,7 +47,7 @@ public class AbsoluteValueTest {
      * <p>
      * Returns a stream of double n-tuples, where the last member of the tuple is the absolute value of the proceeding
      * member
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

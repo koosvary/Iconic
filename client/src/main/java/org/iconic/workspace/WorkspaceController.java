@@ -39,10 +39,10 @@ import java.util.List;
 /**
  * <p>
  * A controller for handling the workspace view.
- * </p>
+ *
  * <p>
  * The WorkspaceController maintains the information shown within the workspace based on the current active dataset.
- * </p>
+ *
  */
 @Log4j2
 public class WorkspaceController implements Initializable {
@@ -56,7 +56,7 @@ public class WorkspaceController implements Initializable {
     /**
      * <p>
      * Constructs a new WorkspaceController that attaches an invalidation listener onto the workspace service.
-     * </p>
+     *
      */
     @Inject
     public WorkspaceController(final WorkspaceService workspaceService) {
@@ -99,7 +99,7 @@ public class WorkspaceController implements Initializable {
     }
 
     /**
-     * <p>Update the tabs that are available for selection based on the provided tab types</p>
+     * <p>Update the tabs that are available for selection based on the provided tab types
      *
      * @param availableTabs The list of tab types to enable, tabs of other types will be disabled
      */
@@ -126,9 +126,9 @@ public class WorkspaceController implements Initializable {
     }
 
     /**
-     * <p>Update the tab selection model if the user has a disabled tab selected</p>
+     * <p>Update the tab selection model if the user has a disabled tab selected
      *
-     * <p>The selection model will default to the first enabled tab if available, otherwise no tab will be selected</p>
+     * <p>The selection model will default to the first enabled tab if available, otherwise no tab will be selected
      */
     private void updateTabSelection() {
         if (tbpWorkspace == null) {
@@ -160,7 +160,7 @@ public class WorkspaceController implements Initializable {
     /**
      * <p>
      * Returns the workspace service of this controller
-     * </p>
+     *
      *
      * @return the workspace service of the controller
      */

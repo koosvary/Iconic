@@ -48,7 +48,7 @@ public class OrTest {
      * <p>
      * Returns a stream of double n-tuples, Last member of tuple is 1 if first or second argument is greater than 0,
      * 0 otherwise
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

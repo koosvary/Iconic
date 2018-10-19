@@ -46,7 +46,7 @@ public class SquareRootTest {
     /**
      * <p>
      * Returns a stream of double n-tuples, Evaluates to the squareroot of the operand
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

@@ -44,7 +44,7 @@ class PowerTest {
 
     /**
      * <p>Returns a stream of double n-tuples, where the last number is the first raised to the power
-     * of the second</p>
+     * of the second
      *
      * @return a stream of double n-tuples
      */

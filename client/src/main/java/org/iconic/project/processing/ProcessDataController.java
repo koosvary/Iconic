@@ -79,7 +79,7 @@ public class ProcessDataController implements Initializable {
     /**
      * <p>
      * Constructs a new ProcessDataController that attaches an invalidation listener onto the workspace service.
-     * </p>
+     *
      */
     @Inject
     public ProcessDataController(final WorkspaceService workspaceService) {
@@ -531,7 +531,7 @@ public class ProcessDataController implements Initializable {
      * @param header Used to identify the specific FeatureClass which the preprocessor is being applied to
      * @param preprocessor The new preprocessor object
      */
-    private void addNewPreprocessor(String header, Preprocessor preprocessor) {
+    private void addNewPreprocessor(String header, Preprocessor<Number> preprocessor) {
         Optional<DataManager<Double>> dataManager = getDataManager();
 
         if (dataManager.isPresent()) {
@@ -666,7 +666,7 @@ public class ProcessDataController implements Initializable {
             if (dataManager.get().getDataset().get(selectedHeader).isModified()) {
                 List<Preprocessor<Number>> preprocessors = dataManager.get().getDataset().get(selectedHeader).getPreprocessors();
 
-                for (Preprocessor preprocessor : preprocessors) {
+                for (Preprocessor<?> preprocessor : preprocessors) {
                     enableCheckBox(preprocessor.getTransformType());
                 }
             }
@@ -901,7 +901,7 @@ public class ProcessDataController implements Initializable {
     /**
      * <p>
      * Returns the workspace service of this controller
-     * </p>
+     *
      *
      * @return the workspace service of the controller
      */

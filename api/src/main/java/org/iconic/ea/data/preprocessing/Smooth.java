@@ -25,16 +25,16 @@ public class Smooth extends Preprocessor<Number> {
     /**
      * <p>
      * Smooths the values of an Array. Alternatively known as "Moving Average Filtering".
-     * </p>
+     *
      *
      * <p>
      * Given an array of values, the function will take the 'N' neighbouring values on either side of the index, take
      * the sum of all these values, then update the value of the index to the average of the sum.
-     * </p>
+     *
      *
      * <p>
      * If the span window is outside of the Array bounds, the window will become the minimum reach of both sides.
-     * </p>
+     *
      *
      * @param values the array that will be smoothed
      */
@@ -82,7 +82,7 @@ public class Smooth extends Preprocessor<Number> {
     /**
      * <p>
      * Sets the window size of values to use when smoothing the array of data.
-     * </p>
+     *
      *
      * @param neighbourSize the number of neighbours on either side of each point to be used for smoothing
      */

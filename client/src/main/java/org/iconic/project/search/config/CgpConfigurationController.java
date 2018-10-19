@@ -150,7 +150,7 @@ public class CgpConfigurationController implements Initializable {
     }
 
     /**
-     * <p>Returns the workspace service of this controller</p>
+     * <p>Returns the workspace service of this controller
      *
      * @return the workspace service of the controller
      */

@@ -50,7 +50,7 @@ public class ArcSinTest {
      * <p>
      * Returns a stream of double n-tuples, where the last member of the tuple is the value of ArcSin
      * of the operand
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

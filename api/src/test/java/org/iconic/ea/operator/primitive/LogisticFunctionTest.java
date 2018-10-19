@@ -49,7 +49,7 @@ public class LogisticFunctionTest {
      * <p>
      * Returns a stream of double n-tuples, performs simple logistic function
      * (ie 1/(1+Math.exp(x)))
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

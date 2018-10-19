@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * {@inheritDoc}
  * <p>
  * An error based objective is an objective function based around an error function.
- * </p>
+ *
  */
 @Log4j2
 public abstract class ErrorBasedObjective extends MonoObjective<Double> {
@@ -41,7 +41,7 @@ public abstract class ErrorBasedObjective extends MonoObjective<Double> {
     /**
      * <p>
      * Constructs a new ErrorBasedObjective with the provided error function and samples.
-     * </p>
+     *
      *
      * @param lambda  The error function to apply
      * @param dataManager The dataset to apply the error function on
@@ -72,7 +72,7 @@ public abstract class ErrorBasedObjective extends MonoObjective<Double> {
     public abstract double apply(final Chromosome<Double> c);
 
     /**
-     * <p>Returns the dataset used by this objective.</p>
+     * <p>Returns the dataset used by this objective.
      *
      * @return the dataset used by this objective
      */
@@ -81,7 +81,7 @@ public abstract class ErrorBasedObjective extends MonoObjective<Double> {
     }
 
     /**
-     * <p>Returns the error function used by this objective.</p>
+     * <p>Returns the error function used by this objective.
      *
      * @return the error function used by this objective
      */
@@ -90,7 +90,7 @@ public abstract class ErrorBasedObjective extends MonoObjective<Double> {
     }
 
     /**
-     * <p>Returns the expected results for the samples used by this objective.</p>
+     * <p>Returns the expected results for the samples used by this objective.
      *
      * @return the expected results for the samples used by this objective
      */
