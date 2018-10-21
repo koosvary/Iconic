@@ -28,65 +28,41 @@ import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.style.Styler;
+import org.knowm.xchart.style.markers.Marker;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Log4j2
-public class XYGraphWriter extends GraphWriter {
-    private final List<Number> xValues;
-    private final List<Number> yValues;
+public class XYGraphWriter extends GraphWriter<XYSeries> {
     private final String xAxisTitle;
     private final String yAxisTitle;
-    private final String seriesName;
-    private final XYSeries.XYSeriesRenderStyle renderStyle;
-    private final Function<Chromosome<?>, Number> xExtractor;
-    private final Function<Chromosome<?>, Number> yExtractor;
+    private final List<XYSeries> series;
     private XYChart chart;
 
-    public XYGraphWriter(
-            final String xAxisTitle, final String yAxisTitle,
-            final String seriesName, final XYSeries.XYSeriesRenderStyle renderStyle,
-            final Function<Chromosome<?>, Number> xExtractor, final Function<Chromosome<?>, Number> yExtractor
-    ) {
+    public XYGraphWriter(final String xAxisTitle, final String yAxisTitle) {
         super();
         this.xAxisTitle = xAxisTitle;
         this.yAxisTitle = yAxisTitle;
-        this.seriesName = seriesName;
-        this.xExtractor = xExtractor;
-        this.yExtractor = yExtractor;
-        this.renderStyle = renderStyle;
+        this.series = new ArrayList<>();
         // Create a chart for plotting the final goals
-        chart = null;
-        xValues = new ArrayList<>();
-        yValues = new ArrayList<>();
+        this.chart = null;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void write(final Chromosome<?> chromosome) {
-            getxValues().add(getxExtractor().apply(chromosome));
-            getyValues().add(getyExtractor().apply(chromosome));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void write(double x, double y) {
-        getxValues().add(x);
-        getyValues().add(y);
-    }
-
-    /**
-     */
-    private void draw() {
-        XYSeries series = ((XYChart) getChart()).addSeries(getSeriesName(), getxValues(), getyValues());
-        series.setMarker(SeriesMarkers.CROSS);
+    public void write(final XYSeries series) {
+        XYSeries newSeries = getChart().addSeries(series.getName(), series.getXData(), series.getYData());
+        newSeries.setXYSeriesRenderStyle(series.getXYSeriesRenderStyle());
+        newSeries.setMarker(series.getMarker());
+        getSeries().add(newSeries);
     }
 
     /**
@@ -94,29 +70,62 @@ public class XYGraphWriter extends GraphWriter {
      */
     @Override
     public void clear() {
-        getxValues().clear();
-        getyValues().clear();
+        getSeries().clear();
         setChart(null);
     }
 
     /**
-     *
-     * @return
+     * {@inheritDoc}
      */
     @Override
-    protected Chart<?, ?> getChart() {
-        if (chart == null) {
-            chart = new XYChartBuilder().width(720).height(480)
-                    .xAxisTitle(getxAxisTitle()).yAxisTitle(getyAxisTitle())
-                    .theme(Styler.ChartTheme.GGPlot2).build();
-            chart.getStyler().setDefaultSeriesRenderStyle(getRenderStyle());
-            chart.getStyler().setChartTitleVisible(true);
-            chart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideS);
-            chart.getStyler().setMarkerSize(16);
-            ((XYChart)getChart()).getStyler().setXAxisLogarithmic(true);
-            draw();
+    protected Chart<?, ?> draw() {
+        Chart<?, ?> c = getChart();
+
+        final boolean colourSeries = getSeries().size() > 0;
+
+        // If there's more than oen series colour them and hide the series legend (or it will overflow)
+        if (colourSeries) {
+            final double interval = getSeries().size() / 10.;
+            final int colours = 255 * 3 / getSeries().size();
+            boolean setLast = false;
+
+            for (int i = 0; i < getSeries().size(); ++i) {
+                final XYSeries series = getSeries().get(i);
+                series.setEnabled(false);
+            }
+
+            for (int i = 0, j = 1; i < getSeries().size(); ++j) {
+                final XYSeries series = getSeries().get(i);
+                series.setEnabled(true);
+                series.setLineColor(intToColourSpace(i * colours));
+
+                // If drawing the last series record it
+                if (i == getSeries().size() - 1) {
+                    setLast = true;
+                }
+
+                // If there are more than nine series, increase the interval so only a max of eleven are drawn
+                i = (interval >= 0.95)
+                        ? (int) Math.floor(interval * j) - 1
+                        : i + 1;
+
+                // Always draw the last series
+                if (i >= getSeries().size() && !setLast) {
+                    i = getSeries().size() - 1;
+                }
+            }
         }
-        return chart;
+
+        // Set the maximum X-value to be within two factors of the minimum value
+        getSeries().stream().flatMapToDouble(s -> Arrays.stream(s.getXData())).min().ifPresent(min -> {
+            if (min > 1) {
+                chart.getStyler().setXAxisMax(min * 100.);
+            } else {
+                chart.getStyler().setXAxisMax(100.);
+            }
+        });
+
+        return c;
     }
 
     private String getxAxisTitle() {
@@ -127,31 +136,24 @@ public class XYGraphWriter extends GraphWriter {
         return yAxisTitle;
     }
 
-    private List<Number> getxValues() {
-        return xValues;
-    }
-
-    private List<Number> getyValues() {
-        return yValues;
-    }
-
-    private Function<Chromosome<?>, Number> getxExtractor() {
-        return xExtractor;
-    }
-
-    private Function<Chromosome<?>, Number> getyExtractor() {
-        return yExtractor;
-    }
-
-    private XYSeries.XYSeriesRenderStyle getRenderStyle() {
-        return renderStyle;
-    }
-
-    private String getSeriesName() {
-        return seriesName;
-    }
-
     private void setChart(final XYChart chart) {
         this.chart = chart;
+    }
+
+    private List<XYSeries> getSeries() {
+        return series;
+    }
+
+    private XYChart getChart() {
+        if (chart == null) {
+            chart = new XYChartBuilder().width(720).height(480)
+                    .xAxisTitle(getxAxisTitle()).yAxisTitle(getyAxisTitle())
+                    .theme(Styler.ChartTheme.Matlab).build();
+            chart.getStyler().setChartTitleVisible(true);
+            chart.getStyler().setMarkerSize(12);
+            chart.getStyler().setXAxisLogarithmic(true);
+        }
+
+        return chart;
     }
 }

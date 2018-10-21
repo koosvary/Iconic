@@ -25,55 +25,50 @@ import org.iconic.ea.chromosome.Chromosome;
 import org.knowm.xchart.VectorGraphicsEncoder;
 import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.internal.series.Series;
+import org.w3c.dom.css.RGBColor;
 
 import java.awt.*;
+import java.awt.color.ColorSpace;
 import java.io.IOException;
 
-public abstract class GraphWriter<T extends Series> {
+public abstract class SeriesWriter<T extends Series> {
+    final private String seriesName;
+
     /**
      *
      */
-    GraphWriter() {
+    SeriesWriter(final String seriesName) {
+        this.seriesName = seriesName;
         // Do nothing
     }
 
     /**
-     * Writes the specified series to the chart.
+     * Writes the specified chromosome to the series.
      *
-     * @param series The series to write.
+     * @param chromosome The chromosome to write, none of its extracted values may be positive or negative infinity.
      */
-    public abstract void write(final T series);
+    public abstract void write(final Chromosome<?> chromosome);
 
     /**
-     * @param directory The directory of the exported file.
-     * @param fileName  The name of the exported file.
-     * @throws IOException Thrown if the file location is inaccessible.
+     * Writes the specified X-Y value pair to the series.
+     *
+     * @param x Mustn't be positive or negative infinity.
+     * @param y Mustn't be positive or negative infinity.
      */
-    public void export(final String chartTitle, final String directory, final String fileName) throws IOException {
-        Chart<?, ?> chart = draw();
-        chart.setTitle(chartTitle);
-        VectorGraphicsEncoder.saveVectorGraphic(
-                chart, directory + "//" + fileName,
-                VectorGraphicsEncoder.VectorGraphicsFormat.PDF
-        );
-    }
+    public abstract void write(double x, double y);
+
 
     /**
-     * Resets the plotted values of the chart.
+     * Resets the plotted values of the series.
      */
     public abstract void clear();
 
     /**
-     * Returns the chart of this GraphWriter.
-     *
-     * @return The chart of the GraphWriter.
+     * @return The series of the SeriesWriter.
      */
-    protected abstract Chart<?, ?> draw();
+    public abstract T draw();
 
-    protected Color intToColourSpace(final int point) {
-        final int b = (point > 255 * 2) ? point % 256 : 0;
-        final int g = (point > 255) ? point % 256 : 0;
-        final int r = point % 256;
-        return new Color(r, g, b);
+    public String getSeriesName() {
+        return seriesName;
     }
 }

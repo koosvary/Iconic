@@ -41,7 +41,9 @@ import org.iconic.ea.operator.primitive.*;
 import org.iconic.ea.strategies.seamo.SEAMO;
 import org.iconic.io.cli.ArgsConverterFactory;
 import org.iconic.utils.GraphWriter;
+import org.iconic.utils.SeriesWriter;
 import org.iconic.utils.XYGraphWriter;
+import org.iconic.utils.XYSeriesWriter;
 import org.knowm.xchart.*;
 
 import java.io.File;
@@ -64,6 +66,7 @@ public class Client {
     private final JCommander argParser;
     private final ArgsConverterFactory args;
     private static final long NOW = Instant.now().getEpochSecond();
+    private final List<List<Chromosome<?>>> nonDominatedSolutions;
 
     public static void main(String[] args) {
         // Create a new client and parse the arguments passed in to the program
@@ -106,39 +109,44 @@ public class Client {
             // Add all of the functions the chromosomes can use
             supplier.addFunction(Arrays.asList(
                     new Addition(), new Subtraction(), new Multiplication(), new Division(),
-                    new Ceiling(), new Exponential(), new GaussianFunction(),
-                    new Power(), new Sin()
+                    new Ceiling(), new Exponential(), new Floor(), new Root(), new Negation(), new Minimum(),
+                    new Maximum(), new Power(), new Sin()
             ));
 
-            Set<Chromosome<Double>> nonDominatedFinal = new LinkedHashSet<>();
-            Set<Chromosome<Double>> nonDominatedAll = new LinkedHashSet<>();
+            final int generations = client.getArgs().getGenerations();
+            final Set<Chromosome<Double>> nonDominatedFinal = new LinkedHashSet<>();
+            final List<Set<Chromosome<Double>>> nonDominatedAll = new ArrayList<>(generations);
 
-            final Instant start = Instant.now();
+            for (int i = 0; i < generations; ++i) {
+                nonDominatedAll.add(new LinkedHashSet<>());
+            }
 
             // Start the evolutionary loop
+            final Instant start = Instant.now();
             for (int trial = 0; trial < client.getArgs().getRepetitions(); ++trial) {
                 EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea = getEvolutionaryAlgorithm(
                         client.getArgs(), dm, supplier
                 );
 
                 // Initialise the population
-                final int generations = client.getArgs().getGenerations();
                 ea.initialisePopulation(client.getArgs().getPopulation());
                 List<CartesianChromosome<Double>> population = ea.getChromosomes();
 
                 for (int i = 0; i < generations; ++i) {
                     population = ea.evolve(population);
                     // Pretty-print a summarised progress indicator
-                    printOutput(ea, generations, start, i, trial);
+                    printOutput(ea, generations, start, i, trial + 1);
+
+                    // Store the current global best values
+                    nonDominatedAll.get(i).addAll(
+                            ((SEAMO<CartesianChromosome<Double>, Double>) ea)
+                                    .getGlobalChromosomes().values()
+                    );
                 }
 
                 nonDominatedFinal.addAll(
                         ((SEAMO<CartesianChromosome<Double>, Double>) ea)
                                 .getGlobalChromosomes().values()
-                );
-                nonDominatedAll.addAll(
-                        ((SEAMO<CartesianChromosome<Double>, Double>) ea)
-                                .getArchive()
                 );
             }
 
@@ -152,21 +160,33 @@ public class Client {
                 // Export the results to a CSV file
                 if (client.getArgs().isCsv()) {
                     exportCsv(directory, "results-last-gen", nonDominatedFinal);
-                    exportCsv(directory, "results-all-gen", nonDominatedAll);
+                    exportCsv(directory, "results-all-gen", nonDominatedAll.stream().reduce(
+                            new LinkedHashSet<>(), (x, y) -> { x.addAll(y); return x; })
+                    );
                 }
                 // Print and export a graph of the solutions plotted by their dimensions
                 if (client.getArgs().isGraph()) {
-                    GraphWriter writer = new XYGraphWriter(
-                            "Mean Squared Error", "Size", "Plot of Non-Dominated Solution",
+                    GraphWriter<XYSeries> graphWriter = new XYGraphWriter("Sum of Mean Squared Error", "Size");
+
+                    for (int i = 0 ; i < nonDominatedAll.size(); ++i) {
+                        SeriesWriter<XYSeries> series = new XYSeriesWriter(
+                                "Plot of Generation " + (i + 1),
+                                XYSeries.XYSeriesRenderStyle.Scatter, Chromosome::getFitness, Chromosome::getSize
+                        );
+                        nonDominatedAll.get(i).forEach(series::write);
+                        graphWriter.write(series.draw());
+                    }
+
+                    graphWriter.export("All Generations - Non-Dominated", directory, "results-all");
+                    graphWriter.clear();
+
+                    SeriesWriter<XYSeries> seriesWriter = new XYSeriesWriter(
+                            "Plot of Non-Dominated Solutions",
                             XYSeries.XYSeriesRenderStyle.Scatter, Chromosome::getFitness, Chromosome::getSize
                     );
-
-                    drawGraph(nonDominatedFinal, writer);
-                    writer.export("Last Generation - Non-Dominated", directory, "results-last");
-                    writer.clear();
-
-                    drawGraph(nonDominatedAll, writer);
-                    writer.export("Last Generation - Non-Dominated", directory, "results-all");
+                    nonDominatedFinal.forEach(seriesWriter::write);
+                    graphWriter.write(seriesWriter.draw());
+                    graphWriter.export("Last Generation - Non-Dominated", directory, "results-last");
                 }
             } catch (IOException ex) {
                 log.error("{}: {}", ex::getMessage, ex::getCause);
@@ -255,20 +275,6 @@ public class Client {
     }
 
     /**
-     * Writes a given population to the specified graph writer.
-     *
-     * @param population The population to write
-     * @param writer     The graph writer instance to write to
-     */
-    private static void drawGraph(final Set<Chromosome<Double>> population, final GraphWriter writer) {
-        // Ignore malformed chromosomes
-        population.stream().filter(chromosome ->
-                chromosome.getFitness() != Double.POSITIVE_INFINITY &&
-                        chromosome.getFitness() != Double.NEGATIVE_INFINITY
-        ).forEach(writer::write);
-    }
-
-    /**
      * Pretty-prints a formatted progress indicator to the standard output stream.
      *
      * @param ea                The evolutionary algorithm being used.
@@ -311,6 +317,7 @@ public class Client {
     private Client() {
         this.args = new ArgsConverterFactory();
         this.argParser = new JCommander.Builder().programName("Iconic CLI").addObject(this.args).build();
+        this.nonDominatedSolutions = new ArrayList<>();
     }
 
     /**
@@ -379,5 +386,9 @@ public class Client {
                 featureClass.addPreprocessor(handleMissingValues);
             }
         }
+    }
+
+    public List<List<Chromosome<?>>> getNonDominatedSolutions() {
+        return nonDominatedSolutions;
     }
 }
