@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.utils;
 
@@ -29,6 +23,7 @@ import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.internal.series.Series;
 import org.knowm.xchart.style.Styler;
+import org.knowm.xchart.style.markers.Marker;
 import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import java.util.ArrayList;
@@ -40,17 +35,27 @@ public class XYSeriesWriter extends SeriesWriter<XYSeries> {
     private final List<Number> xValues;
     private final List<Number> yValues;
     private final XYSeries.XYSeriesRenderStyle renderStyle;
+    private final Marker marker;
     private final Function<Chromosome<?>, Number> xExtractor;
     private final Function<Chromosome<?>, Number> yExtractor;
 
     public XYSeriesWriter(
             final String seriesName, final XYSeries.XYSeriesRenderStyle renderStyle,
+            final Marker marker
+    ) {
+        this(seriesName, renderStyle, marker, null, null);
+    }
+
+    public XYSeriesWriter(
+            final String seriesName, final XYSeries.XYSeriesRenderStyle renderStyle,
+            final Marker marker,
             final Function<Chromosome<?>, Number> xExtractor, final Function<Chromosome<?>, Number> yExtractor
     ) {
         super(seriesName);
         this.xExtractor = xExtractor;
         this.yExtractor = yExtractor;
         this.renderStyle = renderStyle;
+        this.marker = marker;
         xValues = new ArrayList<>();
         yValues = new ArrayList<>();
     }
@@ -60,15 +65,15 @@ public class XYSeriesWriter extends SeriesWriter<XYSeries> {
      */
     @Override
     public void write(final Chromosome<?> chromosome) {
-        final Number xValue = getxExtractor().apply(chromosome);
-        final Number yValue = getyExtractor().apply(chromosome);
-        final Function<Number, Boolean> isValid = v ->
-                v.doubleValue() != Double.POSITIVE_INFINITY && v.doubleValue() != Double.NEGATIVE_INFINITY;
-
-        if (isValid.apply(xValue) && isValid.apply(yValue)) {
-            getxValues().add(xValue);
-            getyValues().add(yValue);
+        if (getxExtractor() == null || getyExtractor() == null) {
+            log.warn("Attempting to write a chromosome with no extractors");
+            return;
         }
+
+        write(
+                getxExtractor().apply(chromosome).doubleValue(),
+                getyExtractor().apply(chromosome).doubleValue()
+        );
     }
 
     /**
@@ -76,8 +81,13 @@ public class XYSeriesWriter extends SeriesWriter<XYSeries> {
      */
     @Override
     public void write(double x, double y) {
-        getxValues().add(x);
-        getyValues().add(y);
+        final Function<Double, Boolean> isValid = v ->
+                v != Double.POSITIVE_INFINITY && v != Double.NEGATIVE_INFINITY;
+
+        if (isValid.apply(x) && isValid.apply(x)) {
+            getxValues().add(x);
+            getyValues().add(y);
+        }
     }
 
     /**
@@ -94,7 +104,7 @@ public class XYSeriesWriter extends SeriesWriter<XYSeries> {
                 getSeriesName(), x, y, null, Series.DataType.Number
         );
         series.setXYSeriesRenderStyle(getRenderStyle());
-        series.setMarker(SeriesMarkers.CROSS);
+        series.setMarker(getMarker());
         series.setLineColor(series.getLineColor());
 
         return series;
@@ -127,5 +137,9 @@ public class XYSeriesWriter extends SeriesWriter<XYSeries> {
 
     private XYSeries.XYSeriesRenderStyle getRenderStyle() {
         return renderStyle;
+    }
+
+    private Marker getMarker() {
+        return marker;
     }
 }

@@ -39,6 +39,7 @@ import org.iconic.utils.SeriesWriter;
 import org.iconic.utils.XYGraphWriter;
 import org.iconic.utils.XYSeriesWriter;
 import org.knowm.xchart.*;
+import org.knowm.xchart.style.markers.SeriesMarkers;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -103,8 +104,7 @@ public class Client {
             // Add all of the functions the chromosomes can use
             supplier.addFunction(Arrays.asList(
                     new Addition(), new Subtraction(), new Multiplication(), new Division(),
-                    new Ceiling(), new Exponential(), new Floor(), new Root(), new Negation(), new Minimum(),
-                    new Maximum(), new Power(), new Sin()
+                    new Exponential(), new Root(), new Power(), new Sin()
             ));
 
             final int generations = client.getArgs().getGenerations();
@@ -115,13 +115,13 @@ public class Client {
                 nonDominatedAll.add(new LinkedHashSet<>());
             }
 
+            EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea = getEvolutionaryAlgorithm(
+                    client.getArgs(), dm, supplier
+            );
+
             // Start the evolutionary loop
             final Instant start = Instant.now();
             for (int trial = 0; trial < client.getArgs().getRepetitions(); ++trial) {
-                EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea = getEvolutionaryAlgorithm(
-                        client.getArgs(), dm, supplier
-                );
-
                 // Initialise the population
                 ea.initialisePopulation(client.getArgs().getPopulation());
                 List<CartesianChromosome<Double>> population = ea.getChromosomes();
@@ -155,17 +155,21 @@ public class Client {
                 if (client.getArgs().isCsv()) {
                     exportCsv(directory, "results-last-gen", nonDominatedFinal);
                     exportCsv(directory, "results-all-gen", nonDominatedAll.stream().reduce(
-                            new LinkedHashSet<>(), (x, y) -> { x.addAll(y); return x; })
+                            new LinkedHashSet<>(), (x, y) -> {
+                                x.addAll(y);
+                                return x;
+                            })
                     );
                 }
                 // Print and export a graph of the solutions plotted by their dimensions
                 if (client.getArgs().isGraph()) {
                     GraphWriter<XYSeries> graphWriter = new XYGraphWriter("Sum of Mean Squared Error", "Size");
 
-                    for (int i = 0 ; i < nonDominatedAll.size(); ++i) {
+                    for (int i = 0; i < nonDominatedAll.size(); ++i) {
                         SeriesWriter<XYSeries> series = new XYSeriesWriter(
                                 "Plot of Generation " + (i + 1),
-                                XYSeries.XYSeriesRenderStyle.Scatter, Chromosome::getFitness, Chromosome::getSize
+                                XYSeries.XYSeriesRenderStyle.Scatter, SeriesMarkers.CROSS,
+                                Chromosome::getFitness, Chromosome::getSize
                         );
                         nonDominatedAll.get(i).forEach(series::write);
                         graphWriter.write(series.draw());
@@ -176,16 +180,82 @@ public class Client {
 
                     SeriesWriter<XYSeries> seriesWriter = new XYSeriesWriter(
                             "Plot of Non-Dominated Solutions",
-                            XYSeries.XYSeriesRenderStyle.Scatter, Chromosome::getFitness, Chromosome::getSize
+                            XYSeries.XYSeriesRenderStyle.Scatter, SeriesMarkers.CROSS,
+                            Chromosome::getFitness, Chromosome::getSize
                     );
+
                     nonDominatedFinal.forEach(seriesWriter::write);
                     graphWriter.write(seriesWriter.draw());
                     graphWriter.export("Last Generation - Non-Dominated", directory, "results-last");
+
+                    final Map<Objective<Double>, Chromosome<Double>> globals = new HashMap<>();
+                    final MultiObjective<Double> multiObjective = (MultiObjective<Double>) ea.getObjective();
+
+                    multiObjective.getGoals().forEach(goal ->
+                            nonDominatedFinal.forEach(chromosome -> {
+                                if (!globals.containsKey(goal)) {
+                                    globals.put(goal, chromosome);
+                                } else if (goal.isNotWorse(
+                                        goal.apply(chromosome),
+                                        goal.apply(globals.get(goal))
+                                )) {
+                                    globals.put(goal, chromosome);
+                                }
+                            })
+                    );
+
+                    graphSolutionFitPlot(
+                            new ArrayList<>(supplier.getFunctionalPrimitives()),
+                            new HashSet<>(globals.values()), dm, directory, "solution-fit"
+                    );
                 }
             } catch (IOException ex) {
                 log.error("{}: {}", ex::getMessage, ex::getCause);
             }
         }
+    }
+
+    private static void graphSolutionFitPlot(
+            final List<FunctionalPrimitive<?, ?>> primitives,
+            final Set<Chromosome<Double>> globals,
+            final DataManager<Double> dm,
+            final String directory,
+            final String fileName
+    ) throws IOException {
+        final GraphWriter<XYSeries> graphWriter = new XYGraphWriter("Sample", "Value");
+        final SeriesWriter<XYSeries> expectedSeries = new XYSeriesWriter(
+                "Plot of Actual Values", XYSeries.XYSeriesRenderStyle.Line, SeriesMarkers.NONE
+        );
+
+        final List<Number> expectedValues = dm.getSampleColumn(dm.getSampleHeaders().get(
+                dm.getFeatureSize() - 1
+        ));
+
+        for (int i = 0; i < expectedValues.size(); ++i) {
+            expectedSeries.write(i + 1, expectedValues.get(i).doubleValue());
+        }
+
+        graphWriter.write(expectedSeries.draw());
+
+        globals.forEach(chromosome -> {
+            final SeriesWriter<XYSeries> actualSeries = new XYSeriesWriter(
+                    String.format("Plot of (%.4f, %d)", chromosome.getFitness(), chromosome.getSize()),
+                    XYSeries.XYSeriesRenderStyle.Line, SeriesMarkers.NONE
+            );
+
+            final List<Double> actualValues = chromosome.evaluate(dm).stream().map(outputs ->
+                    outputs.values().stream().mapToDouble(Double::doubleValue).sum()
+            ).collect(Collectors.toList());
+
+            for (int i = 0; i < actualValues.size(); ++i) {
+                actualSeries.write(i + 1, actualValues.get(i));
+            }
+
+            graphWriter.write(actualSeries.draw());
+        });
+
+        expectedSeries.clear();
+        graphWriter.export("Solution Fit Plot", directory, fileName);
     }
 
     /**

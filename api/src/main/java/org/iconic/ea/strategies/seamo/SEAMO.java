@@ -85,6 +85,11 @@ public class SEAMO<R extends Chromosome<T>, T extends Comparable<T>>
     public void initialisePopulation(int populationSize) {
         assert (getObjective() instanceof MultiObjective);
 
+        getArchive().clear();
+        getGlobals().clear();
+        getGlobalChromosomes().clear();
+        getChromosomes().clear();
+
         for (int i = 0; i < populationSize; i++) {
             final MultiObjective<T> objective = (MultiObjective<T>) getObjective();
             final R chromosome = getChromosomeFactory().getChromosome();

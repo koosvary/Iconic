@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.utils;
 
@@ -86,7 +80,7 @@ public class XYGraphWriter extends GraphWriter<XYSeries> {
         // If there's more than oen series colour them and hide the series legend (or it will overflow)
         if (colourSeries) {
             final double interval = getSeries().size() / 10.;
-            final int colours = 255 * 3 / getSeries().size();
+            final int colours = 255 * 3 / getSeries().size() + 1;
             boolean setLast = false;
 
             for (int i = 0; i < getSeries().size(); ++i) {
@@ -97,7 +91,7 @@ public class XYGraphWriter extends GraphWriter<XYSeries> {
             for (int i = 0, j = 1; i < getSeries().size(); ++j) {
                 final XYSeries series = getSeries().get(i);
                 series.setEnabled(true);
-                series.setLineColor(intToColourSpace(i * colours));
+//                series.setLineColor(intToColourSpace(j * colours));
 
                 // If drawing the last series record it
                 if (i == getSeries().size() - 1) {
@@ -116,14 +110,21 @@ public class XYGraphWriter extends GraphWriter<XYSeries> {
             }
         }
 
-        // Set the maximum X-value to be within two factors of the minimum value
-        getSeries().stream().flatMapToDouble(s -> Arrays.stream(s.getXData())).min().ifPresent(min -> {
-            if (min > 1) {
-                chart.getStyler().setXAxisMax(min * 100.);
-            } else {
-                chart.getStyler().setXAxisMax(100.);
-            }
-        });
+        // Set the maximum X-axis value to be within two factors of the minimum value
+        getSeries().stream()
+                .flatMapToDouble(s -> Arrays.stream(s.getXData()))
+                .min().ifPresent(min -> {
+                    if (min > 1) {
+                        chart.getStyler().setXAxisMax(min * 100.);
+                    } else {
+                        chart.getStyler().setXAxisMax(100.);
+                    }
+                });
+
+        // Set the maximum Y-axis value to the maximum Y value
+        getSeries().stream()
+                .flatMapToDouble(s -> Arrays.stream(s.getYData()))
+                .max().ifPresent(max -> chart.getStyler().setYAxisMax(max));
 
         return c;
     }
