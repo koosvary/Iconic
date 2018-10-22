@@ -241,7 +241,7 @@ public class ResultsController implements Initializable {
         solutionsPlot.setCreateSymbols(true);
         solutionsPlot.getData().clear();
         //noinspection unchecked
-        solutionsPlot.getData().addAll(seriesExpected, seriesActual);
+        solutionsPlot.getData().addAll(seriesActual, seriesExpected);
     }
 
     /**
