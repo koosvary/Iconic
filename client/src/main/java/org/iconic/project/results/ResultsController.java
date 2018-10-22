@@ -124,7 +124,7 @@ public class ResultsController implements Initializable {
         Platform.runLater(this::updateResultsTable);
     }
 
-    public void graphExpectedValues() {
+    private void graphExpectedValues() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
         // If no dataset, stop what you're doing.
@@ -193,7 +193,7 @@ public class ResultsController implements Initializable {
         Chromosome<?> selectedChromosome = null;
 
         // This is a list of chromosomes of size 'x'
-        Integer[] solutionsSizes = solutions.keySet().toArray(new Integer[solutions.size()]);
+        Integer[] solutionsSizes = solutions.keySet().toArray(new Integer[0]);
 
         for (Integer size : solutionsSizes) {
             List<Chromosome<?>> chromosomeList = solutions.get(size);
@@ -264,24 +264,29 @@ public class ResultsController implements Initializable {
             )));
         }
 
+        // Sort by error
+        Collections.sort(resultDisplays);
+
         // Add all the results as FX observables
         solutionsTableView.setItems(FXCollections.observableArrayList(resultDisplays));
 
         TableColumn<ResultDisplay, Integer> sizeCol = new TableColumn<>("Size");
-        TableColumn<ResultDisplay, Double> fitnessCol = new TableColumn<>("Error");
+        TableColumn<ResultDisplay, Double> errorColumn = new TableColumn<>("Error");
         TableColumn<ResultDisplay, String> solutionCol = new TableColumn<>("Solution");
 
         // Set conversion factories for data types into string
         sizeCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        fitnessCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+        errorColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
         // Set where the values come from
         sizeCol.setCellValueFactory(cellData -> cellData.getValue().sizeProperty().asObject());
-        fitnessCol.setCellValueFactory(cellData -> cellData.getValue().fitProperty().asObject());
+        errorColumn.setCellValueFactory(cellData -> cellData.getValue().errorProperty().asObject());
         solutionCol.setCellValueFactory(cellData -> cellData.getValue().solutionProperty());
 
         // Set the columns to be these ones
-        solutionsTableView.getColumns().setAll(sizeCol, fitnessCol, solutionCol);
+        solutionsTableView.getColumns().set(0, sizeCol);
+        solutionsTableView.getColumns().set(1, errorColumn);
+        solutionsTableView.getColumns().set(2, solutionCol);
     }
 
     /**
