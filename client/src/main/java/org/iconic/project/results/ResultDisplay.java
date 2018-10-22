@@ -15,7 +15,6 @@
  */
 package org.iconic.project.results;
 
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -29,7 +28,7 @@ public class ResultDisplay {
 
     public ResultDisplay(int size, double fit, String solution) {
         setSize(size);
-        setFit(fit);
+        setFit(Math.round(fit * 1000) / 1000.0);
         setSolution(solution);
     }
 
