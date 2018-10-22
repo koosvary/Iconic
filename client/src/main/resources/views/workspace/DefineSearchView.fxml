@@ -68,10 +68,10 @@
                     </Label>
                     <TextField fx:id="tfTargetExpression" text="y = f(x)"/>
                     <DatasetComboBox fx:id="cbDatasets"/>
-                    <ComboBox value="Mean Absolute Error">
+                    <ComboBox value="Mean Squared Error">
                         <items>
                             <FXCollections fx:factory="observableArrayList">
-                                <String fx:value="Mean Absolute Error"/>
+                                <String fx:value="Mean Squared Error"/>
                             </FXCollections>
                         </items>
                     </ComboBox>
