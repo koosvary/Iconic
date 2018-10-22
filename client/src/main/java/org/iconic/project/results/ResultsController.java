@@ -19,7 +19,6 @@ import com.google.inject.Inject;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -89,7 +88,7 @@ public class ResultsController implements Initializable {
         // Listener for the solutions being clicked in the table
         solutionsTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                graphExpectedValues();
+                Platform.runLater(this::graphExpectedValues);
             }
         });
     }
@@ -122,7 +121,7 @@ public class ResultsController implements Initializable {
             return;
         }
 
-        Platform.runLater(this::updateWorkspaceMainThread);
+        Platform.runLater(this::updateResultsTable);
     }
 
     public void graphExpectedValues() {
@@ -144,6 +143,12 @@ public class ResultsController implements Initializable {
         // Get the dataset
         DataManager dataManager = search.getDatasetModel().get().getDataManager();
         HashMap<String, FeatureClass<Number>> dataset = dataManager.getDataset();
+
+        // If the dataset doesnt exist for some reason
+        if (dataset == null) {
+            log.info("There is no dataset so the expected values cannot be checked");
+            return;
+        }
 
         // Get the first output Feature we find
         FeatureClass<Number> outputFeatureClass = null;
@@ -218,12 +223,6 @@ public class ResultsController implements Initializable {
             return;
         }
 
-        // If the dataset doesnt exist for some reason
-        if (dataset == null) {
-            log.info("There is no dataset so the expected values cannot be checked");
-            return;
-        }
-
         // Take the selected chromosome and run the evaluate function on it
         List<Map<Integer, Number>> results = selectedChromosome.evaluate(dataManager);
 
@@ -256,7 +255,7 @@ public class ResultsController implements Initializable {
     /**
      * Updates the workspace to match the current active dataset.
      */
-    private synchronized void updateWorkspaceMainThread() {
+    private synchronized void updateResultsTable() {
         List<ResultDisplay> resultDisplays = new ArrayList<>();
         for (Map.Entry<Integer, List<Chromosome<?>>> entry : storage.getSolutions().entrySet()) {
             Chromosome<?> result = entry.getValue().get(0);
@@ -269,7 +268,7 @@ public class ResultsController implements Initializable {
         solutionsTableView.setItems(FXCollections.observableArrayList(resultDisplays));
 
         TableColumn<ResultDisplay, Integer> sizeCol = new TableColumn<>("Size");
-        TableColumn<ResultDisplay, Double> fitnessCol = new TableColumn<>("Fitness");
+        TableColumn<ResultDisplay, Double> fitnessCol = new TableColumn<>("Error");
         TableColumn<ResultDisplay, String> solutionCol = new TableColumn<>("Solution");
 
         // Set conversion factories for data types into string
