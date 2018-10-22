@@ -129,7 +129,6 @@ public class ResultsController implements Initializable {
 
         // If no dataset, stop what you're doing.
         if (!(item instanceof SearchConfigurationModel)) {
-            // TODO clear the UI?
             return;
         }
 
@@ -165,18 +164,16 @@ public class ResultsController implements Initializable {
             return;
         }
 
-        // Create the two new lines
-        XYChart.Series<Number, Number> series1 = new XYChart.Series<>();
-        XYChart.Series<Number, Number> series2 = new XYChart.Series<>();
-
-        // Set the labels for the legend
-        series1.setName("Expected Values");
-        series2.setName("Actual Values");
+        // Create the two new lines, with names in the legend
+        XYChart.Series<Number, Number> seriesExpected = new XYChart.Series<>();
+        XYChart.Series<Number, Number> seriesActual = new XYChart.Series<>();
+        seriesExpected.setName("Expected Values");
+        seriesActual.setName("Actual Values");
 
         // Get all the expected values
         List<Number> samples = outputFeatureClass.getSamples();
         for (int i = 0; i < samples.size(); i++) {
-            series1.getData().add(new XYChart.Data<>(i, samples.get(i)));
+            seriesExpected.getData().add(new XYChart.Data<>(i, samples.get(i)));
         }
 
         /*
@@ -192,10 +189,7 @@ public class ResultsController implements Initializable {
         // This will be the referenced chromosome that was selected if it finds a match
         Chromosome<?> selectedChromosome = null;
 
-        // This is a list of chromosomes of size 'x'
-        Integer[] solutionsSizes = solutions.keySet().toArray(new Integer[0]);
-
-        for (Integer size : solutionsSizes) {
+        for (Integer size : solutions.keySet()) {
             List<Chromosome<?>> chromosomeList = solutions.get(size);
 
             // This is all the chromosomes with the same size of 'x'
@@ -225,10 +219,8 @@ public class ResultsController implements Initializable {
 
         // Take the selected chromosome and run the evaluate function on it
         List<Map<Integer, Number>> results = selectedChromosome.evaluate(dataManager);
-
-        // If there are no results for some reason
         if (results.isEmpty()) {
-            System.out.println("actualValues size is empty: ");
+            log.debug("actualValues size is empty");
             return;
         }
 
@@ -238,10 +230,10 @@ public class ResultsController implements Initializable {
             Map<Integer, Number> rowOfResults = results.get(i);
 
             // Keys (They are random numbers, i think it might be the node id's of the output nodes in cgp
-            Integer[] keys = rowOfResults.keySet().toArray(new Integer[rowOfResults.size()]);
+            Integer[] keys = rowOfResults.keySet().toArray(new Integer[0]);
 
             // My shit attempt to only display the "first" element in the list
-            series2.getData().add(new XYChart.Data<>(i, rowOfResults.get(keys[0])));
+            seriesActual.getData().add(new XYChart.Data<>(i, rowOfResults.get(keys[0])));
         }
 
         // Update the graph
@@ -249,7 +241,7 @@ public class ResultsController implements Initializable {
         solutionsPlot.setCreateSymbols(true);
         solutionsPlot.getData().clear();
         //noinspection unchecked
-        solutionsPlot.getData().addAll(series1, series2);
+        solutionsPlot.getData().addAll(seriesExpected, seriesActual);
     }
 
     /**
