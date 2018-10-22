@@ -111,20 +111,23 @@ public class XYGraphWriter extends GraphWriter<XYSeries> {
         }
 
         // Set the maximum X-axis value to be within two factors of the minimum value
-        getSeries().stream()
-                .flatMapToDouble(s -> Arrays.stream(s.getXData()))
-                .min().ifPresent(min -> {
-                    if (min > 1) {
-                        chart.getStyler().setXAxisMax(min * 100.);
-                    } else {
-                        chart.getStyler().setXAxisMax(100.);
-                    }
-                });
+        if (isAxesTruncated()) {
+            getSeries().stream()
+                    .flatMapToDouble(s -> Arrays.stream(s.getXData()))
+                    .min().ifPresent(min -> {
+                if (min > 1) {
+                    chart.getStyler().setXAxisMax(min * 100.);
+                } else {
+                    chart.getStyler().setXAxisMax(100.);
+                }
+            });
 
-        // Set the maximum Y-axis value to the maximum Y value
-        getSeries().stream()
-                .flatMapToDouble(s -> Arrays.stream(s.getYData()))
-                .max().ifPresent(max -> chart.getStyler().setYAxisMax(max));
+            // Set the maximum Y-axis value to the maximum Y value
+            getSeries().stream()
+                    .flatMapToDouble(s -> Arrays.stream(s.getYData()))
+                    .max().ifPresent(max -> chart.getStyler().setYAxisMax(max));
+
+        }
 
         return c;
     }

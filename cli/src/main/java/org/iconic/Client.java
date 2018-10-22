@@ -61,7 +61,6 @@ public class Client {
     private final JCommander argParser;
     private final ArgsConverterFactory args;
     private static final long NOW = Instant.now().getEpochSecond();
-    private final List<List<Chromosome<?>>> nonDominatedSolutions;
 
     public static void main(String[] args) {
         // Create a new client and parse the arguments passed in to the program
@@ -104,7 +103,8 @@ public class Client {
             // Add all of the functions the chromosomes can use
             supplier.addFunction(Arrays.asList(
                     new Addition(), new Subtraction(), new Multiplication(), new Division(),
-                    new Exponential(), new Root(), new Power(), new Sin()
+                    new Exponential(), new Root(), new Power(), new Sin(), new GaussianFunction(),
+                    new Tanh(), new StepFunction()
             ));
 
             final int generations = client.getArgs().getGenerations();
@@ -153,12 +153,13 @@ public class Client {
                 writeReadme(client.getArgs(), directory, Duration.between(start, Instant.now()));
                 // Export the results to a CSV file
                 if (client.getArgs().isCsv()) {
-                    exportCsv(directory, "results-last-gen", nonDominatedFinal);
+                    exportCsv(directory, "results-last-gen", nonDominatedFinal,
+                            new ArrayList<>(supplier.getFunctionalPrimitives()));
                     exportCsv(directory, "results-all-gen", nonDominatedAll.stream().reduce(
                             new LinkedHashSet<>(), (x, y) -> {
                                 x.addAll(y);
                                 return x;
-                            })
+                            }), new ArrayList<>(supplier.getFunctionalPrimitives())
                     );
                 }
                 // Print and export a graph of the solutions plotted by their dimensions
@@ -205,7 +206,6 @@ public class Client {
                     );
 
                     graphSolutionFitPlot(
-                            new ArrayList<>(supplier.getFunctionalPrimitives()),
                             new HashSet<>(globals.values()), dm, directory, "solution-fit"
                     );
                 }
@@ -216,7 +216,6 @@ public class Client {
     }
 
     private static void graphSolutionFitPlot(
-            final List<FunctionalPrimitive<?, ?>> primitives,
             final Set<Chromosome<Double>> globals,
             final DataManager<Double> dm,
             final String directory,
@@ -227,15 +226,19 @@ public class Client {
                 "Plot of Actual Values", XYSeries.XYSeriesRenderStyle.Line, SeriesMarkers.NONE
         );
 
-        final List<Number> expectedValues = dm.getSampleColumn(dm.getSampleHeaders().get(
-                dm.getFeatureSize() - 1
-        ));
+        // Collect the expected output
+        List<FeatureClass<Number>> features = dm.getDataset().values().stream()
+                .filter(FeatureClass::isOutput)
+                .limit(1)
+                .collect(Collectors.toList());
+
+        final List<Double> expectedValues = features.get(0).getSamples().stream()
+                .mapToDouble(Number::doubleValue).boxed()
+                .collect(Collectors.toList());
 
         for (int i = 0; i < expectedValues.size(); ++i) {
-            expectedSeries.write(i + 1, expectedValues.get(i).doubleValue());
+            expectedSeries.write(i + 1, expectedValues.get(i));
         }
-
-        graphWriter.write(expectedSeries.draw());
 
         globals.forEach(chromosome -> {
             final SeriesWriter<XYSeries> actualSeries = new XYSeriesWriter(
@@ -254,7 +257,8 @@ public class Client {
             graphWriter.write(actualSeries.draw());
         });
 
-        expectedSeries.clear();
+        graphWriter.write(expectedSeries.draw());
+        graphWriter.setAxesTruncated(false);
         graphWriter.export("Solution Fit Plot", directory, fileName);
     }
 
@@ -289,14 +293,32 @@ public class Client {
      * @param fileName   The name of the file to write.
      * @param population The population to write to the file.
      */
-    private static void exportCsv(String directory, String fileName, Set<Chromosome<Double>> population)
-            throws IOException {
+    private static void exportCsv(
+            final String directory,
+            final String fileName,
+            final Set<Chromosome<Double>> population,
+            final List<FunctionalPrimitive<?, ?>> primitives
+    ) throws IOException {
         try (CSVPrinter printer = new CSVPrinter(
                 new FileWriter(new File(directory + "//" + fileName + ".csv")),
                 CSVFormat.EXCEL
         )) {
+            final Pattern newline = Pattern.compile("\\R");
+            final String OUTPUT_SEPARATOR = "+";
+
             for (final Chromosome<?> chromosome : population) {
-                printer.printRecord(chromosome.getFitness(), chromosome.getSize());
+
+                String expression = newline.matcher(chromosome.simplifyExpression(chromosome.getExpression(chromosome.toString(),
+                        primitives, true)
+                )).replaceAll(OUTPUT_SEPARATOR);
+
+                if (expression.endsWith(OUTPUT_SEPARATOR)) {
+                    expression = expression.substring(0, expression.length() - 1);
+                }
+
+                printer.printRecord(
+                        chromosome.getFitness(), chromosome.getSize(), expression
+                );
             }
         }
     }
@@ -381,7 +403,6 @@ public class Client {
     private Client() {
         this.args = new ArgsConverterFactory();
         this.argParser = new JCommander.Builder().programName("Iconic CLI").addObject(this.args).build();
-        this.nonDominatedSolutions = new ArrayList<>();
     }
 
     /**
@@ -450,9 +471,5 @@ public class Client {
                 featureClass.addPreprocessor(handleMissingValues);
             }
         }
-    }
-
-    public List<List<Chromosome<?>>> getNonDominatedSolutions() {
-        return nonDominatedSolutions;
     }
 }

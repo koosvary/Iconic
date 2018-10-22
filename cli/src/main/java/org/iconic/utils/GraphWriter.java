@@ -24,11 +24,13 @@ import java.awt.*;
 import java.io.IOException;
 
 public abstract class GraphWriter<T extends Series> {
+    private boolean axesTruncated;
+
     /**
      *
      */
     GraphWriter() {
-        // Do nothing
+        axesTruncated = true;
     }
 
     /**
@@ -69,5 +71,14 @@ public abstract class GraphWriter<T extends Series> {
         final int g = (point >= 255 * 2) ? 255 : (point <= 255) ? 0 : point % 255;
         final int b = (point >= 255 * 3) ? 255 : (point <= 255 * 2) ? 0 : point % (255 * 2);
         return new Color(r, g, b);
+    }
+
+
+    public boolean isAxesTruncated() {
+        return axesTruncated;
+    }
+
+    public void setAxesTruncated(boolean truncate) {
+        this.axesTruncated = truncate;
     }
 }
