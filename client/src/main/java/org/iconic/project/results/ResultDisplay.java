@@ -15,34 +15,56 @@
  */
 package org.iconic.project.results;
 
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-public class ResultDisplay {
+/**
+ * Displayable for the results table
+ */
+public class ResultDisplay implements Comparable<ResultDisplay> {
 
+    /** Size property */
     private final SimpleIntegerProperty size = new SimpleIntegerProperty();
-    private final SimpleDoubleProperty fit = new SimpleDoubleProperty();
+    /** Error property */
+    private final SimpleDoubleProperty error = new SimpleDoubleProperty();
+    /** Solution property */
     private final SimpleStringProperty solution = new SimpleStringProperty();
 
-
-    public ResultDisplay(int size, double fit, String solution) {
+    /**
+     * Constructor
+     * @param size Size
+     * @param error Error
+     * @param solution Solution
+     */
+    public ResultDisplay(int size, double error, String solution) {
         setSize(size);
-        setFit(fit);
+        setError(Math.round(error * 1000) / 1000.0);
         setSolution(solution);
     }
 
-    public double getFit() {
-        return fit.get();
+    /**
+     * Sort by error
+     * @param o Other object
+     * @return Comparison
+     */
+    @Override
+    public int compareTo(ResultDisplay o) {
+        return Double.compare(getError(), o.getError());
     }
 
-    public SimpleDoubleProperty fitProperty() {
-        return fit;
+    // -- Getters --
+
+    public double getError() {
+        return error.get();
     }
 
-    public void setFit(double fit) {
-        this.fit.set(fit);
+    public SimpleDoubleProperty errorProperty() {
+        return error;
+    }
+
+    public void setError(double error) {
+        this.error.set(error);
     }
 
     public String getSolution() {
