@@ -66,6 +66,8 @@ public class ResultsController implements Initializable {
     @FXML
     private LineChart<Number,Number> solutionsPlot;
 
+    private XYChart.Series<Number, Number> seriesExpected;
+    private XYChart.Series<Number, Number> seriesActual;
 
     /**
      * Constructs a new ResultsController that attaches an invalidation listener onto the workspace service.
@@ -73,10 +75,6 @@ public class ResultsController implements Initializable {
     @Inject
     public ResultsController(final WorkspaceService workspaceService) {
         this.workspaceService = workspaceService;
-
-        // Update the workspace whenever the active dataset changes
-        resultAddedListener = observable -> updateWorkspace();
-        getWorkspaceService().activeWorkspaceItemProperty().addListener(resultAddedListener);
     }
 
     /**
@@ -84,7 +82,15 @@ public class ResultsController implements Initializable {
      */
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
-        resultsTab.setOnSelectionChanged(event -> updateWorkspace());
+        // Update the workspace whenever the active dataset changes
+        resultAddedListener = observable -> updateWorkspace();
+        getWorkspaceService().activeWorkspaceItemProperty().addListener(resultAddedListener);
+
+        resultsTab.setOnSelectionChanged(event -> {
+            if (resultsTab.isSelected()) {
+                updateWorkspace();
+            }
+        });
 
         // Listener for the solutions being clicked in the table
         solutionsTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -93,6 +99,7 @@ public class ResultsController implements Initializable {
             }
         });
 
+        setupSolutionsPlots();
         setupContextMenu();
         updateWorkspace();
     }
@@ -112,7 +119,7 @@ public class ResultsController implements Initializable {
         model = (SearchConfigurationModel) item;
         if (model.getSearchExecutor().isPresent()) {
             SearchExecutor<?> search = model.getSearchExecutor().get();
-            if (search.isRunning() && search != lastSearch) {
+            if (search != lastSearch) {
                 // If a search is running, use that current one for results. Else use the last search
                 //noinspection unchecked
                 storage = (SolutionStorage<Chromosome<?>>) search.getSolutionStorage();
@@ -168,11 +175,9 @@ public class ResultsController implements Initializable {
             return;
         }
 
-        // Create the two new lines, with names in the legend
-        XYChart.Series<Number, Number> seriesExpected = new XYChart.Series<>();
-        XYChart.Series<Number, Number> seriesActual = new XYChart.Series<>();
-        seriesExpected.setName("Expected Values");
-        seriesActual.setName("Actual Values");
+        // Clear series data
+        seriesExpected.getData().clear();
+        seriesActual.getData().clear();
 
         // Get all the expected values
         List<Number> samples = outputFeatureClass.getSamples();
@@ -283,6 +288,17 @@ public class ResultsController implements Initializable {
         solutionsTableView.getColumns().set(0, sizeCol);
         solutionsTableView.getColumns().set(1, errorColumn);
         solutionsTableView.getColumns().set(2, solutionCol);
+    }
+
+    /**
+     * Sets up the solutions plot data
+     */
+    private void setupSolutionsPlots() {
+        // Set up solution plot series, with names in the legend
+        seriesExpected = new XYChart.Series<>();
+        seriesActual = new XYChart.Series<>();
+        seriesExpected.setName("Expected Values");
+        seriesActual.setName("Actual Values");
     }
 
     /**
