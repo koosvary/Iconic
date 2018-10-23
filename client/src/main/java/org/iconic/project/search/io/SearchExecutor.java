@@ -31,6 +31,7 @@ import org.iconic.ea.operator.objective.Objective;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.SolutionStorage;
+import org.iconic.project.search.config.SearchConfigurationModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,7 +55,7 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
     private final DatasetModel datasetModel;
     private final ObservableList<String> _updates;
     private final ListProperty<String> updates;
-    private final int numGenerations;
+    private final SearchConfigurationModel search;
     private final SolutionStorage<T> solutionStorage; // Stores the solutions found
     private final List<FunctionalPrimitive<Double, Double>> primitives;
     private EvolutionaryAlgorithm<T, Double> evolutionaryAlgorithm;
@@ -76,10 +77,10 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
     public SearchExecutor(
             @NonNull final DatasetModel datasetModel,
             @NonNull final List<FunctionalPrimitive<Double, Double>> primitives,
-            int numGenerations
-    ) {
+            @NonNull final SearchConfigurationModel search
+            ) {
         this.datasetModel = datasetModel;
-        this.numGenerations = numGenerations;
+        this.search = search;
         this.generation = 0;
         this.plots = new XYChart.Series<>();
         this._updates = FXCollections.observableArrayList();
@@ -110,7 +111,7 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
             addPlot(0, bestCandidate);
             addChromosomeUpdate(bestCandidate);
 
-            for (generation = 1; (generation < getNumGenerations() || getNumGenerations() <= 0); generation++) {
+            for (generation = 1; (generation < search.getNumGenerations() || search.getNumGenerations() <= 0); generation++) {
 
                 // Paused? We'll wait.
                 while (getState() == PAUSED) {
@@ -120,8 +121,10 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
                 if (getState() == STOPPED) {
                     break;
                 }
+
                 startTime = System.currentTimeMillis();
                 lastUpdateTime = startTime;
+                updateSearchSettings();
 
                 List<T> oldPopulation = getEvolutionaryAlgorithm().getChromosomes();
                 List<T> newPopulation = getEvolutionaryAlgorithm().evolve(oldPopulation);
@@ -202,12 +205,19 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
         timeSinceImprovement = 0L;
     }
 
+    /**
+     * Found a new best candidate
+     * @param bestCandidate Chromosome
+     */
     private void setImproved(Chromosome<?> bestCandidate) {
         addPlot(getGeneration(), bestCandidate);
         timeSinceImprovement = 0L;
         improvedCount++;
     }
 
+    /**
+     * Update time statistics
+     */
     private void updateTimes() {
         if (startTime != null) {
             long current = System.currentTimeMillis();
@@ -222,7 +232,6 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
 
     /**
      * Add a plot point for progress over time.
-     *
      * @param time      Time in generations.
      * @param candidate Candidate to plot.
      */
@@ -235,8 +244,12 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
         );
     }
 
+    private void updateSearchSettings() {
+        getEvolutionaryAlgorithm().setMutationProbability(search.getMutationRate());
+        getEvolutionaryAlgorithm().setCrossoverProbability(search.getCrossoverRate());
+    }
+
     /**
-     * Returns the dataset that's being trained on.
      * @return The dataset that this search executor is training on.
      */
     public DatasetModel getDatasetModel() {
@@ -278,10 +291,6 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
 
     public void setEvolutionaryAlgorithm(EvolutionaryAlgorithm<T, Double> evolutionaryAlgorithm) {
         this.evolutionaryAlgorithm = evolutionaryAlgorithm;
-    }
-
-    public int getNumGenerations() {
-        return (numGenerations > 0) ? numGenerations : 0;
     }
 
     public List<FunctionalPrimitive<Double, Double>> getPrimitives() {
