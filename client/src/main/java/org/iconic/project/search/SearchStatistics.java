@@ -33,30 +33,30 @@ import org.iconic.workspace.WorkspaceService;
 @Log4j2
 public class SearchStatistics extends Service<Void> {
 
-    private static final int START_PAUSE = 500;
+    private static final int START_PAUSE = 50;
     private static final int SLEEP_TIME = 250;
 
     private final WorkspaceService workspaceService;
     private StartSearchController controller;
-    private SearchExecutor<?> search;
+    private SearchExecutor<?> executor;
     private Lock updating;
 
     /**
      * Worker service to update the GUI on the Start Search screen
      * @param workspaceService The workspace service
      * @param controller The controller
-     * @param search Current search
+     * @param executor Current executor
      * @param updating Lock for updating
      */
     public SearchStatistics(
             WorkspaceService workspaceService,
             StartSearchController controller,
-            SearchExecutor<?> search,
+            SearchExecutor<?> executor,
             Lock updating
     ) {
         this.workspaceService = workspaceService;
         this.controller = controller;
-        this.search = search;
+        this.executor = executor;
         this.updating = updating;
     }
 
@@ -70,42 +70,47 @@ public class SearchStatistics extends Service<Void> {
             protected Void call() {
                 try {
                     Thread.sleep(START_PAUSE);
-                    while (search.getState() != SearchState.STOPPED) {
+                    do {
                         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
-
                         if (!(item instanceof SearchConfigurationModel)) {
                             Thread.sleep(SLEEP_TIME);
                             continue;
                         }
 
                         SearchConfigurationModel activeSearch = (SearchConfigurationModel) item;
-
                         if (!activeSearch.getSearchExecutor().isPresent()) {
                             Thread.sleep(SLEEP_TIME);
                             continue;
                         }
-                        if (activeSearch.getSearchExecutor().get() == search) {
-                            Platform.runLater(() -> {
-                                controller.getTxtTime().setText(getTimeElapsed());
-                                controller.getTxtGen().setText(search.getGeneration() + "");
-                                controller.getTxtGenSec().setText(
-                                        String.format("%.3f", search.getGeneration() * 1000.0 / getMillisecondsElapsed())
-                                );
-                                controller.getTxtLastImprov().setText(getTimeSinceImprovement());
-                                controller.getTxtAvgImprov().setText(getAverageImprovementTime());
-                                controller.getTxtCores().setText(Runtime.getRuntime().availableProcessors() + "");
-                            });
+
+                        if (activeSearch.getSearchExecutor().get() == executor) {
+                            update(executor);
                         }
 
                         Thread.sleep(SLEEP_TIME);
                     }
+                    while (executor.getState() == SearchState.RUNNING);
+
+                    Thread.sleep(SLEEP_TIME);
                 } catch (InterruptedException ex) {
                     log.error("{}: ", ex::getMessage);
                 }
+                update(executor);
                 updating.unlock();
                 return null;
             }
         };
+    }
+
+    public void update(SearchExecutor<?> executor) {
+        Platform.runLater(() -> {
+            controller.getTxtTime().setText(getTimeElapsed());
+            controller.getTxtGen().setText(executor.getGeneration() + "");
+            controller.getTxtGenSec().setText(getGensPerSecond());
+            controller.getTxtLastImprov().setText(getTimeSinceImprovement());
+            controller.getTxtAvgImprov().setText(getAverageImprovementTime());
+            controller.getTxtCores().setText(Runtime.getRuntime().availableProcessors() + "");
+        });
     }
 
     /**
@@ -124,23 +129,22 @@ public class SearchStatistics extends Service<Void> {
     }
 
     /**
-     * Calculate the different between the current time and when the search was last updated.
+     * Calculate the different between the current time and when the executor was last updated.
      * This is needed when we use massive datasets, to get the stats updating in real-time.
      * @return Difference
      */
     private long getDiff() {
-        return search.getState() == SearchState.RUNNING ? System.currentTimeMillis() - search.getLastUpdateTime() : 0;
+        return executor.getState() == SearchState.RUNNING ? System.currentTimeMillis() - executor.getLastUpdateTime() : 0;
     }
 
     /**
-     * Gets seconds elapsed in the search, at least 1 to prevent division by zero
-     * @return Seconds as a long
+     * Gets seconds elapsed in the executor, at least 1 to prevent division by zero
      */
     private long getMillisecondsElapsed() {
-        if (search == null || search.getElapsedDuration() == null) {
+        if (executor == null || executor.getElapsedDuration() == null) {
             return 0L;
         }
-        return Math.max(search.getElapsedDuration() + getDiff(), 1);
+        return Math.max(executor.getElapsedDuration() + getDiff(), 1L);
     }
 
     /**
@@ -152,14 +156,24 @@ public class SearchStatistics extends Service<Void> {
     }
 
     /**
+     * Get the generations per second as text
+     * @return Gen / Second
+     */
+    private String getGensPerSecond() {
+        long ms = getMillisecondsElapsed();
+        double amount = ms > 0 ? executor.getGeneration() * 1000.0 / ms : 0.0;
+        return String.format("%.3f", amount);
+    }
+
+    /**
      * Gets time since the last improvement
      * @return Time since the last improvement
      */
     private String getTimeSinceImprovement() {
-        if (search == null || search.getTimeSinceImprovement() == null) {
+        if (executor == null || executor.getTimeSinceImprovement() == null) {
             return timeElapsed(0L);
         }
-        return timeElapsed(search.getTimeSinceImprovement() + getDiff());
+        return timeElapsed(executor.getTimeSinceImprovement() + getDiff());
     }
 
     /**
@@ -167,10 +181,10 @@ public class SearchStatistics extends Service<Void> {
      * @return Time since the last improvement
      */
     private String getAverageImprovementTime() {
-        if (search == null || search.getAverageImproveDuration() == null) {
+        if (executor == null || executor.getAverageImproveDuration() == null) {
             return timeElapsed(0L);
         }
-        return timeElapsed(search.getAverageImproveDuration());
+        return timeElapsed(executor.getAverageImproveDuration());
     }
 
     public WorkspaceService getWorkspaceService() {

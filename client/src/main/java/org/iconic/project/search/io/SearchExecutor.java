@@ -18,6 +18,7 @@ package org.iconic.project.search.io;
 import javafx.application.Platform;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
@@ -58,7 +59,7 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
     private final List<FunctionalPrimitive<Double, Double>> primitives;
     private EvolutionaryAlgorithm<T, Double> evolutionaryAlgorithm;
 
-    private transient SearchState state;
+    private transient SimpleObjectProperty<SearchState> state;
 
     private transient Long lastUpdateTime;
     private transient Long startTime;
@@ -83,7 +84,7 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
         this.plots = new XYChart.Series<>();
         this._updates = FXCollections.observableArrayList();
         this.updates = new SimpleListProperty<>(_updates);
-        this.state = STOPPED;
+        this.state = new SimpleObjectProperty<>(STOPPED);
         this.plots.setName(this.datasetModel.getName());
         this.primitives = primitives;
         this.solutionStorage = new SolutionStorage<>();
@@ -109,15 +110,15 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
             addPlot(0, bestCandidate);
             addChromosomeUpdate(bestCandidate);
 
-            for (generation = 1; (generation <= getNumGenerations() || getNumGenerations() <= 0); ++generation) {
+            for (generation = 1; (generation < getNumGenerations() || getNumGenerations() <= 0); generation++) {
 
-                // Not running? Exit it.
-                if (getState() == STOPPED) {
-                    break;
-                }
                 // Paused? We'll wait.
                 while (getState() == PAUSED) {
                     Thread.sleep(PAUSE_SLEEP);
+                }
+                // Not running? Exit it.
+                if (getState() == STOPPED) {
+                    break;
                 }
                 startTime = System.currentTimeMillis();
                 lastUpdateTime = startTime;
@@ -208,12 +209,15 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
     }
 
     private void updateTimes() {
-        long current = System.currentTimeMillis();
-        long diff = current - lastUpdateTime;
-        lastUpdateTime = current;
-        elapsedDuration += current - startTime;
-        timeSinceImprovement += diff;
-        startTime = null;
+        if (startTime != null) {
+            long current = System.currentTimeMillis();
+            long diff = current - lastUpdateTime;
+
+            lastUpdateTime = current;
+            timeSinceImprovement += diff;
+            elapsedDuration += current - startTime;
+            startTime = null;
+        }
     }
 
     /**
@@ -251,13 +255,17 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
         return updates;
     }
 
-    public SearchState getState() {
+    public SimpleObjectProperty<SearchState> getStateProperty() {
         return state;
+    }
+
+    public SearchState getState() {
+        return state.getValue();
     }
 
     @Synchronized
     public void setState(SearchState state) {
-        this.state = state;
+        this.state.set(state);
     }
 
     public XYChart.Series<Number, Number> getPlots() {

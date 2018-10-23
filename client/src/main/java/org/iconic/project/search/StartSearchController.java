@@ -62,6 +62,8 @@ public class StartSearchController implements Initializable {
     private final IconService iconService;
     private final WorkspaceService workspaceService;
 
+    private InvalidationListener workspaceListener;
+    private InvalidationListener consoleListener;
     private Lock updating;
 
     @FXML
@@ -105,10 +107,10 @@ public class StartSearchController implements Initializable {
         this.updating = new ReentrantLock();
 
         // Update the connsole and workspace whenever the active item changes
-        InvalidationListener selectionChangedWorkspaceListener = observable -> updateWorkspace();
-        InvalidationListener selectionChangedConsoleListener = observable -> updateConsole();
-        getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedWorkspaceListener);
-        getWorkspaceService().activeWorkspaceItemProperty().addListener(selectionChangedConsoleListener);
+        workspaceListener = observable -> updateWorkspace();
+        consoleListener = observable -> updateConsole();
+        getWorkspaceService().activeWorkspaceItemProperty().addListener(workspaceListener);
+        getWorkspaceService().activeWorkspaceItemProperty().addListener(consoleListener);
     }
 
     @Override
@@ -173,15 +175,14 @@ public class StartSearchController implements Initializable {
 
         SearchConfigurationModel search = (SearchConfigurationModel) item;
 
-        // Make sure that all the UI elements actually exist
-        if (btnStartSearch != null && btnStopSearch != null) {
-            // If there's a search let the user start or pause it
-            if (search.getSearchExecutor().isPresent()) {
-                SearchExecutor<?> executor = search.getSearchExecutor().get();
-                updatePlots(executor);
-                updateStatistics(executor);
-                updateButtons(executor.getState());
-            }
+        // If there's a search let the user start or pause it
+        if (search.getSearchExecutor().isPresent()) {
+            SearchExecutor<?> executor = search.getSearchExecutor().get();
+            executor.getStateProperty().removeListener(workspaceListener);
+            executor.getStateProperty().addListener(workspaceListener);
+            updatePlots(executor);
+            updateStatistics(executor);
+            updateButtons(executor);
         }
     }
 
@@ -191,8 +192,10 @@ public class StartSearchController implements Initializable {
      */
     @SuppressWarnings("unchecked")
     private synchronized void updatePlots(SearchExecutor<?> executor) {
-        ObservableList<XYChart.Series<Number, Number>> data = FXCollections.observableArrayList(executor.getPlots());
-        lcSearchProgress.setData(data);
+        Platform.runLater(() -> {
+            ObservableList<XYChart.Series<Number, Number>> data = FXCollections.observableArrayList(executor.getPlots());
+            lcSearchProgress.setData(data);
+        });
     }
 
     /**
@@ -207,11 +210,11 @@ public class StartSearchController implements Initializable {
 
     /**
      * Enable or disable buttons given the state
-     * @param state State
+     * @param executor Executor
      */
-    private void updateButtons(SearchState state) {
+    private void updateButtons(SearchExecutor<?> executor) {
         Platform.runLater(() -> {
-            switch (state) {
+            switch (executor.getState()) {
                 case RUNNING:
                     getBtnStartSearch().setDisable(true);
                     getBtnPauseSearch().setDisable(false);
@@ -247,10 +250,15 @@ public class StartSearchController implements Initializable {
         // Get the search model
         SearchConfigurationModel search = (SearchConfigurationModel) item;
 
+        // If we are stopped, we want everything fresh
+        search.getSearchExecutor().ifPresent(executor -> {
+            if (executor.getState() == SearchState.STOPPED) {
+                search.setChanged(true);
+            }
+        });
+
         // Make sure we've prepared
-        if (!search.getSearchExecutor().isPresent()) {
-            prepareNewConfiguration(search);
-        }
+        validateConfiguration(search);
 
         // If there's no search already being performed on the dataset, the configuration is invalid so ignore it
         search.getSearchExecutor().ifPresent(executor -> {
@@ -274,8 +282,7 @@ public class StartSearchController implements Initializable {
      * Do the necessary checks per dataset
      * @param search Search configuration model
      */
-    private void prepareNewConfiguration(SearchConfigurationModel search) {
-        search.setChanged(true);
+    private void validateConfiguration(SearchConfigurationModel search) {
 
         // Check the search model has a defined dataset to operate on
         if (!search.getDatasetModel().isPresent()) {
@@ -350,8 +357,8 @@ public class StartSearchController implements Initializable {
 
         SearchConfigurationModel search = (SearchConfigurationModel) item;
         search.getSearchExecutor().ifPresent(executor -> {
-            updateStatistics(executor);
             executor.stop();
+            updateStatistics(executor);
         });
         updateWorkspace();
         updateConsole();
