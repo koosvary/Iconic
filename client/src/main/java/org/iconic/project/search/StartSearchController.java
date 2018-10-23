@@ -308,7 +308,6 @@ public class StartSearchController implements Initializable {
         search.getSearchExecutor().ifPresent(executor -> {
             updateStatistics(executor);
             executor.stop();
-            search.setChanged(true);
         });
         updateWorkspace();
         updateConsole();
