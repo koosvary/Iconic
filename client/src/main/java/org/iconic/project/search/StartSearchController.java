@@ -40,13 +40,12 @@ import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.project.search.io.SearchExecutor;
-import org.iconic.views.ViewService;
+import org.iconic.project.search.io.SearchState;
 import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -114,8 +113,6 @@ public class StartSearchController implements Initializable {
 
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
-        updateWorkspace();
-
         btnStartSearch.setGraphic(getIconService().getIcon(FontAwesome.Glyph.PLAY));
         btnPauseSearch.setGraphic(getIconService().getIcon(FontAwesome.Glyph.PAUSE));
         btnStopSearch.setGraphic(getIconService().getIcon(FontAwesome.Glyph.STOP));
@@ -137,6 +134,8 @@ public class StartSearchController implements Initializable {
             updateWorkspace();
             updateConsole();
         });
+
+        updateWorkspace();
     }
     /**
      * Updates the workspace to match the current active dataset.
@@ -181,6 +180,7 @@ public class StartSearchController implements Initializable {
                 SearchExecutor<?> executor = search.getSearchExecutor().get();
                 updatePlots(executor);
                 updateStatistics(executor);
+                updateButtons(executor.getState());
             }
         }
     }
@@ -206,6 +206,32 @@ public class StartSearchController implements Initializable {
     }
 
     /**
+     * Enable or disable buttons given the state
+     * @param state State
+     */
+    private void updateButtons(SearchState state) {
+        Platform.runLater(() -> {
+            switch (state) {
+                case RUNNING:
+                    getBtnStartSearch().setDisable(true);
+                    getBtnPauseSearch().setDisable(false);
+                    getBtnStopSearch().setDisable(false);
+                    break;
+                case PAUSED:
+                    getBtnStartSearch().setDisable(false);
+                    getBtnPauseSearch().setDisable(true);
+                    getBtnStopSearch().setDisable(false);
+                    break;
+                case STOPPED:
+                    getBtnStartSearch().setDisable(false);
+                    getBtnPauseSearch().setDisable(true);
+                    getBtnStopSearch().setDisable(true);
+                    break;
+            }
+        });
+    }
+
+    /**
      * Starts a search using the currently selected search configuration.
      *
      * @param actionEvent The action that triggered this event
@@ -220,6 +246,35 @@ public class StartSearchController implements Initializable {
 
         // Get the search model
         SearchConfigurationModel search = (SearchConfigurationModel) item;
+
+        // Make sure we've prepared
+        if (!search.getSearchExecutor().isPresent()) {
+            prepareNewConfiguration(search);
+        }
+
+        // If there's no search already being performed on the dataset, the configuration is invalid so ignore it
+        search.getSearchExecutor().ifPresent(executor -> {
+            // If the search is not running start one
+            switch (executor.getState()) {
+                case RUNNING:
+                case PAUSED:
+                    executor.setState(SearchState.RUNNING);
+                    break;
+                case STOPPED:
+                    executor.setState(SearchState.RUNNING);
+                    Platform.runLater(() -> new Thread(executor).start());
+                    break;
+            }
+        });
+        updateWorkspace();
+        updateConsole();
+    }
+
+    /**
+     * Do the necessary checks per dataset
+     * @param search Search configuration model
+     */
+    private void prepareNewConfiguration(SearchConfigurationModel search) {
         search.setChanged(true);
 
         // Check the search model has a defined dataset to operate on
@@ -247,23 +302,7 @@ public class StartSearchController implements Initializable {
                 }
             }
         }
-
-        // If there's no search already being performed on the dataset, the configuration is invalid
-        // so ignore it
-        search.getSearchExecutor().ifPresent(executor -> {
-            // If the search is not running start one
-            if (!executor.isRunning()) {
-                Platform.runLater(() -> {
-                    executor.setRunning(true);
-                    Thread thread = new Thread(executor);
-                    thread.start();
-                });
-            }
-        });
-        updateWorkspace();
-        updateConsole();
     }
-
 
     /**
      * Pauses a search using the currently selected search configuration.
@@ -283,9 +322,14 @@ public class StartSearchController implements Initializable {
         // so ignore it
         search.getSearchExecutor().ifPresent(executor -> {
             // If the search is running stop it
-            if (executor.isRunning()) {
-                updateStatistics(executor);
-                executor.stop();
+            switch (executor.getState()) {
+                case RUNNING:
+                    executor.pause();
+                    updateStatistics(executor);
+                    break;
+                case PAUSED:
+                case STOPPED:
+                    break;
             }
         });
         updateWorkspace();

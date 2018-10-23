@@ -48,6 +48,7 @@ import org.iconic.project.ProjectModel;
 import org.iconic.project.ProjectService;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.config.CgpConfigurationModel;
+import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.views.ViewService;
 import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.workspace.WorkspaceService;
@@ -231,7 +232,10 @@ public class DefineSearchController implements Initializable, DefineSearchServic
             return;
         }
 
-        SearchConfigurationModel configModel = (SearchConfigurationModel) item;
+        SearchConfigurationModel search = (SearchConfigurationModel) item;
+
+        // Stop any existing searches if we change the dataset
+        search.getSearchExecutor().ifPresent(SearchExecutor::stop);
 
         if (newValue != null) {
             // Get the new dataset
@@ -252,7 +256,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
             }
         }
 
-        configModel.setDatasetModel(newValue);
+        search.setDatasetModel(newValue);
         loadFunction();
     }
 

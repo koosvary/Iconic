@@ -24,6 +24,7 @@ import java.util.concurrent.locks.Lock;
 import org.iconic.project.Displayable;
 import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.project.search.io.SearchExecutor;
+import org.iconic.project.search.io.SearchState;
 import org.iconic.workspace.WorkspaceService;
 
 /**
@@ -69,7 +70,7 @@ public class SearchStatistics extends Service<Void> {
             protected Void call() {
                 try {
                     Thread.sleep(START_PAUSE);
-                    while (search.isRunning()) {
+                    while (search.getState() != SearchState.STOPPED) {
                         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
                         if (!(item instanceof SearchConfigurationModel)) {
@@ -93,19 +94,11 @@ public class SearchStatistics extends Service<Void> {
                                 controller.getTxtLastImprov().setText(getTimeSinceImprovement());
                                 controller.getTxtAvgImprov().setText(getAverageImprovementTime());
                                 controller.getTxtCores().setText(Runtime.getRuntime().availableProcessors() + "");
-                                controller.getBtnStartSearch().setDisable(true);
-                                controller.getBtnPauseSearch().setDisable(false);
-                                controller.getBtnStopSearch().setDisable(false);
                             });
                         }
 
                         Thread.sleep(SLEEP_TIME);
                     }
-                    Platform.runLater(() -> {
-                        controller.getBtnStartSearch().setDisable(false);
-                        controller.getBtnPauseSearch().setDisable(true);
-                        controller.getBtnStopSearch().setDisable(true);
-                    });
                 } catch (InterruptedException ex) {
                     log.error("{}: ", ex::getMessage);
                 }
@@ -131,14 +124,23 @@ public class SearchStatistics extends Service<Void> {
     }
 
     /**
-     * Gets seconds elapsed in the search
+     * Calculate the different between the current time and when the search was last updated.
+     * This is needed when we use massive datasets, to get the stats updating in real-time.
+     * @return Difference
+     */
+    private long getDiff() {
+        return search.getState() == SearchState.RUNNING ? System.currentTimeMillis() - search.getLastUpdateTime() : 0;
+    }
+
+    /**
+     * Gets seconds elapsed in the search, at least 1 to prevent division by zero
      * @return Seconds as a long
      */
     private long getMillisecondsElapsed() {
-        if (search == null || search.getStartTime() == null) {
+        if (search == null || search.getElapsedDuration() == null) {
             return 0L;
         }
-        return Math.max(search.getElapsedDuration(), 1);
+        return Math.max(search.getElapsedDuration() + getDiff(), 1);
     }
 
     /**
@@ -154,10 +156,10 @@ public class SearchStatistics extends Service<Void> {
      * @return Time since the last improvement
      */
     private String getTimeSinceImprovement() {
-        if (search == null || search.getLastImproveTime() == null) {
+        if (search == null || search.getTimeSinceImprovement() == null) {
             return timeElapsed(0L);
         }
-        return timeElapsed(Math.max((search.getElapsedDuration() + search.getStartTime() - search.getLastImproveTime()), 1));
+        return timeElapsed(search.getTimeSinceImprovement() + getDiff());
     }
 
     /**
@@ -168,7 +170,7 @@ public class SearchStatistics extends Service<Void> {
         if (search == null || search.getAverageImproveDuration() == null) {
             return timeElapsed(0L);
         }
-        return timeElapsed(Math.max(search.getAverageImproveDuration(), 1));
+        return timeElapsed(search.getAverageImproveDuration());
     }
 
     public WorkspaceService getWorkspaceService() {
