@@ -17,7 +17,7 @@ package org.iconic;
 
 import com.beust.jcommander.JCommander;
 import lombok.extern.log4j.Log4j2;
-import org.iconic.ea.EvolutionaryAlgorithm;
+import org.iconic.ea.strategies.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.ChromosomeFactory;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
@@ -29,7 +29,6 @@ import org.iconic.ea.operator.evolutionary.mutation.cgp.CartesianSingleActiveMut
 import org.iconic.ea.operator.objective.*;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.operator.primitive.*;
-import org.iconic.ea.strategies.seamo.ElitistSEAMO;
 import org.iconic.ea.strategies.seamo.SEAMO;
 import org.iconic.io.ArgsConverterFactory;
 

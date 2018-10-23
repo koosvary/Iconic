@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * <p>Defines a functional interface for an objective
  *
  * <p>
- * An objective is a measure used by an {@see org.iconic.ea.EvolutionaryAlgorithm} to determine the fitness
+ * An objective is a measure used by an {@see org.iconic.ea.strategies.EvolutionaryAlgorithm} to determine the fitness
  * of chromosomes.
  *
  *

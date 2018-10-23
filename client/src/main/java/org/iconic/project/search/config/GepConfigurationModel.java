@@ -17,7 +17,7 @@ package org.iconic.project.search.config;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import lombok.NonNull;
-import org.iconic.ea.EvolutionaryAlgorithm;
+import org.iconic.ea.strategies.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
 import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;

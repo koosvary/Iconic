@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.iconic.ea;
+package org.iconic.ea.strategies;
 
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
@@ -53,6 +53,17 @@ public abstract class EvolutionaryAlgorithm<T extends Chromosome<R>, R extends C
     public abstract void initialisePopulation(int populationSize);
 
     public abstract List<T> evolve(final List<T> population);
+
+    /**
+     * Elitism helps increase genetic diversity within a population without sacrificing fitness
+     * by removing lower performing members of the population.
+     *
+     * @param population The population to enforce elitism on.
+     * @return The same population of individuals that are provided.
+     */
+    protected List<T> elitism(List<T> population) {
+        return new LinkedList<>(population);
+    }
 
     protected List<Crossover<T, R>> getCrossovers() {
         return crossovers;
