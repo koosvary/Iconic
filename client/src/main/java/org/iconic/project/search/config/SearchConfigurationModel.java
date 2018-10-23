@@ -15,17 +15,23 @@
  */
 package org.iconic.project.search.config;
 
+import com.google.inject.Inject;
+import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ClassInfo;
+import io.github.classgraph.ScanResult;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.ObservableMap;
 import javafx.scene.control.Control;
 import javafx.util.converter.NumberStringConverter;
 import lombok.NonNull;
+import lombok.extern.log4j.Log4j2;
 import org.controlsfx.glyphfont.FontAwesome;
 import org.iconic.ea.operator.primitive.*;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.io.SearchExecutor;
+import org.iconic.reflection.ClassLoaderService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -34,6 +40,7 @@ import java.util.stream.Collectors;
  * A SearchConfigurationModel exposes a collection of observable properties that are used to construct a
  * {@link org.iconic.project.search.io.SearchExecutor SearchExecutor}.
  */
+@Log4j2
 public abstract class SearchConfigurationModel implements Displayable {
     private final Map<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty> primitives;
     private final UUID id;
@@ -51,7 +58,10 @@ public abstract class SearchConfigurationModel implements Displayable {
      *
      * @param name The name of the search configuration.
      */
-    public SearchConfigurationModel(@NonNull final String name) {
+    public SearchConfigurationModel(
+            @NonNull final String name,
+            @NonNull final List<FunctionalPrimitive<Double, Double>> primitives
+    ) {
         this.changed = true;
         this.name = new SimpleStringProperty(name);
         this.id = UUID.randomUUID();
@@ -61,49 +71,10 @@ public abstract class SearchConfigurationModel implements Displayable {
         this.crossoverRate = new SimpleDoubleProperty(0.1);
         this.datasetModel = null;
         this.primitives = new LinkedHashMap<>();
-        primitives.put(new Addition(), new SimpleBooleanProperty(true));
-        primitives.put(new Subtraction(), new SimpleBooleanProperty(true));
-        primitives.put(new Multiplication(), new SimpleBooleanProperty(true));
-        primitives.put(new Division(), new SimpleBooleanProperty(true));
-        primitives.put(new Negation(), new SimpleBooleanProperty(true));
 
-        primitives.put(new Cos(), new SimpleBooleanProperty(true));
-        primitives.put(new Sin(), new SimpleBooleanProperty(true));
-        primitives.put(new Tan(), new SimpleBooleanProperty(true));
-        primitives.put(new ArcCos(), new SimpleBooleanProperty(true));
-        primitives.put(new ArcSin(), new SimpleBooleanProperty(true));
-        primitives.put(new ArcTan(), new SimpleBooleanProperty(true));
-        primitives.put(new TwoArcTan(), new SimpleBooleanProperty(true));
-
-        primitives.put(new Exponential(), new SimpleBooleanProperty(true));
-        primitives.put(new NaturalLog(), new SimpleBooleanProperty(true));
-        primitives.put(new Power(), new SimpleBooleanProperty(true));
-        primitives.put(new SquareRoot(), new SimpleBooleanProperty(true));
-        primitives.put(new Root(), new SimpleBooleanProperty(true));
-
-        primitives.put(new LogisticFunction(), new SimpleBooleanProperty(true));
-        primitives.put(new StepFunction(), new SimpleBooleanProperty(true));
-        primitives.put(new SignFunction(), new SimpleBooleanProperty(true));
-        primitives.put(new GaussianFunction(), new SimpleBooleanProperty(true));
-        primitives.put(new Tanh(), new SimpleBooleanProperty(true));
-
-        primitives.put(new EqualTo(), new SimpleBooleanProperty(true));
-        primitives.put(new LessThan(), new SimpleBooleanProperty(true));
-        primitives.put(new LessThanOrEqual(), new SimpleBooleanProperty(true));
-        primitives.put(new GreaterThan(), new SimpleBooleanProperty(true));
-        primitives.put(new GreaterThanOrEqual(), new SimpleBooleanProperty(true));
-        primitives.put(new IfThenElse(), new SimpleBooleanProperty(true));
-        primitives.put(new And(), new SimpleBooleanProperty(true));
-        primitives.put(new Or(), new SimpleBooleanProperty(true));
-        primitives.put(new Xor(), new SimpleBooleanProperty(true));
-        primitives.put(new Not(), new SimpleBooleanProperty(true));
-
-        primitives.put(new Minimum(), new SimpleBooleanProperty(true));
-        primitives.put(new Maximum(), new SimpleBooleanProperty(true));
-        primitives.put(new Modulo(), new SimpleBooleanProperty(true));
-        primitives.put(new Floor(), new SimpleBooleanProperty(true));
-        primitives.put(new Ceiling(), new SimpleBooleanProperty(true));
-        primitives.put(new AbsoluteValue(), new SimpleBooleanProperty(true));
+        for (FunctionalPrimitive<Double, Double> primitive : primitives) {
+            this.primitives.put(primitive, new SimpleBooleanProperty(true));
+        }
 
         // When a property is changed set the state of the configuration to changed
         this.populationSizeProperty().addListener(obs -> setChanged(true));

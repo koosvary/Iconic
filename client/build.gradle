@@ -17,6 +17,7 @@ version = '0.5.0'
 
 dependencies {
     compile 'org.controlsfx:controlsfx:8.40.14'
+    compile group: 'io.github.classgraph', name: 'classgraph', version: '4.4.7'
     compile project(':api')
 }
 

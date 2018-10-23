@@ -15,19 +15,50 @@
  */
 package org.iconic.project.search.config;
 
+import lombok.extern.log4j.Log4j2;
+import org.iconic.ea.operator.primitive.FunctionalPrimitive;
+import org.iconic.reflection.ClassLoaderService;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Constructs a search
  */
-public class SearchConfigurationModelFactory  {
-    public SearchConfigurationModelFactory() {
-        // Do nothing
+@Log4j2
+public class SearchConfigurationModelFactory {
+    private final List<FunctionalPrimitive<Double, Double>> primitives;
+
+    public SearchConfigurationModelFactory(final ClassLoaderService classLoaderService) {
+        primitives = new ArrayList<>();
+
+        final String primitivePackage = "org.iconic.ea.operator.primitive";
+        final String primitiveSuper = "org.iconic.ea.operator.primitive.ArithmeticPrimitive";
+        try {
+            for (Class<?> clazz : classLoaderService.getSubclasses(primitivePackage, primitiveSuper)) {
+                //noinspection unchecked
+                primitives.add((FunctionalPrimitive<Double, Double>) clazz.newInstance());
+            }
+        } catch (InstantiationException | IllegalAccessException ex) {
+            log.warn("{}: {}", ex, ex.getStackTrace());
+        }
     }
 
-    public SearchConfigurationModel getSearchConfigurationModel(String name, EvolutionaryAlgorithmType type) {
+    public SearchConfigurationModel getSearchConfigurationModel(
+            final String name,
+            final EvolutionaryAlgorithmType type
+    ) {
         switch (type) {
-            case GENE_EXPRESSION_PROGRAMMING: return new GepConfigurationModel(name);
-            case CARTESIAN_GENETIC_PROGRAMMING: return new CgpConfigurationModel(name);
-            default: return new GepConfigurationModel(name);
+            case GENE_EXPRESSION_PROGRAMMING:
+                return new GepConfigurationModel(name, primitives);
+            case CARTESIAN_GENETIC_PROGRAMMING:
+                return new CgpConfigurationModel(name, primitives);
+            default:
+                return new GepConfigurationModel(name, primitives);
         }
+    }
+
+    public List<FunctionalPrimitive<Double, Double>> getPrimitives() {
+        return primitives;
     }
 }

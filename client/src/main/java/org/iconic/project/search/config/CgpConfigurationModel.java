@@ -15,6 +15,7 @@
  */
 package org.iconic.project.search.config;
 
+import com.google.inject.Inject;
 import javafx.beans.property.SimpleIntegerProperty;
 import lombok.NonNull;
 import org.iconic.ea.EvolutionaryAlgorithm;
@@ -28,11 +29,14 @@ import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.CacheableObjective;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
+import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.iconic.ea.strategies.cgp.CartesianGeneticProgramming;
 import org.iconic.ea.strategies.gep.GeneExpressionProgramming;
 import org.iconic.project.search.io.SearchExecutor;
+import org.iconic.reflection.ClassLoaderService;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@inheritDoc}
@@ -50,8 +54,12 @@ public class CgpConfigurationModel extends SearchConfigurationModel {
     /**
      * {@inheritDoc}
      */
-    public CgpConfigurationModel(@NonNull final String name) {
-        super(name);
+    @Inject
+    public CgpConfigurationModel(
+            @NonNull final String name,
+            @NonNull final List<FunctionalPrimitive<Double, Double>> primitives
+    ) {
+        super(name, primitives);
         this.numOutputs = new SimpleIntegerProperty(2);
         this.numColumns = new SimpleIntegerProperty(1);
         this.numRows = new SimpleIntegerProperty(1);

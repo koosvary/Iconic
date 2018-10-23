@@ -61,7 +61,7 @@ public class Client {
         if (inputFile != null && !inputFile.isEmpty()) {
             final DataManager<Double> dm = new DataManager<>(inputFile);
 
-            // Sanatise the dataset for any missing values
+            // Sanitise the dataset for any missing values
             handleMissingValues(dm);
 
             // Collect all relevant parameters for convenience

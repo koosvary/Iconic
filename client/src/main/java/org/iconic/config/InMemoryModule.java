@@ -18,6 +18,8 @@ package org.iconic.config;
 import com.google.inject.AbstractModule;
 import org.iconic.project.ProjectService;
 import org.iconic.project.TransientProjectService;
+import org.iconic.reflection.ClassGraphClassLoaderService;
+import org.iconic.reflection.ClassLoaderService;
 import org.iconic.views.DefaultViewService;
 import org.iconic.views.ViewService;
 import org.iconic.workspace.DefaultWorkspaceService;
@@ -36,6 +38,7 @@ public class InMemoryModule extends AbstractModule {
      */
     @Override
     protected void configure() {
+        bind(ClassLoaderService.class).to(ClassGraphClassLoaderService.class);
         bind(IconService.class).to(FontAwesomeIconService.class);
         bind(ProjectService.class).to(TransientProjectService.class);
         bind(ViewService.class).to(DefaultViewService.class);

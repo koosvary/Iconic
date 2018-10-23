@@ -36,6 +36,7 @@ import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.config.EvolutionaryAlgorithmType;
 import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.project.search.config.SearchConfigurationModelFactory;
+import org.iconic.reflection.ClassLoaderService;
 import org.iconic.workspace.WorkspaceService;
 
 import java.io.File;
@@ -55,6 +56,7 @@ public class ProjectTreeController implements Initializable {
     private final IconService iconService;
     private final ProjectService projectService;
     private final WorkspaceService workspaceService;
+    private final ClassLoaderService classLoaderService;
 
     @FXML
     @Getter(AccessLevel.PRIVATE)
@@ -67,10 +69,12 @@ public class ProjectTreeController implements Initializable {
      */
     @Inject
     public ProjectTreeController(
+            final ClassLoaderService classLoaderService,
             final ProjectService projectService,
             final WorkspaceService workspaceService,
             final IconService iconService
     ) {
+        this.classLoaderService = classLoaderService;
         this.projectService = projectService;
         this.workspaceService = workspaceService;
         this.iconService = iconService;
@@ -151,32 +155,6 @@ public class ProjectTreeController implements Initializable {
                 getWorkspaceService().setActiveWorkspaceItem(item);
             }
         }
-    }
-
-    /**
-     * <p>
-     * Returns the project service of this controller
-     *
-     *
-     * @return the project service of the controller
-     */
-    private ProjectService getProjectService() {
-        return projectService;
-    }
-
-    /**
-     * <p>
-     * Returns the workspace service of this controller
-     *
-     *
-     * @return the workspace service of the controller
-     */
-    private WorkspaceService getWorkspaceService() {
-        return workspaceService;
-    }
-
-    private IconService getIconService() {
-        return iconService;
     }
 
     /**
@@ -344,7 +322,7 @@ public class ProjectTreeController implements Initializable {
             if (item instanceof ProjectModel) {
                 result.ifPresent(params -> {
                             SearchConfigurationModelFactory searchConfigurationModelFactory =
-                                    new SearchConfigurationModelFactory();
+                                    new SearchConfigurationModelFactory(getClassLoaderService());
 
                             if (
                                     params.getKey() == null ||
@@ -410,5 +388,33 @@ public class ProjectTreeController implements Initializable {
                 );
             }
         }
+    }
+
+    /**
+     * @return The project service of the controller
+     */
+    private ProjectService getProjectService() {
+        return projectService;
+    }
+
+    /**
+     * @return The workspace service of the controller
+     */
+    private WorkspaceService getWorkspaceService() {
+        return workspaceService;
+    }
+
+    /**
+     * @return The icon service of the controller
+     */
+    private IconService getIconService() {
+        return iconService;
+    }
+
+    /**
+     * @return The class loader service of the controller
+     */
+    private ClassLoaderService getClassLoaderService() {
+        return classLoaderService;
     }
 }
