@@ -19,14 +19,17 @@ import com.google.inject.Inject;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyCombination;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.extern.log4j.Log4j2;
@@ -81,8 +84,6 @@ public class ResultsController implements Initializable {
      */
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
-        updateWorkspace();
-
         resultsTab.setOnSelectionChanged(event -> updateWorkspace());
 
         // Listener for the solutions being clicked in the table
@@ -91,6 +92,9 @@ public class ResultsController implements Initializable {
                 Platform.runLater(this::graphExpectedValues);
             }
         });
+
+        setupContextMenu();
+        updateWorkspace();
     }
 
     /**
@@ -279,6 +283,33 @@ public class ResultsController implements Initializable {
         solutionsTableView.getColumns().set(0, sizeCol);
         solutionsTableView.getColumns().set(1, errorColumn);
         solutionsTableView.getColumns().set(2, solutionCol);
+    }
+
+    /**
+     * Sets up the right click menu for copying and pasting
+     */
+    private void setupContextMenu(){
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem copy = new MenuItem("Copy");
+        copy.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
+        copy.setOnAction(actionEvent -> copySelectionToClipboard());
+        contextMenu.getItems().add(copy);
+        solutionsTableView.setContextMenu(contextMenu);
+    }
+
+    /**
+     * Reads the selected cells and places them in the clipboard formatted as a spreadsheet
+     */
+    private void copySelectionToClipboard() {
+        ResultDisplay row = solutionsTableView.getSelectionModel().getSelectedItem();
+        if (row == null) {
+            return;
+        }
+
+        // Set clipboard content
+        final ClipboardContent clipboardContent = new ClipboardContent();
+        clipboardContent.putString(row.getSolution());
+        Clipboard.getSystemClipboard().setContent(clipboardContent);
     }
 
     /**
