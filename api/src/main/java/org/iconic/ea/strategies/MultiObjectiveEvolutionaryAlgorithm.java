@@ -75,6 +75,7 @@ public abstract class MultiObjectiveEvolutionaryAlgorithm<R extends Chromosome<T
      */
     @Override
     public void initialisePopulation(int populationSize) {
+        assert (populationSize > 0);
         assert (getObjective() instanceof MultiObjective);
 
         for (int i = 0; i < populationSize; i++) {

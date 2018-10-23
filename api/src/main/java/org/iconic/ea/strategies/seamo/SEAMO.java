@@ -34,8 +34,6 @@ import java.util.*;
  * A simple evolutionary algorithm for multiple-objectives. Based on the paper written by
  * Christine L. Mumford-Valenzuela.
  *
- * @param <R> The type of chromosome used by the algorithm
- * @param <T> The type of data used by the chromosome
  * @see <a href="https://doi.org/10.1109/CEC.2002.1007014">A simple evolutionary algorithm for multi-objective optimization (SEAMO)</a>
  */
 @Log4j2
