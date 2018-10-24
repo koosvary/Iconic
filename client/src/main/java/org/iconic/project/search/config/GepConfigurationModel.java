@@ -83,7 +83,7 @@ public class GepConfigurationModel extends SearchConfigurationModel {
         ea.initialisePopulation(getPopulationSize());
 
         SearchExecutor<ExpressionChromosome<Double>> searchExecutor =
-                new SearchExecutor<>(getDatasetModel().get(), getEnabledPrimitives(), getNumGenerations());
+                new SearchExecutor<>(getDatasetModel().get(), getEnabledPrimitives(), this);
         searchExecutor.setEvolutionaryAlgorithm(ea);
 
         return searchExecutor;
@@ -102,16 +102,6 @@ public class GepConfigurationModel extends SearchConfigurationModel {
      */
     public int getHeadLength() {
         return headLength.get();
-    }
-
-    /**
-     * Sets the head length of this search configuration.
-     *
-     * @param headLength Must be between one and positive infinity, inclusive.
-     */
-    public void setHeadLength(int headLength) {
-        setChanged(true);
-        this.headLength.set(headLength);
     }
 
     /**
