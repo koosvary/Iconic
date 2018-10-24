@@ -20,6 +20,7 @@ import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.LinearChromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.FeatureClass;
+import org.iconic.ea.operator.objective.Objective;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.*;
@@ -562,8 +563,9 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
             return true;
         } else if (o instanceof CartesianChromosome) {
             CartesianChromosome<?> other = (CartesianChromosome<?>) o;
-            return Objects.deepEquals(this.getPhenome(), other.getPhenome()) &&
-                    Objects.equals(this.isChanged(), other.isChanged());
+            return (this.isChanged() || other.isChanged())
+                ? Objects.deepEquals(this.getGenome(), other.getGenome())
+                : Objects.deepEquals(this.getPhenome(), other.getPhenome());
         }
         return false;
     }
