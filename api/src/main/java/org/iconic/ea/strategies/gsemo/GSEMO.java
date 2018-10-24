@@ -98,6 +98,7 @@ public class GSEMO<R extends Chromosome<T>, T extends Comparable<T>>
         for (final Objective<T> goal : multiObjective.getGoals()) {
             addGlobal(getGlobals(), offspring, goal, goal.apply(offspring));
         }
+        multiObjective.apply(offspring);
 
         return newPopulation;
     }

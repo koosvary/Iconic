@@ -102,8 +102,8 @@ public class Client {
 
             // Add all of the functions the chromosomes can use
             supplier.addFunction(Arrays.asList(
-                    new Addition(), new Subtraction(), new Multiplication(),
-                    new Power(), new Sin(), new Cos()
+                    new Addition(), new Subtraction(), new Multiplication(), new Root(),
+                    new Division(), new Power(), new Exponential(), new Sin(), new Cos()
             ));
 
             final int generations = client.getArgs().getGenerations();
@@ -169,7 +169,6 @@ public class Client {
                         graphWriter.write(series.draw());
                     }
 
-                    graphWriter.setAxesTruncated(false);
                     graphWriter.export("All Generations - Non-Dominated", directory, "results-all");
                     graphWriter.clear();
 
@@ -181,6 +180,7 @@ public class Client {
 
                     nonDominatedFinal.forEach(seriesWriter::write);
                     graphWriter.write(seriesWriter.draw());
+                    graphWriter.setAxesTruncated(false);
                     graphWriter.export("Last Generation - Non-Dominated", directory, "results-last");
 
                     final Map<Objective<Double>, Chromosome<Double>> globals = new HashMap<>();

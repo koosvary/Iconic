@@ -166,7 +166,6 @@ public abstract class MultiObjectiveEvolutionaryAlgorithm<R extends Chromosome<T
         return true;
     }
 
-
     /**
      * Returns true if the provided chromosome is a new global best and isn't
      * a duplicate of an existing chromosome in the given population.

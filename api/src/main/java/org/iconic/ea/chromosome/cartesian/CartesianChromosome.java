@@ -23,6 +23,7 @@ import org.iconic.ea.data.FeatureClass;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * {@inheritDoc}
@@ -341,13 +342,21 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     public String toString() {
         StringBuilder outputBuilder = new StringBuilder();
 
-        // For each output
-        getOutputs().forEach(output -> {
-            // Append its phenotype
+        if (getOutputs().size() > 1) {
+            // For each output
+            List<String> outputs = getOutputs().stream()
+                    .map(output -> formatNode(output, getInputs(), getMaxArity(), getPrimitives()))
+                    .map(s -> s.toString().trim())
+                    .collect(Collectors.toList());
+
             outputBuilder
-                    .append(formatNode(output, getInputs(), getMaxArity(), getPrimitives()))
-                    .append("\n");
-        });
+                    .append("ADD ( ")
+                    .append(String.join(", ", outputs))
+                    .append(" ) ");
+        } else if (getOutputs().size() == 1) {
+            outputBuilder
+                    .append(formatNode(getOutputs().get(0), getInputs(), getMaxArity(), getPrimitives()));
+        }
 
         return outputBuilder.toString();
     }
