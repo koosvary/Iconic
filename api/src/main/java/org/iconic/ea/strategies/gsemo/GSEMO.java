@@ -75,29 +75,30 @@ public class GSEMO<R extends Chromosome<T>, T extends Comparable<T>>
         // Continue mutating the offspring based on its parent's length
         // reducing the probability of mutation with each attempt
         for (int j = 2; j <= parent.getSize(); ++j) {
-            if ((1./ (double) j) >= ThreadLocalRandom.current().nextDouble()) {
+            if ((1. / (double) j) >= ThreadLocalRandom.current().nextDouble()) {
                 offspring = mutate(offspring);
             }
         }
 
-        boolean add = true;
-
         for (final R candidate : newPopulation) {
             if (isDominatedBy(getObjective(), offspring, candidate)) {
-                add = false;
-                break;
+                return newPopulation;
             }
         }
 
-        if (add) {
-            for (int i = 0; i < newPopulation.size(); i++) {
-                final R candidate = newPopulation.get(i);
-                if (isDominatedBy(getObjective(), candidate, offspring)) {
-                    newPopulation.remove(candidate);
-                }
+        for (int i = 0; i < newPopulation.size(); i++) {
+            final R candidate = newPopulation.get(i);
+            if (isDominatedBy(getObjective(), candidate, offspring)) {
+                newPopulation.remove(candidate);
             }
-            newPopulation.add(offspring);
         }
+        newPopulation.add(offspring);
+
+        MultiObjective<T> multiObjective = (MultiObjective<T>) getObjective();
+        for (final Objective<T> goal : multiObjective.getGoals()) {
+            addGlobal(getGlobals(), offspring, goal, goal.apply(offspring));
+        }
+
         return newPopulation;
     }
 }
