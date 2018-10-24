@@ -158,10 +158,14 @@ public abstract class MultiObjectiveEvolutionaryAlgorithm<R extends Chromosome<T
 
         // If c2 performs worse for any goal it cannot dominate c1
         for (final Objective<T> goal : multiObjective.getGoals()) {
-            if (!goal.isNotWorse(c2.getFitness(), c1.getFitness())) {
+            if (!goal.isNotWorse(goal.apply(c2), goal.apply(c1))) {
+                multiObjective.apply(c1);
+                multiObjective.apply(c2);
                 return false;
             }
         }
+        multiObjective.apply(c1);
+        multiObjective.apply(c2);
         // Reaching here means that c2 must dominate c1
         return true;
     }
