@@ -47,7 +47,7 @@ public class EqualToTest {
      * <p>
      * Returns a stream of double n-tuples, where the last member of the tuple is 1 if both members are equal,
      * or 0 otherwise
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

@@ -17,23 +17,25 @@ package org.iconic.project.search.config;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import lombok.NonNull;
-import org.iconic.ea.EvolutionaryAlgorithm;
+import org.iconic.ea.strategies.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosomeFactory;
-import org.iconic.ea.chromosome.expression.ExpressionChromosome;
-import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
-import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.cgp.CartesianSingleActiveMutator;
-import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.CacheableObjective;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.strategies.cgp.CartesianGeneticProgramming;
-import org.iconic.ea.strategies.gep.GeneExpressionProgramming;
 import org.iconic.project.search.io.SearchExecutor;
 
 import java.util.ArrayList;
 
+/**
+ * {@inheritDoc}
+ * <p>
+ * A search configuration model designed specifically for a Cartesian Genetic Programming strategy.
+ *
+ * @see org.iconic.ea.strategies.cgp.CartesianGeneticProgramming
+ */
 public class CgpConfigurationModel extends SearchConfigurationModel {
     private SimpleIntegerProperty numOutputs;
     private SimpleIntegerProperty numColumns;
@@ -55,6 +57,9 @@ public class CgpConfigurationModel extends SearchConfigurationModel {
         this.numLevelsBackProperty().addListener(obs -> setChanged(true));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected SearchExecutor<?> buildSearchExecutor() {
         setChanged(false);
@@ -68,7 +73,7 @@ public class CgpConfigurationModel extends SearchConfigurationModel {
                         getNumOutputs(), getDatasetModel().get().getDataManager().getFeatureSize() - 1,
                         getNumColumns(), getNumRows(), getNumLevelsBack()
                 );
-        supplier.addFunction(new ArrayList<>(getPrimitives().keySet()));
+        supplier.addFunction(new ArrayList<>(getEnabledPrimitives()));
 
         EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea =
                 new CartesianGeneticProgramming<>(supplier);
@@ -91,60 +96,107 @@ public class CgpConfigurationModel extends SearchConfigurationModel {
         return searchExecutor;
     }
 
+    /**
+     * @return The number of outputs associated with the search configuration.
+     */
+    public int getNumOutputs() {
+        return numOutputs.get();
+    }
+
+    /**
+     * @return The number of columns associated with the search configuration.
+     */
+    public int getNumColumns() {
+        return numColumns.get();
+    }
+
+    /**
+     * @return The number of rows associated with the search configuration.
+     */
+    public int getNumRows() {
+        return numRows.get();
+    }
+
+    /**
+     * @return The number of levels back associated with the search configuration.
+     */
+    public int getNumLevelsBack() {
+        return numLevelsBack.get();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected boolean isValid() {
         return getDatasetModel().isPresent();
     }
 
-    public int getNumOutputs() {
-        return numOutputs.get();
-    }
-
-    public SimpleIntegerProperty numOutputsProperty() {
-        return numOutputs;
-    }
-
+    /**
+     * Sets the number of outputs of this search configuration.
+     *
+     * @param numOutputs Must be between one and positive infinity, inclusive.
+     */
     public void setNumOutputs(int numOutputs) {
         setChanged(true);
         this.numOutputs.set(numOutputs);
     }
 
-    public int getNumColumns() {
-        return numColumns.get();
-    }
-
-    public SimpleIntegerProperty numColumnsProperty() {
-        return numColumns;
-    }
-
+    /**
+     * Sets the number of columns of this search configuration.
+     *
+     * @param numColumns Must be between one and positive infinity, inclusive.
+     */
     public void setNumColumns(int numColumns) {
         setChanged(true);
         this.numColumns.set(numColumns);
     }
 
-    public int getNumRows() {
-        return numRows.get();
-    }
-
-    public SimpleIntegerProperty numRowsProperty() {
-        return numRows;
-    }
-
+    /**
+     * Sets the number of rows of this search configuration.
+     *
+     * @param numRows Must be between one and positive infinity, inclusive.
+     */
     public void setNumRows(int numRows) {
         setChanged(true);
         this.numRows.set(numRows);
     }
 
-    public int getNumLevelsBack() {
-        return numLevelsBack.get();
-    }
-
-    public SimpleIntegerProperty numLevelsBackProperty() {
-        return numLevelsBack;
-    }
-
+    /**
+     * Sets the number of levels back of this search configuration.
+     *
+     * @param numLevelsBack Must be between one and positive infinity, inclusive.
+     */
     public void setNumLevelsBack(int numLevelsBack) {
         setChanged(true);
         this.numLevelsBack.set(numLevelsBack);
+    }
+
+    /**
+     * @return The number of outputs of the search configuration.
+     */
+    public SimpleIntegerProperty numOutputsProperty() {
+        return numOutputs;
+    }
+
+    /**
+     * @return The number of columns of the search configuration.
+     */
+    public SimpleIntegerProperty numColumnsProperty() {
+        return numColumns;
+    }
+
+    /**
+     * @return The number of rows of the search configuration.
+     */
+    public SimpleIntegerProperty numRowsProperty() {
+        return numRows;
+    }
+
+    /**
+     * @return The number of levels back of the search configuration.
+     */
+    public SimpleIntegerProperty numLevelsBackProperty() {
+        return numLevelsBack;
     }
 }

@@ -44,7 +44,7 @@ class DivisionTest {
 
     /**
      * <p>Returns a stream of double n-tuples, where the last member is the result of dividing
-     * the first by the second</p>
+     * the first by the second
      *
      * @return a stream of double n-tuples
      */

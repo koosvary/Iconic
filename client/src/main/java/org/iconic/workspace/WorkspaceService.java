@@ -21,17 +21,14 @@ import org.iconic.project.Displayable;
 /**
  * <p>
  * A workspace service that tracks the active workspace item.
- * </p>
  */
 public interface WorkspaceService {
     /**
      * <p>
      * Returns the current active workspace item property.
-     * </p>
      *
      * <p>
      * Properties may have listeners set on them.
-     * </p>
      *
      * @return The active workspace item property
      */
@@ -40,7 +37,6 @@ public interface WorkspaceService {
     /**
      * <p>
      * Returns the current active workspace item.
-     * </p>
      *
      * @return The active workspace item
      */
@@ -49,7 +45,6 @@ public interface WorkspaceService {
     /**
      * <p>
      * Sets the current active workspace item.
-     * </p>
      *
      * @param activeWorkspaceItem The new active workspace item
      */

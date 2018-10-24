@@ -21,7 +21,7 @@ public class InputNode<T> extends Node<T> {
     /*
      * <p>
      * The feature index refers to the feature to use from the data, e.g. sex, age, height
-     * </p>
+     *
      */
     private final int featureIndex;
 

@@ -29,7 +29,7 @@ public class MeanSquaredError implements ErrorFunction {
      *
      * <p>
      * Applies the mean squared error method to calculate the amount of error to base the fitness on.
-     * </p>
+     *
      */
     @Override
     public double apply(final List<Double> calculated, final List<Double> expected) {

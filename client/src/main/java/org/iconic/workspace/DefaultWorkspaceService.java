@@ -32,7 +32,7 @@ public class DefaultWorkspaceService implements WorkspaceService {
     /**
      * <p>
      * aConstructs a new DefaultWorkspaceService
-     * </p>
+     *
      */
     public DefaultWorkspaceService() {
         activeWorkspaceItem = new SimpleObjectProperty<>(null);

@@ -15,6 +15,9 @@
  */
 package org.iconic.project.search.config;
 
+/**
+ * Constructs a search
+ */
 public class SearchConfigurationModelFactory  {
     public SearchConfigurationModelFactory() {
         // Do nothing

@@ -21,6 +21,7 @@
 
 <StackPane xmlns="http://javafx.com/javafx"
            xmlns:fx="http://javafx.com/fxml"
+           prefWidth="360"
            fx:controller="org.iconic.project.ProjectTreeController">
-    <TreeView fx:id="projectView" prefWidth="360"/>
+    <TreeView fx:id="projectView" />
 </StackPane>

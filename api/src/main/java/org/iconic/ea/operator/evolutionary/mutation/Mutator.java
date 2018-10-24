@@ -23,7 +23,7 @@ import java.util.List;
 @FunctionalInterface
 public interface Mutator<T extends Chromosome<R>, R> {
     /**
-     * <p>Applies the mutation to a copy of the parent</p>
+     * <p>Applies the mutation to a copy of the parent
      *
      * @param functionalPrimitives The list of functional primitives that this chromosome has available
      * @param chromosome           The parent chromosome which will be cloned then mutated to create the mutant

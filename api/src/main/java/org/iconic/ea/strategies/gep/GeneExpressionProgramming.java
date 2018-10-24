@@ -16,12 +16,10 @@
 package org.iconic.ea.strategies.gep;
 
 import lombok.extern.log4j.Log4j2;
-import org.iconic.ea.EvolutionaryAlgorithm;
+import org.iconic.ea.strategies.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
-import org.iconic.ea.chromosome.ChromosomeFactory;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
-import org.iconic.ea.operator.objective.MonoObjective;
 
 import java.util.Comparator;
 import java.util.List;

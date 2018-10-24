@@ -19,7 +19,7 @@ import com.beust.jcommander.JCommander;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.iconic.ea.EvolutionaryAlgorithm;
+import org.iconic.ea.strategies.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.ChromosomeFactory;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
@@ -32,7 +32,7 @@ import org.iconic.ea.operator.objective.*;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.operator.objective.multiobjective.SimpleMultiObjective;
 import org.iconic.ea.operator.primitive.*;
-import org.iconic.ea.strategies.seamo.SEAMO;
+import org.iconic.ea.strategies.gsemo.GSEMO;
 import org.iconic.io.cli.ArgsConverterFactory;
 import org.iconic.utils.GraphWriter;
 import org.iconic.utils.SeriesWriter;
@@ -102,9 +102,8 @@ public class Client {
 
             // Add all of the functions the chromosomes can use
             supplier.addFunction(Arrays.asList(
-                    new Addition(), new Subtraction(), new Multiplication(), new Division(),
-                    new Exponential(), new Root(), new Power(), new Sin(), new GaussianFunction(),
-                    new Tanh(), new StepFunction()
+                    new Addition(), new Subtraction(), new Multiplication(),
+                    new Power(), new Sin(), new Cos()
             ));
 
             final int generations = client.getArgs().getGenerations();
@@ -132,16 +131,10 @@ public class Client {
                     printOutput(ea, generations, start, i, trial + 1);
 
                     // Store the current global best values
-                    nonDominatedAll.get(i).addAll(
-                            ((SEAMO<CartesianChromosome<Double>, Double>) ea)
-                                    .getGlobalChromosomes().values()
-                    );
+                    nonDominatedAll.get(i).addAll(population);
                 }
 
-                nonDominatedFinal.addAll(
-                        ((SEAMO<CartesianChromosome<Double>, Double>) ea)
-                                .getGlobalChromosomes().values()
-                );
+                nonDominatedFinal.addAll(population);
             }
 
             final String directory = fileName + "//" + NOW;
@@ -164,7 +157,7 @@ public class Client {
                 }
                 // Print and export a graph of the solutions plotted by their dimensions
                 if (client.getArgs().isGraph()) {
-                    GraphWriter<XYSeries> graphWriter = new XYGraphWriter("Sum of Mean Squared Error", "Size");
+                    GraphWriter<XYSeries> graphWriter = new XYGraphWriter("Mean Squared Error", "Size");
 
                     for (int i = 0; i < nonDominatedAll.size(); ++i) {
                         SeriesWriter<XYSeries> series = new XYSeriesWriter(
@@ -176,6 +169,7 @@ public class Client {
                         graphWriter.write(series.draw());
                     }
 
+                    graphWriter.setAxesTruncated(false);
                     graphWriter.export("All Generations - Non-Dominated", directory, "results-all");
                     graphWriter.clear();
 
@@ -303,21 +297,9 @@ public class Client {
                 new FileWriter(new File(directory + "//" + fileName + ".csv")),
                 CSVFormat.EXCEL
         )) {
-            final Pattern newline = Pattern.compile("\\R");
-            final String OUTPUT_SEPARATOR = "+";
-
             for (final Chromosome<?> chromosome : population) {
-
-                String expression = newline.matcher(chromosome.simplifyExpression(chromosome.getExpression(chromosome.toString(),
-                        primitives, true)
-                )).replaceAll(OUTPUT_SEPARATOR);
-
-                if (expression.endsWith(OUTPUT_SEPARATOR)) {
-                    expression = expression.substring(0, expression.length() - 1);
-                }
-
                 printer.printRecord(
-                        chromosome.getFitness(), chromosome.getSize(), expression
+                        chromosome.getFitness(), chromosome.getSize(), chromosome.toString()
                 );
             }
         }
@@ -336,8 +318,8 @@ public class Client {
     ) {
         // Create the evolutionary algorithm
         EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea =
-                // TODO: generify with a factory so it isn't always SEAMO
-                new SEAMO<>(supplier, 1);
+                // TODO: generify with a factory so it isn't always GSEMO
+                new GSEMO<>(supplier, 1);
         ea.setCrossoverProbability(args.getCrossoverProbability());
         ea.setMutationProbability(args.getMutationProbability());
 
@@ -379,9 +361,9 @@ public class Client {
         int percent = intToPercent(currentGeneration, generations);
         final StringBuilder out = new StringBuilder();
 
-        // Ensure the algorithm used is SEAMO when including global bests
-        String global = (ea instanceof SEAMO)
-                ? " (" + ((SEAMO<?, Double>) ea).getGlobals().values().stream()
+        // Ensure the algorithm used is GSEMO when including global bests
+        String global = (ea instanceof GSEMO)
+                ? " (" + ((GSEMO<?, Double>) ea).getGlobals().values().stream()
                 .map(v -> String.format("%.4f", v)).collect(Collectors.joining(", ")) + ")"
                 : "";
 

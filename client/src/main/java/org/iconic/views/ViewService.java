@@ -20,18 +20,18 @@ import org.iconic.View;
 import java.util.Map;
 
 /**
- * <p>A view service that maintains a list of views</p>
+ * <p>A view service that maintains a list of views
  */
 public interface ViewService {
     /**
-     * <p>Returns a list of views owned by this service</p>
+     * <p>Returns a list of views owned by this service
      *
      * @return The list of views
      */
     Map<String, View> getViews();
 
     /**
-     * <p>Adds the provided key value pair to this service's map of views</p>
+     * <p>Adds the provided key value pair to this service's map of views
      *
      * @param key
      * @param value

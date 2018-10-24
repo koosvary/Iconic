@@ -17,7 +17,7 @@ package org.iconic.project.search.config;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import lombok.NonNull;
-import org.iconic.ea.EvolutionaryAlgorithm;
+import org.iconic.ea.strategies.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
 import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
@@ -30,6 +30,13 @@ import org.iconic.project.search.io.SearchExecutor;
 
 import java.util.ArrayList;
 
+/**
+ * {@inheritDoc}
+ * <p>
+ * A search configuration model designed specifically for a Gene Expression Programming strategy.
+ *
+ * @see org.iconic.ea.strategies.gep.GeneExpressionProgramming
+ */
 public class GepConfigurationModel extends SearchConfigurationModel {
     private SimpleIntegerProperty headLength;
 
@@ -38,10 +45,13 @@ public class GepConfigurationModel extends SearchConfigurationModel {
      */
     public GepConfigurationModel(@NonNull final String name) {
         super(name);
-        this.headLength = new SimpleIntegerProperty(1);
+        this.headLength = new SimpleIntegerProperty(5);
         this.headLengthProperty().addListener(obs -> setChanged(true));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected SearchExecutor<?> buildSearchExecutor() {
         setChanged(false);
@@ -55,7 +65,7 @@ public class GepConfigurationModel extends SearchConfigurationModel {
                         getHeadLength(),
                         getDatasetModel().get().getDataManager().getFeatureSize() - 1
                 );
-        supplier.addFunction(new ArrayList<>(getPrimitives().keySet()));
+        supplier.addFunction(new ArrayList<>(getEnabledPrimitives()));
 
         EvolutionaryAlgorithm<ExpressionChromosome<Double>, Double> ea =
                 new GeneExpressionProgramming<>(supplier);
@@ -79,21 +89,35 @@ public class GepConfigurationModel extends SearchConfigurationModel {
         return searchExecutor;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected boolean isValid() {
         return getDatasetModel().isPresent();
     }
 
+    /**
+     * @return The head length associated with the search configuration.
+     */
     public int getHeadLength() {
         return headLength.get();
     }
 
-    public SimpleIntegerProperty headLengthProperty() {
-        return headLength;
-    }
-
+    /**
+     * Sets the head length of this search configuration.
+     *
+     * @param headLength Must be between one and positive infinity, inclusive.
+     */
     public void setHeadLength(int headLength) {
         setChanged(true);
         this.headLength.set(headLength);
+    }
+
+    /**
+     * @return The head length of the search configuration.
+     */
+    public SimpleIntegerProperty headLengthProperty() {
+        return headLength;
     }
 }

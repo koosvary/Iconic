@@ -66,13 +66,13 @@ public abstract class Chromosome<T> {
     /**
      * <p>
      * Returns true if this chromosome has been changed.
-     * </p>
+     *
      *
      * <p>
      * The changed flag is used to determine whether or not a chromosome needs to be re-evaluated. If the
      * flag isn't set to true after modifying the chromosome's genotype then its phenotype won't be updated to
      * reflect the changes.
-     * </p>
+     *
      *
      * @return true if the chromosome has been changed
      */
@@ -90,9 +90,9 @@ public abstract class Chromosome<T> {
     }
 
     /**
-     * <p>Evaluates the specified input samples and returns a list of output values for each sample.</p>
+     * <p>Evaluates the specified input samples and returns a list of output values for each sample.
      * <p>The samples used should be a two-dimensional matrix, with each sample on a separate row. The final
-     * column needs to contain the expected result for its corresponding row.</p>
+     * column needs to contain the expected result for its corresponding row.
      * @param input The input samples to evaluate
      * @return A list of outputs, one for each input sample, referenced by output id
      */
@@ -109,7 +109,7 @@ public abstract class Chromosome<T> {
     /**
      * <p>
      * Takes a pre-order expression and recursively converts it to a mathematical expression
-     * </p>
+     *
      * @param preorderExpression The expression that is being processed
      * @param primitives The list of primitives currently available to the chromosome
      * @param topLevelFlag Used to determine whether or not it's the first call of the function

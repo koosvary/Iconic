@@ -44,7 +44,7 @@ class SubtractionTest {
 
     /**
      * <p>Returns a stream of double n-tuples, where the last member is the subraction of
-     * all numbers in the list (a - b - c - d - ...)</p>
+     * all numbers in the list (a - b - c - d - ...)
      *
      * @return a stream of double n-tuples
      */

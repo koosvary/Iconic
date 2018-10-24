@@ -47,7 +47,7 @@ class TanTest {
     }
 
     /**
-     * <p>Returns a stream of double n-tuples, where the last number tan of the first</p>
+     * <p>Returns a stream of double n-tuples, where the last number tan of the first
      *
      * @return a stream of double n-tuples
      */

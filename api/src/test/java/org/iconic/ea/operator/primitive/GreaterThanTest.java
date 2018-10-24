@@ -49,7 +49,7 @@ public class GreaterThanTest {
      * <p>
      * Returns a stream of double n-tuples, where the last member of the tuple is 1 if the first member is > second member
      * 0 if otherwise
-     * </p>
+     *
      *
      * @return a stream of double n-tuples
      */

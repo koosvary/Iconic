@@ -46,10 +46,10 @@ import java.util.ResourceBundle;
 /**
  * <p>
  * A controller for handling the project tree explorer view.
- * </p>
+ *
  * <p>
  * The ProjectTreeController maintains a tree view of the currently loaded datasets.
- * </p>
+ *
  */
 public class ProjectTreeController implements Initializable {
     private final IconService iconService;
@@ -63,7 +63,7 @@ public class ProjectTreeController implements Initializable {
     /**
      * <p>
      * Constructs a new ProjectTreeController that attaches an invalidation listener onto the project service.
-     * </p>
+     *
      */
     @Inject
     public ProjectTreeController(
@@ -86,7 +86,7 @@ public class ProjectTreeController implements Initializable {
      * <p>
      * Any user interface configuration that needs to happen at construction time must be done in this method to
      * guarantee that it's run after the user interface has been initialised.
-     * </p>
+     *
      */
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
@@ -106,7 +106,7 @@ public class ProjectTreeController implements Initializable {
     /**
      * <p>
      * Updates the tree view based on the backing model.
-     * </p>
+     *
      */
     private void updateTreeView() {
         // Check that the tree view actually exists
@@ -139,7 +139,7 @@ public class ProjectTreeController implements Initializable {
     }
 
     /**
-     * <p>Sets the current active dataset to the value within the provided tree view cell</p>
+     * <p>Sets the current active dataset to the value within the provided tree view cell
      *
      * @param cell The cell whose contents are to be set as the current active dataset
      */
@@ -156,7 +156,7 @@ public class ProjectTreeController implements Initializable {
     /**
      * <p>
      * Returns the project service of this controller
-     * </p>
+     *
      *
      * @return the project service of the controller
      */
@@ -167,7 +167,7 @@ public class ProjectTreeController implements Initializable {
     /**
      * <p>
      * Returns the workspace service of this controller
-     * </p>
+     *
      *
      * @return the workspace service of the controller
      */
@@ -184,7 +184,7 @@ public class ProjectTreeController implements Initializable {
      * <p>
      * A ProjectItemTreeCellImpl defines a cell factory for formatting the contents of a tree view when the
      * cells contain project items.
-     * </p>
+     *
      */
     private final class ProjectItemTreeCellImpl extends TreeCell<Displayable> {
         /**
@@ -252,7 +252,7 @@ public class ProjectTreeController implements Initializable {
         /**
          * <p>
          * Opens a file dialog for choosing a dataset to import.
-         * </p>
+         *
          *
          * @param actionEvent The action that triggered the event
          */
@@ -287,9 +287,9 @@ public class ProjectTreeController implements Initializable {
         /**
          * <p>
          * Opens a search configuration dialog for creating a new search configuration.
-         * </p>
          *
-         * <p>The search configuration dialog presents a combo box, text input field, and two buttons to the user.</p>
+         *
+         * <p>The search configuration dialog presents a combo box, text input field, and two buttons to the user.
          *
          * @param actionEvent The action that triggered the event
          */
@@ -381,7 +381,7 @@ public class ProjectTreeController implements Initializable {
         /**
          * <p>
          * Opens a text input dialog for renaming the selected project.
-         * </p>
+         *
          *
          * @param actionEvent The action that triggered the event
          */
