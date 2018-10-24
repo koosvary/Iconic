@@ -28,6 +28,7 @@ import org.iconic.ea.strategies.MultiObjectiveEvolutionaryAlgorithm;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 /**
  * {@inheritDoc}
@@ -55,7 +56,7 @@ public class GSEMO<R extends Chromosome<T>, T extends Comparable<T>>
      * {@inheritDoc}
      */
     public GSEMO(ChromosomeFactory<R, T> chromosomeFactory, int lambda) {
-        super(chromosomeFactory, lambda);
+        super(chromosomeFactory, lambda, new RandomUniformSelector<>(), new RandomUniformSelector<>());
     }
 
     /**
@@ -64,7 +65,7 @@ public class GSEMO<R extends Chromosome<T>, T extends Comparable<T>>
     @Override
     @SuppressWarnings("unchecked")
     public List<R> evolve(List<R> population) {
-        final List<R> newPopulation = elitism(population);
+        List<R> newPopulation = elitism(population);
         // Select a parent using the selector
         // Exactly one parent is required
         final R parent = getSelector(0).apply(newPopulation);
@@ -79,27 +80,41 @@ public class GSEMO<R extends Chromosome<T>, T extends Comparable<T>>
                 offspring = mutate(offspring);
             }
         }
-
+        // Check if the offspring is dominated by any existing members in the population
         for (final R candidate : newPopulation) {
+            // If so, return the old population
             if (isDominatedBy(getObjective(), offspring, candidate)) {
                 return newPopulation;
             }
         }
 
-        for (int i = 0; i < newPopulation.size(); i++) {
-            final R candidate = newPopulation.get(i);
-            if (isDominatedBy(getObjective(), candidate, offspring)) {
-                newPopulation.remove(candidate);
-            }
-        }
-        newPopulation.add(offspring);
+        final R bestCandidate = offspring;
 
+        // Remove all dominated solutions from the population
+        newPopulation = newPopulation.stream()
+                .filter(candidate -> ! isDominatedBy(getObjective(), candidate, bestCandidate))
+                .collect(Collectors.toList());
+        // Add the new non-dominated offspring
+        if (!newPopulation.contains(bestCandidate)) {
+            newPopulation.add(bestCandidate);
+        }
+
+        // Update objective vector with the offspring
         MultiObjective<T> multiObjective = (MultiObjective<T>) getObjective();
-        for (final Objective<T> goal : multiObjective.getGoals()) {
-            addGlobal(getGlobals(), offspring, goal, goal.apply(offspring));
-        }
-        multiObjective.apply(offspring);
+        multiObjective.getGoals().parallelStream()
+                .forEach(goal -> addGlobal(getGlobals(), bestCandidate, goal));
+        multiObjective.apply(bestCandidate);
 
+        setChromosomes(newPopulation);
         return newPopulation;
+    }
+
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Set<R> getNonDominatedChromosomes(List<R> population) {
+        return new LinkedHashSet<>(getChromosomes());
     }
 }

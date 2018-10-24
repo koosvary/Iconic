@@ -108,6 +108,7 @@ public class SEAMO<R extends Chromosome<T>, T extends Comparable<T>>
                 }
             }
         }
+        setChromosomes(newPopulation);
         return newPopulation;
     }
 }

@@ -137,7 +137,10 @@ public class Client {
                 nonDominatedFinal.addAll(population);
             }
 
+            final List<FunctionalPrimitive<?, ?>> primitives = new ArrayList<>(supplier.getFunctionalPrimitives());
+            final Set<Chromosome<Double>> archive = new HashSet<>();
             final String directory = fileName + "//" + NOW;
+            nonDominatedAll.forEach(archive::addAll);
 
             // Make sure the output directory exists
             try {
@@ -146,14 +149,8 @@ public class Client {
                 writeReadme(client.getArgs(), directory, Duration.between(start, Instant.now()));
                 // Export the results to a CSV file
                 if (client.getArgs().isCsv()) {
-                    exportCsv(directory, "results-last-gen", nonDominatedFinal,
-                            new ArrayList<>(supplier.getFunctionalPrimitives()));
-                    exportCsv(directory, "results-all-gen", nonDominatedAll.stream().reduce(
-                            new LinkedHashSet<>(), (x, y) -> {
-                                x.addAll(y);
-                                return x;
-                            }), new ArrayList<>(supplier.getFunctionalPrimitives())
-                    );
+                    exportCsv(directory, "results-last-gen", nonDominatedFinal, primitives);
+                    exportCsv(directory, "results-all-gen", archive, primitives);
                 }
                 // Print and export a graph of the solutions plotted by their dimensions
                 if (client.getArgs().isGraph()) {
@@ -180,7 +177,6 @@ public class Client {
 
                     nonDominatedFinal.forEach(seriesWriter::write);
                     graphWriter.write(seriesWriter.draw());
-                    graphWriter.setAxesTruncated(false);
                     graphWriter.export("Last Generation - Non-Dominated", directory, "results-last");
 
                     final Map<Objective<Double>, Chromosome<Double>> globals = new HashMap<>();
@@ -330,12 +326,8 @@ public class Client {
         ea.setObjective(
                 new SimpleMultiObjective(
                         Arrays.asList(
-                                new CacheableObjective<>(
-                                        new DefaultObjective(new MeanSquaredError(), dm)
-                                ),
-                                new CacheableObjective<>(
-                                        new SizeObjective()
-                                )
+                                new DefaultObjective(new MeanSquaredError(), dm),
+                                new SizeObjective()
                         )
                 )
         );

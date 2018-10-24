@@ -38,9 +38,9 @@ import java.util.*;
 @Log4j2
 public abstract class MultiObjectiveEvolutionaryAlgorithm<R extends Chromosome<T>, T extends Comparable<T>>
         extends EvolutionaryAlgorithm<R, T> {
-    private final Set<Chromosome<T>> archive;
+    private final Set<R> archive;
     private final Map<Objective<T>, Double> globals;
-    private final Map<Objective<T>, Chromosome<T>> globalChromosomes;
+    private final Map<Objective<T>, R> globalChromosomes;
     private final Selector<R> defaultPrimarySelector;
     private final Selector<R> defaultSecondarySelector;
     private int lambda;
@@ -64,13 +64,32 @@ public abstract class MultiObjectiveEvolutionaryAlgorithm<R extends Chromosome<T
      * @param chromosomeFactory The chromosome factory for the algorithm to use.
      * @param lambda            The number of mutants to generate per chromosome during the mutation phase.
      */
-    public MultiObjectiveEvolutionaryAlgorithm(ChromosomeFactory<R, T> chromosomeFactory, int lambda) {
+    public MultiObjectiveEvolutionaryAlgorithm(
+            final ChromosomeFactory<R, T> chromosomeFactory, int lambda
+    ) {
+        this(chromosomeFactory, lambda, new SequentialSelector<>(), new RandomUniformSelector<>());
+    }
+
+    /**
+     * Constructs a new multi-objective evolutionary algorithm that uses the provided chromosome factory, λ,
+     * and selectors. The λ used determines how many mutants are generated for each chromosome during
+     * the mutation stage.
+     *
+     * @param chromosomeFactory The chromosome factory for the algorithm to use.
+     * @param lambda            The number of mutants to generate per chromosome during the mutation phase.
+     * @param primarySelector   The default primary selector to use.
+     * @param secondarySelector The default secondary selector to use.
+     */
+    public MultiObjectiveEvolutionaryAlgorithm(
+            final ChromosomeFactory<R, T> chromosomeFactory, int lambda,
+            final Selector<R> primarySelector, final Selector<R> secondarySelector
+    ) {
         super(chromosomeFactory);
         this.archive = new LinkedHashSet<>();
         this.globals = new LinkedHashMap<>();
         this.globalChromosomes = new LinkedHashMap<>();
-        this.defaultPrimarySelector = new SequentialSelector<>();
-        this.defaultSecondarySelector = new RandomUniformSelector<>();
+        this.defaultPrimarySelector = primarySelector;
+        this.defaultSecondarySelector = secondarySelector;
         this.lambda = lambda;
     }
 
@@ -93,7 +112,7 @@ public abstract class MultiObjectiveEvolutionaryAlgorithm<R extends Chromosome<T
             getChromosomes().add(chromosome);
 
             objective.getGoals().forEach(goal ->
-                    addGlobal(getGlobals(), chromosome, goal, goal.apply(chromosome))
+                    addGlobal(getGlobals(), chromosome, goal)
             );
             getObjective().apply(chromosome);
         }
@@ -123,7 +142,7 @@ public abstract class MultiObjectiveEvolutionaryAlgorithm<R extends Chromosome<T
         if (i > -1) {
             population.set(i, offspring);
             multiObjective.getGoals().parallelStream()
-                    .forEach(goal -> addGlobal(getGlobals(), offspring, goal, goal.apply(offspring)));
+                    .forEach(goal -> addGlobal(getGlobals(), offspring, goal));
             multiObjective.apply(offspring);
 
             return true;
@@ -159,13 +178,9 @@ public abstract class MultiObjectiveEvolutionaryAlgorithm<R extends Chromosome<T
         // If c2 performs worse for any goal it cannot dominate c1
         for (final Objective<T> goal : multiObjective.getGoals()) {
             if (!goal.isNotWorse(goal.apply(c2), goal.apply(c1))) {
-                multiObjective.apply(c1);
-                multiObjective.apply(c2);
                 return false;
             }
         }
-        multiObjective.apply(c1);
-        multiObjective.apply(c2);
         // Reaching here means that c2 must dominate c1
         return true;
     }
@@ -230,13 +245,6 @@ public abstract class MultiObjectiveEvolutionaryAlgorithm<R extends Chromosome<T
         assert (getMutators().size() > 0);
         Objects.requireNonNull(getObjective(), "An objective is required");
 
-        // Compare chromosomes by their fitness using the ordering of the objective
-        final Comparator<R> comparator =
-                (o1, o2) -> getObjective()
-                        .isNotWorse(o1.getFitness(), o2.getFitness())
-                        // If chromosomes are equal just say it's better
-                        ? -1 : 1;
-
         // Generate a pool of mutants
         List<R> children = new ArrayList<>(getLambda());
 
@@ -251,13 +259,14 @@ public abstract class MultiObjectiveEvolutionaryAlgorithm<R extends Chromosome<T
         }
 
         // Select the fittest mutant
-        R bestChild = children
-                .stream().min(comparator).get();
+        R bestChild = children.stream().reduce(children.get(0), (c1, c2) ->
+                isDominatedBy(getObjective(), c1, c2) ? c2 : c1
+        );
 
         // If they're equal to or better than the parent, replace the parent with the mutant
-        return (getObjective().isNotWorse(bestChild.getFitness(), chromosome.getFitness()))
-                ? bestChild
-                : chromosome;
+        return isDominatedBy(getObjective(), bestChild, chromosome)
+                ? chromosome
+                : bestChild;
     }
 
     public Map<Objective<T>, Double> getGlobals() {
@@ -270,14 +279,14 @@ public abstract class MultiObjectiveEvolutionaryAlgorithm<R extends Chromosome<T
      *
      * @param globals The map of globals to which the goal belongs to.
      * @param goal    The goal being tested against.
-     * @param fitness The fitness to assign as a global best for the provided goal.
      */
     protected void addGlobal(
             final Map<Objective<T>, Double> globals,
-            final Chromosome<T> chromosome,
-            final Objective<T> goal,
-            Double fitness
+            final R chromosome,
+            final Objective<T> goal
     ) {
+        Double fitness = goal.apply(chromosome);
+
         if (fitness.isNaN()) {
             log.warn("Attempting to add NaN to a global best");
             return;
@@ -328,11 +337,32 @@ public abstract class MultiObjectiveEvolutionaryAlgorithm<R extends Chromosome<T
     }
 
 
-    public Set<Chromosome<T>> getArchive() {
+    public Set<R> getArchive() {
         return archive;
     }
 
-    public Map<Objective<T>, Chromosome<T>> getGlobalChromosomes() {
+    public Map<Objective<T>, R> getGlobalChromosomes() {
         return globalChromosomes;
+    }
+
+    /**
+     *
+     * @param population
+     * @return
+     */
+    public Set<R> getNonDominatedChromosomes(List<R> population) {
+        Set<R> nonDominated = new LinkedHashSet<>();
+
+        isDominated:
+        for (final R candidate : population) {
+            for (final R other : population) {
+                if (isDominatedBy(getObjective(), candidate, other)) {
+                    continue isDominated;
+                }
+            }
+            nonDominated.add(candidate);
+        }
+
+        return nonDominated;
     }
 }

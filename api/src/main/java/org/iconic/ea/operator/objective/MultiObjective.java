@@ -52,14 +52,4 @@ public abstract class MultiObjective<T extends Comparable<T>> implements Objecti
     public void removeGoal(int index) {
         getGoals().remove(index);
     }
-
-    /**
-     * {@inheritDoc}
-     * @return
-     */
-    @Override
-    public boolean isNotWorse(double x, double y) {
-        double epsilon = 1E-6;
-        return x <= y || Math.abs(x - y) < epsilon;
-    }
 }

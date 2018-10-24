@@ -53,10 +53,15 @@ public class XYGraphWriter extends GraphWriter<XYSeries> {
      */
     @Override
     public void write(final XYSeries series) {
-        XYSeries newSeries = getChart().addSeries(series.getName(), series.getXData(), series.getYData());
-        newSeries.setXYSeriesRenderStyle(series.getXYSeriesRenderStyle());
-        newSeries.setMarker(series.getMarker());
-        getSeries().add(newSeries);
+        try {
+            XYSeries newSeries = getChart().addSeries(series.getName(), series.getXData(), series.getYData());
+            newSeries.setXYSeriesRenderStyle(series.getXYSeriesRenderStyle());
+            newSeries.setMarker(series.getMarker());
+            getSeries().add(newSeries);
+        } catch (IllegalArgumentException ex) {
+            log.warn("Series was not added because it had no data");
+            log.warn("{}: {}", ex, ex.getStackTrace());
+        }
     }
 
     /**
