@@ -63,7 +63,7 @@ public class InputDataController implements Initializable {
     private final WorkspaceService workspaceService;
 
     private ObservableList<String> rowHeaders = FXCollections.observableArrayList();
-    private String infoPlaceholder = "Enter variable description here.";
+    private String infoPlaceholder = "Enter variable description here";
 
     @FXML
     private WorkspaceTab inputTab;
@@ -466,25 +466,49 @@ public class InputDataController implements Initializable {
         int spreadsheetRow = 0;
 
         //Creates a row above the data for adding a column description
-        ObservableList<SpreadsheetCell> infoList = FXCollections.observableArrayList();
-        for (int column = 0; column < datasetColumnCount; ++column) {
-            String cellContents = infoPlaceholder;
-            SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(spreadsheetRow, column, 1, 1, cellContents);
-            int finalColumn = column;
-            //If the description is changed update it in the dataset
-            nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
-                try{
-                    String newHeader = String.valueOf(newValue);
-                    updateVariableDescriptions(finalColumn,newHeader);
-                }catch (Exception e) {
-                    nextCell.setItem(oldValue);
-                }
-            });
-            infoList.add(nextCell);
+        //If the datset has headers they are added to the spreadsheet before the data
+        if(dataManager.get().containsInfo()) {
+            ObservableList<SpreadsheetCell> infoList = FXCollections.observableArrayList();
+            for (int column = 0; column < datasetColumnCount; ++column) {
+                String cellContents = String.valueOf(dataManager.get().getSampleInfo().get(column));
+                SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(spreadsheetRow, column, 1, 1, cellContents);
+                int finalColumn = column;
+                //If the description is changed update it in the dataset
+                nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+                    try {
+                        String newHeader = String.valueOf(newValue);
+                        updateVariableDescriptions(finalColumn, newHeader);
+                    } catch (Exception e) {
+                        nextCell.setItem(oldValue);
+                    }
+                });
+                infoList.add(nextCell);
+            }
+            rows.add(infoList);
+            rowHeaders.add("info");
+            spreadsheetRow++;
         }
-        rows.add(infoList);
-        rowHeaders.add("info");
-        spreadsheetRow++;
+        else {
+            ObservableList<SpreadsheetCell> infoList = FXCollections.observableArrayList();
+            for (int column = 0; column < datasetColumnCount; ++column) {
+                String cellContents = String.valueOf(infoPlaceholder);
+                SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(spreadsheetRow, column, 1, 1, cellContents);
+                int finalColumn = column;
+                //If the description is changed update it in the dataset
+                nextCell.itemProperty().addListener((observable, oldValue, newValue) -> {
+                    try {
+                        String newHeader = String.valueOf(newValue);
+                        updateVariableDescriptions(finalColumn, newHeader);
+                    } catch (Exception e) {
+                        nextCell.setItem(oldValue);
+                    }
+                });
+                infoList.add(nextCell);
+            }
+            rows.add(infoList);
+            rowHeaders.add("info");
+            spreadsheetRow++;
+        }
 
         //If the datset has headers they are added to the spreadsheet before the data
         if(dataManager.get().containsHeader()){
@@ -754,7 +778,7 @@ public class InputDataController implements Initializable {
             for (int currentRow = 2; currentRow < currentSpreadSheetRowCount; ++currentRow) {
                 createNewCell(newDataValues, currentRow, currentNewColPos);
             }
-            addColumnToDataset(spreadsheet.getGrid().getRows().get(1).get(currentNewColPos).getText(),newDataValues);
+            addColumnToDataset(spreadsheet.getGrid().getRows().get(0).get(currentNewColPos).getText(),spreadsheet.getGrid().getRows().get(1).get(currentNewColPos).getText(),newDataValues);
             currentNewColPos++;
         }
         if(newCellRow > currentSpreadSheetRowCount){
@@ -808,9 +832,9 @@ public class InputDataController implements Initializable {
         dataManager.get().addRow(newNumbers);
     }
 
-    private void addColumnToDataset(String header, List<Number> newNumbers){
+    private void addColumnToDataset(String info, String header, List<Number> newNumbers){
         Optional<DataManager<Double>> dataManager = getDataManager();
-        dataManager.get().addNewFeature(header, newNumbers);
+        dataManager.get().addNewFeature(info,header, newNumbers);
     }
 
     private void updateProjectDataset(int row, int column, Number newValue){
@@ -825,8 +849,7 @@ public class InputDataController implements Initializable {
 
     private void updateVariableDescriptions(int column, String newValue){
         Optional<DataManager<Double>> dataManager = getDataManager();
-        //TODO @JackR Implement column descriptions stored within datamanager as below
-        //dataManager.get().updateDescriptionAtIndex(column,newValue);
+        dataManager.get().updateInfoAtIndex(column,newValue);
     }
 
     /**
