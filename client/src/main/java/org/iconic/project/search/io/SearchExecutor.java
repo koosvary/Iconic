@@ -25,7 +25,7 @@ import javafx.scene.chart.XYChart;
 import lombok.NonNull;
 import lombok.Synchronized;
 import lombok.extern.log4j.Log4j2;
-import org.iconic.ea.EvolutionaryAlgorithm;
+import org.iconic.ea.strategies.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.operator.objective.Objective;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;

@@ -17,19 +17,14 @@ package org.iconic.project.search.config;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import lombok.NonNull;
-import org.iconic.ea.EvolutionaryAlgorithm;
+import org.iconic.ea.strategies.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosomeFactory;
-import org.iconic.ea.chromosome.expression.ExpressionChromosome;
-import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
-import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.cgp.CartesianSingleActiveMutator;
-import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.CacheableObjective;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.strategies.cgp.CartesianGeneticProgramming;
-import org.iconic.ea.strategies.gep.GeneExpressionProgramming;
 import org.iconic.project.search.io.SearchExecutor;
 
 import java.util.ArrayList;

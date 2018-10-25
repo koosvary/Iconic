@@ -20,7 +20,7 @@ import org.iconic.ea.chromosome.Chromosome;
 /**
  * Defines a functional interface for an objective
  * <p>
- * An objective is a measure used by an {@see org.iconic.ea.EvolutionaryAlgorithm} to determine the fitness
+ * An objective is a measure used by an {@see org.iconic.ea.strategies.EvolutionaryAlgorithm} to determine the fitness
  * of chromosomes.
  *
  * @param <T> The type of the {@link org.iconic.ea.chromosome.Chromosome chromosome's} input and output

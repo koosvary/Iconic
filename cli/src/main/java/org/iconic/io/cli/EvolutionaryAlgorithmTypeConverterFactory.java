@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.iconic.io;
+package org.iconic.io.cli;
 
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.IStringConverterFactory;

@@ -17,12 +17,10 @@ package org.iconic.project.search.config;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import javafx.collections.ObservableMap;
 import javafx.scene.control.Control;
 import javafx.util.converter.NumberStringConverter;
 import lombok.NonNull;
 import org.controlsfx.glyphfont.FontAwesome;
-import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.operator.primitive.*;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
