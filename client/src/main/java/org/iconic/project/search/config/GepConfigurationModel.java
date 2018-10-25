@@ -29,6 +29,7 @@ import org.iconic.ea.strategies.gep.GeneExpressionProgramming;
 import org.iconic.project.search.io.SearchExecutor;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@inheritDoc}
@@ -60,9 +61,13 @@ public class GepConfigurationModel extends SearchConfigurationModel {
             return null;
         }
 
+        List<String> inputs = new ArrayList<>(
+                getDatasetModel().get().getDataManager().getDataset().keySet()
+        );
         ExpressionChromosomeFactory<Double> supplier =
                 new ExpressionChromosomeFactory<>(
                         getHeadLength(),
+                        inputs,
                         getDatasetModel().get().getDataManager().getFeatureSize() - 1
                 );
         supplier.addFunction(new ArrayList<>(getEnabledPrimitives()));

@@ -15,7 +15,9 @@
  */
 package org.iconic.ea.chromosome.graph;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InputNode<T> extends Node<T> {
     /*
@@ -24,10 +26,17 @@ public class InputNode<T> extends Node<T> {
      *
      */
     private final int featureIndex;
+    private final Map<Integer, String> featureLabels;
 
-    public InputNode(int featureIndex) {
+//    public InputNode(int featureIndex) {
+//        this(featureIndex, new HashMap<>());
+//
+//    }
+
+    public InputNode(int featureIndex, Map<Integer, String> featureLabels) {
         super();
         this.featureIndex = featureIndex;
+        this.featureLabels = featureLabels;
     }
 
     public T apply(List<T> sampleRowValues) {
@@ -40,15 +49,19 @@ public class InputNode<T> extends Node<T> {
 
     @Override
     public String toString() {
-        return "F" + featureIndex + "";
+        return featureLabels.get(featureIndex) + "";
     }
 
     @Override
     public Node<T> clone() {
-        return new InputNode<>(getFeatureIndex());
+        return new InputNode<>(getFeatureIndex(), getFeatureLabels());
     }
 
     public int getNumberOfChildren() {
         return 0;
+    }
+
+    public Map<Integer, String> getFeatureLabels(){
+        return featureLabels;
     }
 }
