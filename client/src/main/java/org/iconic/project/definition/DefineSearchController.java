@@ -41,7 +41,6 @@ import java.util.*;
 import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.FeatureClass;
-import org.iconic.project.BlockDisplay;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.iconic.project.Displayable;
 import org.iconic.project.ProjectModel;
@@ -55,6 +54,9 @@ import org.iconic.workspace.WorkspaceService;
 
 import java.io.IOException;
 
+/**
+ * Controller for the define search tab
+ */
 @Log4j2
 public class DefineSearchController implements Initializable, DefineSearchService {
 
@@ -113,7 +115,6 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         TableColumn<Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty>, String> nameCol = new TableColumn<>("Symbol");
         TableColumn<Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty>, Number> complexityCol = new TableColumn<>("Complexity");
         TableColumn<Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty>, Boolean> enabledCol = new TableColumn<>("Enabled");
-
 
         blockDisplayTableView.setEditable(true);
 
