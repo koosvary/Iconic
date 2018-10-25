@@ -41,19 +41,22 @@ import java.util.*;
 import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.FeatureClass;
-import org.iconic.project.BlockDisplay;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.iconic.project.Displayable;
 import org.iconic.project.ProjectModel;
 import org.iconic.project.ProjectService;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.config.CgpConfigurationModel;
+import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.views.ViewService;
 import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.workspace.WorkspaceService;
 
 import java.io.IOException;
 
+/**
+ * Controller for the define search tab
+ */
 @Log4j2
 public class DefineSearchController implements Initializable, DefineSearchService {
 
@@ -113,7 +116,6 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         TableColumn<Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty>, Number> complexityCol = new TableColumn<>("Complexity");
         TableColumn<Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty>, Boolean> enabledCol = new TableColumn<>("Enabled");
 
-
         blockDisplayTableView.setEditable(true);
 
         complexityCol.setEditable(true);
@@ -127,11 +129,21 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
         blockDisplayTableView.getColumns().addAll(enabledCol, nameCol, complexityCol);
 
+        // Listener for the description pane
         blockDisplayTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 selectedBlockDisplayDescription.setText(newValue.getKey().getDescription());
             }
         });
+
+        // Listener for when the row is double clicked to toggle the enabled status
+        blockDisplayTableView.setOnMousePressed(event -> {
+            if (event.isPrimaryButtonDown() && event.getClickCount() % 2 == 0) {
+                SimpleBooleanProperty bool = blockDisplayTableView.getSelectionModel().getSelectedItem().getValue();
+                bool.set(!bool.get());
+            }
+        });
+
         cbDatasets.valueProperty().addListener(this::updateDataset);
         defineTab.setOnSelectionChanged(event -> updateTab());
 
@@ -231,7 +243,10 @@ public class DefineSearchController implements Initializable, DefineSearchServic
             return;
         }
 
-        SearchConfigurationModel configModel = (SearchConfigurationModel) item;
+        SearchConfigurationModel search = (SearchConfigurationModel) item;
+
+        // Stop any existing searches if we change the dataset
+        search.getSearchExecutor().ifPresent(SearchExecutor::stop);
 
         if (newValue != null) {
             // Get the new dataset
@@ -252,7 +267,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
             }
         }
 
-        configModel.setDatasetModel(newValue);
+        search.setDatasetModel(newValue);
         loadFunction();
     }
 

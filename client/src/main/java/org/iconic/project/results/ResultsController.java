@@ -198,23 +198,20 @@ public class ResultsController implements Initializable {
         // This will be the referenced chromosome that was selected if it finds a match
         Chromosome<?> selectedChromosome = null;
 
-        for (Integer size : solutions.keySet()) {
-            List<Chromosome<?>> chromosomeList = solutions.get(size);
+        // Get the size of the current chromosome and look in that section of the list
+        Integer size = row.getSize();
+        List<Chromosome<?>> chromosomeList = solutions.get(size);
 
-            // This is all the chromosomes with the same size of 'x'
-            for (Chromosome<?> chromosome : chromosomeList) {
-                // Chromosome simplified expression
-                String simplifiedChromosome = chromosome.simplifyExpression(chromosome.getExpression(chromosome.toString(), new ArrayList<>(model.getEnabledPrimitives()), true));
+        // This is all the chromosomes with the same size of 'x'
+        for (int i = chromosomeList.size() - 1; i >= 0; i--) {
+            Chromosome<?> chromosome = chromosomeList.get(i);
+            // Chromosome simplified expression
+            String simplifiedChromosome = chromosome.simplifyExpression(chromosome.getExpression(chromosome.toString(),
+                    new ArrayList<>(model.getEnabledPrimitives()), true));
 
-                // If the chromosome equals the selected chromosome
-                if (simplifiedChromosome.equals(row.getSolution())) {
-                    selectedChromosome = chromosome;
-                    break;
-                }
-            }
-
-            // If the chromosome has been found exit the loop
-            if (selectedChromosome != null) {
+            // If the chromosome equals the selected chromosome
+            if (simplifiedChromosome.equals(row.getSolution())) {
+                selectedChromosome = chromosome;
                 break;
             }
         }
@@ -261,7 +258,7 @@ public class ResultsController implements Initializable {
         for (Map.Entry<Integer, List<Chromosome<?>>> entry : storage.getSolutions().entrySet()) {
             Chromosome<?> result = entry.getValue().get(0);
             resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.simplifyExpression(
-                    result.getExpression(result.toString(), new ArrayList<>(model.getEnabledPrimitives()), true)
+                    result.getExpression(result.toString(), new ArrayList<>(model.getPrimitives().keySet()), true)
             )));
         }
 

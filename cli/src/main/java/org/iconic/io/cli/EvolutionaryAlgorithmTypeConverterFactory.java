@@ -13,25 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.iconic.ea.operator.objective;
+package org.iconic.io.cli;
 
-import org.iconic.ea.chromosome.Chromosome;
+import com.beust.jcommander.IStringConverter;
+import com.beust.jcommander.IStringConverterFactory;
+import org.iconic.ea.EvolutionaryAlgorithmType;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-/**
- * <p>Defines a functional interface for an objective
- *
- * <p>
- * An objective is a measure used by an {@see org.iconic.ea.strategies.EvolutionaryAlgorithm} to determine the fitness
- * of chromosomes.
- *
- *
- */
-public abstract class MonoObjective<T extends Comparable<T>> implements Objective<T> {
-    public MonoObjective() {
-        // Do nothing
+@SuppressWarnings({"unchecked", "rawtypes"})
+public class EvolutionaryAlgorithmTypeConverterFactory implements IStringConverterFactory {
+    @Override
+    public Class<? extends IStringConverter<?>> getConverter(Class forType) {
+        if (forType.equals(EvolutionaryAlgorithmType.class)) {
+            return EvolutionaryAlgorithmTypeConverter.class;
+        } else {
+            return null;
+        }
     }
 }

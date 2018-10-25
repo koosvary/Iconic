@@ -18,20 +18,15 @@ package org.iconic.project.search.config;
 import com.google.inject.Inject;
 import javafx.beans.property.SimpleIntegerProperty;
 import lombok.NonNull;
-import org.iconic.ea.EvolutionaryAlgorithm;
+import org.iconic.ea.strategies.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosomeFactory;
-import org.iconic.ea.chromosome.expression.ExpressionChromosome;
-import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
-import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.cgp.CartesianSingleActiveMutator;
-import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.CacheableObjective;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.iconic.ea.strategies.cgp.CartesianGeneticProgramming;
-import org.iconic.ea.strategies.gep.GeneExpressionProgramming;
 import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.reflection.ClassLoaderService;
 
@@ -103,7 +98,7 @@ public class CgpConfigurationModel extends SearchConfigurationModel {
         ea.initialisePopulation(getPopulationSize());
 
         SearchExecutor<CartesianChromosome<Double>> searchExecutor =
-                new SearchExecutor<>(getDatasetModel().get(), getEnabledPrimitives(), getNumGenerations());
+                new SearchExecutor<>(getDatasetModel().get(), getEnabledPrimitives(), this);
         searchExecutor.setEvolutionaryAlgorithm(ea);
 
         return searchExecutor;
@@ -143,46 +138,6 @@ public class CgpConfigurationModel extends SearchConfigurationModel {
     @Override
     protected boolean isValid() {
         return getDatasetModel().isPresent();
-    }
-
-    /**
-     * Sets the number of outputs of this search configuration.
-     *
-     * @param numOutputs Must be between one and positive infinity, inclusive.
-     */
-    public void setNumOutputs(int numOutputs) {
-        setChanged(true);
-        this.numOutputs.set(numOutputs);
-    }
-
-    /**
-     * Sets the number of columns of this search configuration.
-     *
-     * @param numColumns Must be between one and positive infinity, inclusive.
-     */
-    public void setNumColumns(int numColumns) {
-        setChanged(true);
-        this.numColumns.set(numColumns);
-    }
-
-    /**
-     * Sets the number of rows of this search configuration.
-     *
-     * @param numRows Must be between one and positive infinity, inclusive.
-     */
-    public void setNumRows(int numRows) {
-        setChanged(true);
-        this.numRows.set(numRows);
-    }
-
-    /**
-     * Sets the number of levels back of this search configuration.
-     *
-     * @param numLevelsBack Must be between one and positive infinity, inclusive.
-     */
-    public void setNumLevelsBack(int numLevelsBack) {
-        setChanged(true);
-        this.numLevelsBack.set(numLevelsBack);
     }
 
     /**

@@ -18,7 +18,7 @@ package org.iconic.project.search.config;
 import com.google.inject.Inject;
 import javafx.beans.property.SimpleIntegerProperty;
 import lombok.NonNull;
-import org.iconic.ea.EvolutionaryAlgorithm;
+import org.iconic.ea.strategies.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
 import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
@@ -90,7 +90,7 @@ public class GepConfigurationModel extends SearchConfigurationModel {
         ea.initialisePopulation(getPopulationSize());
 
         SearchExecutor<ExpressionChromosome<Double>> searchExecutor =
-                new SearchExecutor<>(getDatasetModel().get(), getEnabledPrimitives(), getNumGenerations());
+                new SearchExecutor<>(getDatasetModel().get(), getEnabledPrimitives(), this);
         searchExecutor.setEvolutionaryAlgorithm(ea);
 
         return searchExecutor;
@@ -109,16 +109,6 @@ public class GepConfigurationModel extends SearchConfigurationModel {
      */
     public int getHeadLength() {
         return headLength.get();
-    }
-
-    /**
-     * Sets the head length of this search configuration.
-     *
-     * @param headLength Must be between one and positive infinity, inclusive.
-     */
-    public void setHeadLength(int headLength) {
-        setChanged(true);
-        this.headLength.set(headLength);
     }
 
     /**
