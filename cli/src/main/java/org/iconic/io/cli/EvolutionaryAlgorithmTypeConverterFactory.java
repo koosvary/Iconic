@@ -13,13 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.iconic.ea.operator.primitive;
+package org.iconic.io.cli;
 
-public class GreaterThan extends ArithmeticPrimitive<Number> {
-    public GreaterThan() {
-        super(
-                args -> args.get(0) > args.get(1) ? 1.d : 0.d,
-                2, "GREATER", "Returns 1 if a > b, 0 otherwise.", 4
-        );
+import com.beust.jcommander.IStringConverter;
+import com.beust.jcommander.IStringConverterFactory;
+import org.iconic.ea.EvolutionaryAlgorithmType;
+
+@SuppressWarnings({"unchecked", "rawtypes"})
+public class EvolutionaryAlgorithmTypeConverterFactory implements IStringConverterFactory {
+    @Override
+    public Class<? extends IStringConverter<?>> getConverter(Class forType) {
+        if (forType.equals(EvolutionaryAlgorithmType.class)) {
+            return EvolutionaryAlgorithmTypeConverter.class;
+        } else {
+            return null;
+        }
     }
 }

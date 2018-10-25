@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.iconic.io;
+package org.iconic.io.cli;
 
 import com.beust.jcommander.Parameter;
 import org.iconic.ea.EvolutionaryAlgorithmType;
@@ -40,17 +40,26 @@ public class ArgsConverterFactory {
     @Parameter(names= {"--outputs"}, required = true, description = "The number of outputs, if the chosen algorithm can't support multiple outputs this argument will be ignored")
     private int outputs = 1;
 
-    @Parameter(names= {"--columns"}, required = false, description = "The number of columns if supported by the chosen algorithm")
+    @Parameter(names= {"--columns"}, description = "The number of columns if supported by the chosen algorithm")
     private int columns = 1;
 
-    @Parameter(names= {"--rows"}, required = false, description = "The number of rows if supported by the chosen algorithm")
+    @Parameter(names= {"--rows"}, description = "The number of rows if supported by the chosen algorithm")
     private int rows = 1;
 
-    @Parameter(names= {"--levelsBack"}, required = false, description = "The number of levels back if supported by the chosen algorithm")
+    @Parameter(names= {"--levelsBack"}, description = "The number of levels back if supported by the chosen algorithm")
     private int levelsBack = 1;
+
+    @Parameter(names= {"--repeat", "-r"}, description = "The number of times to repeat the experiment. The results will be collated")
+    private int repetitions = 1;
 
     @Parameter(names = {"--help", "-h"}, help = true)
     private boolean help;
+
+    @Parameter(names = {"--graph"}, description = "Graph the solutions if true")
+    private boolean graph;
+
+    @Parameter(names = {"--csv"}, description = "Export the pareto-optimal front to a CSV file if true")
+    private boolean csv;
 
     public EvolutionaryAlgorithmType getEaType() {
         return eaType;
@@ -87,11 +96,24 @@ public class ArgsConverterFactory {
     public int getColumns () {
         return columns;
     }
+
     public int getRows() {
         return rows;
     }
 
     public int getLevelsBack() {
         return levelsBack;
+    }
+
+    public boolean isGraph() {
+        return graph;
+    }
+
+    public boolean isCsv() {
+        return csv;
+    }
+
+    public int getRepetitions() {
+        return repetitions;
     }
 }

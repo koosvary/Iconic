@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.iconic.ea.operator.objective;
+package org.iconic.ea.operator.objective.multiobjective;
 
 import org.iconic.ea.chromosome.Chromosome;
+import org.iconic.ea.operator.objective.MultiObjective;
+import org.iconic.ea.operator.objective.Objective;
 
 import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
 /**
  * {@inheritDoc}
  * <p>
  * This multi-objective sums all of its goals together to produce the final fitness.
  */
-public class DefaultMultiObjective extends MultiObjective<Double> {
-    public DefaultMultiObjective(Collection<Objective<Double>> goals) {
+public class SimpleMultiObjective extends MultiObjective<Double> {
+    public SimpleMultiObjective(Collection<Objective<Double>> goals) {
         super(goals);
     }
 
@@ -36,8 +36,35 @@ public class DefaultMultiObjective extends MultiObjective<Double> {
      */
     @Override
     public double apply(final Chromosome<Double> c) {
+        getGoals().forEach(goal -> goal.apply(c));
         double fitness = getGoals().get(0).apply(c);
         c.setFitness(fitness);
         return fitness;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isNotWorse(double x, double y) {
+        for (Objective<Double> goal : getGoals()) {
+            if (goal.isNotWorse(x, y)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean isEqual(double x, double y) {
+        for (Objective<Double> goal : getGoals()) {
+            if (!goal.isEqual(x, y)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

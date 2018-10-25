@@ -46,6 +46,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+/**
+ * A controller class for handling the InputData view.
+ * <p>
+ * The InputDataController provides a bridge between inputting/importing data from the GUI and updating
+ * the data within the DataManager.
+ */
 public class InputDataController implements Initializable {
     private final ProjectService projectService;
     private final WorkspaceService workspaceService;

@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.iconic.io;
+package org.iconic.project.search.io;
 
-import com.beust.jcommander.IStringConverter;
-import org.iconic.ea.EvolutionaryAlgorithmType;
-
-public class EvolutionaryAlgorithmTypeConverter implements IStringConverter<EvolutionaryAlgorithmType> {
-    @Override
-    public EvolutionaryAlgorithmType convert(String value) {
-        return EvolutionaryAlgorithmType.valueOf(value);
-    }
+/**
+ * What state a search is in
+ */
+public enum SearchState {
+    RUNNING,
+    PAUSED,
+    STOPPED
 }

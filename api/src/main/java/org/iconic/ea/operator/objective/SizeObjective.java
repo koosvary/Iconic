@@ -15,23 +15,36 @@
  */
 package org.iconic.ea.operator.objective;
 
+import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.Chromosome;
+import org.iconic.ea.data.DataManager;
+import org.iconic.ea.data.FeatureClass;
+import org.iconic.ea.operator.objective.error.ErrorFunction;
 
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * <p>Defines a functional interface for an objective
- *
+ * {@inheritDoc}
  * <p>
- * An objective is a measure used by an {@see org.iconic.ea.strategies.EvolutionaryAlgorithm} to determine the fitness
- * of chromosomes.
- *
- *
+ * A SizeObjective is an objective function that simply returns the chromosome's size.
  */
-public abstract class MonoObjective<T extends Comparable<T>> implements Objective<T> {
-    public MonoObjective() {
-        // Do nothing
+@Log4j2
+public class SizeObjective extends MonoObjective<Double> {
+    /**
+     * Constructs a new SizeObjective.
+     */
+    public SizeObjective() {
+        super();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public double apply(final Chromosome<Double> c) {
+        return c.getSize();
     }
 }

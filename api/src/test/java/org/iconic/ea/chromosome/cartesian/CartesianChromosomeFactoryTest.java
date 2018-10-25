@@ -80,6 +80,7 @@ class CartesianChromosomeFactoryTest {
         );
     }
 
+    @Disabled
     @ParameterizedTest
     @MethodSource("getChromosomeTestProvider")
     @DisplayName("Test that a cartesian factory produces a well-formed chromosome")
