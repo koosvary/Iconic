@@ -124,7 +124,7 @@ public abstract class Chromosome<T> {
         }
 
         String[] expressionSplit = preorderExpression.split("\n");
-        if(expressionSplit.length >= 2){
+        if(expressionSplit.length > 2){
             String output = "";
             for(int i = 1; i < expressionSplit.length; i++){
                 if(i == expressionSplit.length-1)
@@ -364,6 +364,14 @@ public abstract class Chromosome<T> {
             expression = expression.replaceFirst("\\(" + matcher.group(1) + "\\)ROOT", matcher.group(1) + "*ROOT");
         }
 
+        pattern = Pattern.compile(anythingOpAnythingPattern);
+        matcher = pattern.matcher(expression);
+
+        while(matcher.find()){
+            expression = expression.replaceFirst("\\(" + matcher.group(1) + "\\)", matcher.group(1));
+            expression = expression.replaceFirst("\\(" + matcher.group(3) + "\\)", matcher.group(3));
+        }
+
         pattern = Pattern.compile(coXPlusCoXPattern);
         matcher = pattern.matcher(expression);
 
@@ -461,15 +469,6 @@ public abstract class Chromosome<T> {
                 expression = expression.replaceAll(coXDividesCoXPattern, "(" + a + "/" + b + ")");
             }
         }
-
-        pattern = Pattern.compile(anythingOpAnythingPattern);
-        matcher = pattern.matcher(expression);
-
-        while(matcher.find()){
-            expression = expression.replaceFirst("\\(" + matcher.group(1) + "\\)", matcher.group(1));
-            expression = expression.replaceFirst("\\(" + matcher.group(3) + "\\)", matcher.group(3));
-        }
-
         return expression;
     }
 

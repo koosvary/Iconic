@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * <p>Defines a functional interface for an objective
  *
  * <p>
- * An objective is a measure used by an {@see org.iconic.ea.strategies.EvolutionaryAlgorithm} to determine the fitness
+ * An objective is a measure used by an {@see org.iconic.ea.EvolutionaryAlgorithm} to determine the fitness
  * of chromosomes.
  *
  *
@@ -37,7 +37,7 @@ public abstract class MultiObjective<T extends Comparable<T>> implements Objecti
         this.goals = new LinkedList<>(goals);
     }
 
-    public List<Objective<T>> getGoals() {
+    public Collection<Objective<T>> getGoals() {
         return goals;
     }
 
@@ -51,5 +51,15 @@ public abstract class MultiObjective<T extends Comparable<T>> implements Objecti
 
     public void removeGoal(int index) {
         getGoals().remove(index);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return
+     */
+    @Override
+    public boolean isNotWorse(double x, double y) {
+        double epsilon = 1E-6;
+        return x <= y || Math.abs(x - y) < epsilon;
     }
 }

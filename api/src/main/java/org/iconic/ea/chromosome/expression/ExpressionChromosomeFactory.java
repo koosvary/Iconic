@@ -19,7 +19,6 @@ import org.iconic.ea.chromosome.ChromosomeFactory;
 import org.iconic.ea.chromosome.graph.FunctionNode;
 import org.iconic.ea.chromosome.graph.InputNode;
 import org.iconic.ea.chromosome.graph.Node;
-import org.iconic.ea.operator.primitive.Constant;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.*;
@@ -195,12 +194,12 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
         // Tail
         for (int i = 0; i < tailLength; i++) {
             final int index = ThreadLocalRandom.current().nextInt(numFeatures);
-            if (Math.random() > p) {
-                expression.add(new InputNode<>(index, getFeatureLabels()));
-            } else {
-                final double constant = ThreadLocalRandom.current().nextInt(10000) / 100.0;
-                expression.add(new FunctionNode<>((Constant<T>) new Constant<>(constant)));
-            }
+//            if (Math.random() > p) {
+            expression.add(new InputNode<>(index, getFeatureLabels()));
+//            } else {
+//                final double constant = (Math.random() * 100);
+//                expression.add(new FunctionNode<>((Constant<T>) new Constant<>(constant)));
+//            }
         }
 
         return expression;

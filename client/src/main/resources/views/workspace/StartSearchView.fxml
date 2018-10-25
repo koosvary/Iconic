@@ -150,7 +150,7 @@
                                         <NumberAxis label="Generation" side="BOTTOM"/>
                                     </xAxis>
                                     <yAxis>
-                                        <NumberAxis label="Mean Squared Error" side="LEFT"/>
+                                        <NumberAxis label="Fitness" side="LEFT"/>
                                     </yAxis>
                                 </LineChart>
                             </AnchorPane>

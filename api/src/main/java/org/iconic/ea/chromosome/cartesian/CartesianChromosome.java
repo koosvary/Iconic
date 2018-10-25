@@ -20,11 +20,9 @@ import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.LinearChromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.FeatureClass;
-import org.iconic.ea.operator.objective.Objective;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * {@inheritDoc}
@@ -369,21 +367,13 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     public String toString() {
         StringBuilder outputBuilder = new StringBuilder();
 
-        if (getOutputs().size() > 1) {
-            // For each output
-            List<String> outputs = getOutputs().stream()
-                    .map(output -> formatNode(output, getInputs(), getMaxArity(), getPrimitives()))
-                    .map(s -> s.toString().trim())
-                    .collect(Collectors.toList());
-
-          outputBuilder
-                    .append("ADD ( ")
-                    .append(String.join(", ", outputs))
-                    .append(" ) ");
-        } else if (getOutputs().size() == 1) {
+        // For each output
+        getOutputs().forEach(output -> {
+            // Append its phenotype
             outputBuilder
-                    .append(formatNode(getOutputs().get(0), getInputs(), getMaxArity(), getPrimitives()));
-        }
+                    .append(formatNode(output, getInputs(), getMaxArity(), getPrimitives()))
+                    .append("\n");
+        });
 
         return outputBuilder.toString();
     }
@@ -575,9 +565,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
      * {@inheritDoc}
      */
     public int getSize() {
-        return getPhenome().size()
-                + getActiveNodes(getInputs(), getGenome(), getOutputs(), getPrimitives())
-                .values().stream().mapToInt(List::size).sum();
+        return getPhenome().size() + getPhenome().values().stream().mapToInt(List::size).sum();
     }
 
     /**
@@ -597,9 +585,8 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
             return true;
         } else if (o instanceof CartesianChromosome) {
             CartesianChromosome<?> other = (CartesianChromosome<?>) o;
-            return (this.isChanged() || other.isChanged())
-                ? Objects.deepEquals(this.getGenome(), other.getGenome())
-                : Objects.deepEquals(this.getPhenome(), other.getPhenome());
+            return Objects.deepEquals(this.getPhenome(), other.getPhenome()) &&
+                    Objects.equals(this.isChanged(), other.isChanged());
         }
         return false;
     }

@@ -20,7 +20,6 @@ import org.iconic.ea.chromosome.graph.FunctionNode;
 import org.iconic.ea.chromosome.graph.InputNode;
 import org.iconic.ea.chromosome.graph.Node;
 import org.iconic.ea.operator.evolutionary.mutation.Mutator;
-import org.iconic.ea.operator.primitive.Constant;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.List;
@@ -81,13 +80,13 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
      * @param p           The probability of picking an input variable versus a constant
      */
     private Node<R> generateFeatureOrConstant(int numFeatures, double p, Map<Integer, String> featureLabels) {
-        if (Math.random() > p) {
-            final int index = ThreadLocalRandom.current().nextInt(numFeatures);
-            return new InputNode<>(index, featureLabels);
-        } else {
-            final double constant = ThreadLocalRandom.current().nextInt(10000) / 100.0;
-            return new FunctionNode<>((Constant<R>) new Constant<>(constant));
-        }
+//        if (Math.random() > p) {
+        final int index = ThreadLocalRandom.current().nextInt(numFeatures);
+        return new InputNode<>(index, featureLabels);
+//        } else {
+//            final double constant = (Math.random() * 100);
+//            expression.add(new FunctionNode<>((Constant<R>) new Constant<>(constant)));
+//        }
     }
 
     @Override

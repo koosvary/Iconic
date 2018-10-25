@@ -17,26 +17,24 @@ package org.iconic.project.search.config;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import lombok.NonNull;
-import org.iconic.ea.strategies.EvolutionaryAlgorithm;
+import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosomeFactory;
+import org.iconic.ea.chromosome.expression.ExpressionChromosome;
+import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
+import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
 import org.iconic.ea.operator.evolutionary.mutation.cgp.CartesianSingleActiveMutator;
+import org.iconic.ea.operator.evolutionary.mutation.gep.ExpressionMutator;
 import org.iconic.ea.operator.objective.CacheableObjective;
 import org.iconic.ea.operator.objective.DefaultObjective;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.strategies.cgp.CartesianGeneticProgramming;
+import org.iconic.ea.strategies.gep.GeneExpressionProgramming;
 import org.iconic.project.search.io.SearchExecutor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * {@inheritDoc}
- * <p>
- * A search configuration model designed specifically for a Cartesian Genetic Programming strategy.
- *
- * @see org.iconic.ea.strategies.cgp.CartesianGeneticProgramming
- */
 public class CgpConfigurationModel extends SearchConfigurationModel {
     private SimpleIntegerProperty numOutputs;
     private SimpleIntegerProperty numColumns;
@@ -58,9 +56,6 @@ public class CgpConfigurationModel extends SearchConfigurationModel {
         this.numLevelsBackProperty().addListener(obs -> setChanged(true));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected SearchExecutor<?> buildSearchExecutor() {
         setChanged(false);
@@ -96,73 +91,66 @@ public class CgpConfigurationModel extends SearchConfigurationModel {
         ea.initialisePopulation(getPopulationSize());
 
         SearchExecutor<CartesianChromosome<Double>> searchExecutor =
-                new SearchExecutor<>(getDatasetModel().get(), getEnabledPrimitives(), this);
+                new SearchExecutor<>(getDatasetModel().get(), getEnabledPrimitives(), getNumGenerations());
         searchExecutor.setEvolutionaryAlgorithm(ea);
 
         return searchExecutor;
     }
 
-    /**
-     * @return The number of outputs associated with the search configuration.
-     */
-    public int getNumOutputs() {
-        return numOutputs.get();
-    }
-
-    /**
-     * @return The number of columns associated with the search configuration.
-     */
-    public int getNumColumns() {
-        return numColumns.get();
-    }
-
-    /**
-     * @return The number of rows associated with the search configuration.
-     */
-    public int getNumRows() {
-        return numRows.get();
-    }
-
-    /**
-     * @return The number of levels back associated with the search configuration.
-     */
-    public int getNumLevelsBack() {
-        return numLevelsBack.get();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean isValid() {
         return getDatasetModel().isPresent();
     }
 
-    /**
-     * @return The number of outputs of the search configuration.
-     */
+    public int getNumOutputs() {
+        return numOutputs.get();
+    }
+
     public SimpleIntegerProperty numOutputsProperty() {
         return numOutputs;
     }
 
-    /**
-     * @return The number of columns of the search configuration.
-     */
+    public void setNumOutputs(int numOutputs) {
+        setChanged(true);
+        this.numOutputs.set(numOutputs);
+    }
+
+    public int getNumColumns() {
+        return numColumns.get();
+    }
+
     public SimpleIntegerProperty numColumnsProperty() {
         return numColumns;
     }
 
-    /**
-     * @return The number of rows of the search configuration.
-     */
+    public void setNumColumns(int numColumns) {
+        setChanged(true);
+        this.numColumns.set(numColumns);
+    }
+
+    public int getNumRows() {
+        return numRows.get();
+    }
+
     public SimpleIntegerProperty numRowsProperty() {
         return numRows;
     }
 
-    /**
-     * @return The number of levels back of the search configuration.
-     */
+    public void setNumRows(int numRows) {
+        setChanged(true);
+        this.numRows.set(numRows);
+    }
+
+    public int getNumLevelsBack() {
+        return numLevelsBack.get();
+    }
+
     public SimpleIntegerProperty numLevelsBackProperty() {
         return numLevelsBack;
+    }
+
+    public void setNumLevelsBack(int numLevelsBack) {
+        setChanged(true);
+        this.numLevelsBack.set(numLevelsBack);
     }
 }

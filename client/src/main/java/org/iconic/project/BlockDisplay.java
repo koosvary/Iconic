@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.iconic.project.definition;
+package org.iconic.project;
 
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -23,7 +23,6 @@ import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import java.util.Map;
 
 public class BlockDisplay {
-
     private final SimpleStringProperty name = new SimpleStringProperty("");
     private final SimpleBooleanProperty enabled = new SimpleBooleanProperty(true);
     private final SimpleIntegerProperty complexity = new SimpleIntegerProperty(1);

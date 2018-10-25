@@ -36,7 +36,9 @@ public class DefaultMultiObjective extends MultiObjective<Double> {
      */
     @Override
     public double apply(final Chromosome<Double> c) {
-        double fitness = getGoals().get(0).apply(c);
+        double fitness = getGoals().stream()
+                .mapToDouble(goal -> goal.apply(c))
+                .sum() / getGoals().size();
         c.setFitness(fitness);
         return fitness;
     }

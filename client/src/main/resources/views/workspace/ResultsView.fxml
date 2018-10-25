@@ -68,7 +68,7 @@
                 <TableView fx:id="solutionsTableView" GridPane.columnIndex="0" GridPane.rowIndex="1">
                     <columns>
                         <TableColumn resizable="false" styleClass="column-head" prefWidth="${solutionsTableView.width*0.15}" text="Size"/>
-                        <TableColumn resizable="false" styleClass="column-head" prefWidth="${solutionsTableView.width*0.15}" text="Error"/>
+                        <TableColumn resizable="false" styleClass="column-head" prefWidth="${solutionsTableView.width*0.15}" text="Fit"/>
                         <TableColumn resizable="false" styleClass="column-head" prefWidth="${solutionsTableView.width*0.70}" text="Solution"/>
                     </columns>
                 </TableView>

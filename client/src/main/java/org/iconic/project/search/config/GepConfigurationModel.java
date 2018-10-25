@@ -17,7 +17,7 @@ package org.iconic.project.search.config;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import lombok.NonNull;
-import org.iconic.ea.strategies.EvolutionaryAlgorithm;
+import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.expression.ExpressionChromosome;
 import org.iconic.ea.chromosome.expression.ExpressionChromosomeFactory;
 import org.iconic.ea.operator.evolutionary.crossover.gep.SimpleExpressionCrossover;
@@ -31,13 +31,6 @@ import org.iconic.project.search.io.SearchExecutor;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * {@inheritDoc}
- * <p>
- * A search configuration model designed specifically for a Gene Expression Programming strategy.
- *
- * @see org.iconic.ea.strategies.gep.GeneExpressionProgramming
- */
 public class GepConfigurationModel extends SearchConfigurationModel {
     private SimpleIntegerProperty headLength;
 
@@ -50,9 +43,6 @@ public class GepConfigurationModel extends SearchConfigurationModel {
         this.headLengthProperty().addListener(obs -> setChanged(true));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected SearchExecutor<?> buildSearchExecutor() {
         setChanged(false);
@@ -88,31 +78,27 @@ public class GepConfigurationModel extends SearchConfigurationModel {
         ea.initialisePopulation(getPopulationSize());
 
         SearchExecutor<ExpressionChromosome<Double>> searchExecutor =
-                new SearchExecutor<>(getDatasetModel().get(), getEnabledPrimitives(), this);
+                new SearchExecutor<>(getDatasetModel().get(), getEnabledPrimitives(), getNumGenerations());
         searchExecutor.setEvolutionaryAlgorithm(ea);
 
         return searchExecutor;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected boolean isValid() {
         return getDatasetModel().isPresent();
     }
 
-    /**
-     * @return The head length associated with the search configuration.
-     */
     public int getHeadLength() {
         return headLength.get();
     }
 
-    /**
-     * @return The head length of the search configuration.
-     */
     public SimpleIntegerProperty headLengthProperty() {
         return headLength;
+    }
+
+    public void setHeadLength(int headLength) {
+        setChanged(true);
+        this.headLength.set(headLength);
     }
 }

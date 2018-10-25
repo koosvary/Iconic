@@ -16,9 +16,14 @@
 package org.iconic.ea.strategies.seamo;
 
 import lombok.extern.log4j.Log4j2;
+import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.ChromosomeFactory;
+import org.iconic.ea.operator.evolutionary.selection.RandomUniformSelector;
+import org.iconic.ea.operator.evolutionary.selection.Selector;
+import org.iconic.ea.operator.evolutionary.selection.SequentialSelector;
 import org.iconic.ea.operator.objective.MultiObjective;
+import org.iconic.ea.operator.objective.Objective;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -91,7 +96,7 @@ public class ElitistSEAMO<R extends Chromosome<T>, T extends Comparable<T>>
         // (unfortunately this makes the function impure)
         newPopulation.forEach(chromosome -> {
                     multiObjective.getGoals().parallelStream().forEach(goal ->
-                            addGlobal(getGlobals(), chromosome, goal));
+                            addGlobal(getGlobals(), goal, goal.apply(chromosome)));
                     multiObjective.apply(chromosome);
                 }
         );

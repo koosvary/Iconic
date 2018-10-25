@@ -25,23 +25,23 @@
 /*
  * This section is used with the ResultsView.fxml, its used to make a scatter plot and a line chart together.
  */
-#solutionsPlot .default-color1.chart-series-line {
+#solutionsPlot .default-color0.chart-series-line {
 	-fx-stroke: transparent;
 }
-#solutionsPlot .default-color1.chart-line-symbol {
-	-fx-background-color: transparent, darkcyan;
+#solutionsPlot .default-color0.chart-line-symbol {
+	-fx-background-color: white, darkturquoise;
 	-fx-opacity: 0.8;
 }
-#solutionsPlot .default-color1.chart-legend-item-symbol{
-	-fx-background-color: darkcyan;
+#solutionsPlot .default-color0.chart-legend-item-symbol{
+	-fx-background-color: darkturquoise;
 }
 
-#solutionsPlot .default-color0.chart-series-line {
+#solutionsPlot .default-color1.chart-series-line {
 	-fx-stroke: firebrick;
 }
-#solutionsPlot .default-color0.chart-line-symbol {
+#solutionsPlot .default-color1.chart-line-symbol {
 	-fx-background-color: transparent, transparent;
 }
-#solutionsPlot .default-color0.chart-legend-item-symbol{
+#solutionsPlot .default-color1.chart-legend-item-symbol{
 	-fx-background-color: firebrick;
 }

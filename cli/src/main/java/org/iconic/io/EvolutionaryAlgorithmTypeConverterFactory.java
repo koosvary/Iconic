@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.iconic.io.cli;
+package org.iconic.io;
 
 import com.beust.jcommander.IStringConverter;
+import com.beust.jcommander.IStringConverterFactory;
 import org.iconic.ea.EvolutionaryAlgorithmType;
 
-public class EvolutionaryAlgorithmTypeConverter implements IStringConverter<EvolutionaryAlgorithmType> {
+@SuppressWarnings({"unchecked", "rawtypes"})
+public class EvolutionaryAlgorithmTypeConverterFactory implements IStringConverterFactory {
     @Override
-    public EvolutionaryAlgorithmType convert(String value) {
-        return EvolutionaryAlgorithmType.valueOf(value);
+    public Class<? extends IStringConverter<?>> getConverter(Class forType) {
+        if (forType.equals(EvolutionaryAlgorithmType.class)) {
+            return EvolutionaryAlgorithmTypeConverter.class;
+        } else {
+            return null;
+        }
     }
 }

@@ -19,7 +19,7 @@ public class Negation extends ArithmeticPrimitive<Number>  {
     public Negation() {
         super(
                 args -> -args.get(0),
-                1, "NEG", "Returns - a.", 1
+                1, "-", "Returns - a.", 1
         );
 
 

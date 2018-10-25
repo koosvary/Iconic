@@ -79,9 +79,9 @@ public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromos
                 );
                 //deciding whether we're going to mutate the gene's function, one of its connections,
                 // or just mutate an output instead
-                final boolean mutateFunction = ThreadLocalRandom.current().nextInt(2) == 0;
+                final int functionOrConnection = ThreadLocalRandom.current().nextInt(2);
                 //0 for function 1 for connection
-                if (mutateFunction) {
+                if (functionOrConnection == 0) {
                     //if it's function we just generate a random number within the number of functions
                     //the index of the gene will contain the function address
                     final int newPrimitive = ThreadLocalRandom.current().nextInt(numFunctions);

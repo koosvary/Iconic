@@ -25,11 +25,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.*;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.KeyCombination;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.extern.log4j.Log4j2;
@@ -66,8 +64,6 @@ public class ResultsController implements Initializable {
     @FXML
     private LineChart<Number,Number> solutionsPlot;
 
-    private XYChart.Series<Number, Number> seriesExpected;
-    private XYChart.Series<Number, Number> seriesActual;
 
     /**
      * Constructs a new ResultsController that attaches an invalidation listener onto the workspace service.
@@ -75,6 +71,10 @@ public class ResultsController implements Initializable {
     @Inject
     public ResultsController(final WorkspaceService workspaceService) {
         this.workspaceService = workspaceService;
+
+        // Update the workspace whenever the active dataset changes
+        resultAddedListener = observable -> updateWorkspace();
+        getWorkspaceService().activeWorkspaceItemProperty().addListener(resultAddedListener);
     }
 
     /**
@@ -82,27 +82,16 @@ public class ResultsController implements Initializable {
      */
     @Override
     public void initialize(URL arg1, ResourceBundle arg2) {
-        // Update the workspace whenever the active dataset changes
-        resultAddedListener = observable -> updateWorkspace();
-        getWorkspaceService().activeWorkspaceItemProperty().addListener(resultAddedListener);
+        updateWorkspace();
 
-        resultsTab.setOnSelectionChanged(event -> {
-            if (resultsTab.isSelected()) {
-                updateWorkspace();
-            }
-        });
+        resultsTab.setOnSelectionChanged(event -> updateWorkspace());
 
         // Listener for the solutions being clicked in the table
         solutionsTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                Platform.runLater(this::graphExpectedValues);
+                graphExpectedValues();
             }
         });
-
-        setupContextMenu();
-        setupResultsTable();
-        setupSolutionsPlots();
-        updateWorkspace();
     }
 
     /**
@@ -120,7 +109,7 @@ public class ResultsController implements Initializable {
         model = (SearchConfigurationModel) item;
         if (model.getSearchExecutor().isPresent()) {
             SearchExecutor<?> search = model.getSearchExecutor().get();
-            if (search != lastSearch) {
+            if (search.isRunning() && search != lastSearch) {
                 // If a search is running, use that current one for results. Else use the last search
                 //noinspection unchecked
                 storage = (SolutionStorage<Chromosome<?>>) search.getSolutionStorage();
@@ -133,14 +122,15 @@ public class ResultsController implements Initializable {
             return;
         }
 
-        Platform.runLater(this::updateResultsTable);
+        Platform.runLater(this::updateWorkspaceMainThread);
     }
 
-    private void graphExpectedValues() {
+    public void graphExpectedValues() {
         Displayable item = getWorkspaceService().getActiveWorkspaceItem();
 
         // If no dataset, stop what you're doing.
         if (!(item instanceof SearchConfigurationModel)) {
+            // TODO clear the UI?
             return;
         }
 
@@ -154,12 +144,6 @@ public class ResultsController implements Initializable {
         // Get the dataset
         DataManager dataManager = search.getDatasetModel().get().getDataManager();
         HashMap<String, FeatureClass<Number>> dataset = dataManager.getDataset();
-
-        // If the dataset doesnt exist for some reason
-        if (dataset == null) {
-            log.info("There is no dataset so the expected values cannot be checked");
-            return;
-        }
 
         // Get the first output Feature we find
         FeatureClass<Number> outputFeatureClass = null;
@@ -176,14 +160,18 @@ public class ResultsController implements Initializable {
             return;
         }
 
-        // Clear series data
-        seriesExpected.getData().clear();
-        seriesActual.getData().clear();
+        // Create the two new lines
+        XYChart.Series<Number, Number> series1 = new XYChart.Series<>();
+        XYChart.Series<Number, Number> series2 = new XYChart.Series<>();
+
+        // Set the labels for the legend
+        series1.setName("Expected Values");
+        series2.setName("Actual Values");
 
         // Get all the expected values
         List<Number> samples = outputFeatureClass.getSamples();
         for (int i = 0; i < samples.size(); i++) {
-            seriesExpected.getData().add(new XYChart.Data<>(i, samples.get(i)));
+            series1.getData().add(new XYChart.Data<>(i, samples.get(i)));
         }
 
         /*
@@ -191,16 +179,37 @@ public class ResultsController implements Initializable {
          */
 
         // These are all the solutions we have stored and that are currently displayed in the solutions table
-        ObservableMap<Integer, Chromosome<?>> solutions = storage.getSolutions();
+        ObservableMap<Integer, List<Chromosome<?>>> solutions = storage.getSolutions();
 
         // This is the row the user selected in that solutions table
         ResultDisplay row = solutionsTableView.getSelectionModel().getSelectedItem();
 
-        // Get the size of the current chromosome and look in that section of the list
-        Integer size = row.getSize();
-
         // This will be the referenced chromosome that was selected if it finds a match
-        Chromosome<?> selectedChromosome = solutions.get(size);
+        Chromosome<?> selectedChromosome = null;
+
+        // This is a list of chromosomes of size 'x'
+        Integer[] solutionsSizes = solutions.keySet().toArray(new Integer[solutions.size()]);
+
+        for (Integer size : solutionsSizes) {
+            List<Chromosome<?>> chromosomeList = solutions.get(size);
+
+            // This is all the chromosomes with the same size of 'x'
+            for (Chromosome<?> chromosome : chromosomeList) {
+                // Chromosome simplified expression
+                String simplifiedChromosome = chromosome.simplifyExpression(chromosome.getExpression(chromosome.toString(), new ArrayList<>(model.getEnabledPrimitives()), true));
+
+                // If the chromosome equals the selected chromosome
+                if (simplifiedChromosome.equals(row.getSolution())) {
+                    selectedChromosome = chromosome;
+                    break;
+                }
+            }
+
+            // If the chromosome has been found exit the loop
+            if (selectedChromosome != null) {
+                break;
+            }
+        }
 
         // If no chromosome was found (aka the block is missing and the strings dont match)
         if (selectedChromosome == null) {
@@ -209,10 +218,18 @@ public class ResultsController implements Initializable {
             return;
         }
 
+        // If the dataset doesnt exist for some reason
+        if (dataset == null) {
+            log.info("There is no dataset so the expected values cannot be checked");
+            return;
+        }
+
         // Take the selected chromosome and run the evaluate function on it
         List<Map<Integer, Number>> results = selectedChromosome.evaluate(dataManager);
+
+        // If there are no results for some reason
         if (results.isEmpty()) {
-            log.debug("actualValues size is empty");
+            System.out.println("actualValues size is empty: ");
             return;
         }
 
@@ -222,10 +239,10 @@ public class ResultsController implements Initializable {
             Map<Integer, Number> rowOfResults = results.get(i);
 
             // Keys (They are random numbers, i think it might be the node id's of the output nodes in cgp
-            Integer[] keys = rowOfResults.keySet().toArray(new Integer[0]);
+            Integer[] keys = rowOfResults.keySet().toArray(new Integer[rowOfResults.size()]);
 
             // My shit attempt to only display the "first" element in the list
-            seriesActual.getData().add(new XYChart.Data<>(i, rowOfResults.get(keys[0])));
+            series2.getData().add(new XYChart.Data<>(i, rowOfResults.get(keys[0])));
         }
 
         // Update the graph
@@ -233,90 +250,39 @@ public class ResultsController implements Initializable {
         solutionsPlot.setCreateSymbols(true);
         solutionsPlot.getData().clear();
         //noinspection unchecked
-        solutionsPlot.getData().addAll(seriesActual, seriesExpected);
+        solutionsPlot.getData().addAll(series1, series2);
     }
 
     /**
      * Updates the workspace to match the current active dataset.
      */
-    private synchronized void updateResultsTable() {
+    private synchronized void updateWorkspaceMainThread() {
         List<ResultDisplay> resultDisplays = new ArrayList<>();
-        for (Map.Entry<Integer, Chromosome<?>> entry : storage.getSolutions().entrySet()) {
-            Chromosome<?> result = entry.getValue();
+        for (Map.Entry<Integer, List<Chromosome<?>>> entry : storage.getSolutions().entrySet()) {
+            Chromosome<?> result = entry.getValue().get(0);
             resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.simplifyExpression(
-                    result.getExpression(result.toString(), new ArrayList<>(model.getPrimitives().keySet()), true)
+                    result.getExpression(result.toString(), new ArrayList<>(model.getEnabledPrimitives()), true)
             )));
         }
 
-        // Sort by error
-        Collections.sort(resultDisplays);
-
         // Add all the results as FX observables
         solutionsTableView.setItems(FXCollections.observableArrayList(resultDisplays));
-    }
 
-    /**
-     * Sets up the solutions plot data
-     */
-    private void setupSolutionsPlots() {
-        // Set up solution plot series, with names in the legend
-        seriesExpected = new XYChart.Series<>();
-        seriesActual = new XYChart.Series<>();
-        seriesExpected.setName("Expected Values");
-        seriesActual.setName("Actual Values");
-    }
+        TableColumn<ResultDisplay, Integer> sizeCol = new TableColumn<>("Size");
+        TableColumn<ResultDisplay, Double> fitnessCol = new TableColumn<>("Fitness");
+        TableColumn<ResultDisplay, String> solutionCol = new TableColumn<>("Solution");
 
-    /**
-     * Sets up the right click menu for copying and pasting
-     */
-    private void setupContextMenu() {
-        ContextMenu contextMenu = new ContextMenu();
-        MenuItem copy = new MenuItem("Copy");
-        copy.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
-        copy.setOnAction(actionEvent -> copySelectionToClipboard());
-        contextMenu.getItems().add(copy);
-        solutionsTableView.setContextMenu(contextMenu);
-    }
+        // Set conversion factories for data types into string
+        sizeCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+        fitnessCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 
-    private void setupResultsTable() {
-        Platform.runLater(() -> {
-            TableColumn<ResultDisplay, Integer> sizeCol = new TableColumn<>("Size");
-            TableColumn<ResultDisplay, Double> errorColumn = new TableColumn<>("Error");
-            TableColumn<ResultDisplay, String> solutionCol = new TableColumn<>("Solution");
+        // Set where the values come from
+        sizeCol.setCellValueFactory(cellData -> cellData.getValue().sizeProperty().asObject());
+        fitnessCol.setCellValueFactory(cellData -> cellData.getValue().fitProperty().asObject());
+        solutionCol.setCellValueFactory(cellData -> cellData.getValue().solutionProperty());
 
-            // Set conversion factories for data types into string
-            sizeCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-            errorColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-
-            // Set where the values come from
-            sizeCol.setCellValueFactory(cellData -> cellData.getValue().sizeProperty().asObject());
-            errorColumn.setCellValueFactory(cellData -> cellData.getValue().errorProperty().asObject());
-            solutionCol.setCellValueFactory(cellData -> cellData.getValue().solutionProperty());
-
-            double width = solutionsTableView.getWidth() - 5;
-            sizeCol.setPrefWidth(width * 0.15);
-            errorColumn.setPrefWidth(width * 0.15);
-            solutionCol.setPrefWidth(width * 0.70);
-
-            // Set the columns to be these ones
-            solutionsTableView.getColumns().set(0, sizeCol);
-            solutionsTableView.getColumns().set(1, errorColumn);
-            solutionsTableView.getColumns().set(2, solutionCol);
-        });
-    }
-
-    /**
-     * Reads the selected cells and places them in the clipboard formatted as a spreadsheet
-     */
-    private void copySelectionToClipboard() {
-        ResultDisplay row = solutionsTableView.getSelectionModel().getSelectedItem();
-        if (row == null) {
-            return;
-        }
-        // Set clipboard content
-        final ClipboardContent clipboardContent = new ClipboardContent();
-        clipboardContent.putString(row.getSolution());
-        Clipboard.getSystemClipboard().setContent(clipboardContent);
+        // Set the columns to be these ones
+        solutionsTableView.getColumns().setAll(sizeCol, fitnessCol, solutionCol);
     }
 
     /**

@@ -15,10 +15,11 @@
  */
 package org.iconic.ea.strategies.cgp;
 
-import org.iconic.ea.strategies.EvolutionaryAlgorithm;
+import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosomeFactory;
+import org.iconic.ea.operator.objective.MonoObjective;
 
 import java.util.ArrayList;
 import java.util.Comparator;
