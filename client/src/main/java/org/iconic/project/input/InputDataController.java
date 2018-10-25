@@ -253,11 +253,17 @@ public class InputDataController implements Initializable {
                     continue;
                 }
 
-                // get cell
-                try{
-                    double content = Double.parseDouble(clipboardCellContent);
-                    spreadsheet.getGrid().getRows().get(rowTable).get(colTable).setItem(String.valueOf(content));
-                }catch (Exception ignored) {}
+                if(rowTable < 2){
+                    spreadsheet.getGrid().getRows().get(rowTable).get(colTable).setItem(String.valueOf(clipboardCellContent));
+                }
+                else {
+                    // get cell
+                    try {
+                        double content = Double.parseDouble(clipboardCellContent);
+                        spreadsheet.getGrid().getRows().get(rowTable).get(colTable).setItem(String.valueOf(content));
+                    } catch (Exception ignored) {
+                    }
+                }
             }
 
         }
