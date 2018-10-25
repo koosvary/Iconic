@@ -91,6 +91,7 @@ public class XYSeriesWriter extends SeriesWriter<XYSeries> {
     }
 
     /**
+     * {@inheritDocs}
      */
     @Override
     public XYSeries draw() {
@@ -119,26 +120,44 @@ public class XYSeriesWriter extends SeriesWriter<XYSeries> {
         getyValues().clear();
     }
 
+    /**
+     * @return The values of the x-axis.
+     */
     private List<Number> getxValues() {
         return xValues;
     }
 
+    /**
+     * @return The values of the y-axis.
+     */
     private List<Number> getyValues() {
         return yValues;
     }
 
+    /**
+     * @return The extractor used to extract x-values from a chromosome.
+     */
     private Function<Chromosome<?>, Number> getxExtractor() {
         return xExtractor;
     }
 
+    /**
+     * @return The extractor used to extract y-values from a chromosome.
+     */
     private Function<Chromosome<?>, Number> getyExtractor() {
         return yExtractor;
     }
 
+    /**
+     * @return The render style of the series that will be written by the SeriesWriter.
+     */
     private XYSeries.XYSeriesRenderStyle getRenderStyle() {
         return renderStyle;
     }
 
+    /**
+     * @return The marker of the series that will be written by the SeriesWriter.
+     */
     private Marker getMarker() {
         return marker;
     }

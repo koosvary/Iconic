@@ -24,16 +24,20 @@ import org.w3c.dom.css.RGBColor;
 import java.awt.*;
 import java.awt.color.ColorSpace;
 import java.io.IOException;
+import java.util.Objects;
 
 public abstract class SeriesWriter<T extends Series> {
     final private String seriesName;
 
     /**
+     * Contructs a new SeriesWriter with the specified name.
      *
+     * @param seriesName A non-empty name for the series to write.
      */
     SeriesWriter(final String seriesName) {
+        Objects.requireNonNull(seriesName, "The name of the series cannot be null.");
+        assert (!seriesName.isEmpty());
         this.seriesName = seriesName;
-        // Do nothing
     }
 
     /**
@@ -53,7 +57,7 @@ public abstract class SeriesWriter<T extends Series> {
 
 
     /**
-     * Resets the plotted values of the series.
+     * Resets the plotted values of the series that will be written by the SeriesWriter.
      */
     public abstract void clear();
 
@@ -62,6 +66,10 @@ public abstract class SeriesWriter<T extends Series> {
      */
     public abstract T draw();
 
+
+    /**
+     * @return The name of the series that will be written by the SeriesWriter.
+     */
     public String getSeriesName() {
         return seriesName;
     }

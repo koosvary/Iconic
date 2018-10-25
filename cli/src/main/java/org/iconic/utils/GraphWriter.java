@@ -1,12 +1,12 @@
 /**
  * Copyright 2018 Iconic
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -27,7 +27,7 @@ public abstract class GraphWriter<T extends Series> {
     private boolean axesTruncated;
 
     /**
-     *
+     * Constructs a new GraphWriter that will truncate outliers from its axes by default.
      */
     GraphWriter() {
         axesTruncated = true;
@@ -60,24 +60,20 @@ public abstract class GraphWriter<T extends Series> {
     public abstract void clear();
 
     /**
-     * Returns the chart of this GraphWriter.
-     *
      * @return The chart of the GraphWriter.
      */
     protected abstract Chart<?, ?> draw();
 
-    protected Color intToColourSpace(final int point) {
-        final int r = (point >= 255) ? 255 : point;
-        final int g = (point >= 255 * 2) ? 255 : (point <= 255) ? 0 : point % 255;
-        final int b = (point >= 255 * 3) ? 255 : (point <= 255 * 2) ? 0 : point % (255 * 2);
-        return new Color(r, g, b);
-    }
-
-
+    /**
+     * @return True if outliers will be truncated from the axes of the graph written by the GraphWriter.
+     */
     public boolean isAxesTruncated() {
         return axesTruncated;
     }
 
+    /**
+     * @param truncate True if the axes of the graph being written should remove outliers.
+     */
     public void setAxesTruncated(boolean truncate) {
         this.axesTruncated = truncate;
     }

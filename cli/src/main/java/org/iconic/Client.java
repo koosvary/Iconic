@@ -1,12 +1,12 @@
 /**
  * Copyright 2018 Iconic
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -111,6 +111,7 @@ public class Client {
             final Set<Chromosome<Double>> nonDominatedFinal = new LinkedHashSet<>();
             final List<Set<Chromosome<Double>>> nonDominatedAll = new ArrayList<>(generations);
 
+            // Pre-initialise the generations that are going to be tracked
             for (int i = 0; i < generations; ++i) {
                 nonDominatedAll.add(new LinkedHashSet<>());
             }
@@ -135,9 +136,10 @@ public class Client {
                     nonDominatedAll.get(i).addAll(population);
                 }
 
+                // Add all non-dominated chromosomes of the last generation
                 nonDominatedFinal.addAll(
-                       ((MultiObjectiveEvolutionaryAlgorithm<CartesianChromosome<Double>, Double>) ea)
-                               .getNonDominatedChromosomes(population)
+                        ((MultiObjectiveEvolutionaryAlgorithm<CartesianChromosome<Double>, Double>) ea)
+                                .getNonDominatedChromosomes(population)
                 );
             }
 
@@ -183,9 +185,11 @@ public class Client {
                     graphWriter.write(seriesWriter.draw());
                     graphWriter.export("Last Generation - Non-Dominated", directory, "results-last");
 
+                    // Create a map of global best values so we can graph just their solution-fit plots
                     final Map<Objective<Double>, Chromosome<Double>> globals = new HashMap<>();
                     final MultiObjective<Double> multiObjective = (MultiObjective<Double>) ea.getObjective();
 
+                    // A global best is unbeaten by all other chromosomes in the population for at least one goal
                     multiObjective.getGoals().forEach(goal ->
                             nonDominatedFinal.forEach(chromosome -> {
                                 if (!globals.containsKey(goal)) {
@@ -199,8 +203,9 @@ public class Client {
                             })
                     );
 
+                    // Graph the solution-fit plots
                     graphSolutionFitPlot(
-                            new HashSet<>(globals.values()), dm, directory, "solution-fit"
+                            dm, directory, "solution-fit", new HashSet<>(globals.values())
                     );
                 }
             } catch (IOException ex) {
@@ -209,41 +214,56 @@ public class Client {
         }
     }
 
+    /**
+     * Graphs a solution-fitness plot of the provided population and exports it as a PDF to the specified
+     * directory.
+     *
+     * @param dm         The data manager.
+     * @param directory  The directory to write the graph to.
+     * @param fileName   The name of the file to write.
+     * @param population The population to write to the graph.
+     * @throws IOException
+     */
     private static void graphSolutionFitPlot(
-            final Set<Chromosome<Double>> globals,
             final DataManager<Double> dm,
             final String directory,
-            final String fileName
+            final String fileName,
+            final Set<Chromosome<Double>> population
     ) throws IOException {
         final GraphWriter<XYSeries> graphWriter = new XYGraphWriter("Sample", "Value");
         final SeriesWriter<XYSeries> expectedSeries = new XYSeriesWriter(
                 "Plot of Actual Values", XYSeries.XYSeriesRenderStyle.Line, SeriesMarkers.NONE
         );
 
+        // TODO: currently expects only one target output
         // Collect the expected output
-        List<FeatureClass<Number>> features = dm.getDataset().values().stream()
+        List<FeatureClass<Number>> outputs = dm.getDataset().values().stream()
                 .filter(FeatureClass::isOutput)
                 .limit(1)
                 .collect(Collectors.toList());
 
-        final List<Double> expectedValues = features.get(0).getSamples().stream()
+        final List<Double> expectedValues = outputs.get(0).getSamples().stream()
                 .mapToDouble(Number::doubleValue).boxed()
                 .collect(Collectors.toList());
 
+        // Write the expected output to the series
         for (int i = 0; i < expectedValues.size(); ++i) {
             expectedSeries.write(i + 1, expectedValues.get(i));
         }
 
-        globals.forEach(chromosome -> {
+        // For each chromosome in the population write its evaluation results to the graph
+        population.forEach(chromosome -> {
             final SeriesWriter<XYSeries> actualSeries = new XYSeriesWriter(
                     String.format("Plot of (%.4f, %d)", chromosome.getFitness(), chromosome.getSize()),
                     XYSeries.XYSeriesRenderStyle.Line, SeriesMarkers.NONE
             );
 
-            final List<Double> actualValues = chromosome.evaluate(dm).stream().map(outputs ->
-                    outputs.values().stream().mapToDouble(Double::doubleValue).sum()
+            // Sum all outputs of the chromosome
+            final List<Double> actualValues = chromosome.evaluate(dm).stream().map(result ->
+                    result.values().stream().mapToDouble(Double::doubleValue).sum()
             ).collect(Collectors.toList());
 
+            // Write the values to the series
             for (int i = 0; i < actualValues.size(); ++i) {
                 actualSeries.write(i + 1, actualValues.get(i));
             }
@@ -252,6 +272,7 @@ public class Client {
         });
 
         graphWriter.write(expectedSeries.draw());
+        // Don't truncate any of the axes since outliers can be removed by the data manager
         graphWriter.setAxesTruncated(false);
         graphWriter.export("Solution Fit Plot", directory, fileName);
     }
