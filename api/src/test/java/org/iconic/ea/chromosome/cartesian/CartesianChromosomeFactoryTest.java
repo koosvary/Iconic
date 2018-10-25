@@ -25,6 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -67,19 +68,31 @@ class CartesianChromosomeFactoryTest {
     @MethodSource("badInitialisationTestProvider")
     @DisplayName("Test that a cartesian factory can't be initialised with invalid parameters")
     void badInitialisationTest(int numOutputs, int numInputs, int columns, int rows, int levelsBack) {
+        List<String> inputs = new ArrayList<>(numInputs);
+
+        for (int i = 0; i < numInputs; ++i) {
+            inputs.add(String.valueOf(i));
+        }
+
         assertThrows(
                 AssertionError.class,
-                () -> new CartesianChromosomeFactory<>(numOutputs, numInputs, columns, rows, levelsBack)
+                () -> new CartesianChromosomeFactory<>(numOutputs, inputs, columns, rows, levelsBack)
         );
     }
 
-    @Disabled
     @ParameterizedTest
     @MethodSource("getChromosomeTestProvider")
     @DisplayName("Test that a cartesian factory produces a well-formed chromosome")
+    @Disabled
     void getChromosomeTest(int numOutputs, int numInputs, int columns, int rows, int levelsBack) {
+        List<String> inputs = new ArrayList<>(numInputs);
+
+        for (int i = 0; i < numInputs; ++i) {
+            inputs.add(String.valueOf(i));
+        }
+
         CartesianChromosomeFactory<Double> supplier = new CartesianChromosomeFactory<>(
-                numOutputs, numInputs, columns, rows, levelsBack
+                numOutputs, inputs, columns, rows, levelsBack
         );
         supplier.addFunction(primitives);
         CartesianChromosome<Double> c = supplier.getChromosome();
@@ -148,7 +161,13 @@ class CartesianChromosomeFactoryTest {
     @Deprecated
     @Disabled
     void addFunctionTest() {
-        CartesianChromosomeFactory<Double> factory = new CartesianChromosomeFactory<>(1, 1, 1, 1, 1);
+        List<String> inputs = new ArrayList<>(1);
+
+        for (int i = 0; i < 1; ++i) {
+            inputs.add(String.valueOf(i));
+        }
+
+        CartesianChromosomeFactory<Double> factory = new CartesianChromosomeFactory<>(1, inputs, 1, 1, 1);
 
         assertEquals(factory.getMaxArity(), 0);
         factory.addFunction(primitives);

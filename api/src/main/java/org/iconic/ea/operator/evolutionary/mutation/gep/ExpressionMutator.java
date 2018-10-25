@@ -20,10 +20,10 @@ import org.iconic.ea.chromosome.graph.FunctionNode;
 import org.iconic.ea.chromosome.graph.InputNode;
 import org.iconic.ea.chromosome.graph.Node;
 import org.iconic.ea.operator.evolutionary.mutation.Mutator;
-import org.iconic.ea.operator.primitive.Constant;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -58,12 +58,12 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
                 FunctionalPrimitive<R, R> function = functionalPrimitives.get(functionIndex);
                 expression.set(index, new FunctionNode<>(function));
             } else {
-                expression.set(index, generateFeatureOrConstant(numFeatures, p));
+                expression.set(index, generateFeatureOrConstant(numFeatures, p, chromosome.getFeatureLabels()));
             }
         }
         // Otherwise only pick an input variable or constant
         else {
-            expression.set(index, generateFeatureOrConstant(numFeatures, p));
+            expression.set(index, generateFeatureOrConstant(numFeatures, p, chromosome.getFeatureLabels()));
         }
 
         mutant.setGenome(expression);
@@ -79,14 +79,14 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
      * @param numFeatures The number of features that may be used as an input variable
      * @param p           The probability of picking an input variable versus a constant
      */
-    private Node<R> generateFeatureOrConstant(int numFeatures, double p) {
-        if (Math.random() > p) {
-            final int index = ThreadLocalRandom.current().nextInt(numFeatures);
-            return new InputNode<>(index);
-        } else {
-            final double constant = ThreadLocalRandom.current().nextInt(10000) / 100.0;
-            return new FunctionNode<>((Constant<R>) new Constant<>(constant));
-        }
+    private Node<R> generateFeatureOrConstant(int numFeatures, double p, Map<Integer, String> featureLabels) {
+//        if (Math.random() > p) {
+        final int index = ThreadLocalRandom.current().nextInt(numFeatures);
+        return new InputNode<>(index, featureLabels);
+//        } else {
+//            final double constant = (Math.random() * 100);
+//            expression.add(new FunctionNode<>((Constant<R>) new Constant<>(constant)));
+//        }
     }
 
     @Override

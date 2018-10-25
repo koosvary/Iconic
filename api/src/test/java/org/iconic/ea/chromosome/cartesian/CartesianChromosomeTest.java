@@ -119,10 +119,16 @@ public class CartesianChromosomeTest {
      * @param primitives
      * @return
      */
-    private CartesianChromosome<Double> getChromosome(int inputs, List<Integer> outputs, List<FunctionalPrimitive<Double, Double>> primitives) {
+    private CartesianChromosome<Double> getChromosome(int numInputs, List<Integer> outputs, List<FunctionalPrimitive<Double, Double>> primitives) {
         final int columns = 2;
         final int rows = 2;
         final int levelsBack = 2;
+
+        List<String> inputs = new ArrayList<>(numInputs);
+
+        for (int i = 0; i < numInputs; ++i) {
+            inputs.add(String.valueOf(i));
+        }
 
         CartesianChromosomeFactory<Double> supplier = new CartesianChromosomeFactory<>(
                 outputs.size(), inputs, columns, rows, levelsBack
@@ -218,8 +224,14 @@ public class CartesianChromosomeTest {
         primitives.add(new Subtraction());
         primitives.add(new Sin());
 
+        List<String> inputs = new ArrayList<>(10);
+
+        for (int i = 0; i < 10; ++i) {
+            inputs.add(String.valueOf(i));
+        }
+
         CartesianChromosomeFactory<Double> supplier = new CartesianChromosomeFactory<>(
-                3, 10, 10, 10, 10
+                3, inputs, 10, 10, 10
         );
         supplier.addFunction(primitives);
 
