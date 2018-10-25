@@ -514,6 +514,9 @@ public class InputDataController implements Initializable {
             final ObservableList<SpreadsheetCell> list = FXCollections.observableArrayList();
             for (int column = 0; column < grid.getColumnCount(); ++column) {
                 String cellContents = String.valueOf(dataManager.get().getSampleRow(datasetRow).get(column));
+                if(cellContents.equals("null")){
+                    cellContents = null;
+                }
                 //Adds the cell at spreadsheetRow (below the last row added)
                 SpreadsheetCell nextCell = SpreadsheetCellType.STRING.createCell(spreadsheetRow, column, 1, 1, cellContents);
                 //If the value is changed in the spreadsheet the dataset is updated
@@ -770,15 +773,17 @@ public class InputDataController implements Initializable {
         //Set used cell to be white
         oldCell.setStyle("-fx-background-color: #ffffff;");
         String cellContents = String.valueOf(oldCell.getItem());
-        if(cellContents.isEmpty()){
-            cellContents = "0.0";
-        }
         SpreadsheetCell newCell = SpreadsheetCellType.STRING.createCell(row, column, 1, 1, cellContents);
         //Minus two accounting for header and description
         int changedRow = row - 2;
         addChangeListenerToCell(newCell,changedRow, column);
         spreadsheet.getGrid().getRows().get(row).set(column,newCell);
-        newDataValues.add(Double.parseDouble(cellContents));
+        if(cellContents.isEmpty()){
+            newDataValues.add(null);
+        }
+        else {
+            newDataValues.add(Double.parseDouble(cellContents));
+        }
     }
 
     /**
@@ -787,11 +792,13 @@ public class InputDataController implements Initializable {
      */
     private void addChangeListenerToCell(SpreadsheetCell spreadsheetCell, int row, int column){
         spreadsheetCell.itemProperty().addListener((observable, oldValue, newValue) -> {
-            try{
-                Number newNumber = Double.parseDouble(String.valueOf(newValue));
-                updateProjectDataset(row,column,newNumber);
-            }catch (Exception e) {
-                spreadsheetCell.setItem(oldValue);
+            if(newValue != null) {
+                try {
+                    Number newNumber = Double.parseDouble(String.valueOf(newValue));
+                    updateProjectDataset(row, column, newNumber);
+                } catch (Exception e) {
+                    spreadsheetCell.setItem(oldValue);
+                }
             }
         });
     }
