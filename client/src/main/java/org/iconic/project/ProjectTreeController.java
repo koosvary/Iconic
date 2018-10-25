@@ -303,7 +303,7 @@ public class ProjectTreeController implements Initializable {
             dialog.getDialogPane().getButtonTypes().addAll(okButtonType, ButtonType.CANCEL);
 
             // Create a text field for the user to name the search configuration
-            TextField configurationName = new TextField();
+            TextField configurationName = new TextField("Search1");
             configurationName.setPromptText("Configuration name");
 
             // Create a combo box holding all of the available evolutionary algorithms
