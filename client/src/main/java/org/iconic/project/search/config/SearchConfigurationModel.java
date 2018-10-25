@@ -22,6 +22,7 @@ import javafx.scene.control.Control;
 import javafx.util.converter.NumberStringConverter;
 import lombok.NonNull;
 import org.controlsfx.glyphfont.FontAwesome;
+import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.operator.primitive.*;
 import org.iconic.project.Displayable;
 import org.iconic.project.dataset.DatasetModel;
@@ -107,9 +108,6 @@ public abstract class SearchConfigurationModel implements Displayable {
 
         // When a property is changed set the state of the configuration to changed
         this.populationSizeProperty().addListener(obs -> setChanged(true));
-        this.numGenerationsProperty().addListener(obs -> setChanged(true));
-        this.crossoverRateProperty().addListener(obs -> setChanged(true));
-        this.mutationRateProperty().addListener(obs -> setChanged(true));
     }
 
     /**
@@ -289,52 +287,12 @@ public abstract class SearchConfigurationModel implements Displayable {
     }
 
     /**
-     * Sets the mutation rate of this search configuration.
-     *
-     * @param mutationRate Must be between zero and one, inclusive.
-     */
-    public void setMutationRate(double mutationRate) {
-        setChanged(true);
-        this.mutationRate.set(mutationRate);
-    }
-
-    /**
-     * Sets the crossover rate of this search configuration.
-     *
-     * @param crossoverRate Must be between zero and one, inclusive.
-     */
-    public void setCrossoverRate(double crossoverRate) {
-        setChanged(true);
-        this.crossoverRate.set(crossoverRate);
-    }
-
-    /**
      * Sets the changed status of this search configuration.
      *
      * @param changed If true this configuration model will be updated the next time it's evaluated.
      */
     public void setChanged(boolean changed) {
         this.changed = changed;
-    }
-
-    /**
-     * Sets the number of generations of this search configuration.
-     *
-     * @param numGenerations If the number of generations is less than one it's treated as infinity.
-     */
-    public void setNumGenerations(int numGenerations) {
-        setChanged(true);
-        this.numGenerations.set(numGenerations);
-    }
-
-    /**
-     * Sets the population size of this search configuration.
-     *
-     * @param populationSize Must be greater than zero.
-     */
-    public void setPopulationSize(int populationSize) {
-        setChanged(true);
-        this.populationSize.set(populationSize);
     }
 
     /**

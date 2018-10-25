@@ -30,11 +30,14 @@ import org.iconic.ea.operator.objective.Objective;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.iconic.project.dataset.DatasetModel;
 import org.iconic.project.search.SolutionStorage;
+import org.iconic.project.search.config.SearchConfigurationModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+
+import static org.iconic.project.search.io.SearchState.*;
 
 /**
  * <p>A model for evolutionary searches, it maintains a dataset, data manager, and a trainer
@@ -44,19 +47,24 @@ import java.util.List;
  */
 @Log4j2
 public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
+
+    private static final long PAUSE_SLEEP = 100;
+
     private final XYChart.Series<Number, Number> plots;
     private final DatasetModel datasetModel;
     private final ObservableList<String> _updates;
     private final ListProperty<String> updates;
-    private final int numGenerations;
+    private final SearchConfigurationModel search;
     private final SolutionStorage<T> solutionStorage; // Stores the solutions found
     private final List<FunctionalPrimitive<Double, Double>> primitives;
     private EvolutionaryAlgorithm<T, Double> evolutionaryAlgorithm;
-    private boolean running;
 
+    private transient SimpleObjectProperty<SearchState> state;
+
+    private transient Long lastUpdateTime;
     private transient Long startTime;
     private transient Long elapsedDuration;
-    private transient Long lastImproveTime;
+    private transient Long timeSinceImprovement;
     private transient int improvedCount;
     private transient int generation;
 
@@ -68,15 +76,15 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
     public SearchExecutor(
             @NonNull final DatasetModel datasetModel,
             @NonNull final List<FunctionalPrimitive<Double, Double>> primitives,
-            int numGenerations
-    ) {
+            @NonNull final SearchConfigurationModel search
+            ) {
         this.datasetModel = datasetModel;
-        this.numGenerations = numGenerations;
+        this.search = search;
         this.generation = 0;
         this.plots = new XYChart.Series<>();
         this._updates = FXCollections.observableArrayList();
         this.updates = new SimpleListProperty<>(_updates);
-        this.running = false;
+        this.state = new SimpleObjectProperty<>(STOPPED);
         this.plots.setName(this.datasetModel.getName());
         this.primitives = primitives;
         this.solutionStorage = new SolutionStorage<>();
@@ -89,55 +97,82 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
      */
     @Override
     public void run() {
-        setRunning(true);
+        setState(RUNNING);
         setup();
         log.debug("Starting search");
+        addUpdate("Starting...");
+
         Comparator<Chromosome<Double>> comparator = Comparator.comparing(Chromosome::getFitness);
 
-        while (isRunning()) {
-            try {
-                Chromosome<Double> bestCandidate = getEvolutionaryAlgorithm().getChromosomes()
-                        .stream().min(comparator).get();
-                addPlot(0, bestCandidate);
-                addUpdate("Starting...");
-                addChromosomeUpdate(bestCandidate);
+        try {
+            Chromosome<Double> bestCandidate = getEvolutionaryAlgorithm().getChromosomes()
+                    .stream().min(comparator).get();
+            addPlot(0, bestCandidate);
+            addChromosomeUpdate(bestCandidate);
 
-                for (generation = 1; (generation <= getNumGenerations() || getNumGenerations() == 0) && isRunning(); ++generation) {
-                    List<T> oldPopulation = getEvolutionaryAlgorithm().getChromosomes();
-                    List<T> newPopulation = getEvolutionaryAlgorithm().evolve(oldPopulation);
-                    getEvolutionaryAlgorithm().setChromosomes(newPopulation);
+            for (generation = 1; (generation < search.getNumGenerations() || search.getNumGenerations() <= 0); generation++) {
 
-                    // Evaluate the new population of solutions and store the best ones
-                    solutionStorage.evaluate(newPopulation);
-
-                    T newBestCandidate = getEvolutionaryAlgorithm().getChromosomes().stream().min(comparator).get();
-                    Objective<?> objective = getEvolutionaryAlgorithm().getObjective();
-
-                    // Only add a new plot point if the fitness value improves
-                    boolean newCandidate = objective.isNotWorse(
-                            newBestCandidate.getFitness(),
-                            bestCandidate.getFitness()
-                    ) && !objective.isEqual(
-                            newBestCandidate.getFitness(),
-                            bestCandidate.getFitness()
-                    );
-
-                    if (newCandidate) {
-                        bestCandidate = newBestCandidate;
-                        addChromosomeUpdate(bestCandidate);
-                    }
-                    elapsedDuration = System.currentTimeMillis() - startTime;
+                // Paused? We'll wait.
+                while (getState() == PAUSED) {
+                    Thread.sleep(PAUSE_SLEEP);
                 }
-            } catch (Exception ex) {
-                log.error("{}: ", ex::getMessage);
-                Arrays.stream(ex.getStackTrace()).forEach(log::error);
-            } finally {
-                addUpdate("Finished!");
-                setRunning(false);
-                elapsedDuration = System.currentTimeMillis() - startTime;
-                log.debug("Stopping search");
+                // Not running? Exit it.
+                if (getState() == STOPPED) {
+                    break;
+                }
+
+                startTime = System.currentTimeMillis();
+                lastUpdateTime = startTime;
+                updateSearchSettings();
+
+                List<T> oldPopulation = getEvolutionaryAlgorithm().getChromosomes();
+                List<T> newPopulation = getEvolutionaryAlgorithm().evolve(oldPopulation);
+                getEvolutionaryAlgorithm().setChromosomes(newPopulation);
+
+                // Evaluate the new population of solutions and store the best ones
+                solutionStorage.evaluate(newPopulation);
+
+                T newBestCandidate = getEvolutionaryAlgorithm().getChromosomes().stream().min(comparator).get();
+                Objective<?> objective = getEvolutionaryAlgorithm().getObjective();
+
+                // Only add a new plot point if the fitness value improves
+                boolean newCandidate = objective.isNotWorse(
+                        newBestCandidate.getFitness(),
+                        bestCandidate.getFitness()
+                ) && !objective.isEqual(
+                        newBestCandidate.getFitness(),
+                        bestCandidate.getFitness()
+                );
+
+                updateTimes();
+                if (newCandidate) {
+                    bestCandidate = newBestCandidate;
+                    addChromosomeUpdate(bestCandidate);
+                }
             }
+        } catch (Exception ex) {
+            log.error("{}: ", ex::getMessage);
+            Arrays.stream(ex.getStackTrace()).forEach(log::error);
+        } finally {
+            updateTimes();
+            log.debug("Stopping search");
+            addUpdate("Finished!");
+            setState(STOPPED);
         }
+    }
+
+    /**
+     * Pauses the current search
+     */
+    public void pause() {
+        setState(PAUSED);
+    }
+
+    /**
+     * Stops any ongoing search.
+     */
+    public void stop() {
+        setState(STOPPED);
     }
 
     private void addChromosomeUpdate(Chromosome<?> chromosome) {
@@ -164,19 +199,38 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
      */
     private void setup() {
         startTime = System.currentTimeMillis();
+        lastUpdateTime = startTime;
         elapsedDuration = 0L;
-        lastImproveTime = startTime;
+        timeSinceImprovement = 0L;
     }
 
+    /**
+     * Found a new best candidate
+     * @param bestCandidate Chromosome
+     */
     private void setImproved(Chromosome<?> bestCandidate) {
         addPlot(getGeneration(), bestCandidate);
-        lastImproveTime = System.currentTimeMillis();
+        timeSinceImprovement = 0L;
         improvedCount++;
     }
 
     /**
+     * Update time statistics
+     */
+    private void updateTimes() {
+        if (startTime != null) {
+            long current = System.currentTimeMillis();
+            long diff = current - lastUpdateTime;
+
+            lastUpdateTime = current;
+            timeSinceImprovement += diff;
+            elapsedDuration += current - startTime;
+            startTime = null;
+        }
+    }
+
+    /**
      * Add a plot point for progress over time.
-     *
      * @param time      Time in generations.
      * @param candidate Candidate to plot.
      */
@@ -189,16 +243,12 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
         );
     }
 
-    /**
-     * Stops any ongoing search.
-     */
-    public void stop() {
-        setRunning(false);
+    private void updateSearchSettings() {
+        getEvolutionaryAlgorithm().setMutationProbability(search.getMutationRate());
+        getEvolutionaryAlgorithm().setCrossoverProbability(search.getCrossoverRate());
     }
 
     /**
-     * Returns the dataset that's being trained on.
-     *
      * @return The dataset that this search executor is training on.
      */
     public DatasetModel getDatasetModel() {
@@ -217,13 +267,17 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
         return updates;
     }
 
-    public boolean isRunning() {
-        return running;
+    public SimpleObjectProperty<SearchState> getStateProperty() {
+        return state;
+    }
+
+    public SearchState getState() {
+        return state.getValue();
     }
 
     @Synchronized
-    public void setRunning(boolean running) {
-        this.running = running;
+    public void setState(SearchState state) {
+        this.state.set(state);
     }
 
     public XYChart.Series<Number, Number> getPlots() {
@@ -238,10 +292,6 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
         this.evolutionaryAlgorithm = evolutionaryAlgorithm;
     }
 
-    public int getNumGenerations() {
-        return (numGenerations > 0) ? numGenerations : 0;
-    }
-
     public List<FunctionalPrimitive<Double, Double>> getPrimitives() {
         return primitives;
     }
@@ -250,16 +300,16 @@ public class SearchExecutor<T extends Chromosome<Double>> implements Runnable {
         return solutionStorage;
     }
 
-    public Long getStartTime() {
-        return startTime;
+    public Long getLastUpdateTime() {
+        return lastUpdateTime;
     }
 
     public Long getElapsedDuration() {
         return elapsedDuration;
     }
 
-    public Long getLastImproveTime() {
-        return lastImproveTime;
+    public Long getTimeSinceImprovement() {
+        return timeSinceImprovement;
     }
 
     public Long getAverageImproveDuration() {

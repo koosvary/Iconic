@@ -204,7 +204,8 @@ public class ResultsController implements Initializable {
             // This is all the chromosomes with the same size of 'x'
             for (Chromosome<?> chromosome : chromosomeList) {
                 // Chromosome simplified expression
-                String simplifiedChromosome = chromosome.simplifyExpression(chromosome.getExpression(chromosome.toString(), new ArrayList<>(model.getEnabledPrimitives()), true));
+                String simplifiedChromosome = chromosome.simplifyExpression(
+                        chromosome.getExpression(chromosome.toString(), new ArrayList<>(model.getPrimitives().keySet()), true));
 
                 // If the chromosome equals the selected chromosome
                 if (simplifiedChromosome.equals(row.getSolution())) {
@@ -261,7 +262,7 @@ public class ResultsController implements Initializable {
         for (Map.Entry<Integer, List<Chromosome<?>>> entry : storage.getSolutions().entrySet()) {
             Chromosome<?> result = entry.getValue().get(0);
             resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.simplifyExpression(
-                    result.getExpression(result.toString(), new ArrayList<>(model.getEnabledPrimitives()), true)
+                    result.getExpression(result.toString(), new ArrayList<>(model.getPrimitives().keySet()), true)
             )));
         }
 

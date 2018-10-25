@@ -90,7 +90,7 @@ public class CgpConfigurationModel extends SearchConfigurationModel {
         ea.initialisePopulation(getPopulationSize());
 
         SearchExecutor<CartesianChromosome<Double>> searchExecutor =
-                new SearchExecutor<>(getDatasetModel().get(), getEnabledPrimitives(), getNumGenerations());
+                new SearchExecutor<>(getDatasetModel().get(), getEnabledPrimitives(), this);
         searchExecutor.setEvolutionaryAlgorithm(ea);
 
         return searchExecutor;
@@ -130,46 +130,6 @@ public class CgpConfigurationModel extends SearchConfigurationModel {
     @Override
     protected boolean isValid() {
         return getDatasetModel().isPresent();
-    }
-
-    /**
-     * Sets the number of outputs of this search configuration.
-     *
-     * @param numOutputs Must be between one and positive infinity, inclusive.
-     */
-    public void setNumOutputs(int numOutputs) {
-        setChanged(true);
-        this.numOutputs.set(numOutputs);
-    }
-
-    /**
-     * Sets the number of columns of this search configuration.
-     *
-     * @param numColumns Must be between one and positive infinity, inclusive.
-     */
-    public void setNumColumns(int numColumns) {
-        setChanged(true);
-        this.numColumns.set(numColumns);
-    }
-
-    /**
-     * Sets the number of rows of this search configuration.
-     *
-     * @param numRows Must be between one and positive infinity, inclusive.
-     */
-    public void setNumRows(int numRows) {
-        setChanged(true);
-        this.numRows.set(numRows);
-    }
-
-    /**
-     * Sets the number of levels back of this search configuration.
-     *
-     * @param numLevelsBack Must be between one and positive infinity, inclusive.
-     */
-    public void setNumLevelsBack(int numLevelsBack) {
-        setChanged(true);
-        this.numLevelsBack.set(numLevelsBack);
     }
 
     /**
