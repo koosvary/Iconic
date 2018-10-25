@@ -35,6 +35,8 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
     private final int headLength;
     private final int numFeatures;
     private int tailLength;
+    private final Map<Integer, String> featureLabels;
+
 
     /**
      * <p>
@@ -46,6 +48,19 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
      * @param numFeatures The number of features that may be expressed by the chromosome's constructed by the factory
      */
     public ExpressionChromosomeFactory(int headLength, int numFeatures) {
+        this(headLength, new ArrayList<>(), numFeatures);
+    }
+
+    /**
+     * <p>
+     * Constructs a new expression chromosome factory that constructs expression chromosomes with the provided head
+     * length, and number of features.
+     *
+     *
+     * @param headLength  The length of the chromosome's head for chromosome's constructed by the factory
+     * @param numFeatures The number of features that may be expressed by the chromosome's constructed by the factory
+     */
+    public ExpressionChromosomeFactory(int headLength, List<String> inputs, int numFeatures) {
         super();
 
         assert (headLength > 0);
@@ -54,6 +69,10 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
         this.headLength = headLength;
         this.numFeatures = numFeatures;
         this.tailLength = 0;
+        this.featureLabels = new HashMap<>();
+        for (int i = 0; i < inputs.size(); ++i) {
+            featureLabels.put(i, inputs.get(i));
+        }
     }
 
     /**
@@ -63,7 +82,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
         assert (getFunctionalPrimitives().size() > 0);
 
         ExpressionChromosome<T> chromosome = new ExpressionChromosome<>(
-                getHeadLength(), getTailLength(), getNumFeatures()
+                getHeadLength(), getTailLength(), getNumFeatures(), getFeatureLabels()
         );
 
         chromosome.setGenome(
@@ -168,7 +187,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
             } else {
                 // Feature Index
                 final int index = ThreadLocalRandom.current().nextInt(numFeatures);
-                expression.add(new InputNode<>(index));
+                expression.add(new InputNode<>(index, getFeatureLabels()));
             }
         }
 
@@ -176,7 +195,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
         for (int i = 0; i < tailLength; i++) {
             final int index = ThreadLocalRandom.current().nextInt(numFeatures);
 //            if (Math.random() > p) {
-            expression.add(new InputNode<>(index));
+            expression.add(new InputNode<>(index, getFeatureLabels()));
 //            } else {
 //                final double constant = (Math.random() * 100);
 //                expression.add(new FunctionNode<>((Constant<T>) new Constant<>(constant)));
@@ -184,6 +203,11 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
         }
 
         return expression;
+    }
+
+
+    public Map<Integer, String> getFeatureLabels(){
+        return featureLabels;
     }
 
 }
