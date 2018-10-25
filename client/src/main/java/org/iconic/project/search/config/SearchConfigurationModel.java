@@ -59,50 +59,51 @@ public abstract class SearchConfigurationModel implements Displayable {
         this.mutationRate = new SimpleDoubleProperty(0.1);
         this.crossoverRate = new SimpleDoubleProperty(0.1);
         this.datasetModel = null;
+
         this.primitives = new LinkedHashMap<>();
         primitives.put(new Addition(), new SimpleBooleanProperty(true));
         primitives.put(new Subtraction(), new SimpleBooleanProperty(true));
         primitives.put(new Multiplication(), new SimpleBooleanProperty(true));
         primitives.put(new Division(), new SimpleBooleanProperty(true));
-        primitives.put(new Negation(), new SimpleBooleanProperty(true));
 
         primitives.put(new Cos(), new SimpleBooleanProperty(true));
         primitives.put(new Sin(), new SimpleBooleanProperty(true));
-        primitives.put(new Tan(), new SimpleBooleanProperty(true));
-        primitives.put(new ArcCos(), new SimpleBooleanProperty(true));
-        primitives.put(new ArcSin(), new SimpleBooleanProperty(true));
-        primitives.put(new ArcTan(), new SimpleBooleanProperty(true));
-        primitives.put(new TwoArcTan(), new SimpleBooleanProperty(true));
+        primitives.put(new Tan(), new SimpleBooleanProperty(false));
+        primitives.put(new ArcCos(), new SimpleBooleanProperty(false));
+        primitives.put(new ArcSin(), new SimpleBooleanProperty(false));
+        primitives.put(new ArcTan(), new SimpleBooleanProperty(false));
+        primitives.put(new TwoArcTan(), new SimpleBooleanProperty(false));
 
-        primitives.put(new Exponential(), new SimpleBooleanProperty(true));
-        primitives.put(new NaturalLog(), new SimpleBooleanProperty(true));
-        primitives.put(new Power(), new SimpleBooleanProperty(true));
-        primitives.put(new SquareRoot(), new SimpleBooleanProperty(true));
-        primitives.put(new Root(), new SimpleBooleanProperty(true));
+        primitives.put(new Exponential(), new SimpleBooleanProperty(false));
+        primitives.put(new NaturalLog(), new SimpleBooleanProperty(false));
+        primitives.put(new Power(), new SimpleBooleanProperty(false));
+        primitives.put(new SquareRoot(), new SimpleBooleanProperty(false));
+        primitives.put(new Root(), new SimpleBooleanProperty(false));
 
-        primitives.put(new LogisticFunction(), new SimpleBooleanProperty(true));
-        primitives.put(new StepFunction(), new SimpleBooleanProperty(true));
-        primitives.put(new SignFunction(), new SimpleBooleanProperty(true));
-        primitives.put(new GaussianFunction(), new SimpleBooleanProperty(true));
-        primitives.put(new Tanh(), new SimpleBooleanProperty(true));
+        primitives.put(new LogisticFunction(), new SimpleBooleanProperty(false));
+        primitives.put(new StepFunction(), new SimpleBooleanProperty(false));
+        primitives.put(new SignFunction(), new SimpleBooleanProperty(false));
+        primitives.put(new GaussianFunction(), new SimpleBooleanProperty(false));
+        primitives.put(new Tanh(), new SimpleBooleanProperty(false));
 
-        primitives.put(new EqualTo(), new SimpleBooleanProperty(true));
-        primitives.put(new LessThan(), new SimpleBooleanProperty(true));
-        primitives.put(new LessThanOrEqual(), new SimpleBooleanProperty(true));
-        primitives.put(new GreaterThan(), new SimpleBooleanProperty(true));
-        primitives.put(new GreaterThanOrEqual(), new SimpleBooleanProperty(true));
-        primitives.put(new IfThenElse(), new SimpleBooleanProperty(true));
-        primitives.put(new And(), new SimpleBooleanProperty(true));
-        primitives.put(new Or(), new SimpleBooleanProperty(true));
-        primitives.put(new Xor(), new SimpleBooleanProperty(true));
-        primitives.put(new Not(), new SimpleBooleanProperty(true));
+        primitives.put(new EqualTo(), new SimpleBooleanProperty(false));
+        primitives.put(new LessThan(), new SimpleBooleanProperty(false));
+        primitives.put(new LessThanOrEqual(), new SimpleBooleanProperty(false));
+        primitives.put(new GreaterThan(), new SimpleBooleanProperty(false));
+        primitives.put(new GreaterThanOrEqual(), new SimpleBooleanProperty(false));
+        primitives.put(new IfThenElse(), new SimpleBooleanProperty(false));
+        primitives.put(new And(), new SimpleBooleanProperty(false));
+        primitives.put(new Or(), new SimpleBooleanProperty(false));
+        primitives.put(new Xor(), new SimpleBooleanProperty(false));
+        primitives.put(new Not(), new SimpleBooleanProperty(false));
 
-        primitives.put(new Minimum(), new SimpleBooleanProperty(true));
-        primitives.put(new Maximum(), new SimpleBooleanProperty(true));
-        primitives.put(new Modulo(), new SimpleBooleanProperty(true));
-        primitives.put(new Floor(), new SimpleBooleanProperty(true));
-        primitives.put(new Ceiling(), new SimpleBooleanProperty(true));
-        primitives.put(new AbsoluteValue(), new SimpleBooleanProperty(true));
+        primitives.put(new Minimum(), new SimpleBooleanProperty(false));
+        primitives.put(new Maximum(), new SimpleBooleanProperty(false));
+        primitives.put(new Modulo(), new SimpleBooleanProperty(false));
+        primitives.put(new Floor(), new SimpleBooleanProperty(false));
+        primitives.put(new Ceiling(), new SimpleBooleanProperty(false));
+        primitives.put(new AbsoluteValue(), new SimpleBooleanProperty(false));
+        primitives.put(new Negation(), new SimpleBooleanProperty(false));
 
         // When a property is changed set the state of the configuration to changed
         this.populationSizeProperty().addListener(obs -> setChanged(true));
