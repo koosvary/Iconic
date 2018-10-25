@@ -38,8 +38,6 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
     private final int headLength;
     private final int tailLength;
     private int treeIndex;
-    private Map<Integer, String> featureLabels;
-
 
     /**
      * <p>
@@ -55,23 +53,6 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
         this.headLength = headLength;
         this.tailLength = tailLength;
         this.treeIndex = 0;
-    }
-
-    /**
-     * <p>
-     * Constructs a new expression chromosome with the provided head length, tail length, and number of features.
-     *
-     *
-     * @param headLength  The length of the chromosome's head
-     * @param tailLength  The length of the chromosome's tail
-     * @param numFeatures The number of features that may be expressed by the chromosome
-     */
-    public ExpressionChromosome(final int headLength, final int tailLength, final int numFeatures, Map<Integer, String> featureLabels) {
-        super(numFeatures);
-        this.headLength = headLength;
-        this.tailLength = tailLength;
-        this.treeIndex = 0;
-        this.featureLabels = featureLabels;
     }
 
     /**
@@ -263,7 +244,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
                 .map(Node::clone)
                 .collect(Collectors.toList());
 
-        ExpressionChromosome<T> clone = new ExpressionChromosome<>(getHeadLength(), getTailLength(), getInputs(), getFeatureLabels());
+        ExpressionChromosome<T> clone = new ExpressionChromosome<>(getHeadLength(), getTailLength(), getInputs());
         clone.setGenome(genome);
 
         return clone;
@@ -305,9 +286,4 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
         }
         return false;
     }
-
-    public Map<Integer, String> getFeatureLabels(){
-        return featureLabels;
-    }
-
 }
