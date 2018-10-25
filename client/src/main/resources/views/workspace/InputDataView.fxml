@@ -59,5 +59,11 @@
             <Label><padding><Insets left="5" right="5"/></padding></Label>
         </HBox>
 
+        <HBox fx:id="searchButtonHBox">
+            <padding><Insets top="5" bottom="5"/></padding>
+            <Button fx:id="btnNewSearch" text="New Search" onAction="#newSearch"/>
+            <Label><padding><Insets left="5" right="5"/></padding></Label>
+        </HBox>
+
     </VBox>
 </WorkspaceTab>
