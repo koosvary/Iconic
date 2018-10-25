@@ -376,7 +376,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
                     .map(s -> s.toString().trim())
                     .collect(Collectors.toList());
 
-            outputBuilder
+          outputBuilder
                     .append("ADD ( ")
                     .append(String.join(", ", outputs))
                     .append(" ) ");

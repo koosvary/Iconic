@@ -122,7 +122,6 @@ public class Client {
             for (int i = 0; i < generations; ++i) {
                 nonDominatedAll.add(new LinkedHashSet<>());
             }
-
             EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea = getEvolutionaryAlgorithm(
                     client.getArgs(), dm, supplier
             );
@@ -303,6 +302,33 @@ public class Client {
             printer.write(String.format("Rows:\t\t\t\t\t%s\n", args.getRows()));
             printer.write(String.format("Columns:\t\t\t%s\n", args.getColumns()));
             printer.write(String.format("Levels Back:\t%s\n", args.getLevelsBack()));
+        }
+    }
+
+    /**
+     * Exports a provided population of chromosomes to a CSV file with the specified directory and name.
+     * <p>
+     * The exported file uses an Excel-compatible CSV format.
+     *
+     * @param directory  The directory to write the CSV file to.
+     * @param fileName   The name of the file to write.
+     * @param population The population to write to the file.
+     */
+    private static void exportCsv(
+            final String directory,
+            final String fileName,
+            final Set<Chromosome<Double>> population,
+            final List<FunctionalPrimitive<?, ?>> primitives
+    ) throws IOException {
+        try (CSVPrinter printer = new CSVPrinter(
+                new FileWriter(new File(directory + "//" + fileName + ".csv")),
+                CSVFormat.EXCEL
+        )) {
+            for (final Chromosome<?> chromosome : population) {
+                printer.printRecord(
+                        chromosome.getFitness(), chromosome.getSize(), chromosome.toString()
+                );
+            }
         }
     }
 

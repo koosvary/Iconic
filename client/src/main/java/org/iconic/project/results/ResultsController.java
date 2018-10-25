@@ -99,8 +99,9 @@ public class ResultsController implements Initializable {
             }
         });
 
-        setupSolutionsPlots();
         setupContextMenu();
+        setupResultsTable();
+        setupSolutionsPlots();
         updateWorkspace();
     }
 
@@ -190,31 +191,16 @@ public class ResultsController implements Initializable {
          */
 
         // These are all the solutions we have stored and that are currently displayed in the solutions table
-        ObservableMap<Integer, List<Chromosome<?>>> solutions = storage.getSolutions();
+        ObservableMap<Integer, Chromosome<?>> solutions = storage.getSolutions();
 
         // This is the row the user selected in that solutions table
         ResultDisplay row = solutionsTableView.getSelectionModel().getSelectedItem();
 
-        // This will be the referenced chromosome that was selected if it finds a match
-        Chromosome<?> selectedChromosome = null;
-
         // Get the size of the current chromosome and look in that section of the list
         Integer size = row.getSize();
-        List<Chromosome<?>> chromosomeList = solutions.get(size);
 
-        // This is all the chromosomes with the same size of 'x'
-        for (int i = chromosomeList.size() - 1; i >= 0; i--) {
-            Chromosome<?> chromosome = chromosomeList.get(i);
-            // Chromosome simplified expression
-            String simplifiedChromosome = chromosome.simplifyExpression(chromosome.getExpression(chromosome.toString(),
-                    new ArrayList<>(model.getEnabledPrimitives()), true));
-
-            // If the chromosome equals the selected chromosome
-            if (simplifiedChromosome.equals(row.getSolution())) {
-                selectedChromosome = chromosome;
-                break;
-            }
-        }
+        // This will be the referenced chromosome that was selected if it finds a match
+        Chromosome<?> selectedChromosome = solutions.get(size);
 
         // If no chromosome was found (aka the block is missing and the strings dont match)
         if (selectedChromosome == null) {
@@ -255,8 +241,8 @@ public class ResultsController implements Initializable {
      */
     private synchronized void updateResultsTable() {
         List<ResultDisplay> resultDisplays = new ArrayList<>();
-        for (Map.Entry<Integer, List<Chromosome<?>>> entry : storage.getSolutions().entrySet()) {
-            Chromosome<?> result = entry.getValue().get(0);
+        for (Map.Entry<Integer, Chromosome<?>> entry : storage.getSolutions().entrySet()) {
+            Chromosome<?> result = entry.getValue();
             resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.simplifyExpression(
                     result.getExpression(result.toString(), new ArrayList<>(model.getPrimitives().keySet()), true)
             )));
@@ -267,24 +253,6 @@ public class ResultsController implements Initializable {
 
         // Add all the results as FX observables
         solutionsTableView.setItems(FXCollections.observableArrayList(resultDisplays));
-
-        TableColumn<ResultDisplay, Integer> sizeCol = new TableColumn<>("Size");
-        TableColumn<ResultDisplay, Double> errorColumn = new TableColumn<>("Error");
-        TableColumn<ResultDisplay, String> solutionCol = new TableColumn<>("Solution");
-
-        // Set conversion factories for data types into string
-        sizeCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
-        errorColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-
-        // Set where the values come from
-        sizeCol.setCellValueFactory(cellData -> cellData.getValue().sizeProperty().asObject());
-        errorColumn.setCellValueFactory(cellData -> cellData.getValue().errorProperty().asObject());
-        solutionCol.setCellValueFactory(cellData -> cellData.getValue().solutionProperty());
-
-        // Set the columns to be these ones
-        solutionsTableView.getColumns().set(0, sizeCol);
-        solutionsTableView.getColumns().set(1, errorColumn);
-        solutionsTableView.getColumns().set(2, solutionCol);
     }
 
     /**
@@ -301,13 +269,40 @@ public class ResultsController implements Initializable {
     /**
      * Sets up the right click menu for copying and pasting
      */
-    private void setupContextMenu(){
+    private void setupContextMenu() {
         ContextMenu contextMenu = new ContextMenu();
         MenuItem copy = new MenuItem("Copy");
         copy.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
         copy.setOnAction(actionEvent -> copySelectionToClipboard());
         contextMenu.getItems().add(copy);
         solutionsTableView.setContextMenu(contextMenu);
+    }
+
+    private void setupResultsTable() {
+        Platform.runLater(() -> {
+            TableColumn<ResultDisplay, Integer> sizeCol = new TableColumn<>("Size");
+            TableColumn<ResultDisplay, Double> errorColumn = new TableColumn<>("Error");
+            TableColumn<ResultDisplay, String> solutionCol = new TableColumn<>("Solution");
+
+            // Set conversion factories for data types into string
+            sizeCol.setCellFactory(TextFieldTableCell.forTableColumn(new IntegerStringConverter()));
+            errorColumn.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+
+            // Set where the values come from
+            sizeCol.setCellValueFactory(cellData -> cellData.getValue().sizeProperty().asObject());
+            errorColumn.setCellValueFactory(cellData -> cellData.getValue().errorProperty().asObject());
+            solutionCol.setCellValueFactory(cellData -> cellData.getValue().solutionProperty());
+
+            double width = solutionsTableView.getWidth() - 5;
+            sizeCol.setPrefWidth(width * 0.15);
+            errorColumn.setPrefWidth(width * 0.15);
+            solutionCol.setPrefWidth(width * 0.70);
+
+            // Set the columns to be these ones
+            solutionsTableView.getColumns().set(0, sizeCol);
+            solutionsTableView.getColumns().set(1, errorColumn);
+            solutionsTableView.getColumns().set(2, solutionCol);
+        });
     }
 
     /**
@@ -318,7 +313,6 @@ public class ResultsController implements Initializable {
         if (row == null) {
             return;
         }
-
         // Set clipboard content
         final ClipboardContent clipboardContent = new ClipboardContent();
         clipboardContent.putString(row.getSolution());
