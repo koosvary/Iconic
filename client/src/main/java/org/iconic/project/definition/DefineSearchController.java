@@ -129,11 +129,21 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
         blockDisplayTableView.getColumns().addAll(enabledCol, nameCol, complexityCol);
 
+        // Listener for the description pane
         blockDisplayTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 selectedBlockDisplayDescription.setText(newValue.getKey().getDescription());
             }
         });
+
+        // Listener for when the row is double clicked to toggle the enabled status
+        blockDisplayTableView.setOnMousePressed(event -> {
+            if (event.isPrimaryButtonDown() && event.getClickCount() % 2 == 0) {
+                SimpleBooleanProperty bool = blockDisplayTableView.getSelectionModel().getSelectedItem().getValue();
+                bool.set(!bool.get());
+            }
+        });
+
         cbDatasets.valueProperty().addListener(this::updateDataset);
         defineTab.setOnSelectionChanged(event -> updateTab());
 
