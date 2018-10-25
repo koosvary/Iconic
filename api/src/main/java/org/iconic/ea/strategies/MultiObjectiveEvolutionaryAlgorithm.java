@@ -177,7 +177,9 @@ public abstract class MultiObjectiveEvolutionaryAlgorithm<R extends Chromosome<T
 
         // If c2 performs worse for any goal it cannot dominate c1
         for (final Objective<T> goal : multiObjective.getGoals()) {
-            if (!goal.isNotWorse(goal.apply(c2), goal.apply(c1))) {
+            double fitC1 = goal.apply(c1);
+            double fitC2 = goal.apply(c2);
+            if (!goal.isNotWorse(fitC2, fitC1)) {
                 return false;
             }
         }
@@ -356,6 +358,9 @@ public abstract class MultiObjectiveEvolutionaryAlgorithm<R extends Chromosome<T
         isDominated:
         for (final R candidate : population) {
             for (final R other : population) {
+                if (candidate.equals(other)) {
+                    continue;
+                }
                 if (isDominatedBy(getObjective(), candidate, other)) {
                     continue isDominated;
                 }

@@ -32,6 +32,7 @@ import org.iconic.ea.operator.objective.*;
 import org.iconic.ea.operator.objective.error.MeanSquaredError;
 import org.iconic.ea.operator.objective.multiobjective.SimpleMultiObjective;
 import org.iconic.ea.operator.primitive.*;
+import org.iconic.ea.strategies.MultiObjectiveEvolutionaryAlgorithm;
 import org.iconic.ea.strategies.gsemo.GSEMO;
 import org.iconic.io.cli.ArgsConverterFactory;
 import org.iconic.utils.GraphWriter;
@@ -134,7 +135,10 @@ public class Client {
                     nonDominatedAll.get(i).addAll(population);
                 }
 
-                nonDominatedFinal.addAll(population);
+                nonDominatedFinal.addAll(
+                       ((MultiObjectiveEvolutionaryAlgorithm<CartesianChromosome<Double>, Double>) ea)
+                               .getNonDominatedChromosomes(population)
+                );
             }
 
             final List<FunctionalPrimitive<?, ?>> primitives = new ArrayList<>(supplier.getFunctionalPrimitives());
