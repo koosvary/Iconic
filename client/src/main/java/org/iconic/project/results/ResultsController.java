@@ -21,6 +21,7 @@ import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
@@ -30,6 +31,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCombination;
+import javafx.stage.FileChooser;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.util.converter.IntegerStringConverter;
 import lombok.extern.log4j.Log4j2;
@@ -43,6 +45,9 @@ import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.project.search.io.SearchExecutor;
 import org.iconic.workspace.WorkspaceService;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
@@ -58,6 +63,9 @@ public class ResultsController implements Initializable {
     private SearchConfigurationModel model;
     private SearchExecutor<?> lastSearch;
     private InvalidationListener resultAddedListener;
+
+    private List<Number> samplesValues;
+    private List<Number> resultsValues;
 
     @FXML
     private WorkspaceTab resultsTab;
@@ -182,6 +190,7 @@ public class ResultsController implements Initializable {
         // Get all the expected values
         List<Number> samples = outputFeatureClass.getSamples();
         for (int i = 0; i < samples.size(); i++) {
+            samplesValues.add(samples.get(i));
             seriesExpected.getData().add(new XYChart.Data<>(i, samples.get(i)));
         }
 
@@ -239,6 +248,7 @@ public class ResultsController implements Initializable {
             Integer[] keys = rowOfResults.keySet().toArray(new Integer[0]);
 
             // My shit attempt to only display the "first" element in the list
+            resultsValues.add(rowOfResults.get(keys[0]));
             seriesActual.getData().add(new XYChart.Data<>(i, rowOfResults.get(keys[0])));
         }
 
@@ -331,5 +341,60 @@ public class ResultsController implements Initializable {
      */
     private WorkspaceService getWorkspaceService() {
         return workspaceService;
+    }
+
+
+
+    /**
+     * Opens a file dialog to save the current actual and expected values as a text file or csv
+     *
+     * @param actionEvent
+     * @throws IOException
+     */
+    public void saveActualExpectedValues(ActionEvent actionEvent) throws IOException {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Values");
+        // Show only .txt and .csv files
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Text files", "*.txt", "*.csv")
+        );
+
+        // Show the file dialog over the parent window
+        File f = fileChooser.showSaveDialog(null);
+
+        if(f != null && !resultsValues.isEmpty() && !samplesValues.isEmpty()){
+            saveActualExpectedValuesToFile(f);
+        }
+    }
+
+    private void saveActualExpectedValuesToFile(File fileName) throws IOException {
+        FileWriter fileWriter = null;
+
+        try{
+            fileWriter = new FileWriter(fileName);
+            fileWriter.append("Expected,Actual;");
+            fileWriter.append(System.getProperty("line.separator"));
+
+//            for(int i = 0; i < samplesValues.size(); i++){
+//
+//                fileWriter.append(String.valueOf(samplesValues.get(i)));
+//                fileWriter.append(",");
+//                fileWriter.append(String.valueOf(resultsValues.get(i)));
+//                fileWriter.append(";");
+//                fileWriter.append(System.getProperty("line.separator"));
+//            }
+        } catch (Exception ex){
+            log.error("Error when saving file. File: {}", () -> fileName);
+            log.error("Exception: {}", ex);
+        } finally{
+            try{
+                fileWriter.flush();
+                fileWriter.close();
+            } catch (IOException ex){
+                log.error("Error when closing FileWriter. File: {}", () -> fileName);
+                log.error("Exception: {}", ex);
+            }
+        }
+
     }
 }

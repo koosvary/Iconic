@@ -97,48 +97,9 @@
         </HBox>
 
         <HBox>
-            <!--<VBox spacing="5" prefWidth="${screen.visualBounds.width*0.4}">
-                <padding>
-                    <Insets top="10" bottom="10" left="10" right="10"/>
-                </padding>
-                <Label text="Solution Details">
-                    <font>
-                        <Font size="18.0" />
-                    </font>
-                </Label>
-                <ScrollPane fitToWidth="true">
-                    <content>
-                        <GridPane alignment="CENTER" gridLinesVisible="true">
-                            <columnConstraints>
-                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="30.0" prefWidth="100.0" />
-                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="70.0" prefWidth="100.0" />
-                            </columnConstraints>
-                            <rowConstraints>
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            </rowConstraints>
-                            <children>
-                                <Label GridPane.halignment="CENTER" GridPane.valignment="CENTER">
-                                    <font>
-                                        <Font size="12.0" />
-                                    </font>
-                                </Label>
-                                <Label text="Text" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
-                                    <font>
-                                        <Font size="12.0" />
-                                    </font>
-                                </Label>
-                                <Label text="Text" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
-                                    <font>
-                                        <Font size="12.0" />
-                                    </font>
-                                </Label>
-                            </children>
-                        </GridPane>
-                    </content>
-                </ScrollPane>
-            </VBox>-->
+            <padding><Insets top="5" bottom="5"/></padding>
+            <Button fx:id="btnExportDataset" text="Export Dataset" onAction="#saveActualExpectedValues"/>
+            <Label><padding><Insets left="5" right="5"/></padding></Label>
         </HBox>
     </VBox>
 </WorkspaceTab>
