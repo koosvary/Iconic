@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.project.processing;
 
@@ -31,13 +25,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.util.StringConverter;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
+import org.iconic.control.WorkspaceTab;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.preprocessing.*;
 import org.iconic.project.Displayable;
@@ -45,9 +38,7 @@ import org.iconic.project.dataset.DatasetModel;
 import org.iconic.workspace.WorkspaceService;
 
 import java.net.URL;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * A controller class for handling the ProcessData view.
@@ -65,6 +56,8 @@ public class ProcessDataController implements Initializable {
     private boolean resetCheckboxFlag = false;
 
     @FXML
+    private WorkspaceTab processTab;
+    @FXML
     private ListView<String> lvFeatures;
     @FXML
     private LineChart<Number, Number> lcDataView;
@@ -75,12 +68,18 @@ public class ProcessDataController implements Initializable {
     @FXML
     private ComboBox<String> cbHandleMissingValuesOptions;
     @FXML
-    private TextField tfNormaliseMin, tfNormaliseMax, tfOffsetValue;
+    private TextField tfSmoothingWindow, tfNormaliseMin, tfNormaliseMax, tfOffsetValue;
+    @FXML
+    private Label lbSmoothOrder, lbHandleMissingValuesOrder, lbRemoveOutliersOrder, lbNormaliseOrder, lbOffsetValuesOrder;
+    @FXML
+    private List<Label> orderLabels = new ArrayList<>();
+    @FXML
+    private Spinner<Double> spRemoveOutliersThreshold;
 
     /**
      * <p>
      * Constructs a new ProcessDataController that attaches an invalidation listener onto the workspace service.
-     * </p>
+     *
      */
     @Inject
     public ProcessDataController(final WorkspaceService workspaceService) {
@@ -117,6 +116,10 @@ public class ProcessDataController implements Initializable {
             });
         }
 
+        // Adds all order of operations labels to a collection for simplified processing
+        Collections.addAll(orderLabels, lbSmoothOrder, lbHandleMissingValuesOrder, lbRemoveOutliersOrder,
+                           lbNormaliseOrder, lbOffsetValuesOrder);
+
         // A quick way to add a listener for the checkboxes
         addCheckBoxChangeListener(cbSmoothData, vbSmoothData);
         addCheckBoxChangeListener(cbHandleMissingValues, vbHandleMissingValues);
@@ -124,7 +127,46 @@ public class ProcessDataController implements Initializable {
         addCheckBoxChangeListener(cbNormalise, vbNormalise);
         addCheckBoxChangeListener(cbOffset, vbOffset);
 
+        // Add a combobox listener for handle missing values options
         addComboBoxChangeListener(cbHandleMissingValuesOptions, cbHandleMissingValues);
+
+        // Add listeners to each input text field
+        addTextFieldChangeListener(tfSmoothingWindow, false);
+        addTextFieldChangeListener(tfNormaliseMin, true);
+        addTextFieldChangeListener(tfNormaliseMax, true);
+        addTextFieldChangeListener(tfOffsetValue, true);
+
+        processTab.setOnSelectionChanged(event -> updateWorkspace());
+
+        // Setup spinners converter and add a listener
+        initializeSpinner();
+        addSpinnerChangeListener(spRemoveOutliersThreshold, cbRemoveOutliers);
+    }
+
+    /**
+     * Creates a ValueFactory for the spinner with the specified parameters, and also formats the spinners values to
+     * 2 decimal places.
+     */
+    private void initializeSpinner() {
+        SpinnerValueFactory.DoubleSpinnerValueFactory valueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 99.99, 2.00, 0.10);
+
+        valueFactory.setConverter(new StringConverter<Double>() {
+            @Override
+            public String toString(Double value) {
+                return String.format("%.2f", value);
+            }
+
+            @Override
+            public Double fromString(String string) {
+                if (string.isEmpty()) {
+                    return 0.0;
+                } else {
+                    return Double.parseDouble(string);
+                }
+            }
+        });
+
+        spRemoveOutliersThreshold.setValueFactory(valueFactory);
     }
 
     /**
@@ -139,33 +181,30 @@ public class ProcessDataController implements Initializable {
             return;
         }
 
-        checkbox.selectedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-                if (!resetCheckboxFlag) {
-                    Optional<DataManager<Double>> dataManager = getDataManager();
+        checkbox.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!resetCheckboxFlag) {
+                Optional<DataManager<Double>> dataManager = getDataManager();
 
-                    if (dataManager.isPresent()) {
-                        int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
-                        String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+                if (dataManager.isPresent()) {
+                    int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+                    String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
 
-                        if (newValue) {
-                            // Checkbox has been selected - call the checkboxes corresponding function
-                            convertTransformTypeToFunction(convertCheckBoxToTransformType(checkbox));
-                        } else {
-                            // Checkbox has been unselected - remove the checkboxes corresponding preprocessor
-                            removeExistingPreprocessor(checkbox);
-                        }
-
-                        updateModifiedText(selectedIndex, selectedHeader);
+                    if (newValue) {
+                        // Checkbox has been selected - call the checkboxes corresponding function
+                        convertTransformTypeToFunction(convertCheckBoxToTransformType(checkbox));
+                    } else {
+                        // Checkbox has been unselected - remove the checkboxes corresponding preprocessor
+                        removeExistingPreprocessor(checkbox);
                     }
-                }
 
-                // Shows or hides the checkboxes options based on whether it is selected or not
-                if (vbox != null) {
-                    vbox.setManaged(newValue);
-                    vbox.setVisible(newValue);
+                    updateModifiedText(selectedIndex, selectedHeader);
                 }
+            }
+
+            // Shows or hides the checkboxes options based on whether it is selected or not
+            if (vbox != null) {
+                vbox.setManaged(newValue);
+                vbox.setVisible(newValue);
             }
         });
     }
@@ -177,20 +216,46 @@ public class ProcessDataController implements Initializable {
      * @param combobox The selected combo box
      * @param checkbox The selected check box to identify the transformType
      */
-    private void addComboBoxChangeListener(ComboBox combobox, CheckBox checkbox) {
+    private void addComboBoxChangeListener(ComboBox<?> combobox, CheckBox checkbox) {
         if (combobox == null) {
             return;
         }
 
         cbHandleMissingValuesOptions.getSelectionModel().selectFirst();
-        combobox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener() {
+        combobox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            Optional<DataManager<Double>> dataManager = getDataManager();
+
+            if (dataManager.isPresent()) {
+                removeExistingPreprocessor(checkbox);
+
+                int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+                String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+
+                convertTransformTypeToFunction(convertCheckBoxToTransformType(checkbox));
+
+                updateModifiedText(selectedIndex, selectedHeader);
+            }
+        });
+    }
+
+    /**
+     * Adds a ChangeListener to the specified spinner to fire an event when the spinner's value is changed.
+     *
+     * @param spinner The selected spinner
+     * @param checkbox The checkbox that the spinner belongs to
+     */
+    private void addSpinnerChangeListener(Spinner<Double> spinner, CheckBox checkbox) {
+        if (spinner == null) {
+            return;
+        }
+
+        spinner.valueProperty().addListener(new ChangeListener<Double>() {
             @Override
-            public void changed(ObservableValue observable, Object oldValue, Object newValue) {
+            public void changed(ObservableValue<? extends Double> observable, Double oldValue, Double newValue) {
                 Optional<DataManager<Double>> dataManager = getDataManager();
 
                 if (dataManager.isPresent()) {
                     removeExistingPreprocessor(checkbox);
-                    handleMissingValuesOfDatasetFeature();
 
                     int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
                     String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
@@ -198,6 +263,32 @@ public class ProcessDataController implements Initializable {
                     convertTransformTypeToFunction(convertCheckBoxToTransformType(checkbox));
 
                     updateModifiedText(selectedIndex, selectedHeader);
+                }
+            }
+        });
+    }
+
+    /**
+     * Adds a change listener to a specified TextField which strips out all non-numerical characters to ensure
+     * that the field only contains integer values.
+     *
+     * @param textField The selected TextField
+     * @param allowDecimals A boolean flag denoting whether or not to allow decimal points in the TextField
+     */
+    private void addTextFieldChangeListener(TextField textField, Boolean allowDecimals) {
+        textField.textProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                if (allowDecimals) {
+                    // Allows all numbers and decimal points
+                    if (!newValue.matches("\\d*(\\.\\d*)?")) {
+                        textField.setText(oldValue);
+                    }
+                } else {
+                    // Allows only numbers
+                    if (!newValue.matches("\\d*")) {
+                        textField.setText(newValue.replaceAll("[^\\d]", ""));
+                    }
                 }
             }
         });
@@ -220,6 +311,10 @@ public class ProcessDataController implements Initializable {
 
             if (dataManager.get().getDataset().get(selectedHeader).isModified()) {
                 newHeader += "    modified";
+            }
+
+            if (dataManager.get().getDataset().get(selectedHeader).isMissingValues()) {
+                newHeader += "    missing values";
             }
 
             items.set(selectedIndex, newHeader);
@@ -247,21 +342,37 @@ public class ProcessDataController implements Initializable {
         lcDataView.getData().clear();
         Optional<DataManager<Double>> dataManager = getDataManager();
 
-        if (dataManager.isPresent() && selectedIndex >= 0) {
-            List<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+        if (!dataManager.isPresent() || selectedIndex < 0) {
+            return;
+        }
 
-            for (int sample = 0; sample < values.size(); sample++) {
-                double value = values.get(sample).doubleValue();
-                series.getData().add(new XYChart.Data<>(sample, value));
+        List<Number> values = dataManager.get().getSampleColumn(selectedIndex);
+
+        // Check if the feature column has missing values
+        if (values.contains(null)) {
+            disablePreprocessingCheckBoxes();
+            enablePreprocessingCheckBox(cbHandleMissingValues);
+        } else {
+            enablePreprocessingCheckBoxes();
+        }
+
+        // Loop through all values within the feature column
+        for (int sample = 0; sample < values.size(); sample++) {
+            Number value = values.get(sample);
+
+            // If the value is null ignore it, otherwise put it in the chart to display.
+            if (value != null) {
+                Double doubleValue = value.doubleValue();
+                series.getData().add(new XYChart.Data<>(sample, doubleValue));
             }
         }
+
         lcDataView.getData().add(series);
 
         // Updates the pre-processing methods text fields to reflect the respective header
-        if (dataManager.isPresent() && selectedIndex >= 0) {
-            String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
-            updatePreprocessingTextFields(selectedHeader);
-        }
+        String selectedHeader = dataManager.get().getSampleHeaders().get(selectedIndex);
+        updatePreprocessingTextFields(selectedHeader);
+        updateOrderOfOperationsLabels(selectedHeader);
     }
 
     /**
@@ -273,13 +384,18 @@ public class ProcessDataController implements Initializable {
             return;
         }
 
+        resetEmptyTextField(tfSmoothingWindow, "0");
+
         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
         if (selectedIndex != -1) {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
             if (cbSmoothData.isSelected() && dataManager.isPresent()) {
+                int smoothingWindow = Integer.parseInt(tfSmoothingWindow.getText());
+
                 Smooth smooth = new Smooth();
                 smooth.setTransformType(TransformType.Smoothed);
+                smooth.setNeighbourSize(smoothingWindow);
 
                 addNewPreprocessor(dataManager.get().getSampleHeaders().get(selectedIndex), smooth);
             }
@@ -313,7 +429,9 @@ public class ProcessDataController implements Initializable {
         }
     }
 
-    // TODO: once RemoveOutliers class has been implemented
+    /**
+     * Creates a RemoveOutliers object which is added to the list of currently active preprocessors.
+     */
     public void removeOutliersInDatasetFeature() {
         if (lvFeatures == null) {
             return;
@@ -324,7 +442,13 @@ public class ProcessDataController implements Initializable {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
             if (cbRemoveOutliers.isSelected() && dataManager.isPresent()) {
+                double threshold = spRemoveOutliersThreshold.getValue();
+
                 RemoveOutliers removeOutliers = new RemoveOutliers();
+                removeOutliers.setTransformType(TransformType.OutliersRemoved);
+                removeOutliers.setThreshold(threshold);
+
+                addNewPreprocessor(dataManager.get().getSampleHeaders().get(selectedIndex), removeOutliers);
             }
 
             featureSelected(selectedIndex);
@@ -340,7 +464,11 @@ public class ProcessDataController implements Initializable {
             return;
         }
 
+        resetEmptyTextField(tfNormaliseMin, "0");
+        resetEmptyTextField(tfNormaliseMax, "1");
+
         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
+
         if (selectedIndex != -1) {
             Optional<DataManager<Double>> dataManager = getDataManager();
 
@@ -373,6 +501,8 @@ public class ProcessDataController implements Initializable {
             return;
         }
 
+        resetEmptyTextField(tfOffsetValue, "0");
+
         int selectedIndex = lvFeatures.getSelectionModel().getSelectedIndex();
         if (selectedIndex >= 0) {
             Optional<DataManager<Double>> dataManager = getDataManager();
@@ -401,11 +531,13 @@ public class ProcessDataController implements Initializable {
      * @param header Used to identify the specific FeatureClass which the preprocessor is being applied to
      * @param preprocessor The new preprocessor object
      */
-    private void addNewPreprocessor(String header, Preprocessor preprocessor) {
+    private void addNewPreprocessor(String header, Preprocessor<Number> preprocessor) {
         Optional<DataManager<Double>> dataManager = getDataManager();
 
         if (dataManager.isPresent()) {
             dataManager.get().getDataset().get(header).addPreprocessor(preprocessor);
+
+            updateOrderOfOperationsLabels(header);
         }
     }
 
@@ -423,9 +555,47 @@ public class ProcessDataController implements Initializable {
 
             // Remove selected preprocessor and reapply the other active ones
             dataManager.get().getDataset().get(selectedHeader).removePreprocessor(transformType);
+
+            updateOrderOfOperationsLabels(selectedHeader);
         }
 
         featureSelected(lvFeatures.getSelectionModel().getSelectedIndex());
+    }
+
+    /**
+     * Updates the order of operations labels to the right of each preprocessor checkbox. The updated number reflects
+     * the order in which that preprocessor was applied.
+     *
+     * @param header Header to identify the current feature
+     */
+    private void updateOrderOfOperationsLabels(String header) {
+        Optional<DataManager<Double>> dataManager = getDataManager();
+
+        if (dataManager.isPresent()) {
+            List<Preprocessor<Number>> preprocessors = dataManager.get().getDataset().get(header).getPreprocessors();
+
+            for (int i=0; i < orderLabels.size(); i++) {
+                if (preprocessors.size() == 0) {
+                    orderLabels.get(i).setText("");
+                } else {
+                    for (int j=0; j < preprocessors.size(); j++) {
+                        Label preprocessorLabel = convertTransformTypeToLabel(preprocessors.get(j).getTransformType());
+
+                        if (preprocessorLabel != null) {
+                            if (orderLabels.get(i).equals(preprocessorLabel)) {
+                                orderLabels.get(i).setText("[" + (j+1) + "]");
+                                break;
+                            }
+                        }
+
+                        if (j+1 == preprocessors.size()) {
+                            orderLabels.get(i).setText("");
+                        }
+                    }
+
+                }
+            }
+        }
     }
 
     /**
@@ -449,6 +619,11 @@ public class ProcessDataController implements Initializable {
                 if (dataManager.isPresent()) {
                     ObservableList<String> items = FXCollections.observableArrayList(dataManager.get().getSampleHeaders());
                     lvFeatures.setItems(items);
+
+                    // Used to check if there is any missing values
+                    for (int i = 0 ; i < items.size(); i++) {
+                        updateModifiedText(i, items.get(i));
+                    }
                 }
             }
             // Otherwise clear the elements in the table
@@ -491,7 +666,7 @@ public class ProcessDataController implements Initializable {
             if (dataManager.get().getDataset().get(selectedHeader).isModified()) {
                 List<Preprocessor<Number>> preprocessors = dataManager.get().getDataset().get(selectedHeader).getPreprocessors();
 
-                for (Preprocessor preprocessor : preprocessors) {
+                for (Preprocessor<?> preprocessor : preprocessors) {
                     enableCheckBox(preprocessor.getTransformType());
                 }
             }
@@ -545,6 +720,26 @@ public class ProcessDataController implements Initializable {
     }
 
     /**
+     * Enables a specific pre-processing checkbox that is provided as input
+     *
+     * @param checkbox Selected checkbox
+     */
+    private void enablePreprocessingCheckBox(CheckBox checkbox) {
+        checkbox.setDisable(false);
+    }
+
+    /**
+     * Disables all pre-processing checkboxes at once.
+     */
+    private void disablePreprocessingCheckBoxes() {
+        cbSmoothData.setDisable(true);
+        cbHandleMissingValues.setDisable(true);
+        cbRemoveOutliers.setDisable(true);
+        cbNormalise.setDisable(true);
+        cbOffset.setDisable(true);
+    }
+
+    /**
      * Given one of the five pre-processing checkboxes, this method determines its corresponding TransformType.
      *
      * @param checkbox The checkbox that has been selected
@@ -562,8 +757,7 @@ public class ProcessDataController implements Initializable {
         }
         else if (checkbox == cbNormalise) {
             return TransformType.Normalised;
-        }
-        else {
+        } else {
             return TransformType.Offset;
         }
     }
@@ -571,7 +765,7 @@ public class ProcessDataController implements Initializable {
     /**
      * Given one of transform types, this method determines its corresponding function.
      *
-     * @param transformType
+     * @param transformType Given TransformType
      */
     private void convertTransformTypeToFunction(TransformType transformType) {
         switch (transformType) {
@@ -594,7 +788,35 @@ public class ProcessDataController implements Initializable {
             case Offset:
                 offsetDatasetFeature();
                 break;
+
         }
+    }
+
+    /**
+     * Converts a given TransformType to its corresponding order of operations label
+     *
+     * @param transformType Given TransformType
+     * @return Corresponding Label
+     */
+    private Label convertTransformTypeToLabel(TransformType transformType) {
+        switch (transformType) {
+            case Smoothed:
+                return lbSmoothOrder;
+
+            case MissingValuesHandled:
+                return lbHandleMissingValuesOrder;
+
+            case OutliersRemoved:
+                return lbRemoveOutliersOrder;
+
+            case Normalised:
+                return lbNormaliseOrder;
+
+            case Offset:
+                return lbOffsetValuesOrder;
+        }
+
+        return null;
     }
 
     /**
@@ -604,20 +826,19 @@ public class ProcessDataController implements Initializable {
      */
     private HandleMissingValues.Mode convertComboBoxIndexToMode(int index) {
         switch (index) {
-            /* Can be re-added once copyPreviousRow is fixed
             case 0:
-                return Mode.COPY_PREVIOUS_ROW;*/
-
-            case 0:
-                return HandleMissingValues.Mode.MEAN;
+                return HandleMissingValues.Mode.COPY_PREVIOUS_ROW;
 
             case 1:
-                return HandleMissingValues.Mode.MEDIAN;
+                return HandleMissingValues.Mode.MEAN;
 
             case 2:
-                return HandleMissingValues.Mode.ZERO;
+                return HandleMissingValues.Mode.MEDIAN;
 
             case 3:
+                return HandleMissingValues.Mode.ZERO;
+
+            case 4:
             default:
                 return HandleMissingValues.Mode.ONE;
         }
@@ -637,6 +858,20 @@ public class ProcessDataController implements Initializable {
         cbOffset.setSelected(false);
 
         resetCheckboxFlag = false;
+    }
+
+    /**
+     * If an input text field is empty and the user tries to submit the field, then this method replaces the empty field
+     * with a reset value (e.g. 0).
+     *
+     * @param textField The text field to test if empty
+     * @param resetValue The reset value if the text field is empty
+     */
+    private void resetEmptyTextField(TextField textField, String resetValue) {
+        if (textField.getText().isEmpty()) {
+            textField.setText(resetValue);
+            textField.positionCaret(resetValue.length());
+        }
     }
 
     /**
@@ -666,7 +901,7 @@ public class ProcessDataController implements Initializable {
     /**
      * <p>
      * Returns the workspace service of this controller
-     * </p>
+     *
      *
      * @return the workspace service of the controller
      */

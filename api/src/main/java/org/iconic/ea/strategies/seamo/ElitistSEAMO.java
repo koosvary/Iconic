@@ -1,35 +1,24 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.ea.strategies.seamo;
 
 import lombok.extern.log4j.Log4j2;
-import org.iconic.ea.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.ChromosomeFactory;
-import org.iconic.ea.operator.evolutionary.selection.RandomUniformSelector;
-import org.iconic.ea.operator.evolutionary.selection.Selector;
-import org.iconic.ea.operator.evolutionary.selection.SequentialSelector;
 import org.iconic.ea.operator.objective.MultiObjective;
-import org.iconic.ea.operator.objective.Objective;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -102,7 +91,7 @@ public class ElitistSEAMO<R extends Chromosome<T>, T extends Comparable<T>>
         // (unfortunately this makes the function impure)
         newPopulation.forEach(chromosome -> {
                     multiObjective.getGoals().parallelStream().forEach(goal ->
-                            addGlobal(getGlobals(), goal, goal.apply(chromosome)));
+                            addGlobal(getGlobals(), chromosome, goal));
                     multiObjective.apply(chromosome);
                 }
         );

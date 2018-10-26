@@ -1,40 +1,34 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.project.dataset;
 
 import javafx.beans.property.SimpleStringProperty;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
+import org.controlsfx.glyphfont.FontAwesome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.project.Displayable;
 
-import java.net.URI;
 import java.util.Optional;
 import java.util.UUID;
 
 /**
  * <p>
  * A model for datasets.
- * </p>
+ *
  */
 @Log4j2
 public class DatasetModel implements Displayable {
@@ -43,10 +37,8 @@ public class DatasetModel implements Displayable {
     private final SimpleStringProperty absolutePath;
     private final DataManager<Double> dataManager;
 
-
-
     /**
-     * <p>Constructs a new DatasetModel with the provided name.</p>
+     * <p>Constructs a new DatasetModel with the provided name.
      *
      * @param name         The name of the dataset
      */
@@ -58,7 +50,7 @@ public class DatasetModel implements Displayable {
     }
 
     /**
-     * <p>Constructs a new DatasetModel with the provided name and absolute path.</p>
+     * <p>Constructs a new DatasetModel with the provided name and absolute path.
      *
      * @param name         The name of the dataset
      * @param absolutePath The absolute path to the dataset
@@ -66,7 +58,7 @@ public class DatasetModel implements Displayable {
     public DatasetModel(@NonNull final String name, @NonNull final String absolutePath) {
         this.name = new SimpleStringProperty(name);
         this.absolutePath = new SimpleStringProperty(absolutePath);
-        this.dataManager = new DataManager<Double>(absolutePath);
+        this.dataManager = new DataManager<>(absolutePath);
         this.id = UUID.randomUUID();
     }
 
@@ -93,12 +85,12 @@ public class DatasetModel implements Displayable {
      * @return
      */
     @Override
-    public Optional<URI> getIcon() {
-        return Optional.empty();
+    public Optional<Enum<?>> getIcon() {
+        return Optional.of(FontAwesome.Glyph.DATABASE);
     }
 
     /**
-     * <p>Returns the name property of this dataset.</p>
+     * <p>Returns the name property of this dataset.
      *
      * @return The name property of the dataset
      */
@@ -107,7 +99,7 @@ public class DatasetModel implements Displayable {
     }
 
     /**
-     * <p>Returns the absolute path of this dataset.</p>
+     * <p>Returns the absolute path of this dataset.
      *
      * @return The absolute path to the dataset
      */
@@ -116,7 +108,7 @@ public class DatasetModel implements Displayable {
     }
 
     /**
-     * <p>Returns the absolute path property of this dataset.</p>
+     * <p>Returns the absolute path property of this dataset.
      *
      * @return The absolute path property of the dataset
      */
@@ -125,7 +117,7 @@ public class DatasetModel implements Displayable {
     }
 
     /**
-     * <p>Sets the name of this dataset to the provided value.</p>
+     * <p>Sets the name of this dataset to the provided value.
      *
      * @param name The new name for this dataset
      */
@@ -134,7 +126,7 @@ public class DatasetModel implements Displayable {
     }
 
     /**
-     * <p>Sets the absolute path to this dataset to the provided value.</p>
+     * <p>Sets the absolute path to this dataset to the provided value.
      *
      * @param absolutePath The new absolute path for this dataset
      */
@@ -143,7 +135,7 @@ public class DatasetModel implements Displayable {
     }
 
     /**
-     * <p>Returns the UUID of this dataset.</p>
+     * <p>Returns the UUID of this dataset.
      *
      * @return The universally unique identifier of the dataset
      */

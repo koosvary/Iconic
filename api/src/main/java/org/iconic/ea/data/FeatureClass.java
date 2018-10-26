@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.ea.data;
 
@@ -29,6 +23,7 @@ import java.util.List;
 public abstract class FeatureClass<T> {
     private boolean output;
     private boolean active;
+    private boolean missingValues;
 
     private List<T> originalSamples, modifiedSamples;
 
@@ -42,11 +37,16 @@ public abstract class FeatureClass<T> {
         this.originalSamples = new ArrayList<>();
         this.modifiedSamples = new ArrayList<>();
         this.preprocessors = new ArrayList<>();
+        this.missingValues = false;
     }
 
     public void addSampleValue(T value) {
         originalSamples.add(value);
         modifiedSamples.add(value);
+
+        if (value == null) {
+            setMissingValues(true);
+        }
     }
 
     public T getSampleValue(int row) {
@@ -102,23 +102,27 @@ public abstract class FeatureClass<T> {
     }
 
     /**
-     * Reapplies all currently active preprocessors to the original samples, and then updates modifised samples
+     * Reapplies all currently active preprocessors to the original samples, and then updates modified samples
      * with these values.
      */
     private void applyPreprocessors() {
         List<T> values = new ArrayList<>(originalSamples);
 
         if (!preprocessors.isEmpty()) {
-            // Apply the first preprocessor using the original samples
-            values = preprocessors.get(0).apply(values);
-
-            // Apply each subsequent preprocessor using the newly modified samples
-            for (int i=1; i < preprocessors.size(); i++) {
+            // Apply each subsequent preprocessor
+            for (int i=0; i < preprocessors.size(); i++) {
                 values = preprocessors.get(i).apply(values);
             }
         }
 
         modifiedSamples = values;
+
+        // Check if the new modified samples contain a missing value or not.
+        if (modifiedSamples.contains(null)) {
+            setMissingValues(true);
+        } else {
+            setMissingValues(false);
+        }
     }
 
     public boolean isOutput() {
@@ -152,26 +156,11 @@ public abstract class FeatureClass<T> {
         }
     }
 
-    /**
-     *  TEMPORARY DEBUG METHODS
-     */
-    private void printValues(List<T> values) {
-        String valueString = "";
-
-        for (int i=0; i < values.size(); i++) {
-            valueString += values.get(i) + " ";
-        }
-
-        System.out.println(valueString);
+    public void setMissingValues(boolean value) {
+        missingValues = value;
     }
 
-    private void printPreprocessors() {
-        String test="";
-
-        for (int i=0; i < preprocessors.size(); i++) {
-            test += " " + preprocessors.get(i).getTransformType();
-        }
-
-        System.out.println(test);
+    public boolean isMissingValues() {
+        return missingValues;
     }
 }

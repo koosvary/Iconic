@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.ea.chromosome.cartesian;
 
@@ -31,6 +25,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,13 +38,13 @@ import static org.mockito.Mockito.when;
 /**
  * <p>
  * A test suite for the {@link CartesianChromosomeFactory} class.
- * </p>
+ *
  *
  * <p>
  * This test suite ensures the following:
  * - the factory produces syntactically valid chromosomes
  * - the factory cannot be instantiated under invalid parameter combinations
- * </p>
+ *
  */
 @Log4j2
 class CartesianChromosomeFactoryTest {
@@ -73,18 +68,29 @@ class CartesianChromosomeFactoryTest {
     @MethodSource("badInitialisationTestProvider")
     @DisplayName("Test that a cartesian factory can't be initialised with invalid parameters")
     void badInitialisationTest(int numOutputs, int numInputs, int columns, int rows, int levelsBack) {
+        List<String> inputs = new ArrayList<>(numInputs);
+        for (int i = 0; i < numInputs; ++i) {
+            inputs.add(String.valueOf(i));
+        }
+
         assertThrows(
                 AssertionError.class,
-                () -> new CartesianChromosomeFactory<>(numOutputs, numInputs, columns, rows, levelsBack)
+                () -> new CartesianChromosomeFactory<>(numOutputs, inputs, columns, rows, levelsBack)
         );
     }
 
     @ParameterizedTest
     @MethodSource("getChromosomeTestProvider")
     @DisplayName("Test that a cartesian factory produces a well-formed chromosome")
+    @Disabled
     void getChromosomeTest(int numOutputs, int numInputs, int columns, int rows, int levelsBack) {
+        List<String> inputs = new ArrayList<>(numInputs);
+        for (int i = 0; i < numInputs; ++i) {
+            inputs.add(String.valueOf(i));
+        }
+
         CartesianChromosomeFactory<Double> supplier = new CartesianChromosomeFactory<>(
-                numOutputs, numInputs, columns, rows, levelsBack
+                numOutputs, inputs, columns, rows, levelsBack
         );
         supplier.addFunction(primitives);
         CartesianChromosome<Double> c = supplier.getChromosome();
@@ -146,14 +152,18 @@ class CartesianChromosomeFactoryTest {
     }
 
     /**
-     * <p>This test won't be needed after we change the data structure used to store primitives</p>
+     * <p>This test won't be needed after we change the data structure used to store primitives
      */
     @Test
     @DisplayName("Test that the add function method adds functions and correctly recalculates max arity")
     @Deprecated
     @Disabled
     void addFunctionTest() {
-        CartesianChromosomeFactory<Double> factory = new CartesianChromosomeFactory<>(1, 1, 1, 1, 1);
+        List<String> inputs = new ArrayList<>(1);
+        for (int i = 0; i < 1; ++i) {
+            inputs.add(String.valueOf(i));
+        }
+        CartesianChromosomeFactory<Double> factory = new CartesianChromosomeFactory<>(1, inputs, 1, 1, 1);
 
         assertEquals(factory.getMaxArity(), 0);
         factory.addFunction(primitives);
@@ -178,9 +188,9 @@ class CartesianChromosomeFactoryTest {
      * <p>Returns an n-tuple of arguments where the first argument is the number of outputs
      * in a chromosome, the second is the number of inputs, the third is the number of columns,
      * the fourth is the number of rows and the fifth is the maximum number of levels back
-     * that a connection in the chromosome can be made.</p>
+     * that a connection in the chromosome can be made.
      *
-     * <p>Every argument combination should be able to produce a chromosome.</p>
+     * <p>Every argument combination should be able to produce a chromosome.
      *
      * @return the number of outputs, inputs, columns, rows, and levels back
      */

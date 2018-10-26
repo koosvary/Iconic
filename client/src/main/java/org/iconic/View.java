@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic;
 
@@ -26,20 +20,21 @@ import javafx.fxml.FXMLLoader;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 
 /**
  * <p>
  * A view loads an FXML resource and  provides it with a dependency graph for constructing its controller.
- * </p>
+ *
  */
 public class View {
-    private final Injector injector;
+    private final Optional<Injector> injector;
     private final FXMLLoader loader;
 
     /**
-     * <p>Constructs a new View with the provided FXML resource URI and injector</p>
+     * <p>Constructs a new View with the provided FXML resource URI and injector
      *
      * @param uri      The location of the FXML resource
      * @param injector The dependency graph injector
@@ -49,9 +44,12 @@ public class View {
         final String defaultLocale = "en";
         final String defaultLocaleResource = "localisation.en_au";
 
-        this.injector = injector;
+        this.injector = (injector != null) ? Optional.of(injector) : Optional.empty();
         this.loader = new FXMLLoader(Thread.currentThread().getContextClassLoader().getResource(uri));
-        this.loader.setControllerFactory(getInjector()::getInstance);
+
+        this.injector.ifPresent(i ->
+            this.loader.setControllerFactory(i::getInstance)
+        );
 
         // Provide a localisation resource to use for i18n strings
         if (Locale.getDefault().getLanguage().startsWith(defaultLocale)) {
@@ -64,7 +62,7 @@ public class View {
     }
 
     /**
-     * <p>Loads the FXML resource</p>
+     * <p>Loads the FXML resource
      *
      * @param <T> Any type of scene node
      * @return The scene node contained by the FXML resource
@@ -75,16 +73,16 @@ public class View {
     }
 
     /**
-     * <p>Returns the injector for this view</p>
+     * <p>Returns the injector for this view
      *
      * @return the injector of the view
      */
-    public Injector getInjector() {
+    public Optional<Injector> getInjector() {
         return injector;
     }
 
     /**
-     * <p>Returns the FXML loader for this view</p>
+     * <p>Returns the FXML loader for this view
      *
      * @return the FXML loader of the view
      */

@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.ea.operator.evolutionary.mutation.gep;
 
@@ -26,9 +20,11 @@ import org.iconic.ea.chromosome.graph.FunctionNode;
 import org.iconic.ea.chromosome.graph.InputNode;
 import org.iconic.ea.chromosome.graph.Node;
 import org.iconic.ea.operator.evolutionary.mutation.Mutator;
+import org.iconic.ea.operator.primitive.Constant;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -63,12 +59,12 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
                 FunctionalPrimitive<R, R> function = functionalPrimitives.get(functionIndex);
                 expression.set(index, new FunctionNode<>(function));
             } else {
-                expression.set(index, generateFeatureOrConstant(numFeatures, p));
+                expression.set(index, generateFeatureOrConstant(numFeatures, p, chromosome.getFeatureLabels()));
             }
         }
         // Otherwise only pick an input variable or constant
         else {
-            expression.set(index, generateFeatureOrConstant(numFeatures, p));
+            expression.set(index, generateFeatureOrConstant(numFeatures, p, chromosome.getFeatureLabels()));
         }
 
         mutant.setGenome(expression);
@@ -79,18 +75,23 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
     /**
      * <p>
      * Generates either an input variable node or a constant node.
-     * </p>
+     *
      *
      * @param numFeatures The number of features that may be used as an input variable
      * @param p           The probability of picking an input variable versus a constant
      */
-    private Node<R> generateFeatureOrConstant(int numFeatures, double p) {
-//        if (Math.random() > p) {
-        final int index = ThreadLocalRandom.current().nextInt(numFeatures);
-        return new InputNode<>(index);
-//        } else {
-//            final double constant = (Math.random() * 100);
-//            expression.add(new FunctionNode<>((Constant<R>) new Constant<>(constant)));
-//        }
+    private Node<R> generateFeatureOrConstant(int numFeatures, double p, Map<Integer, String> featureLabels) {
+        if (Math.random() > p) {
+            final int index = ThreadLocalRandom.current().nextInt(numFeatures);
+            return new InputNode<>(index, featureLabels);
+        } else {
+            final double constant = ThreadLocalRandom.current().nextInt(10000) / 100.0;
+            return new FunctionNode<>((Constant<R>) new Constant<>(constant));
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Simple Expression Mutation";
     }
 }

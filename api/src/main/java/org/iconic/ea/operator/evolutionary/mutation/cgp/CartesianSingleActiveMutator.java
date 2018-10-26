@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.ea.operator.evolutionary.mutation.cgp;
 
@@ -33,14 +27,14 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * {@inheritDoc}
  * <p>This class implements single active gene mutation which randomly selects genes from the child genotype and mutates them
- * When it has mutated an active gene, it stops mutating and returns the child</p>
+ * When it has mutated an active gene, it stops mutating and returns the child
  */
 public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromosome<R>, R> {
 
     /**
      * {@inheritDoc}
      *
-     * <p>A mutant is created by mutating every gene in the chromosome until an active gene is mutated.</p>
+     * <p>A mutant is created by mutating every gene in the chromosome until an active gene is mutated.
      */
     @Override
     public CartesianChromosome<R> apply(final List<FunctionalPrimitive<R, R>> functionalPrimitives,
@@ -85,9 +79,9 @@ public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromos
                 );
                 //deciding whether we're going to mutate the gene's function, one of its connections,
                 // or just mutate an output instead
-                final int functionOrConnection = ThreadLocalRandom.current().nextInt(2);
+                final boolean mutateFunction = ThreadLocalRandom.current().nextInt(2) == 0;
                 //0 for function 1 for connection
-                if (functionOrConnection == 0) {
+                if (mutateFunction) {
                     //if it's function we just generate a random number within the number of functions
                     //the index of the gene will contain the function address
                     final int newPrimitive = ThreadLocalRandom.current().nextInt(numFunctions);
@@ -126,7 +120,7 @@ public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromos
     }
 
     /**
-     * <p>Returns the index to a randomly selected node within the connectivity restraints of the graph</p>
+     * <p>Returns the index to a randomly selected node within the connectivity restraints of the graph
      *
      * @param index      The index of the originating node
      * @param numRows    The number of rows in the graph
@@ -150,7 +144,7 @@ public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromos
     }
 
     /**
-     * <p>Returns the index to a randomly selected node within the connectivity restraints of the graph</p>
+     * <p>Returns the index to a randomly selected node within the connectivity restraints of the graph
      *
      * @param mutant The chromosome being mutated
      * @param index  The index of the gene being mutated
@@ -167,5 +161,10 @@ public class CartesianSingleActiveMutator<R> implements Mutator<CartesianChromos
             }
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return "Single Active Gene Mutation";
     }
 }

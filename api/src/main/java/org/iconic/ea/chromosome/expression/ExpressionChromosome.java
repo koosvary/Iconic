@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.ea.chromosome.expression;
 
@@ -35,7 +29,7 @@ import java.util.stream.Collectors;
 
 /**
  * {@inheritDoc}
- * <p>A chromosome that encodes an expression tree.</p>
+ * <p>A chromosome that encodes an expression tree.
  */
 @Log4j2
 public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromosome<T>, LinearChromosome<Node<T>>, Cloneable {
@@ -44,27 +38,29 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
     private final int headLength;
     private final int tailLength;
     private int treeIndex;
+    private Map<Integer, String> featureLabels;
 
     /**
      * <p>
      * Constructs a new expression chromosome with the provided head length, tail length, and number of features.
-     * </p>
+     *
      *
      * @param headLength  The length of the chromosome's head
      * @param tailLength  The length of the chromosome's tail
      * @param numFeatures The number of features that may be expressed by the chromosome
      */
-    public ExpressionChromosome(final int headLength, final int tailLength, final int numFeatures) {
+    public ExpressionChromosome(final int headLength, final int tailLength, final int numFeatures, Map<Integer, String> featureLabels) {
         super(numFeatures);
         this.headLength = headLength;
         this.tailLength = tailLength;
         this.treeIndex = 0;
+        this.featureLabels = featureLabels;
     }
 
     /**
      * <p>
      * Generates a phenotypic expression tree from the genotype.
-     * </p>
+     *
      */
     protected void generateTree() {
         // Reset the tree index
@@ -85,7 +81,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
     /**
      * <p>
      * A recursive helper function for {@link #generateTree()}, it fills the tree starting from the root.
-     * </p>
+     *
      *
      * @param root The root of the tree
      * @return the root with all of its child nodes populated
@@ -156,7 +152,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
     /**
      * <p>
      * Returns the length of this chromosome's head.
-     * </p>
+     *
      *
      * @return the length of the chromosome's head
      */
@@ -167,7 +163,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
     /**
      * <p>
      * Returns the length of this chromosome's tail
-     * </p>
+     *
      *
      * @return the length of the chromosome's tail
      */
@@ -186,7 +182,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
     /**
      * <p>
      * Sets the genome of this chromosome to the specified value.
-     * </p>
+     *
      *
      * @param genome The new genome of the chromosome
      */
@@ -203,10 +199,10 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
     /**
      * <p>
      * Sets the tree index of this chromosome to the specified value.
-     * </p>
+     *
      * <p>
      * The tree index is used to track the current active node of this chromosome's tree.
-     * </p>
+     *
      *
      * @param treeIndex The new tree index of the chromosome
      */
@@ -217,7 +213,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
     /**
      * <p>
      * Returns the tree index of this chromosome which tracks the current active node of the tree.
-     * </p>
+     *
      *
      * @return the tree index of the chromosome
      */
@@ -250,7 +246,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
                 .map(Node::clone)
                 .collect(Collectors.toList());
 
-        ExpressionChromosome<T> clone = new ExpressionChromosome<>(getHeadLength(), getTailLength(), getInputs());
+        ExpressionChromosome<T> clone = new ExpressionChromosome<>(getHeadLength(), getTailLength(), getInputs(), getFeatureLabels());
         clone.setGenome(genome);
 
         return clone;
@@ -259,7 +255,7 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
     /**
      * <p>
      * Returns the size of the Expression Chromosome.
-     * </p>
+     *
      * @return Returns the size of the chromosome.
      */
     public int getSize() {
@@ -291,5 +287,9 @@ public class ExpressionChromosome<T> extends Chromosome<T> implements TreeChromo
             );
         }
         return false;
+    }
+
+    public Map<Integer, String> getFeatureLabels() {
+        return featureLabels;
     }
 }

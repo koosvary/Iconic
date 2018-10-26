@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.ea.data.preprocessing;
 
@@ -31,16 +25,16 @@ public class Smooth extends Preprocessor<Number> {
     /**
      * <p>
      * Smooths the values of an Array. Alternatively known as "Moving Average Filtering".
-     * </p>
+     *
      *
      * <p>
      * Given an array of values, the function will take the 'N' neighbouring values on either side of the index, take
      * the sum of all these values, then update the value of the index to the average of the sum.
-     * </p>
+     *
      *
      * <p>
      * If the span window is outside of the Array bounds, the window will become the minimum reach of both sides.
-     * </p>
+     *
      *
      * @param values the array that will be smoothed
      */
@@ -66,7 +60,11 @@ public class Smooth extends Preprocessor<Number> {
             // Find the sum of all values in the span
             Double sum = 0.0;
             for (int j = i - span; j <= i + span; j++) {
-                sum += values.get(j).doubleValue();
+                Number value = values.get(j);
+                if (value == null) {
+                    continue;
+                }
+                sum += value.doubleValue();
             }
 
             // Average of the span size
@@ -84,7 +82,7 @@ public class Smooth extends Preprocessor<Number> {
     /**
      * <p>
      * Sets the window size of values to use when smoothing the array of data.
-     * </p>
+     *
      *
      * @param neighbourSize the number of neighbours on either side of each point to be used for smoothing
      */

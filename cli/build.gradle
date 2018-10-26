@@ -12,11 +12,13 @@ run {
 dependencies {
   compile project(':api')
   compile group: 'com.beust', name: 'jcommander', version: '1.72'
+  compile group: 'org.knowm.xchart', name: 'xchart', version: '3.5.2'
+  compile group: 'org.apache.commons', name: 'commons-csv', version: '1.6'
 }
 
 jar {
   baseName = 'iconic-cli'
-  version = '0.5.0'
+  version = '0.6.0'
 
   // The Java plugin doesn't specify any of the 
   // manifest attributes, so we need at least

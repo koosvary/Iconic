@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.ea.chromosome.cartesian;
 
@@ -31,7 +25,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * {@inheritDoc}
  *
  * <p>Chromosomes constructed by this factory form a graph, where the number of levels back determines
- * the maximum number of columns back that any node in the graph can connect to.</p>
+ * the maximum number of columns back that any node in the graph can connect to.
  *
  * @param <T> The type class of the data to pass through the chromosome
  * TODO: incorporate references to J. Miller's textbook
@@ -42,31 +36,35 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
     private final int columns;
     private final int rows;
     private final int levelsBack;
+    private final Map<Integer, String> featureLabels;
 
     /**
      * <p>Constructs a new cartesian chromosome factory that constructs cartesian chromosomes with the provided
-     * number of outputs, inputs, columns, rows, and levels back</p>
+     * number of outputs, inputs, columns, rows, and levels back
      *
      * @param numOutputs The number of outputs that will be used by the chromosome's constructed by the factory
-     * @param numInputs  The number of features that may be expressed by the chromosome's constructed by the factory
+     * @param inputs     The features that may be expressed by the chromosome's constructed by the factory
      * @param columns    The number of columns that will be used by the chromosome's constructed by the factory
      * @param rows       The number of rows that will be used by the chromosome's constructed by the factory
      * @param levelsBack The number of levels back that will be used by the chromosome's constructed by the factory
      */
-    public CartesianChromosomeFactory(int numOutputs, int numInputs, int columns, int rows, int levelsBack) {
+    public CartesianChromosomeFactory(int numOutputs, List<String> inputs, int columns, int rows, int levelsBack) {
         super();
 
         assert (numOutputs > 0);
-        assert (numInputs > 0);
+        assert (inputs.size() > 0);
         assert (columns > 0);
         assert (rows > 0);
         assert (levelsBack > 0);
 
         this.numOutputs = numOutputs;
-        this.numInputs = numInputs;
+        this.numInputs = inputs.size();
         this.columns = columns;
         this.rows = rows;
-        this.levelsBack = levelsBack;
+        this.levelsBack = levelsBack;this.featureLabels = new HashMap<>();
+        for (int i = 0; i < inputs.size(); ++i) {
+            featureLabels.put(i, inputs.get(i));
+        }
     }
 
     /**
@@ -80,15 +78,20 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
         return new CartesianChromosome<>(
                 getFunctionalPrimitives(), getNumInputs(), getColumns(), getRows(), getLevelsBack(),
                 encodeTail(getNumOutputs(), getNumInputs(), getColumns(), getRows()),
-                encodeBody(getNumInputs(), numPrimitives, getColumns(), getRows(), getLevelsBack())
+                encodeBody(getNumInputs(), numPrimitives, getColumns(), getRows(), getLevelsBack()),
+                getFeatureLabels()
         );
     }
 
+    public Map<Integer, String> getFeatureLabels() {
+        return featureLabels;
+    }
+
     /**
-     * <p>Encodes the tail of the chromosome using the provided values</p>
+     * <p>Encodes the tail of the chromosome using the provided values
      *
      * <p>A cartesian chromosome's tail is a list of connection genes, one for each output. A connection gene
-     * is an index to a node from within the chromosome's graph.</p>
+     * is an index to a node from within the chromosome's graph.
      *
      * @param numOutputs The number of outputs to encode
      * @param numInputs  The number of inputs to encode
@@ -133,10 +136,10 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
     }
 
     /**
-     * <p>Encodes the body of the chromosome using the provided values</p>
+     * <p>Encodes the body of the chromosome using the provided values
      *
      * <p>A cartesian chromosome's body is a list of input genes, followed by a list of function and connection
-     * genes, where each gene is an integer.</p>
+     * genes, where each gene is an integer.
      *
      * @param numInputs     The number of inputs to encode
      * @param numPrimitives The number of primitives that are available
@@ -175,10 +178,10 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
     }
 
     /**
-     * <p>Returns the graph size of chromosomes constructed by this factory</p>
+     * <p>Returns the graph size of chromosomes constructed by this factory
      *
      * <p>The size is determined by multiplying the number of columns by the number of rows.
-     * Inputs and outputs aren't counted as part of the graph.</p>
+     * Inputs and outputs aren't counted as part of the graph.
      *
      * @return the graph size of chromosomes constructed by the factory
      */
@@ -188,9 +191,9 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
 
     /**
      * <p>Returns the largest address in the graph that can be connected to for chromosomes constructed by this
-     * factory</p>
+     * factory
      *
-     * <p>The address upper bound is the graph size plus the number of inputs.</p>
+     * <p>The address upper bound is the graph size plus the number of inputs.
      *
      * @return the largest address in the graph that can be connected to for chromosomes constructed by the factory
      */
@@ -199,7 +202,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
     }
 
     /**
-     * <p>Returns the index to a randomly selected primitive from the provided number of options</p>
+     * <p>Returns the index to a randomly selected primitive from the provided number of options
      *
      * @param numPrimitives The number of primitives available
      * @return the index of a random primitive
@@ -210,7 +213,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
     }
 
     /**
-     * <p>Returns the index to a randomly selected node within the connectivity restraints of the graph</p>
+     * <p>Returns the index to a randomly selected node within the connectivity restraints of the graph
      *
      * @param index      The index of the originating node
      * @param numRows    The number of rows in the graph
@@ -235,7 +238,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
     /**
      * <p>
      * Returns the number of outputs supported by chromosomes constructed by this factory.
-     * </p>
+     *
      *
      * @return the number of outputs supported by chromosomes constructed by the factory
      */
@@ -244,7 +247,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
     }
 
     /**
-     * <p>Returns the number of features that chromosomes constructed by this factory can express</p>
+     * <p>Returns the number of features that chromosomes constructed by this factory can express
      *
      * @return the number of features that can be expressed by chromosomes constructed by the factory
      */
@@ -253,7 +256,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
     }
 
     /**
-     * <p>Returns the number of columns that chromosomes constructed by this factory will have</p>
+     * <p>Returns the number of columns that chromosomes constructed by this factory will have
      *
      * @return the number of columns within chromosomes constructed by the factory
      */
@@ -262,7 +265,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
     }
 
     /**
-     * <p>Returns the number of rows that chromosomes constructed by this factory will have</p>
+     * <p>Returns the number of rows that chromosomes constructed by this factory will have
      *
      * @return the number of rows within chromosomes constructed by the factory
      */
@@ -271,7 +274,7 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
     }
 
     /**
-     * <p>Returns the number of levels back that chromosomes constructed by this factory will adhere to</p>
+     * <p>Returns the number of levels back that chromosomes constructed by this factory will adhere to
      *
      * @return the number of levels back adhered to by chromosomes constructed by the factory
      */

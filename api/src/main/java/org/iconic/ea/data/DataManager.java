@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.ea.data;
 
@@ -34,15 +28,19 @@ public class DataManager<T> {
 
     private String fileName;
     private List<String> sampleHeaders;
+    private List<String> sampleInfo;
     private List<String> expectedOutputHeaders;
     private HashMap<String, FeatureClass<Number>> dataset;
     private int featureSize;
     private int sampleSize;
     private boolean containsHeader = false;
+    private boolean containsInfo = false;
+    private String infoPlaceholder = "Enter variable description here";
 
     public DataManager(){
         expectedOutputHeaders = new ArrayList<>();
         sampleHeaders = new ArrayList<>();
+        sampleInfo = new ArrayList<>();
         createNewDataset();
     }
 
@@ -50,6 +48,7 @@ public class DataManager<T> {
         this.fileName = fileName;
         expectedOutputHeaders = new ArrayList<>();
         sampleHeaders = new ArrayList<>();
+        sampleInfo = new ArrayList<>();
 
         try {
             importData(this.fileName);
@@ -64,6 +63,14 @@ public class DataManager<T> {
 
         try{
             fileWriter = new FileWriter(fileName);
+            if(containsInfo){
+                for(int j = 0; j < featureSize-1; j ++) {
+                    fileWriter.append(String.valueOf(sampleInfo.get(j)));
+                    fileWriter.append(",");
+                }
+                fileWriter.append(String.valueOf(sampleInfo.get(featureSize-1)));
+                fileWriter.append(System.getProperty("line.separator"));
+            }
             if(containsHeader){
                 for(int j = 0; j < featureSize-1; j ++) {
                     fileWriter.append(String.valueOf(sampleHeaders.get(j)));
@@ -99,9 +106,7 @@ public class DataManager<T> {
     private void importData(String fileName) throws IOException {
         this.fileName = fileName;
         sampleSize = 0;
-        dataset = new HashMap<>();
-
-        // log.traceEntry();
+        dataset = new LinkedHashMap<>();
 
         // Check if the file is on the classpath, otherwise check outside
         InputStream resource = Thread.currentThread()
@@ -136,27 +141,81 @@ public class DataManager<T> {
         }
 
         // Assume the delimiter is a comma, and set feature size
-        String[] split = line.split(",");
+        String[] split1 = line.split(",");
 
         // Try to determine if the datafile contains a header row
-        for (String header : split) {
+        for (String info : split1) {
+            try {
+                Double.parseDouble(info);
+            } catch (NumberFormatException e) {
+                //Check that it is not a missing number
+                if(!info.trim().isEmpty()) {
+                    containsHeader = true;
+                    // Read in the next line for later (needed because the `else` block already reads in the next line)
+                    line = getNextLineFromDataFile(sc);
+                    break;
+                }
+            }
+        }
+
+        // Assume the delimiter is a comma, and set feature size
+        String[] split2 = line.split(",");
+
+        // Try to determine if the datafile contains a header row
+        for (String header : split2) {
             try {
                 Double.parseDouble(header);
             } catch (NumberFormatException e) {
                 //Check that it is not a missing number
                 if(!header.trim().isEmpty()) {
-                    containsHeader = true;
+                    containsInfo = true;
+                    // Read in the next line for later (needed because the `else` block already reads in the next line)
+                    line = getNextLineFromDataFile(sc);
                     break;
                 }
             }
+        }
+
+        if(containsHeader && !containsInfo){
+            split2 = split1.clone();
+        }
+
+        if (containsInfo) {
+            int missingInfoCount = 1;
+            int infoCount = 0;
+            //Update headers setting missing values as column
+            while(infoCount < split1.length){
+                String info = split1[infoCount];
+                //If the header is missing
+                if(info.trim().isEmpty()) {
+                    sampleInfo.add("Missing" + missingInfoCount);
+                    missingInfoCount++;
+                }
+                else{
+                    sampleInfo.add(info);
+                }
+                infoCount++;
+            }
+            //Add missing headers from trailing commas
+            while(infoCount < featureSize){
+                sampleInfo.add("Blank" + missingInfoCount);
+                missingInfoCount++;
+                infoCount++;
+            }
+        }
+        else {
+            for (int i = 0; i < featureSize; i++) {
+                sampleInfo.add(infoPlaceholder);
+            }
+            containsInfo = true;
         }
 
         if (containsHeader) {
             int missingHeaderCount = 1;
             int headerCount = 0;
             //Update headers setting missing values as column
-            while(headerCount < split.length){
-                String header = split[headerCount];
+            while(headerCount < split2.length){
+                String header = split2[headerCount];
                 //If the header is missing
                 if(header.trim().isEmpty()) {
                     sampleHeaders.add("Missing" + missingHeaderCount);
@@ -179,9 +238,6 @@ public class DataManager<T> {
                 missingHeaderCount++;
                 headerCount++;
             }
-
-            // Read in the next line for later (needed because the `else` block already reads in the next line)
-            line = getNextLineFromDataFile(sc);
         } else {
             // Generate all the header names such as: A, B, C, ..., Z, AA, BB, etc
             for (int i = 0; i < featureSize; i++) {
@@ -194,7 +250,7 @@ public class DataManager<T> {
         expectedOutputHeaders.add(sampleHeaders.get(featureSize - 1));
 
         // Create a list of all features
-        ArrayList<FeatureClass<Number>> featureClasses = new ArrayList<>(featureSize);
+        List<FeatureClass<Number>> featureClasses = new ArrayList<>(featureSize);
 
         for (String aSampleHeader : sampleHeaders) {
             if (expectedOutputHeaders.contains(aSampleHeader)) {
@@ -221,14 +277,12 @@ public class DataManager<T> {
                     Double value = Double.parseDouble(values[i]);
                     featureClasses.get(i).addSampleValue(value);
                 }catch (Exception e) {
-                    //TODO Change 0 to null when handled
-                    featureClasses.get(i).addSampleValue(0.0);
+                    featureClasses.get(i).addSampleValue(null);
                 }
                 i++;
             }
             while(i < featureSize){
-                //TODO Change 0 to null when handled
-                featureClasses.get(i).addSampleValue(0.0);
+                featureClasses.get(i).addSampleValue(null);
                 i++;
             }
 
@@ -244,8 +298,10 @@ public class DataManager<T> {
         // log.info("Successfully Imported Dataset");
     }
 
-    public void addNewFeature(String sampleHeader, List<Number> feature){
+    public void addNewFeature(String info, String sampleHeader, List<Number> feature){
+        sampleInfo.add(info);
         sampleHeaders.add(sampleHeader);
+        sampleInfo.add(infoPlaceholder);
         expectedOutputHeaders.add(sampleHeader);
         FeatureClass<Number> featureClass = new NumericFeatureClass(true);
         for (Number number : feature) {
@@ -257,14 +313,20 @@ public class DataManager<T> {
 
     private void createNewDataset(){
         sampleSize = 0;
-        featureSize = 26;
-        dataset = new HashMap<>();
+        featureSize = 1;
+        dataset = new LinkedHashMap<>();
 
         // Generate all the header names such as: A, B, C, ..., Z, AA, BB, etc
         for (int i = 0; i < featureSize; i++) {
             sampleHeaders.add(intToHeader(i));
         }
         containsHeader = true;
+
+        // Generate all the header names such as: A, B, C, ..., Z, AA, BB, etc
+        for (int i = 0; i < featureSize; i++) {
+            sampleInfo.add(infoPlaceholder);
+        }
+        containsInfo = true;
 
         // Set the last column by default as the expected output
         expectedOutputHeaders.add(sampleHeaders.get(featureSize - 1));
@@ -371,14 +433,26 @@ public class DataManager<T> {
 
     public List<String> getSampleHeaders() { return sampleHeaders; }
 
+    public List<String> getSampleInfo() {
+        return sampleInfo;
+    }
+
     public boolean containsHeader() {
         return containsHeader;
+    }
+
+    public boolean containsInfo() {
+        return containsInfo;
     }
 
     public void updateHeaderAtIndex(int index, String newHeader){
         String oldHeader = sampleHeaders.get(index);
         sampleHeaders.set(index,newHeader);
         dataset.put(newHeader,dataset.remove(oldHeader));
+    }
+
+    public void updateInfoAtIndex(int index, String newHeader){
+        sampleInfo.set(index,newHeader);
     }
 
     // Reads in the function specified by user,
@@ -438,5 +512,24 @@ public class DataManager<T> {
         featureName = featureName.trim();
 
         return featureName;
+    }
+    
+    // Note(Meyer): This is only for single target expressions, not sure how we'd be graphing multi-objective anyway.
+    public List<Number> getExpectedOutputValues()
+    {
+        List<Number> expectedOutputValues = null;
+
+        for(String header : sampleHeaders)
+        {
+            FeatureClass fClass = dataset.get(header);
+
+            if(fClass.isOutput())
+            {
+                log.info(header + " is output");
+                expectedOutputValues = fClass.getSamples();
+            }
+        }
+
+        return expectedOutputValues;
     }
 }

@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.ea.chromosome.expression;
 
@@ -25,6 +19,7 @@ import org.iconic.ea.chromosome.ChromosomeFactory;
 import org.iconic.ea.chromosome.graph.FunctionNode;
 import org.iconic.ea.chromosome.graph.InputNode;
 import org.iconic.ea.chromosome.graph.Node;
+import org.iconic.ea.operator.primitive.Constant;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.*;
@@ -33,7 +28,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * {@inheritDoc}
  *
- * <P>Chromosomes constructed by this factory form an expression tree.</P>
+ * <P>Chromosomes constructed by this factory form an expression tree.
  *
  * @param <T> The type class of the data to pass through the chromosome
  */
@@ -41,17 +36,18 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
     private final int headLength;
     private final int numFeatures;
     private int tailLength;
+    private final Map<Integer, String> featureLabels;
 
     /**
      * <p>
      * Constructs a new expression chromosome factory that constructs expression chromosomes with the provided head
      * length, and number of features.
-     * </p>
+     *
      *
      * @param headLength  The length of the chromosome's head for chromosome's constructed by the factory
      * @param numFeatures The number of features that may be expressed by the chromosome's constructed by the factory
      */
-    public ExpressionChromosomeFactory(int headLength, int numFeatures) {
+    public ExpressionChromosomeFactory(int headLength, List<String> inputs, int numFeatures) {
         super();
 
         assert (headLength > 0);
@@ -60,6 +56,10 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
         this.headLength = headLength;
         this.numFeatures = numFeatures;
         this.tailLength = 0;
+        this.featureLabels = new HashMap<>();
+        for (int i = 0; i < inputs.size(); ++i) {
+            featureLabels.put(i, inputs.get(i));
+        }
     }
 
     /**
@@ -69,7 +69,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
         assert (getFunctionalPrimitives().size() > 0);
 
         ExpressionChromosome<T> chromosome = new ExpressionChromosome<>(
-                getHeadLength(), getTailLength(), getNumFeatures()
+                getHeadLength(), getTailLength(), getNumFeatures(), getFeatureLabels()
         );
 
         chromosome.setGenome(
@@ -87,7 +87,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
     /**
      * <p>
      * Returns the head length of chromosomes constructed by this factory.
-     * </p>
+     *
      *
      * @return the head length of chromosomes constructed by the factory
      */
@@ -98,7 +98,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
     /**
      * <p>
      * Returns the tail length of chromosomes constructed by this factory.
-     * </p>
+     *
      *
      * @return the tail length of chromosomes constructed by the factory
      */
@@ -109,7 +109,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
     /**
      * <p>
      * Returns the number of features that chromosomes constructed by this factory can express.
-     * </p>
+     *
      *
      * @return the number of features that can be expressed by chromosomes constructed by the factory
      */
@@ -150,7 +150,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
     /**
      * <p>
      *
-     * </p>
+     *
      *
      * @param headLength  The length of the expression's head
      * @param tailLength  The length of the expression's tail
@@ -174,22 +174,25 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
             } else {
                 // Feature Index
                 final int index = ThreadLocalRandom.current().nextInt(numFeatures);
-                expression.add(new InputNode<>(index));
+                expression.add(new InputNode<>(index, getFeatureLabels()));
             }
         }
 
         // Tail
         for (int i = 0; i < tailLength; i++) {
             final int index = ThreadLocalRandom.current().nextInt(numFeatures);
-//            if (Math.random() > p) {
-            expression.add(new InputNode<>(index));
-//            } else {
-//                final double constant = (Math.random() * 100);
-//                expression.add(new FunctionNode<>((Constant<T>) new Constant<>(constant)));
-//            }
+            if (Math.random() > p) {
+                expression.add(new InputNode<>(index, getFeatureLabels()));
+            } else {
+                final double constant = ThreadLocalRandom.current().nextInt(10000) / 100.0;
+                expression.add(new FunctionNode<>((Constant<T>) new Constant<>(constant)));
+            }
         }
 
         return expression;
     }
 
+    public Map<Integer, String> getFeatureLabels() {
+        return featureLabels;
+    }
 }

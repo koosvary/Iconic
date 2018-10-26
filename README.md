@@ -4,6 +4,94 @@
 
 ## What's New
 
+### Release Notes - 0.6.0 - October 25th, 2018
+
+#### General
+* Changed license to Apache 2.0
+* Searching once again supports constants/coefficients
+    * GEP searching only
+* Project tree now has lovely icons
+* Cartesian Genetic Programming has been implemented in the GUI and can now be selected as a search
+* Major overhaul of searches in projects
+    * The user can now add multiple searches to a project
+    * The user can select between Cartesian Genetic Programming and Gene Expression Programming search types
+* Various themes are now selectable via the menu bar
+    * Select “View” in the menu then select a theme
+* Availability of screens now depends on what you have selected in the project tree
+    * Selecting a project will only allow you to view “Input Data”
+    * Selecting a dataset will allow “Input Data” and “Process Data”
+    * Selecting a search will allow “Define Search”, “Start Search” and “Results”
+
+#### Input Data
+* Copy/paste into/from excel is now supported
+* Empty values are now denoted via blank cells instead of 0.0
+
+#### Process Data
+* Handle missing values has been implemented and supports the following
+    * Copy previous row
+    * Set to mean
+    * Set to median
+    * Set to 0
+    * Set to 1
+* Remove outliers is implemented. Values outside of range will be set to null (so handle missing values must be run after this)
+    * The user specifies a threshold. If the distance between a data point and the mean value is greater than the threshold * IQR (inter-quartile range), it is removed
+* Order of operations now displayed when selecting preprocessing functions
+    * First come first executed basis
+    * Hovering over the order number will display a tooltip explaining the order numbers
+* User can now specify a smoothing window in the GUI
+* Additional error checking for preprocessor inputs
+
+#### Define Search
+* Has two different views to support setting parameters of both search types
+    * CGP
+        * Target expression
+        * Dataset
+        * Error function (Mean squared error only)
+        * Population size
+        * Generations (set to 0 to run indefinitely)
+        * Number of outputs, columns, rows and levels back
+        * Mutation function and rate
+        * Building Blocks
+    * GEP
+        * Target expression
+        * Dataset
+        * Error function (Mean squared error only)
+        * Population size
+        * Generations (set to 0 to run indefinitely)
+        * Head length (1-5)
+        * Mutation function and rate (Simple expression mutation only)
+        * Crossover function and rate (Simple expression crossover only)
+        * Building blocks
+* Attempting to select a dataset with missing values will display an error prompt
+* Tool tips added when hovering over individual option labels
+* Building block names have been standardised to use words instead of symbols
+* A default set of building blocks are now enabled by default
+* Double-clicking a building block will toggle it on/off
+* Various cleanup and polish
+
+#### Start Search
+* Progress over time graph now updates in real time as the search progresses
+    * Significant speed improvements since last unofficial release to client
+* Search statistics now update in real time; additional information added to the statistics box
+* Console/log has been overhauled and now supports copying
+* Pausing and resuming a search is now supported properly
+    * The user may change the following when a search is paused:
+        * Mutation rate
+        * Crossover rate
+        * Number of generations
+        * Building blocks
+
+#### Results
+* Actual vs predicted plot implemented
+* User can right click -> copy an expression from the results table
+* Expressions are now simplified using a custom implementation
+* Expressions now display the full feature name instead of F1, F2, etc.
+* Results table now automatically sorts by lowest error
+* Various cleanup and polish
+
+#### Reports
+* Reports view is disabled as the feature is currently not implemented
+
 ### Release Notes - 0.5.0 - October 11th, 2018
 
 #### General

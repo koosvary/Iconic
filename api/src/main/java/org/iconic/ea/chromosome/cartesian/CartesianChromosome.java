@@ -1,23 +1,17 @@
 /**
- * Copyright (C) 2018 Iconic
+ * Copyright 2018 Iconic
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.iconic.ea.chromosome.cartesian;
 
@@ -26,21 +20,24 @@ import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.LinearChromosome;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.FeatureClass;
+import org.iconic.ea.operator.objective.Objective;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * {@inheritDoc}
  * <p>Cartesian chromosomes encodes a graph and can have different graph dimensions, controlled by
- * the number of columns, rows, and the amount of connectivity between nodes.</p>
+ * the number of columns, rows, and the amount of connectivity between nodes.
  *
  * <p>This implementation of a cartesian chromosome is based on feed-forward Cartesian Genetic Programming.
  * Cycles in the graph are prevented by restricting nodes in the graph such that they can only connect to
- * preceding nodes. The genome is linearly encoded and can support multiple outputs.</p>
+ * preceding nodes. The genome is linearly encoded and can support multiple outputs.
  */
 @Log4j2
 public class CartesianChromosome<T> extends Chromosome<T> implements LinearChromosome<Integer>, Cloneable {
+    private Map<Integer, String> featureLabels;
     private Map<Integer, List<Integer>> phenome;
     private List<Integer> outputs;
     private List<Integer> genome;
@@ -53,7 +50,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
 
     /**
      * <p>Constructs a new cartesian chromosome with the provided number of inputs, columns, rows, and
-     * maximum number of levels back that those nodes may connect to</p>
+     * maximum number of levels back that those nodes may connect to
      *
      * @param numInputs  The number of inputs that may be expressed by the chromosome
      * @param columns    The number of columns in the chromosome
@@ -67,13 +64,15 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
             int rows,
             int levelsBack,
             List<Integer> outputs,
-            List<Integer> genome
+            List<Integer> genome,
+            Map<Integer, String> featureLabels
     ) {
         super(numInputs);
         this.primitives = primitives;
         this.columns = columns;
         this.rows = rows;
         this.levelsBack = levelsBack;
+        this.featureLabels = featureLabels;
 
         assert (outputs.size() > 0);
 
@@ -98,7 +97,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the number of nodes in this chromosome's genome</p>
+     * <p>Returns the number of nodes in this chromosome's genome
      *
      * @return the number of nodes in the chromosome's genome
      */
@@ -107,7 +106,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Converts the node at the provided position in the graph to an index within the entire genome</p>
+     * <p>Converts the node at the provided position in the graph to an index within the entire genome
      *
      * @param node     the position of the node to produce an index for
      * @param inputs   the number of inputs in the chromosome the node belongs to
@@ -120,7 +119,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
 
 
     /**
-     * <p>Generates the output of all active nodes in this chromosome</p>
+     * <p>Generates the output of all active nodes in this chromosome
      *
      * @param activeNodes the active nodes in the chromosome to evaluate grouped by output node
      * @param genome      the genome of the chromosome
@@ -190,7 +189,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the active nodes for each output in the genome, a.k.a. the phenotype</p>
+     * <p>Returns the active nodes for each output in the genome, a.k.a. the phenotype
      *
      * @param inputs     The number of inputs in the chromosome
      * @param genome     The genome of the chromosome
@@ -289,7 +288,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns a human-readable representation of a node in this chromosome</p>
+     * <p>Returns a human-readable representation of a node in this chromosome
      *
      * @param node       the node to format
      * @param inputs     the number of inputs in the chromosome
@@ -303,11 +302,11 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         final StringBuilder outputBuilder = new StringBuilder();
         final int index = nodeToIndex(node, inputs, maxArity);
 
-        // FOr now just print F + the input number for input nodes
-        // TODO: change to feature labels
         if (index < inputs) {
-            outputBuilder.append("F").append(node);
+            String label = getFeatureLabels().get(node);
+            outputBuilder.append(label);
         }
+
         // Any other node is treated as a function node
         else {
             final int functionGene = genome.get(index);
@@ -341,7 +340,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     /**
      * {@inheritDoc}
      *
-     * <p>The string returned is a human-readable representation of this chromosome's phenotype</p>
+     * <p>The string returned is a human-readable representation of this chromosome's phenotype
      */
     @Override
     public String toString() {
@@ -351,8 +350,8 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         getOutputs().forEach(output -> {
             // Append its phenotype
             outputBuilder
-                    .append("\nOutput = ")
-                    .append(formatNode(output, getInputs(), getMaxArity(), getPrimitives()));
+                    .append(formatNode(output, getInputs(), getMaxArity(), getPrimitives()))
+                    .append("\n");
         });
 
         return outputBuilder.toString();
@@ -391,7 +390,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Sets the genome of this chromosome to the specified value</p>
+     * <p>Sets the genome of this chromosome to the specified value
      *
      * @param genome The new genome of the chromosome
      */
@@ -403,7 +402,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Sets the outputs of this chromosome to the specified value</p>
+     * <p>Sets the outputs of this chromosome to the specified value
      *
      * @param outputs The new outputs of the chromosome
      */
@@ -415,7 +414,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Sets the phenome of this chromosome to the specified value</p>
+     * <p>Sets the phenome of this chromosome to the specified value
      *
      * @param phenome The new phenome of the chromosome
      */
@@ -430,7 +429,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the phenome of this chromosome</p>
+     * <p>Returns the phenome of this chromosome
      *
      * @return the phenome of the chromosome
      */
@@ -452,7 +451,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the maximum arity of the primitives available to this chromosome</p>
+     * <p>Returns the maximum arity of the primitives available to this chromosome
      *
      * @return the maximum arity of the primitive set used by the chromosome
      */
@@ -462,7 +461,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
 
 
     /**
-     * <p>Returns the number of outputs used by this chromosome</p>
+     * <p>Returns the number of outputs used by this chromosome
      *
      * @return the number of outputs used by the chromosome
      */
@@ -471,7 +470,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the number of columns used by this chromosome</p>
+     * <p>Returns the number of columns used by this chromosome
      *
      * @return the number of columns used by the chromosome
      */
@@ -480,7 +479,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the number of rows used by this chromosome</p>
+     * <p>Returns the number of rows used by this chromosome
      *
      * @return the number of rows used by the chromosome
      */
@@ -489,7 +488,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the maximum number of levels back that nodes in this chromosome may connect to</p>
+     * <p>Returns the maximum number of levels back that nodes in this chromosome may connect to
      *
      * @return the maximum number of levels back used by the chromosome
      */
@@ -498,7 +497,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Returns the primitives available to this chromosome</p>
+     * <p>Returns the primitives available to this chromosome
      *
      * @return the primitives available to the chromosome
      */
@@ -507,7 +506,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     }
 
     /**
-     * <p>Sets the primitives available to this chromosome to the provided value</p>
+     * <p>Sets the primitives available to this chromosome to the provided value
      *
      * @param primitives The new primitive set to make available to the chromosome
      */
@@ -521,7 +520,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     @Override
     public CartesianChromosome<T> clone() {
         CartesianChromosome<T> clone = new CartesianChromosome<>(
-                getPrimitives(), getInputs(), getColumns(), getRows(), getLevelsBack(), getOutputs(), null
+                getPrimitives(), getInputs(), getColumns(), getRows(), getLevelsBack(), getOutputs(), null, getFeatureLabels()
         );
 
         clone.setGenome(getGenome());
@@ -533,11 +532,15 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         return clone;
     }
 
+    public Map<Integer, String> getFeatureLabels() {
+        return featureLabels;
+    }
+
     /**
      * {@inheritDoc}
      */
     public int getSize() {
-        return outputs.size() + phenome.size();
+        return getPhenome().size() + getPhenome().values().stream().mapToInt(List::size).sum();
     }
 
     /**
