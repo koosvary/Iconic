@@ -28,6 +28,7 @@ import org.iconic.ea.strategies.cgp.CartesianGeneticProgramming;
 import org.iconic.project.search.io.SearchExecutor;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * {@inheritDoc}
@@ -68,9 +69,18 @@ public class CgpConfigurationModel extends SearchConfigurationModel {
             return null;
         }
 
+        List<String> inputs = new ArrayList<>(
+                getDatasetModel().get().getDataManager().getDataset().keySet()
+        );
+        inputs.remove(inputs.size() - 1);
+
+        for (int i = 0; i < inputs.size(); i++) {
+            inputs.set(i, inputs.get(i).replaceAll("[^A-Za-z0-9]", ""));
+        }
+
         CartesianChromosomeFactory<Double> supplier =
                 new CartesianChromosomeFactory<>(
-                        getNumOutputs(), getDatasetModel().get().getDataManager().getFeatureSize() - 1,
+                        getNumOutputs(), inputs,
                         getNumColumns(), getNumRows(), getNumLevelsBack()
                 );
         supplier.addFunction(new ArrayList<>(getEnabledPrimitives()));

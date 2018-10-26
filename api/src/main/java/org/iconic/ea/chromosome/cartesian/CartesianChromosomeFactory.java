@@ -36,31 +36,35 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
     private final int columns;
     private final int rows;
     private final int levelsBack;
+    private final Map<Integer, String> featureLabels;
 
     /**
      * <p>Constructs a new cartesian chromosome factory that constructs cartesian chromosomes with the provided
      * number of outputs, inputs, columns, rows, and levels back
      *
      * @param numOutputs The number of outputs that will be used by the chromosome's constructed by the factory
-     * @param numInputs  The number of features that may be expressed by the chromosome's constructed by the factory
+     * @param inputs     The features that may be expressed by the chromosome's constructed by the factory
      * @param columns    The number of columns that will be used by the chromosome's constructed by the factory
      * @param rows       The number of rows that will be used by the chromosome's constructed by the factory
      * @param levelsBack The number of levels back that will be used by the chromosome's constructed by the factory
      */
-    public CartesianChromosomeFactory(int numOutputs, int numInputs, int columns, int rows, int levelsBack) {
+    public CartesianChromosomeFactory(int numOutputs, List<String> inputs, int columns, int rows, int levelsBack) {
         super();
 
         assert (numOutputs > 0);
-        assert (numInputs > 0);
+        assert (inputs.size() > 0);
         assert (columns > 0);
         assert (rows > 0);
         assert (levelsBack > 0);
 
         this.numOutputs = numOutputs;
-        this.numInputs = numInputs;
+        this.numInputs = inputs.size();
         this.columns = columns;
         this.rows = rows;
-        this.levelsBack = levelsBack;
+        this.levelsBack = levelsBack;this.featureLabels = new HashMap<>();
+        for (int i = 0; i < inputs.size(); ++i) {
+            featureLabels.put(i, inputs.get(i));
+        }
     }
 
     /**
@@ -74,8 +78,13 @@ public class CartesianChromosomeFactory<T> extends ChromosomeFactory<CartesianCh
         return new CartesianChromosome<>(
                 getFunctionalPrimitives(), getNumInputs(), getColumns(), getRows(), getLevelsBack(),
                 encodeTail(getNumOutputs(), getNumInputs(), getColumns(), getRows()),
-                encodeBody(getNumInputs(), numPrimitives, getColumns(), getRows(), getLevelsBack())
+                encodeBody(getNumInputs(), numPrimitives, getColumns(), getRows(), getLevelsBack()),
+                getFeatureLabels()
         );
+    }
+
+    public Map<Integer, String> getFeatureLabels() {
+        return featureLabels;
     }
 
     /**

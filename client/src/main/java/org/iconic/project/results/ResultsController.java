@@ -243,9 +243,10 @@ public class ResultsController implements Initializable {
         List<ResultDisplay> resultDisplays = new ArrayList<>();
         for (Map.Entry<Integer, Chromosome<?>> entry : storage.getSolutions().entrySet()) {
             Chromosome<?> result = entry.getValue();
-            resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), result.simplifyExpression(
-                    result.getExpression(result.toString(), new ArrayList<>(model.getPrimitives().keySet()), true)
-            )));
+            String expr = result.toString();
+            expr = result.getExpression(expr, new ArrayList<>(model.getPrimitives().keySet()), true);
+            expr = result.simplifyExpression(expr);
+            resultDisplays.add(new ResultDisplay(result.getSize(), result.getFitness(), expr));
         }
 
         // Sort by error
