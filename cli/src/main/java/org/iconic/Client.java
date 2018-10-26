@@ -96,9 +96,18 @@ public class Client {
             log.info("Feature Size: {}", () -> featureSize - 1);
             log.info("Sample Size: {}", () -> sampleSize);
 
-            // Create a supplier for chromosomes
+            // Create a supplier for Gene Expression Programming chromosomes
+            List<String> inputs = new ArrayList<>(featureSize - 1);
+            for (int i = 0; i < featureSize - 1; ++i) {
+                inputs.add(String.valueOf(i));
+            }
+
+            for (int i = 0; i < inputs.size(); i++) {
+                inputs.set(i, inputs.get(i).replaceAll("[^A-Za-z0-9]", ""));
+            }
+
             ChromosomeFactory<CartesianChromosome<Double>, Double> supplier = new CartesianChromosomeFactory<>(
-                    outputs, featureSize - 1, columns, rows, levelsBack
+                    outputs, inputs, columns, rows, levelsBack
             );
 
             // Add all of the functions the chromosomes can use

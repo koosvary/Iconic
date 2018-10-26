@@ -106,9 +106,7 @@ public class DataManager<T> {
     private void importData(String fileName) throws IOException {
         this.fileName = fileName;
         sampleSize = 0;
-        dataset = new HashMap<>();
-
-        // log.traceEntry();
+        dataset = new LinkedHashMap<>();
 
         // Check if the file is on the classpath, otherwise check outside
         InputStream resource = Thread.currentThread()
@@ -252,7 +250,7 @@ public class DataManager<T> {
         expectedOutputHeaders.add(sampleHeaders.get(featureSize - 1));
 
         // Create a list of all features
-        ArrayList<FeatureClass<Number>> featureClasses = new ArrayList<>(featureSize);
+        List<FeatureClass<Number>> featureClasses = new ArrayList<>(featureSize);
 
         for (String aSampleHeader : sampleHeaders) {
             if (expectedOutputHeaders.contains(aSampleHeader)) {
@@ -316,7 +314,7 @@ public class DataManager<T> {
     private void createNewDataset(){
         sampleSize = 0;
         featureSize = 1;
-        dataset = new HashMap<>();
+        dataset = new LinkedHashMap<>();
 
         // Generate all the header names such as: A, B, C, ..., Z, AA, BB, etc
         for (int i = 0; i < featureSize; i++) {

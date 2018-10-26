@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
  */
 @Log4j2
 public class CartesianChromosome<T> extends Chromosome<T> implements LinearChromosome<Integer>, Cloneable {
+    private Map<Integer, String> featureLabels;
     private Map<Integer, List<Integer>> phenome;
     private List<Integer> outputs;
     private List<Integer> genome;
@@ -63,13 +64,15 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
             int rows,
             int levelsBack,
             List<Integer> outputs,
-            List<Integer> genome
+            List<Integer> genome,
+            Map<Integer, String> featureLabels
     ) {
         super(numInputs);
         this.primitives = primitives;
         this.columns = columns;
         this.rows = rows;
         this.levelsBack = levelsBack;
+        this.featureLabels = featureLabels;
 
         assert (outputs.size() > 0);
 
@@ -299,11 +302,11 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         final StringBuilder outputBuilder = new StringBuilder();
         final int index = nodeToIndex(node, inputs, maxArity);
 
-        // FOr now just print F + the input number for input nodes
-        // TODO: change to feature labels
         if (index < inputs) {
-            outputBuilder.append("F").append(node);
+            String label = getFeatureLabels().get(node);
+            outputBuilder.append(label);
         }
+
         // Any other node is treated as a function node
         else {
             final int functionGene = genome.get(index);
@@ -343,21 +346,13 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     public String toString() {
         StringBuilder outputBuilder = new StringBuilder();
 
-        if (getOutputs().size() > 1) {
-            // For each output
-            List<String> outputs = getOutputs().stream()
-                    .map(output -> formatNode(output, getInputs(), getMaxArity(), getPrimitives()))
-                    .map(s -> s.toString().trim())
-                    .collect(Collectors.toList());
-
+        // For each output
+        getOutputs().forEach(output -> {
+            // Append its phenotype
             outputBuilder
-                    .append("ADD ( ")
-                    .append(String.join(", ", outputs))
-                    .append(" ) ");
-        } else if (getOutputs().size() == 1) {
-            outputBuilder
-                    .append(formatNode(getOutputs().get(0), getInputs(), getMaxArity(), getPrimitives()));
-        }
+                    .append(formatNode(output, getInputs(), getMaxArity(), getPrimitives()))
+                    .append("\n");
+        });
 
         return outputBuilder.toString();
     }
@@ -525,7 +520,7 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
     @Override
     public CartesianChromosome<T> clone() {
         CartesianChromosome<T> clone = new CartesianChromosome<>(
-                getPrimitives(), getInputs(), getColumns(), getRows(), getLevelsBack(), getOutputs(), null
+                getPrimitives(), getInputs(), getColumns(), getRows(), getLevelsBack(), getOutputs(), null, getFeatureLabels()
         );
 
         clone.setGenome(getGenome());
@@ -537,13 +532,15 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
         return clone;
     }
 
+    public Map<Integer, String> getFeatureLabels() {
+        return featureLabels;
+    }
+
     /**
      * {@inheritDoc}
      */
     public int getSize() {
-        return getPhenome().size()
-                + getActiveNodes(getInputs(), getGenome(), getOutputs(), getPrimitives())
-                .values().stream().mapToInt(List::size).sum();
+        return getPhenome().size() + getPhenome().values().stream().mapToInt(List::size).sum();
     }
 
     /**
@@ -563,9 +560,8 @@ public class CartesianChromosome<T> extends Chromosome<T> implements LinearChrom
             return true;
         } else if (o instanceof CartesianChromosome) {
             CartesianChromosome<?> other = (CartesianChromosome<?>) o;
-            return (this.isChanged() || other.isChanged())
-                ? Objects.deepEquals(this.getGenome(), other.getGenome())
-                : Objects.deepEquals(this.getPhenome(), other.getPhenome());
+            return Objects.deepEquals(this.getPhenome(), other.getPhenome()) &&
+                    Objects.equals(this.isChanged(), other.isChanged());
         }
         return false;
     }

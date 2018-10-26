@@ -101,7 +101,7 @@ public class CartesianChromosomeTest {
         CartesianChromosome<Double> chrome = new CartesianChromosome<>(Arrays.asList(
                 new Addition(), new Subtraction(), new Multiplication(), new Division(),
                 new Power(), new Root(), new Sin(), new Cos(), new Tan()
-        ),0,0,0,0, Arrays.asList(0), null);
+        ),0,0,0,0, Arrays.asList(0), null, null);
         String expected = "TAN(TAN(((((COS(F9))POW((F0)ROOT(F2)))ADD((F4)MUL(F2)))DIV(COS(F9)))ROOT(SIN(SIN(SIN(F0))))))";
         String result = chrome.getExpression("TAN ( TAN ( ROOT ( DIV ( ADD ( POW ( COS ( F9 ) , ROOT ( F0, F2 )  )" +
                         " , MUL ( F4, F2 )  ) , COS ( F9 )  ) , SIN ( SIN ( SIN ( F0 )  )  )  )  )  ) ",
@@ -114,15 +114,20 @@ public class CartesianChromosomeTest {
     /**
      * <p>Helper method for fetching a chromosome
      *
-     * @param inputs
+     * @param numInputs
      * @param outputs
      * @param primitives
      * @return
      */
-    private CartesianChromosome<Double> getChromosome(int inputs, List<Integer> outputs, List<FunctionalPrimitive<Double, Double>> primitives) {
+    private CartesianChromosome<Double> getChromosome(int numInputs, List<Integer> outputs, List<FunctionalPrimitive<Double, Double>> primitives) {
         final int columns = 2;
         final int rows = 2;
         final int levelsBack = 2;
+
+        List<String> inputs = new ArrayList<>(numInputs);
+        for (int i = 0; i < numInputs; ++i) {
+            inputs.add(String.valueOf(i));
+        }
 
         CartesianChromosomeFactory<Double> supplier = new CartesianChromosomeFactory<>(
                 outputs.size(), inputs, columns, rows, levelsBack
@@ -218,8 +223,13 @@ public class CartesianChromosomeTest {
         primitives.add(new Subtraction());
         primitives.add(new Sin());
 
+        List<String> inputs = new ArrayList<>(10);
+        for (int i = 0; i < 10; ++i) {
+            inputs.add(String.valueOf(i));
+        }
+
         CartesianChromosomeFactory<Double> supplier = new CartesianChromosomeFactory<>(
-                3, 10, 10, 10, 10
+                3, inputs, 10, 10, 10
         );
         supplier.addFunction(primitives);
 

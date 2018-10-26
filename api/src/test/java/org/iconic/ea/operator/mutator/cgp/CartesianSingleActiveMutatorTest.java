@@ -49,8 +49,13 @@ public class CartesianSingleActiveMutatorTest {
         primitives.add(new Subtraction());
         primitives.add(new Sin());
 
+        List<String> inputs = new ArrayList<>(10);
+        for (int i = 0; i < 10; ++i) {
+            inputs.add(String.valueOf(i));
+        }
+
         CartesianChromosomeFactory<Double> supplier = new CartesianChromosomeFactory<>(
-            4, 10, 10, 10, 10
+            4, inputs, 10, 10, 10
         );
         supplier.addFunction(primitives);
 
