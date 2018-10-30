@@ -1,12 +1,12 @@
 /**
  * Copyright 2018 Iconic
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -77,6 +79,9 @@ public class DefineSearchController implements Initializable, DefineSearchServic
     public TableView<Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty>> blockDisplayTableView;
 
     @FXML
+    public Button enableAll;
+
+    @FXML
     public TextArea selectedBlockDisplayDescription;
 
     private HashMap<String, String> functionDefinitions;
@@ -128,6 +133,15 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         complexityCol.setCellValueFactory(cellData -> cellData.getValue().getKey().getComplexity());
 
         blockDisplayTableView.getColumns().addAll(enabledCol, nameCol, complexityCol);
+
+        enableAll.setOnAction(event -> {
+            boolean setBoolean = enableAll.getText().compareTo("Enable All") == 0;
+            for (Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty> item :
+                    blockDisplayTableView.getItems()) {
+                item.getValue().set(setBoolean);
+            }
+            enableAll.setText(setBoolean?"Disable All":"Enable All");
+        });
 
         // Listener for the description pane
         blockDisplayTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -367,7 +381,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
                 String functionDefinition = tfTargetExpression.getText();
 
-                if(dataset.isPresent()) {
+                if (dataset.isPresent()) {
                     setFunction();
                     dataset.get().defineFunction(functionDefinition);
                 }

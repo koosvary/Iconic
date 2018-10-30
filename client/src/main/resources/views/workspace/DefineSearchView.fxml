@@ -81,7 +81,10 @@
 
             <HBox spacing="10">
                 <VBox spacing="10">
-                    <Label labelFor="$blockDisplayTableView" text="Enabled Building Blocks"/>
+                    <HBox spacing="10">
+                        <Label labelFor="$blockDisplayTableView" text="Enabled Building Blocks"/>
+                        <Button fx:id="enableAll" text="Enable All"/>
+                    </HBox>
                     <TableView fx:id="blockDisplayTableView"/>
                 </VBox>
                 <VBox spacing="10">
