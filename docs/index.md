@@ -10,34 +10,44 @@
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Overview](#overview)
-  1. [Conventions](#conventions)
-  2. [Cautions & Warnings](#cautions-warnings)
+    1. [Conventions](#conventions)
+    2. [Cautions & Warnings](#cautions-warnings)
 3. [Getting Started](#getting-started)
-  1. [Set-up Considerations](#set-up-considerations)
-  2. [User Access Considerations](#user-access-considerations)
-  3. [Accessing the System](#accessing-the-system)
-  4. [System Organization & Navigation](#system-organization-navigation)
-  5. [Exiting the System](#exiting-the-system)
+    1. [Set-up Considerations](#set-up-considerations)
+    2. [User Access Considerations](#user-access-considerations)
+    3. [Accessing the System](#accessing-the-system)
+    4. [System Organization & Navigation](#system-organization-navigation)
+    5. [Exiting the System](#exiting-the-system)
 4. [Using the System](#using-the-system)
-  1. [Load, View, & Edit a Dataset](#load-view-edit-a-dataset)
-  2. [Pre-Process Data](#pre-process-data)
-  3. [Define Search](#define-search)
-  4. [Start Search](#start-search)
-  5. [Results](#results)
-  1. [<Given Function/Feature>](#given-function-feature)
-  1. [<Given Sub-Function/Sub-Feature>](#given-sub-function-sub-feature)
-5. [Troubleshooting & Support](#troubleshooting-support)
-  1. [Error Messages](#error-messages)
-  2. [Special Considerations](#special-considerations)
-  3. [Support](#support)
-6. [Appendix](#appendix)
-  1. A: Record of Changes
-  2. B: Acronyms
-  3. C: Glossary
-  4. D: Referenced Documents
-  5. E: Approvals
-  6. F: Additional Appendices
-  7. G: Notes / Instructions
+    1. [Load, View, & Edit a Dataset](#load-view-edit-a-dataset)
+    2. [Pre-Process Data](#pre-process-data)
+    3. [Define Search](#define-search)
+    4. [Start Search](#start-search)
+    5. [Results](#results)
+    6. [<Given Function/Feature>](#given-function-feature)
+    7. [<Given Sub-Function/Sub-Feature>](#given-sub-function-sub-feature)
+5. [Using the Command-Line](#using-the-command-line)
+    1. [Available Options](#available-options)
+        1. [Cartesian Genetic Programming](#cartesian-genetic-programming)
+        2. [Gene Expression Programming](#gene-expression-programming)
+    2. [Loading a Dataset](#loading-a-dataset)
+    3. [Pre-Processing a Dataset](#pre-processing-a-dataset)
+    4. [Preparing a Chromosome Supplier](#preparing-a-chromosome-supplier)
+    5. [Preparing an Evolutionary Algorithm](#preparing-an-evolutionary-algorithm)
+    6. [Starting a Search](#starting-a-search)
+    7. [Gathering the Results](#gathering-the-results)
+6. [Troubleshooting & Support](#troubleshooting-support)
+    1. [Error Messages](#error-messages)
+    2. [Special Considerations](#special-considerations)
+    3. [Support](#support)
+7. [Appendix](#appendix)
+    1. A: Record of Changes
+    2. B: Acronyms
+    3. C: Glossary
+    4. D: Referenced Documents
+    5. E: Approvals
+    6. F: Additional Appendices
+    7. G: Notes / Instructions
 
 ## Introduction
 *Instructions: Provide full identifying information for the automated system, application, or situation for which the User Manual applies, including as applicable, identifications number(s), title(s)/name(s), abbreviation(s)/acronym(s), part number(s), version number(s), and release number(s). Summarize the purpose of the document, the scope of activities that resulted in its development, the intended audience for the document, and expected evolution of the document. Also describe any security or privacy considerations associated with use of the User Manual.*
@@ -516,6 +526,14 @@ This is where results and information gathered from the search will be displayed
 
 #### <Given Sub-Function/Sub-Feature>
 *Instructions: Include additional sub-sections as necessary for system sub-functions or sub-features, if they exist.*
+
+## Using the Command-Line Interface
+
+### Available Options
+
+#### Cartesian Genetic Programming
+
+#### Gene Expression Programming
 
 ## Troubleshooting & Support
 *Instructions: Describe all recovery and error correction procedures, including error conditions that may be generated and corrective actions that may need to be taken. Organize the information in sub-sections as appropriate. The following are common sub-sections that may be included as appropriate.*
