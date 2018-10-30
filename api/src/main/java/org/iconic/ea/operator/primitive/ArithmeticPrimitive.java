@@ -22,4 +22,8 @@ public class ArithmeticPrimitive<T extends Number> extends FunctionalPrimitive<D
     public ArithmeticPrimitive(final Function<List<Double>, Double> lambda, final int arity, final String symbol, final String description, final Integer defaultComplexity) {
         super(lambda, arity, symbol, description, defaultComplexity);
     }
+
+    public ArithmeticPrimitive(final Function<List<Double>, Double> lambda, final int arity, final String symbol, final String description) {
+        super(lambda, arity, symbol, description);
+    }
 }

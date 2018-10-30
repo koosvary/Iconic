@@ -19,7 +19,7 @@ public class Exponential extends ArithmeticPrimitive<Number> {
     public Exponential() {
         super(
                 args -> Math.exp(args.get(0)),
-                1, "EXP", "Returns e^a.", 4
+                1, "EXP", "Returns e^a."
         );
     }
 }

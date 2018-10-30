@@ -21,7 +21,7 @@ public class Tanh extends ArithmeticPrimitive<Number> {
     public Tanh() {
         super(
                 args -> Math.tanh(args.get(0)),
-                1, "TANH","Returns the hyperbolic tangent of a.\nThis is a common squashing function returning a value between -1 and 1.", 4
+                1, "TANH","Returns the hyperbolic tangent of a.\nThis is a common squashing function returning a value between -1 and 1."
         );
     }
 }
