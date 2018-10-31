@@ -19,7 +19,7 @@ public class SquareRoot extends ArithmeticPrimitive<Number> {
     public SquareRoot() {
         super(
                 args -> Math.sqrt(args.get(0)),
-                1, "SQRT","Returns the square root of a.", 4
+                1, "SQRT","Returns the square root of a."
         );
     }
 }

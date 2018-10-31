@@ -19,7 +19,7 @@ public class TwoArcTan extends ArithmeticPrimitive<Number> {
     public TwoArcTan() {
         super(
                 args -> Math.atan2(args.get(0),args.get(1)),
-                2, "ATAN2","Returns the two argument inverse tangent function.", 4
+                2, "ATAN2","Returns the two argument inverse tangent function."
         );
     }
 }

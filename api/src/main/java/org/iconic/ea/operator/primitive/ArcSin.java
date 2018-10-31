@@ -19,7 +19,7 @@ public class ArcSin extends ArithmeticPrimitive<Number> {
     public ArcSin() {
         super(
                 args -> Math.asin(args.get(0)),
-                1, "ASIN", "Returns the inverse sine function of a.", 4
+                1, "ASIN", "Returns the inverse sine function of a."
         );
     }
 }
