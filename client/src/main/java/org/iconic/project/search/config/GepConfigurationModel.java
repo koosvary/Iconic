@@ -104,7 +104,7 @@ public class GepConfigurationModel extends SearchConfigurationModel {
      */
     @Override
     protected boolean isValid() {
-        return getDatasetModel().isPresent();
+        return getEnabledPrimitives().size() > 0 && getDatasetModel().isPresent();
     }
 
     /**

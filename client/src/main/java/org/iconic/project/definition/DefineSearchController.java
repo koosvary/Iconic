@@ -1,12 +1,12 @@
 /**
  * Copyright 2018 Iconic
- * <p>
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -55,6 +55,7 @@ import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.workspace.WorkspaceService;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 /**
  * Controller for the define search tab
@@ -136,10 +137,11 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
         enableAll.setOnAction(event -> {
             boolean setBoolean = enableAll.getText().compareTo("Enable All") == 0;
-            for (Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty> item :
+            for (Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty> primitive :
                     blockDisplayTableView.getItems()) {
-                item.getValue().set(setBoolean);
+                primitive.getValue().set(setBoolean);
             }
+
             enableAll.setText(setBoolean?"Disable All":"Enable All");
         });
 

@@ -294,7 +294,7 @@ public class StartSearchController implements Initializable {
             return;
         }
 
-        if(search.getEnabledPrimitives().size() < 1){
+        if (search.getEnabledPrimitives().size() < 1){
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Search Invalid");
             alert.setHeaderText("Missing Primitives");
