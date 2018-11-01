@@ -16,6 +16,7 @@
 package org.iconic.utils;
 
 import org.iconic.ea.chromosome.Chromosome;
+import org.knowm.xchart.BitmapEncoder;
 import org.knowm.xchart.VectorGraphicsEncoder;
 import org.knowm.xchart.internal.chartpart.Chart;
 import org.knowm.xchart.internal.series.Series;
@@ -25,6 +26,7 @@ import java.io.IOException;
 
 public abstract class GraphWriter<T extends Series> {
     private boolean axesTruncated;
+    private boolean axesLogarithmic;
 
     /**
      * Constructs a new GraphWriter that will truncate outliers from its axes by default.
@@ -48,9 +50,9 @@ public abstract class GraphWriter<T extends Series> {
     public void export(final String chartTitle, final String directory, final String fileName) throws IOException {
         Chart<?, ?> chart = draw();
         chart.setTitle(chartTitle);
-        VectorGraphicsEncoder.saveVectorGraphic(
+        BitmapEncoder.saveBitmap(
                 chart, directory + "//" + fileName,
-                VectorGraphicsEncoder.VectorGraphicsFormat.PDF
+                BitmapEncoder.BitmapFormat.PNG
         );
     }
 
@@ -72,9 +74,23 @@ public abstract class GraphWriter<T extends Series> {
     }
 
     /**
+     * @return True if axes of  the graph written by the GraphWriter will use logarithmic scaling.
+     */
+    public boolean isAxesLogarithmic() {
+        return axesLogarithmic;
+    }
+
+    /**
      * @param truncate True if the axes of the graph being written should remove outliers.
      */
     public void setAxesTruncated(boolean truncate) {
         this.axesTruncated = truncate;
+    }
+
+    /**
+     * @param logarithmic True if the axes of the graph being written should use logarithmic scaling.
+     */
+    public void setAxesLogarithmic(boolean logarithmic) {
+        this.axesLogarithmic = logarithmic;
     }
 }

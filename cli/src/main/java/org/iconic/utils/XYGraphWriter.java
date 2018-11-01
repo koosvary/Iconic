@@ -179,7 +179,10 @@ public class XYGraphWriter extends GraphWriter<XYSeries> {
                     .theme(Styler.ChartTheme.Matlab).build();
             chart.getStyler().setChartTitleVisible(true);
             chart.getStyler().setMarkerSize(12);
-            chart.getStyler().setXAxisLogarithmic(true);
+
+            if (isAxesLogarithmic()) {
+                chart.getStyler().setXAxisLogarithmic(true);
+            }
         }
 
         return chart;

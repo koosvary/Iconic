@@ -19,10 +19,10 @@ import com.beust.jcommander.JCommander;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.strategies.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.Chromosome;
 import org.iconic.ea.chromosome.ChromosomeFactory;
-import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosomeFactory;
 import org.iconic.ea.data.DataManager;
 import org.iconic.ea.data.FeatureClass;
@@ -51,6 +51,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -96,7 +97,7 @@ public class Client {
             log.info("Feature Size: {}", () -> featureSize - 1);
             log.info("Sample Size: {}", () -> sampleSize);
 
-            // Create a supplier for Gene Expression Programming chromosomes
+            // Create a supplier for Gene Cartesian Programming chromosomes
             List<String> inputs = new ArrayList<>(featureSize - 1);
             for (int i = 0; i < featureSize - 1; ++i) {
                 inputs.add(String.valueOf(i));
@@ -115,6 +116,19 @@ public class Client {
                     new Addition(), new Subtraction(), new Multiplication(), new Root(),
                     new Division(), new Power(), new Exponential(), new Sin(), new Cos()
             ));
+
+            final int numConstants = 100;
+            final int min = -100;
+            final int max = 100;
+            final List<FunctionalPrimitive<Double, Double>> constants = new ArrayList<>(numConstants);
+
+            while (constants.size() < numConstants) {
+                constants.add(new Constant<>(ThreadLocalRandom.current().nextDouble(
+                        min, max
+                )));
+            }
+
+            supplier.addFunction(constants);
 
             final int generations = client.getArgs().getGenerations();
             final Set<Chromosome<Double>> nonDominatedFinal = new LinkedHashSet<>();
@@ -181,6 +195,7 @@ public class Client {
                         graphWriter.write(series.draw());
                     }
 
+                    graphWriter.setAxesLogarithmic(true);
                     graphWriter.export("All Generations - Non-Dominated", directory, "results-all");
                     graphWriter.clear();
 
@@ -192,6 +207,7 @@ public class Client {
 
                     nonDominatedFinal.forEach(seriesWriter::write);
                     graphWriter.write(seriesWriter.draw());
+                    graphWriter.setAxesLogarithmic(true);
                     graphWriter.export("Last Generation - Non-Dominated", directory, "results-last");
 
                     // Create a map of global best values so we can graph just their solution-fit plots
@@ -327,6 +343,9 @@ public class Client {
                 new FileWriter(new File(directory + "//" + fileName + ".csv")),
                 CSVFormat.EXCEL
         )) {
+            printer.printRecord(
+                    "Mean Squared Error", "Size", "Model"
+            );
             for (final Chromosome<?> chromosome : population) {
                 printer.printRecord(
                         chromosome.getFitness(), chromosome.getSize(), chromosome.toString()
@@ -349,7 +368,7 @@ public class Client {
         // Create the evolutionary algorithm
         EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea =
                 // TODO: generify with a factory so it isn't always GSEMO
-                new GSEMO<>(supplier, 1);
+                new GSEMO<>(supplier, 4);
         ea.setCrossoverProbability(args.getCrossoverProbability());
         ea.setMutationProbability(args.getMutationProbability());
 
