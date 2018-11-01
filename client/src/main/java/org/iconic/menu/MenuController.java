@@ -29,6 +29,8 @@ import lombok.val;
 import org.iconic.project.ProjectModel;
 import org.iconic.project.ProjectService;
 
+import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -71,6 +73,122 @@ public class MenuController implements Initializable {
 
     /**
      * <p>
+     *Simulates ctrl + z to undo
+     *
+     *
+     * @param actionEvent The action that triggered this event
+     */
+    public void undo(ActionEvent actionEvent) throws AWTException {
+        Robot r = new Robot();
+        int keyCode = KeyEvent.VK_Z;
+        int keyCode2 = KeyEvent.VK_CONTROL;
+        r.keyPress(keyCode2);
+        r.keyPress(keyCode);
+        r.keyRelease(keyCode);
+        r.keyRelease(keyCode2);
+    }
+
+    /**
+     * <p>
+     *Simulates ctrl + y to redo
+     *
+     *
+     * @param actionEvent The action that triggered this event
+     */
+    public void redo(ActionEvent actionEvent) throws AWTException {
+        Robot r = new Robot();
+        int keyCode = KeyEvent.VK_Y;
+        int keyCode2 = KeyEvent.VK_CONTROL;
+        r.keyPress(keyCode2);
+        r.keyPress(keyCode);
+        r.keyRelease(keyCode);
+        r.keyRelease(keyCode2);
+    }
+
+    /**
+     * <p>
+     *Simulates ctrl + x to cut
+     *
+     *
+     * @param actionEvent The action that triggered this event
+     */
+    public void cut(ActionEvent actionEvent) throws AWTException {
+        Robot r = new Robot();
+        int keyCode = KeyEvent.VK_X;
+        int keyCode2 = KeyEvent.VK_CONTROL;
+        r.keyPress(keyCode2);
+        r.keyPress(keyCode);
+        r.keyRelease(keyCode);
+        r.keyRelease(keyCode2);
+    }
+
+    /**
+     * <p>
+     *Simulates ctrl + c to copy
+     *
+     *
+     * @param actionEvent The action that triggered this event
+     */
+    public void copy(ActionEvent actionEvent) throws AWTException {
+        Robot r = new Robot();
+        int keyCode = KeyEvent.VK_C;
+        int keyCode2 = KeyEvent.VK_CONTROL;
+        r.keyPress(keyCode2);
+        r.keyPress(keyCode);
+        r.keyRelease(keyCode);
+        r.keyRelease(keyCode2);
+    }
+
+    /**
+     * <p>
+     *Simulates ctrl + v to copy
+     *
+     *
+     * @param actionEvent The action that triggered this event
+     */
+    public void paste(ActionEvent actionEvent) throws AWTException {
+        Robot r = new Robot();
+        int keyCode = KeyEvent.VK_V;
+        int keyCode2 = KeyEvent.VK_CONTROL;
+        r.keyPress(keyCode2);
+        r.keyPress(keyCode);
+        r.keyRelease(keyCode);
+        r.keyRelease(keyCode2);
+    }
+
+    /**
+     * <p>
+     *Simulates delete to delete
+     *
+     *
+     * @param actionEvent The action that triggered this event
+     */
+    public void delete(ActionEvent actionEvent) throws AWTException {
+        Robot r = new Robot();
+        int keyCode = KeyEvent.VK_DELETE;
+        r.keyPress(keyCode);
+        r.keyRelease(keyCode);
+    }
+
+    /**
+     * <p>
+     *Simulates ctrl + a to select all
+     *
+     *
+     * @param actionEvent The action that triggered this event
+     */
+    public void selectAll(ActionEvent actionEvent) throws AWTException {
+        Robot r = new Robot();
+        int keyCode = KeyEvent.VK_A;
+        int keyCode2 = KeyEvent.VK_CONTROL;
+        r.keyPress(keyCode2);
+        r.keyPress(keyCode);
+        r.keyRelease(keyCode2);
+        r.keyRelease(keyCode);
+    }
+
+    /**
+     * <p>
      * Closes all stages and exits the application.
      *
      *
@@ -79,7 +197,6 @@ public class MenuController implements Initializable {
     public void exit(ActionEvent actionEvent) {
         Platform.exit();
     }
-
     /**
      * <p>
      * Returns the root StackPane associated with this view.

@@ -40,16 +40,15 @@
         </Menu>
 
         <Menu text="%menu.edit">
-            <MenuItem text="%menu.undo" />
-            <MenuItem text="%menu.redo" />
+            <MenuItem text="%menu.undo" onAction="#undo"/>
+            <MenuItem text="%menu.redo" onAction="#redo"/>
             <SeparatorMenuItem/>
-            <MenuItem text="%menu.cut" />
-            <MenuItem text="%menu.copy" />
-            <MenuItem text="%menu.paste" />
-            <MenuItem text="%menu.delete" />
+            <MenuItem text="%menu.cut" onAction="#cut"/>
+            <MenuItem text="%menu.copy" onAction="#copy"/>
+            <MenuItem text="%menu.paste" onAction="#paste"/>
+            <MenuItem text="%menu.delete" onAction="#delete"/>
             <SeparatorMenuItem/>
-            <MenuItem text="%menu.selectAll" />
-            <MenuItem text="%menu.deselectAll" />
+            <MenuItem text="%menu.selectAll" onAction="#selectAll"/>
         </Menu>
 
         <Menu text="%menu.view">
