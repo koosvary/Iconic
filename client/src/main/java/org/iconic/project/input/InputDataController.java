@@ -198,8 +198,10 @@ public class InputDataController implements Initializable {
 
             Object observableValue = spreadsheet.getGrid().getRows().get(row).get(col).getItem();
 
-            // add new item to clipboard
-            clipboardString.append(String.valueOf(observableValue));
+            if(observableValue != null){
+                // add new item to clipboard
+                clipboardString.append(String.valueOf(observableValue));
+            }
 
             // remember previous
             prevRow = row;
@@ -229,24 +231,16 @@ public class InputDataController implements Initializable {
 
         int rowClipboard = -1;
 
-        StringTokenizer rowTokenizer = new StringTokenizer( pasteString, "\n");
-        while(rowTokenizer.hasMoreTokens()) {
 
+        Scanner s = new Scanner(pasteString);
+        while (s.hasNextLine()) {
             rowClipboard++;
-
-            String rowString = rowTokenizer.nextToken();
-
-            StringTokenizer columnTokenizer = new StringTokenizer(rowString, "\t");
-
+            String line = s.nextLine();
+            String[] items= line.split("\t", -1);
             int colClipboard = -1;
-
-            while(columnTokenizer.hasMoreTokens()) {
-
+            for(int i = 0; i < items.length; i++){
                 colClipboard++;
-
-                // get next cell data from clipboard
-                String clipboardCellContent = columnTokenizer.nextToken();
-
+                String clipboardCellContent = items[i];
                 // calculate the position in the table cell
                 int rowTable = pasteCellPosition.getRow() + rowClipboard;
                 int colTable = pasteCellPosition.getColumn() + colClipboard;
@@ -270,8 +264,8 @@ public class InputDataController implements Initializable {
                     } catch (Exception ignored) {
                     }
                 }
-            }
 
+            }
         }
 
     }
