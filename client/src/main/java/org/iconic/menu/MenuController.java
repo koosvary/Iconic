@@ -104,7 +104,7 @@ public class MenuController implements Initializable {
         );
 
         alert.setTitle("About");
-        alert.setHeaderText("Version:    1.0\n\nIcons made by Smashicons, Roundicons, Freepik and DinosoftLabs from www.flaticon.com");
+        alert.setHeaderText("Version: 0.7.0\n\nhttps://github.com/koosvary/Iconic\n\nIcons made by Smashicons, Roundicons, Freepik and DinosoftLabs from www.flaticon.com");
 
         alert.showAndWait()
                 .filter(response -> response == ButtonType.OK)

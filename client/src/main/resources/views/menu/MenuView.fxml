@@ -62,7 +62,7 @@
 
         <Menu text="%menu.help">
             <items>
-                <MenuItem text="About Ionic Workbench" onAction="#showAbout"/>
+                <MenuItem text="About Iconic Workbench" onAction="#showAbout"/>
             </items>
         </Menu>
     </MenuBar>
