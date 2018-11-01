@@ -262,6 +262,8 @@ public class InputDataController implements Initializable {
                         double content = Double.parseDouble(clipboardCellContent);
                         spreadsheet.getGrid().getRows().get(rowTable).get(colTable).setItem(String.valueOf(content));
                     } catch (Exception ignored) {
+                        spreadsheet.getGrid().getRows().get(rowTable).get(colTable).setItem(null);
+                        updateProjectDataset(rowTable-2,colTable,null);
                     }
                 }
 
