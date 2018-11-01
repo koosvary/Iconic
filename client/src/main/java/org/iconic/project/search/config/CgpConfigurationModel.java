@@ -17,6 +17,8 @@ package org.iconic.project.search.config;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import lombok.NonNull;
+import org.iconic.ea.operator.primitive.Constant;
+import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 import org.iconic.ea.strategies.EvolutionaryAlgorithm;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosomeFactory;
@@ -29,6 +31,7 @@ import org.iconic.project.search.io.SearchExecutor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * {@inheritDoc}
@@ -84,6 +87,19 @@ public class CgpConfigurationModel extends SearchConfigurationModel {
                         getNumColumns(), getNumRows(), getNumLevelsBack()
                 );
         supplier.addFunction(new ArrayList<>(getEnabledPrimitives()));
+
+        final int numConstants = 100;
+        final int min = -100;
+        final int max = 100;
+//        final List<FunctionalPrimitive<Double, Double>> constants = new ArrayList<>(numConstants);
+//
+//        while (constants.size() < numConstants) {
+//            constants.add(new Constant<>(ThreadLocalRandom.current().nextDouble(
+//                    min, max
+//            )));
+//        }
+//        FIXME: Expression parser doesn't handle constants in CGP function nodes
+//        supplier.addFunction(constants);
 
         EvolutionaryAlgorithm<CartesianChromosome<Double>, Double> ea =
                 new CartesianGeneticProgramming<>(supplier);
