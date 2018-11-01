@@ -162,7 +162,13 @@ public class InputDataController implements Initializable {
             extendWithClipboard();
             pasteFromClipboard();
         });
-        contextMenu.getItems().addAll(copy,paste);
+        MenuItem delete = new MenuItem("Delete");
+        delete.setAccelerator(KeyCombination.keyCombination("Delete"));
+        delete.setOnAction(actionEvent -> {
+            deleteSelection();
+
+        });
+        contextMenu.getItems().addAll(copy,paste,delete);
         spreadsheet.setContextMenu(contextMenu);
     }
 
@@ -268,6 +274,22 @@ public class InputDataController implements Initializable {
 
         }
 
+    }
+
+    /**
+     * Finds the selected cells and deletes the values within them
+     */
+    private void deleteSelection() {
+        ObservableList<TablePosition> positionList = spreadsheet.getSelectionModel().getSelectedCells();
+
+        for (TablePosition position : positionList) {
+            int row = position.getRow();
+            int col = position.getColumn();
+
+            spreadsheet.getGrid().getRows().get(row).get(col).setItem(null);
+
+            updateProjectDataset(row-2,col,null);
+        }
     }
 
     /**
