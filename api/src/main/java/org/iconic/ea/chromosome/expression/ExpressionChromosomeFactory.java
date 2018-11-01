@@ -184,7 +184,7 @@ public class ExpressionChromosomeFactory<T> extends ChromosomeFactory<Expression
             if (Math.random() > p) {
                 expression.add(new InputNode<>(index, getFeatureLabels()));
             } else {
-                final double constant = ThreadLocalRandom.current().nextInt(10000) / 100.0;
+                final double constant = ThreadLocalRandom.current().nextInt(20000) / 100.0 - 100.0;
                 expression.add(new FunctionNode<>((Constant<T>) new Constant<>(constant)));
             }
         }
