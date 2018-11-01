@@ -70,7 +70,7 @@ The key features it provides are:
 * Modifiable search parameters
 * Import, modify and export datasets all within the application
 * Preprocess data with a variety of functions such as normalise and smooth
-*
+* Plot found solution results against dataset
 
 ### Conventions
 *Instructions: If applicable, describe any stylistic and command syntax conventions used within the User Manual. The following text is provided as an example only.*
@@ -83,13 +83,41 @@ The term ‘user’ is used throughout this document to refer to a person who re
 ### Cautions & Warnings
 *Instructions: If applicable, identify any cautions or warnings that the user should know about before using the system (e.g., noted prohibitions, penalties for unauthorized access, etc.). If waiver use or copy permissions need to be obtained, describe the process.*
 
+Below is a list of known bugs with the Iconic Workbench. For an optimal experience, please refrain from replicating the following scenarios:
+
+#### Input Data
+
+1. CSV data may contain a small amount of CSV header information at the start of the file. This will cause the Iconic Workbench to display "ï»¿" prepended to the first row of the dataset.
+    * This will not affect performance if the CSV contains a feature header row
+    * If the CSV does not contain a feature header row, the CSV header information will cause the first row in the dataset to be taken as a feature header row
+2. Removing/deleting data from a cell does not actually remove the value from the dataset. It will dislay as removed, but once the view is refreshed the value will reappear
+3. Pasting data with missing values from Excel will not paste into the Iconic Workbench correctly. Same goes for copying data with missing values from the Iconic Workbench into Excel
+    * Copying the following: 1,,3,4 from Excel will result in: 1,3,4,, when pasted into the workbench
+    * Copying the following: 1,,3,4 from the Iconic Workbench will result in: 1,null,3,4 when pasted into Excel
+4. Iconic Workbench does not support importing, saving or exporting the "info" row in a dataset
+
+#### Process Data
+
+1. Applying the "Remove Outliers" transformation on a feature with missing values may lock the preprocessing options for that feature
+    * This is due to the following: Features with missing values must have those missing values handled before any other transformations can be applied. The user enables "Handle Missing Values", which then unlocks the other transformation functions. If "Remove Outliers" is then enabled, this will cause the feature to move back into a missing values state if outliers are removed, and the other transformations become locked. Since "Handle Missing Values" is already enabled and was applied before "Remove Outliers", the feature remains in a missing values state.
+2. Changing the threshold for "Remove Outliers" will require the user to disable and re-enable "Handle Missing Values"
+    * Once outliers are removed, the feature goes into a missing values state, locking all transformations except "Handle Missing Values". The user must then apply "Handle Missing Values" to unlock the other transformations. If the user changes the threshold for "Remove Outliers", it will be applied after "Handle Missing Values". This can be resolved by disabling and re-enabling "Handle Missing Values"
+
+#### Results
+
+1. Selected result does not remain selected when the results table is updated
+2. Cartesian Genetic Programming searches may not output all results when number of outputs > 1
+3. Cartesian Genetic Programming will only plot one result instead of one for each output. This may cause the graph to look un-fit, while error is low
+4. Coefficients are not truncated to 3d.p.
+
+
 ## Getting Started
 *Instructions: Provide a general walkthrough of the system from initiation through exit. The logical arrangement of the information should enable the user to understand the sequence and flow of the system. Use screen prints to depict examples of text under each heading.*
 Below is an overview of each of the screens in the Iconic Workbench, followed by a short guide on how to run your first search.
 
 ### Set-up Considerations
 
-Java Runtime Environment version 8 or higher must be installed to use the Iconic Workbench. It can be downloaded ![here](https://www.java.com/en/download/)
+Java Runtime Environment version 8 or higher must be installed to use the Iconic Workbench. It can be downloaded [here](https://www.java.com/en/download/)
 
 To optimize utilisation of the **Iconic Workbench**:
 1. Use Java version 8.0 or higher.
