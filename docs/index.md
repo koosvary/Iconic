@@ -578,7 +578,39 @@ the current least error and smallest size, and the total amount of time elapsed.
 
 ![An example of running the CLI with the minimum number of parameters](images\cli\example_run_basic.png)
 
+The output of each run will be placed in a new folder named after the input file, arranged in subfolders according to 
+the date the run was initiated. Unless additional flags are included only a README file will be output 
+containing each of the parameters used and their values. 
+
+```bash
+$ java -jar iconic-cli.jar ...
+$ ...
+$ ls .
+```
+
+After running:
+
+```bash
+$ ls .
+    Directory: C:\Path\to\iconic-cli
+    
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d-----       31/10/2018  11:46 AM                inputFile          # Output directory
+-a----       22/10/2018   2:21 PM                inputFile.csv
+-a----       16/10/2018   9:29 AM                iconic-cli.jar
+```
+
 ### Available Options
+
+#### Type of Algorithm
+
+`(-a | --algorithm) <GENE_EXPRESSION_PROGRAMMING | CARTESIAN_GENETIC_PROGRAMMING>`
+
+The type of algorithm determines which algorithm should be used to perform the search.
+As of version `0.7.0` this parameter is ignored as only `GSEMO` with cartesian chromosomes
+is used.
 
 #### Input File
 
@@ -598,21 +630,21 @@ The current version `0.7.0` doesn't support input files with column headers.
 `--outputs <integer>`
 
 The number of outputs is used to specify how many outputs a chromosome can have.
-Even though it's required if the chromosome doesn't support multiple outputs this parameter will be ignored.
+If the chromosome doesn't support multiple outputs this parameter will be ignored.
 
 In the current version `0.7.0` chromosomes with multiple outputs have each output summed
 together to produce a single output.
 
 #### Number of Generations
 
-`(-g|--generations) <integer>`
+`(-g | --generations) <integer>`
 
 The number of generations is used to specify how many generations to let the population evolve.
 Unlike the `Iconic Workbench` the number of generations must be greater than zero.
 
 #### Size of Population
 
-`(-p|--population) <integer>`
+`(-p | --population) <integer>`
 
 The population size is used to specify the size of the initial starting population.
 This is less meaningful with `GSEMO` as the population grows dynamically with only Pareto-optimal solutions 
@@ -623,14 +655,111 @@ used to increase the genetic diversity of the initial population.
 
 `--primitives <symbol>,...`
 
-*Unavailable in `0.7.0` - ADD,SUB,MUL,ROOT,DIV,POW,EXP,SIN,COS are used by default.*
-
-The primitive set used by the algorithm must be specified as a list of comma-delimited symbols
+The primitive set used by the algorithm must be specified as a list of comma-delimited symbols. 
+If no primitives are specified all available primitives will be used by default.
 
 `--primitives ADD,MUL,DIV,SUB,LOG,SIN`
 
-A full list of available primitives can be seen with `--listPrimitives`.
+A full list of available primitives can be seen by using `--listPrimitives`.
 
+#### Crossover Probability
+
+`(-cP | --crossoverProbability) <percentage in range [0.0, 1.0]>`
+
+The probability of crossover being used on an offspring during each instance of the 
+evolutionary cycle. 
+A crossover probability of `1.0` will cause crossover to always occur in each cycle,
+whereas a probability of `0.0` will prevent crossover from ever occurring.
+
+*The crossover probability will only take effect if the algorithm uses a crossover operator.
+In version `0.7.0` no crossover is included by default with no way to change it.*
+
+#### Mutation Probability
+
+`(-mP | --mutationProbability) <percentage in range [0.0, 1.0]>`
+
+The probability of mutation being used on an offspring during each instance of the 
+evolutionary cycle. 
+A mutation probability of `1.0` will cause mutation to always occur in each cycle,
+whereas a probability of `0.0` will prevent mutation from ever occurring.
+
+*The mutation probability will only take effect if the algorithm uses a mutator.
+In version `0.7.0` a mutator is included by default with no way to change it.*
+
+#### Number of Repetitions
+
+`(-r | --repeat) <integer>`
+
+The number of repetitions (trials) to repeat the experiment for. Each trial will use the 
+same parameters as specified. 
+
+If the `--graph` or `--csv` flags are enabled then the
+results from each trial will be included within the same output file(s).
+
+#### Graphing the Results
+
+`--graph`
+
+If this flag is included `iconic-cli` will export the results to several charts in the PNG format.
+These charts will be placed in the same output folder as the default output files.
+
+The charts generated include a plot of every generation's non-dominated set, the last generation's
+non-dominated set, and a solution-fit plot of the overall Pareto-optimal set.
+
+![A chart of all non-dominated solutions from every generation](images\cli\results-all.png)
+![A chart of all non-dominated solutions from the last generation](images\cli\results-final.png)
+![A chart of the overall Pareto-optimal set's solution-fit](images\cli\solution-fit.png)
+ 
+#### Exporting the Results as CSV
+
+`--csv`
+
+If this flag is included `iconic-cli` will export the results to several CSV files.
+These CSV files will be placed in the same output folder as the default output files.
+
+The CSV files generated include a list of chromosomes from every generation's non-dominated set,
+and the chromosomes from the last generation's non-dominated set.
+Chromosomes are formatted as a 3-tuple of (mean squared error, size, model).
+
+#### Cartesian-Specific Parameters
+
+These parameters are exclusive to cartesian chromosomes. If any other type of chromosome
+is used any option specified here will be ignored.
+
+*Version `0.7.0` doesn't support the use of other chromosomal types so these parameters will
+never be ignored.*
+
+##### Number of Columns
+
+`(--columns) <integer>`
+
+The number of columns that the chromosome should use. A cartesian chromosome stores
+its genotype as a graph, this parameter specifies the columnar dimensions of that graph.
+
+##### Number of Rows
+
+`(--rows) <integer>`
+
+The number of rows that the chromosome should use. A cartesian chromosome stores
+its genotype as a graph, this parameter specifies the row dimensions of that graph.
+
+In general there is no reason to use a number of rows other than one as there's
+always a functionally equivalent one-dimensional graph. If in doubt set this 
+parameter to one.
+
+##### Number of Levels Back
+
+`(--levelsBack) <integer>`
+
+The maximum number of levels back that any node within the chromosome can connect to. 
+A cartesian chromosome stores its genotype as a graph, this parameter specifies how
+far back in terms of columns that any node in the graph can reach. If a column is in
+range the node may connect to any other node in that column.
+
+A maximum number of levels back that's equal to or greater than the number of columns in
+the chromosome means that any node in the graph can connect to any other node preceding it.
+Reducing the maximum number of levels back will force the chromosome to produce larger
+models.
 
 ## Troubleshooting & Support
 *Instructions: Describe all recovery and error correction procedures, including error conditions that may be generated and corrective actions that may need to be taken. Organize the information in sub-sections as appropriate. The following are common sub-sections that may be included as appropriate.*
