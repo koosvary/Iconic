@@ -43,6 +43,15 @@ public class FunctionalPrimitive<T, R> implements UncheckedFunctionalPrimitive<T
         this.complexity = new SimpleIntegerProperty(defaultComplexity);
     }
 
+    public FunctionalPrimitive(Function<List<T>, R> lambda, int arity, String symbol, String description) {
+        this.lambda = lambda;
+        this.arity = arity;
+        this.symbol = symbol;
+        this.description = description;
+        this.defaultComplexity = 1;
+        this.complexity = new SimpleIntegerProperty(this.defaultComplexity);
+    }
+
     @Override
     public R apply(List<T> args) {
         assert (args.size() >= getArity());

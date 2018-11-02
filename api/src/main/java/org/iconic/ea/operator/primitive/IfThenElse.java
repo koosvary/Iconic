@@ -19,7 +19,7 @@ public class IfThenElse extends ArithmeticPrimitive<Number> {
     public IfThenElse() {
         super(
                 args -> args.get(0) > 0 ? args.get(1) : args.get(2),
-                3, "IF", "Returns returns b if a > 0, c otherwise.", 5
+                3, "IF", "Returns returns b if a > 0, c otherwise."
         );
     }
 }

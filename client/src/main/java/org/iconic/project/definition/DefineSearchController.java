@@ -24,6 +24,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.Initializable;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -53,6 +55,7 @@ import org.iconic.project.search.config.SearchConfigurationModel;
 import org.iconic.workspace.WorkspaceService;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 /**
  * Controller for the define search tab
@@ -75,6 +78,9 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
     @FXML
     public TableView<Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty>> blockDisplayTableView;
+
+    @FXML
+    public Button enableAll;
 
     @FXML
     public TextArea selectedBlockDisplayDescription;
@@ -128,6 +134,16 @@ public class DefineSearchController implements Initializable, DefineSearchServic
         complexityCol.setCellValueFactory(cellData -> cellData.getValue().getKey().getComplexity());
 
         blockDisplayTableView.getColumns().addAll(enabledCol, nameCol, complexityCol);
+
+        enableAll.setOnAction(event -> {
+            boolean setBoolean = enableAll.getText().compareTo("Enable All") == 0;
+            for (Map.Entry<FunctionalPrimitive<Double, Double>, SimpleBooleanProperty> primitive :
+                    blockDisplayTableView.getItems()) {
+                primitive.getValue().set(setBoolean);
+            }
+
+            enableAll.setText(setBoolean?"Disable All":"Enable All");
+        });
 
         // Listener for the description pane
         blockDisplayTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -367,7 +383,7 @@ public class DefineSearchController implements Initializable, DefineSearchServic
 
                 String functionDefinition = tfTargetExpression.getText();
 
-                if(dataset.isPresent()) {
+                if (dataset.isPresent()) {
                     setFunction();
                     dataset.get().defineFunction(functionDefinition);
                 }

@@ -294,6 +294,15 @@ public class StartSearchController implements Initializable {
             return;
         }
 
+        if (search.getEnabledPrimitives().size() < 1){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Search Invalid");
+            alert.setHeaderText("Missing Primitives");
+            alert.setContentText("The Defined Search has no enabled primitives to use! Please visit the 'Define Search' tab and enable at least one primitive.");
+            alert.showAndWait();
+            return;
+        }
+
         // Get the dataset Model - Check that the dataset doesn't have any missing values
         if (search.getDatasetModel().isPresent()) {
             DatasetModel datasetModel = search.getDatasetModel().get();

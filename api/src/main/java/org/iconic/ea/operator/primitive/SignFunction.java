@@ -21,7 +21,7 @@ public class SignFunction extends ArithmeticPrimitive<Number> {
     public SignFunction() {
         super(
                 args -> Math.signum(args.get(0)),
-                1, "SGN", "Returns -1 if a is negative, 1 if a is positive, 0 otherwise.", 4
+                1, "SGN", "Returns -1 if a is negative, 1 if a is positive, 0 otherwise."
         );
     }
 }
