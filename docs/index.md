@@ -421,12 +421,15 @@ You may offset each data point in the feature by a specified positive or negativ
 
 ### Define Search Parameters
 You may define the parameters to use when searching. Availability and display of some parameters are restricted to certain search types. For quick reference, you may hover over a label for an explanation.
+Additional information may be found here: [Using the Command-Line](#using-the-command-line)
 
 #### Select a dataset
 You **MUST** select the dataset to search on
 1. Select a search in the project tree
 2. Navigate to the "Define Search" page
 3. Select a dataset to use in the search via the "Select a dataset" drop-down menu
+
+*Note: You will not be able to select a dataset if it is missing values. You must handle these missing values via the "Process Data" screen*
 
 #### Target Function
 This specifies the target function to search for. It allows you to define the input features and output (classifier) feature to use for searching.
@@ -440,6 +443,8 @@ This specifies the target function to search for. It allows you to define the in
     c. The list of input features must be encapsulated within parenthesis with an 'f' prepended
     d. Each feature name must be separated by a comma, followed by a space (except the last feature)
 5. Press the enter key
+
+Target Expression Syntax
 
 ![Syntax of target expression](images/TargetExpressionSyntax.png)
 
@@ -595,6 +600,13 @@ This is the chance of mutation as a percentage. The higher the mutation rate, th
 Below are the parameters which only apply to Gene Expression Programming searches
 
 ##### Head Length
+This is the length of the Header to use.
+
+The total length of the chromosome can be at minimum 1, and at max Header length + Tail length (where Tail length is Header length + 1). The Header part of the chromosome can pick building blocks, features of the dataset or constants. The Tail can only pick features or constants. The Tail was used to ensure that there is no leaf nodes expecting to have children.
+
+![Diagram of a chromosome](images/HeaderLength.png)
+
+In this diagram, the green F1 (meaning feature 1 in the dataset) doesn't use its children because it doesn't need to. But if it was a building block like a "+" then it would end up needing it.
 
 ##### Crossover
 This is the algorithm to use for crossover of chromosomes. Currently, only Simple Expression Crossover is available. Crossover is the act of replacing part of the child's genes with those of a parents within the population
@@ -617,13 +629,54 @@ The number of rows in the CGP chromosomes dimensions. It is recommended to set t
 ##### Number of Levels Back
 The number of levels back that any node in the CGP chromosome can reach to connect to another node.
 
-### Start a Search
+### Searching
 
-### <Given Function/Feature>
-*Instructions: Describe the specific system function or feature in detail and depict graphically by including screen prints and descriptive narrative as appropriate. Ensure each screen print is captioned and has an associated tag providing appropriate alternative text. Describe, in detail, active links on any screen print illustrated so that the user knows what options are available. Provide information on menus and functionalities that the user must master, expected output/results, and any special instructions. Identify any caveats and exceptions that the user may encounter specific to the system function.*
+#### Start a Search
+To start a search:
+1. Select a search in the project tree
+2. Ensure the following
+    a. Ensure a dataset has been selected for the search on the "Define Search" screen
+    b. Ensure all missing values have been handled
+    c. Ensure the target expression meets the syntax
+3. Navigate to the "Start Search" screen
+4. Click the "Start Search" button
 
-#### <Given Sub-Function/Sub-Feature>
-*Instructions: Include additional sub-sections as necessary for system sub-functions or sub-features, if they exist.*
+#### Stop a Search
+To stop a search:
+1. Select a currently running search in the project tree
+2. Navigate to the "Start Search" screen
+3. Click the "Stop Search" button
+
+#### Pause & Resume a Search
+You may pause a search and resume from where it left off.
+1. Select a currently running search in the project tree
+2. Navigate to the "Start Search Screen"
+3. Click the "Pause Search" button
+4. While a search is paused, you may modify the following parameters: Mutation rate, Crossover rate (GEP only), Generations, Building Blocks
+5. To resume the search, click the "Start Search" button
+
+#### View Search Progress
+The Iconic Workbench gives live information to the user about the search progress. This includes: Progress over time, Time elapsed, number of generations, generations per second, time since last improvement, average improvement time and number of CPU cores.
+1. Select a currently running search
+2. Navigate to the "Start Search" screen
+
+### Results
+You may view live information of the search results via the "Results" screen. This displays a table of results as well as a solution fit plot when a result is selected.
+
+#### View Results Table & Solution Fit Plot
+1. Select a currently running search in the project tree
+2. Navigate to the "Results" screen
+    a. Here you can view the best result of each size (number of primitives). It will display the solution size, error, and the solution itself.
+    b. This table is sorted by smallest error in ascending order. You may change this ordering by clicking on the table headers
+3. Click on a result in the table to view the solution fit plot
+    a. The solution fit plot will evaluate the expression against the dataset and plot the "Actual" values (output of the expression) against the "Expected" values (feature specified as the output in the target expression)
+
+#### Exporting a Solution
+Currently, Iconic only supports copy & paste of solutions from the results table
+1. Select a currently running search in the project tree
+2. Navigate to the "Results" screen
+3. Right-click a result in the table
+4. Click "Copy"
 
 ## Using the Command-Line
 
@@ -647,7 +700,7 @@ two pre-defined objectives that minimise the:
 While running it prints the current progress as a percentage of generations elapsed versus total generations,
 the current least error and smallest size, and the total amount of time elapsed.
 
-![An example of running the CLI with the minimum number of parameters](images\cli\example_run_basic.png)
+![An example of running the CLI with the minimum number of parameters](images\cli\example-run-basic.png)
 
 The output of each run will be placed in a new folder named after the input file, arranged in subfolders according to 
 the date the run was initiated. Unless additional flags are included only a README file will be output 
@@ -775,8 +828,16 @@ These charts will be placed in the same output folder as the default output file
 The charts generated include a plot of every generation's non-dominated set, the last generation's
 non-dominated set, and a solution-fit plot of the overall Pareto-optimal set.
 
+Non-dominated solutions from every generation
+
 ![A chart of all non-dominated solutions from every generation](images\cli\results-all.png)
+
+Non-dominated solutions from the last generation
+
 ![A chart of all non-dominated solutions from the last generation](images\cli\results-final.png)
+
+Overall Pareto-optimal set's solution fit
+
 ![A chart of the overall Pareto-optimal set's solution-fit](images\cli\solution-fit.png)
  
 ### Exporting the Results as CSV
