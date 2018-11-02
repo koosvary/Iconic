@@ -638,11 +638,12 @@ $ java -jar iconic-cli.jar -i <file> --population <number> --generations <number
 ### Description
 
 `iconic-cli` is a simple command-line tool designed to expedite the generation of models without relying
-on a graphical user interface. The current version `0.7.0` uses `GSEMO` with cartesian chromosomes on
+on a graphical user interface. The current version `0.7.0` only uses 
+`Global Simple Evolutionary Algorithm for Multiple Objectives (GSEMO)` with cartesian (graph-based) chromosomes on
 two pre-defined objectives that minimise the:
+
  1. mean squared error, and,
  2. genome's size
-
 
 `iconic-cli` takes a single input file, a population size and a number of generations.
 
