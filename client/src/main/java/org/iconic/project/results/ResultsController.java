@@ -202,7 +202,7 @@ public class ResultsController implements Initializable {
         // This will be the referenced chromosome that was selected if it finds a match
         Chromosome<?> selectedChromosome = solutions.get(size);
 
-        // If no chromosome was found (aka the block is missing and the strings dont match)
+        // If no chromosome was found (aka the block is missing and the strings don't match)
         if (selectedChromosome == null) {
             log.info("There was no chromosome found in the storage");
             solutionsPlot.getData().clear();
@@ -216,16 +216,17 @@ public class ResultsController implements Initializable {
             return;
         }
 
-        // Go through all the results, There are multiple outputs
+        // Go through each sample
         for (int i = 0; i < results.size(); i++) {
-            // This is the list of results for all the different outputs
+            // A map of outputs and their results
             Map<Integer, Number> rowOfResults = results.get(i);
 
             // Keys (They are random numbers, i think it might be the node id's of the output nodes in cgp
-            Integer[] keys = rowOfResults.keySet().toArray(new Integer[0]);
+            Number netResults = rowOfResults.values().stream().mapToDouble(Number::doubleValue)
+                    .sum();
 
             // My shit attempt to only display the "first" element in the list
-            seriesActual.getData().add(new XYChart.Data<>(i, rowOfResults.get(keys[0])));
+            seriesActual.getData().add(new XYChart.Data<>(i, netResults));
         }
 
         // Update the graph

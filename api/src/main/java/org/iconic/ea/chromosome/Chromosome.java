@@ -18,6 +18,7 @@ package org.iconic.ea.chromosome;
 import lombok.extern.log4j.Log4j2;
 import org.iconic.ea.chromosome.cartesian.CartesianChromosome;
 import org.iconic.ea.data.DataManager;
+import org.iconic.ea.operator.primitive.Constant;
 import org.iconic.ea.operator.primitive.FunctionalPrimitive;
 
 import java.util.HashMap;
@@ -116,18 +117,18 @@ public abstract class Chromosome<T> {
      * @return the processed expression string
      */
 
-    public String getExpression(String preorderExpression, List<FunctionalPrimitive<?, ?>> primitives, boolean topLevelFlag){
+    public String getExpression(String preorderExpression, List<FunctionalPrimitive<?, ?>> primitives, boolean topLevelFlag) {
         HashMap<String, String> symbolMap = getSymbolMap();
         /* if the input is only one term, return it */
-        if(preorderExpression.split(" ").length==1){
+        if (preorderExpression.split(" ").length == 1) {
             return preorderExpression;
         }
 
         String[] expressionSplit = preorderExpression.split("\n");
-        if(expressionSplit.length >= 2){
+        if (expressionSplit.length >= 2) {
             String output = "";
-            for(int i = 1; i < expressionSplit.length; i++){
-                if(i == expressionSplit.length-1)
+            for (int i = 1; i < expressionSplit.length; i++) {
+                if (i == expressionSplit.length - 1)
                     output += getExpression(expressionSplit[i], primitives, true);
                 else
                     output += getExpression(expressionSplit[i], primitives, true) + "\n";
@@ -136,8 +137,8 @@ public abstract class Chromosome<T> {
         }
 
         /* I don't remember adding this if block */
-        if(topLevelFlag){
-            if(preorderExpression.contains("Output")){
+        if (topLevelFlag) {
+            if (preorderExpression.contains("Output")) {
                 preorderExpression = preorderExpression.substring(10);
                 return getExpression(preorderExpression, primitives, true);
             }
@@ -147,30 +148,29 @@ public abstract class Chromosome<T> {
         FunctionalPrimitive<?, ?> leadingPrimitive;
 
         /* getting the string of the leading primitive by cutting the front off the input and trimming it */
-        if(!preorderExpression.contains("(")){
+        if (!preorderExpression.contains("(")) {
             return "";
         }
         String firstFunction = preorderExpression.substring(0, preorderExpression.indexOf("(")).trim();
 
         /* match the firstFunction string to a functional primitive */
-        leadingPrimitive = matchPrimitive(firstFunction, primitives);
-
-        if(leadingPrimitive==null){
-            log.warn("Unrecognised function in expression");
+        try {
+            leadingPrimitive = matchPrimitive(firstFunction, primitives);
+        } catch (RuntimeException ex) {
+            log.warn("{}: {}", ex::getMessage, ex::getCause);
             return "Unrecognised function in expression";
         }
 
-        /* this flag to determine whether or not this is the first time this method has been called, if it is, the
+        /* this flag to det ermine whether or not this is the first time this method has been called, if it is, the
          * substring is slightly different. In both cases it cuts the function and its front and back parentheses off
          */
 
-        if(topLevelFlag){
-            if(preorderExpression.endsWith("  ) "))
+        if (topLevelFlag) {
+            if (preorderExpression.endsWith("  ) "))
                 preorderExpression = preorderExpression.substring(leadingPrimitive.getSymbol().length() + 3, preorderExpression.length() - 4);
             else
                 preorderExpression = preorderExpression.substring(leadingPrimitive.getSymbol().length() + 3, preorderExpression.length() - 3);
-        }
-        else{
+        } else {
             preorderExpression = preorderExpression.substring(leadingPrimitive.getSymbol().length() + 3, preorderExpression.length() - 2);
         }
 
@@ -179,16 +179,16 @@ public abstract class Chromosome<T> {
         /* if it's a unary operator, return a string that has the operator at the front and this method recursively
          * called on the rest of the expression
          */
-        if(leadingPrimitive.getArity()==1){
+        if (leadingPrimitive.getArity() == 1) {
             return symbolMap.containsKey(leadingPrimitive.getSymbol()) ? symbolMap.get(leadingPrimitive.getSymbol()) +
-                    "(" + getExpression(preorderExpression,primitives,false) + ")" : leadingPrimitive.getSymbol() +
-                    "(" + getExpression(preorderExpression,primitives,false) + ")";
+                    "(" + getExpression(preorderExpression, primitives, false) + ")" : leadingPrimitive.getSymbol() +
+                    "(" + getExpression(preorderExpression, primitives, false) + ")";
         }
 
         /* if it's a binary operator we need to find its two inputs in the expression string
          * this is achieved by checking if the current number of open parentheses is equal to 0 and then finding the comma
          */
-        else if(leadingPrimitive.getArity()==2){
+        else if (leadingPrimitive.getArity() == 2) {
 
             /* to keep track of the number of open parentheses */
             int parenCount = 0;
@@ -197,15 +197,14 @@ public abstract class Chromosome<T> {
              * if it is zero it means we aren't inside any of the functions that comes after the open paren
              * of this function - it makes sense, trust me
              */
-            for(int i = 0; i < preorderExpression.length(); i++){
-                if(preorderExpression.charAt(i) == ',' && parenCount == 0){
+            for (int i = 0; i < preorderExpression.length(); i++) {
+                if (preorderExpression.charAt(i) == ',' && parenCount == 0) {
 
                     /* this value is used to store the number of leading spaces in front of the comma */
                     int subValue = 0;
-                    if((i > 1) && (preorderExpression.charAt(i - 2) == ' ') && (preorderExpression.charAt(i - 1) == ' ')){
+                    if ((i > 1) && (preorderExpression.charAt(i - 2) == ' ') && (preorderExpression.charAt(i - 1) == ' ')) {
                         subValue = 2;
-                    }
-                    else if(preorderExpression.charAt(i-1) == ' '){
+                    } else if (preorderExpression.charAt(i - 1) == ' ') {
                         subValue = 1;
                     }
 
@@ -215,29 +214,26 @@ public abstract class Chromosome<T> {
                      *
                      * If it's either max or min it has to be displayed in a different order
                      * */
-                    if(!leadingPrimitive.getSymbol().equals("MAX") && !leadingPrimitive.getSymbol().equals("MIN")){
+                    if (!leadingPrimitive.getSymbol().equals("MAX") && !leadingPrimitive.getSymbol().equals("MIN")) {
                         return "(" + getExpression(preorderExpression.substring(0, i - subValue), primitives, false) + ")"
                                 + (symbolMap.containsKey(leadingPrimitive.getSymbol()) ? symbolMap.get(leadingPrimitive.getSymbol()) : leadingPrimitive.getSymbol())
                                 + "(" + getExpression(preorderExpression.substring(i + 2, preorderExpression.length()), primitives, false) + ")";
-                    }
-                    else{
+                    } else {
                         return (symbolMap.containsKey(leadingPrimitive.getSymbol()) ? symbolMap.get(leadingPrimitive.
                                 getSymbol()) : leadingPrimitive.getSymbol()) + "((" + getExpression(preorderExpression.
                                 substring(0, i - subValue), primitives, false) + "),(" +
-                                getExpression(preorderExpression.substring(i + 2, preorderExpression.length()), primitives,false) + "))";
+                                getExpression(preorderExpression.substring(i + 2, preorderExpression.length()), primitives, false) + "))";
                     }
                 }
 
                 /* just counting and un-counting parens */
-                if(preorderExpression.charAt(i) == '('){
+                if (preorderExpression.charAt(i) == '(') {
                     parenCount++;
-                }
-                else if(preorderExpression.charAt(i) == ')'){
+                } else if (preorderExpression.charAt(i) == ')') {
                     parenCount--;
                 }
             }
-        }
-        else if(leadingPrimitive.getSymbol().equals("IF")){
+        } else if (leadingPrimitive.getSymbol().equals("IF")) {
             /* to keep track of the number of open parentheses */
             int parenCount = 0;
             /* loops through the expression string until it finds a comma when open parentheses is 0
@@ -245,36 +241,32 @@ public abstract class Chromosome<T> {
              * of this function - it makes sense, trust me
              */
             int firstCommaPosition = 0, secondCommaPosition = 0;
-            for(int i = 0; i < preorderExpression.length(); i++){
-                if(preorderExpression.charAt(i) == ',' && parenCount == 0){
-                    if(firstCommaPosition == 0){
+            for (int i = 0; i < preorderExpression.length(); i++) {
+                if (preorderExpression.charAt(i) == ',' && parenCount == 0) {
+                    if (firstCommaPosition == 0) {
                         firstCommaPosition = i;
-                    }
-                    else{
+                    } else {
                         secondCommaPosition = i;
                     }
                 }
                 /* just counting and un-counting parens */
-                if(preorderExpression.charAt(i) == '('){
+                if (preorderExpression.charAt(i) == '(') {
                     parenCount++;
-                }
-                else if(preorderExpression.charAt(i) == ')'){
+                } else if (preorderExpression.charAt(i) == ')') {
                     parenCount--;
                 }
             }
 
             /* this value is used to store the number of leading spaces in front of the comma */
             int subValueOne = 0, subValueTwo = 0;
-            if((firstCommaPosition > 1) && (preorderExpression.charAt(firstCommaPosition - 2) == ' ') && (preorderExpression.charAt(firstCommaPosition - 1) == ' ')){
+            if ((firstCommaPosition > 1) && (preorderExpression.charAt(firstCommaPosition - 2) == ' ') && (preorderExpression.charAt(firstCommaPosition - 1) == ' ')) {
                 subValueOne = 2;
-            }
-            else if(preorderExpression.charAt(firstCommaPosition-1) == ' '){
+            } else if (preorderExpression.charAt(firstCommaPosition - 1) == ' ') {
                 subValueOne = 1;
             }
-            if((secondCommaPosition > 1) && (preorderExpression.charAt(secondCommaPosition - 2) == ' ') && (preorderExpression.charAt(secondCommaPosition - 1) == ' ')){
+            if ((secondCommaPosition > 1) && (preorderExpression.charAt(secondCommaPosition - 2) == ' ') && (preorderExpression.charAt(secondCommaPosition - 1) == ' ')) {
                 subValueTwo = 2;
-            }
-            else if(preorderExpression.charAt(secondCommaPosition-1) == ' '){
+            } else if (preorderExpression.charAt(secondCommaPosition - 1) == ' ') {
                 subValueTwo = 1;
             }
 
@@ -284,8 +276,8 @@ public abstract class Chromosome<T> {
              * + this method called on the right input to the function*/
 
             return "IF((" + getExpression(preorderExpression.substring(0, firstCommaPosition - subValueOne), primitives, false) + ") < 0) : "
-                + "(" + getExpression(preorderExpression.substring(firstCommaPosition + 2, secondCommaPosition - subValueTwo), primitives, false) + ") ELSE : ("
-                + "(" + getExpression(preorderExpression.substring(secondCommaPosition + 2, preorderExpression.length()), primitives, false) + "))";
+                    + "(" + getExpression(preorderExpression.substring(firstCommaPosition + 2, secondCommaPosition - subValueTwo), primitives, false) + ") ELSE : ("
+                    + "(" + getExpression(preorderExpression.substring(secondCommaPosition + 2, preorderExpression.length()), primitives, false) + "))";
         }
 
         /* this should only output on invalid expressions */
@@ -294,7 +286,7 @@ public abstract class Chromosome<T> {
     }
 
     /* this is just used to map some pre-order symbols to maths symbols */
-    private HashMap<String, String> getSymbolMap(){
+    private HashMap<String, String> getSymbolMap() {
         HashMap<String, String> output = new HashMap<>();
 
         output.put("ADD", "+");
@@ -317,16 +309,22 @@ public abstract class Chromosome<T> {
     /* this loops through all of the primitives in the input primitive list to match the text of the input primitive
      * string and return the matched primitive
      */
-    private FunctionalPrimitive<?, ?> matchPrimitive(String primString, List<FunctionalPrimitive<?, ?>> primitives){
+    private FunctionalPrimitive<?, ?> matchPrimitive(String primString, List<FunctionalPrimitive<?, ?>> primitives)
+            throws RuntimeException {
 
         FunctionalPrimitive<?, ?> tempPrim = null;
-        for(FunctionalPrimitive f :
-                primitives){
-            if(f.getSymbol().toLowerCase().equals(primString.toLowerCase())){
+        for (FunctionalPrimitive f :
+                primitives) {
+            if (f.getSymbol().toLowerCase().equals(primString.toLowerCase())) {
                 tempPrim = f;
                 break;
             }
         }
+
+        if (tempPrim == null) {
+            throw new RuntimeException("Unrecognised function in expression");
+        }
+
         return tempPrim;
     }
 
@@ -336,7 +334,7 @@ public abstract class Chromosome<T> {
      * @param expression - the expression to be simplified
      * @return
      */
-    public String simplifyExpression(String expression){
+    public String simplifyExpression(String expression) {
 
         /* these are the regexes used to find common patterns that can be simplified */
         String coXPlusCoXPattern = "\\(([-?0-9]+)?\\*?([A-Za-z0-9_]+)\\)\\+\\(([-?0-9]+)?\\*?\\2\\)";
@@ -360,104 +358,92 @@ public abstract class Chromosome<T> {
         Pattern pattern = Pattern.compile(xTimesRootPattern);
         Matcher matcher = pattern.matcher(expression);
 
-        while(matcher.find()){
+        while (matcher.find()) {
             expression = expression.replaceFirst("\\(" + matcher.group(1) + "\\)ROOT", matcher.group(1) + "*ROOT");
         }
 
         pattern = Pattern.compile(coXPlusCoXPattern);
         matcher = pattern.matcher(expression);
 
-        while(matcher.find()){
+        while (matcher.find()) {
             int a = 1, b = 1;
-            if(matcher.group(1) != null){
+            if (matcher.group(1) != null) {
                 a = Integer.parseInt(matcher.group(1));
             }
-            if(matcher.group(3) != null){
+            if (matcher.group(3) != null) {
                 b = Integer.parseInt(matcher.group(3));
             }
-            if(a+b == 0){
+            if (a + b == 0) {
                 expression = expression.replaceAll(coXPlusCoXPattern, "(0)");
-            }
-            else if(a+b == 1){
+            } else if (a + b == 1) {
                 expression = expression.replaceAll(coXPlusCoXPattern, "($2)");
-            }
-            else if(a+b == -1){
+            } else if (a + b == -1) {
                 expression = expression.replaceAll(coXPlusCoXPattern, "(-$2)");
-            }
-            else{
-                expression = expression.replaceAll(coXPlusCoXPattern, "(" + (a+b) + "*$2)");
+            } else {
+                expression = expression.replaceAll(coXPlusCoXPattern, "(" + (a + b) + "*$2)");
             }
 
         }
         pattern = Pattern.compile(coXMinusCoXPattern);
         matcher = pattern.matcher(expression);
 
-        while(matcher.find()){
+        while (matcher.find()) {
             int a = 1, b = 1;
-            if(matcher.group(1) != null){
+            if (matcher.group(1) != null) {
                 a = Integer.parseInt(matcher.group(1));
             }
-            if(matcher.group(3) != null){
+            if (matcher.group(3) != null) {
                 b = Integer.parseInt(matcher.group(3));
             }
-            if(a-b == 0){
+            if (a - b == 0) {
                 expression = expression.replaceAll(coXMinusCoXPattern, "(0)");
-            }
-            else if(a-b == 1){
+            } else if (a - b == 1) {
                 expression = expression.replaceAll(coXMinusCoXPattern, "($2)");
-            }
-            else if(a-b == -1){
+            } else if (a - b == -1) {
                 expression = expression.replaceAll(coXMinusCoXPattern, "(-$2)");
-            }
-            else{
+            } else {
                 expression = expression.replaceAll(coXMinusCoXPattern, "(" + (a - b) + "*$2)");
             }
         }
         pattern = Pattern.compile(coXTimesCoXPattern);
         matcher = pattern.matcher(expression);
 
-        while(matcher.find()){
+        while (matcher.find()) {
             int a = 1, b = 1;
-            if(matcher.group(1) != null){
+            if (matcher.group(1) != null) {
                 a = Integer.parseInt(matcher.group(1));
             }
-            if(matcher.group(3) != null){
+            if (matcher.group(3) != null) {
                 b = Integer.parseInt(matcher.group(3));
             }
-            if(a*b == 1){
+            if (a * b == 1) {
                 expression = expression.replaceAll(coXTimesCoXPattern, "($2^2)");
-            }
-            else if(a*b == -1){
+            } else if (a * b == -1) {
                 expression = expression.replaceAll(coXTimesCoXPattern, "(-$2^2)");
-            }
-            else{
+            } else {
                 expression = expression.replaceAll(coXTimesCoXPattern, "(" + (a * b) + "$2^2)");
             }
         }
         pattern = Pattern.compile(coXDividesCoXPattern);
         matcher = pattern.matcher(expression);
 
-        while(matcher.find()){
+        while (matcher.find()) {
             int a = 1, b = 1;
-            if(matcher.group(1) != null){
+            if (matcher.group(1) != null) {
                 a = Integer.parseInt(matcher.group(1));
             }
-            if(matcher.group(3) != null){
+            if (matcher.group(3) != null) {
                 b = Integer.parseInt(matcher.group(3));
             }
-            if(a/b == 1){
+            if (a / b == 1) {
                 expression = expression.replaceAll(coXDividesCoXPattern, "(1)");
-            }
-            else if(a/b == -1){
+            } else if (a / b == -1) {
                 expression = expression.replaceAll(coXDividesCoXPattern, "(-1)");
-            }
-            else if((float)a/(float)b < 0){
+            } else if ((float) a / (float) b < 0) {
                 expression = expression.replaceAll(coXDividesCoXPattern, "(-(" + Math.abs(a) + "/" + Math.abs(b) + "))");
-            }
-            else if(a < 0 && b < 0){
+            } else if (a < 0 && b < 0) {
                 expression = expression.replaceAll(coXDividesCoXPattern, "(" + Math.abs(a) + "/" + Math.abs(b) + ")");
-            }
-            else{
+            } else {
                 expression = expression.replaceAll(coXDividesCoXPattern, "(" + a + "/" + b + ")");
             }
         }
@@ -465,7 +451,7 @@ public abstract class Chromosome<T> {
         pattern = Pattern.compile(anythingOpAnythingPattern);
         matcher = pattern.matcher(expression);
 
-        while(matcher.find()){
+        while (matcher.find()) {
             expression = expression.replaceFirst("\\(" + matcher.group(1) + "\\)", matcher.group(1));
             expression = expression.replaceFirst("\\(" + matcher.group(3) + "\\)", matcher.group(3));
         }
