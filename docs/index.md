@@ -85,16 +85,15 @@ The term ‘user’ is used throughout this document to refer to a person who re
 
 Below is a list of known bugs with the Iconic Workbench. For an optimal experience, please refrain from replicating the following scenarios:
 
+#### General
+1. Most buttons in the menu bar do not work. Please be aware that using these buttons may not have the desired effect
+
 #### Input Data
 
-1. CSV data may contain a small amount of CSV header information at the start of the file. This will cause the Iconic Workbench to display "ï»¿" prepended to the first row of the dataset.
+1. CSV data may contain a small amount of CSV header information at the start of the file. This will cause the Iconic Workbench to display "ï»¿" prepended to the first row of the dataset
     * This will not affect performance if the CSV contains a feature header row
     * If the CSV does not contain a feature header row, the CSV header information will cause the first row in the dataset to be taken as a feature header row
-2. Removing/deleting data from a cell does not actually remove the value from the dataset. It will dislay as removed, but once the view is refreshed the value will reappear
-3. Pasting data with missing values from Excel will not paste into the Iconic Workbench correctly. Same goes for copying data with missing values from the Iconic Workbench into Excel
-    * Copying the following: 1,,3,4 from Excel will result in: 1,3,4,, when pasted into the workbench
-    * Copying the following: 1,,3,4 from the Iconic Workbench will result in: 1,null,3,4 when pasted into Excel
-4. Iconic Workbench does not support importing, saving or exporting the "info" row in a dataset
+2. Iconic Workbench does not support importing, saving or exporting the "info" row in a dataset
 
 #### Process Data
 
@@ -107,8 +106,7 @@ Below is a list of known bugs with the Iconic Workbench. For an optimal experien
 
 1. Selected result does not remain selected when the results table is updated
 2. Cartesian Genetic Programming searches may not output all results when number of outputs > 1
-3. Cartesian Genetic Programming will only plot one result instead of one for each output. This may cause the graph to look un-fit, while error is low
-4. Coefficients are not truncated to 3d.p.
+3. Coefficients are not truncated to 3d.p.
 
 
 ## Getting Started
@@ -272,7 +270,7 @@ Below is a simple start to finish guide to running a search.
 
 ![Selecting a dataset to use in the search](gettingStarted/runSearch/7DefineSearchSelectDataset.png)
 
-10. OPTIONAL: Increase cutation and crossover rates
+10. OPTIONAL: Increase mutation and crossover rates
 
 ![Increasing the mutation and crossover rated to 50% each](gettingStarted/runSearch/8DefineSearchChangeMutationAndCrossover.png)
 
