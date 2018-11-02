@@ -1,5 +1,9 @@
 # Iconic Project
 
+## User Manual
+
+The user manual for Iconic can be found [here](https://koosvary.github.io/Iconic/docs/index.md).
+
 ## Build Status
 
 ## What's New
