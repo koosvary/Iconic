@@ -111,9 +111,14 @@ public class Client {
             int levelsBack = client.getArgs().getLevelsBack();
             List<FunctionalPrimitive<Double, Double>> blocks = client.getArgs().getPrimitives();
 
+            // If no primitives are specified default to all of them
+            if (blocks == null || blocks.size() < 1) {
+                blocks = new ArrayList<>(new PrimitiveTypeConverter().getPrimitives().values());
+            }
+
             log.info("Feature Size: {}", () -> featureSize - 1);
             log.info("Sample Size: {}", () -> sampleSize);
-            log.info("Primitives: {}", () -> blocks);
+            log.info("Primitives: {}", blocks);
 
             // Create a supplier for Gene Cartesian Programming chromosomes
             List<String> inputs = new ArrayList<>(featureSize - 1);

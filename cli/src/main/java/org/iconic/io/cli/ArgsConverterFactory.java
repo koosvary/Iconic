@@ -80,11 +80,11 @@ public class ArgsConverterFactory {
     private boolean csv;
 
     @Getter
-    @Parameter(names = {"--primitives"}, required = true, description = "The primitives to use in the search",
+    @Parameter(names = {"--primitives"}, description = "The primitives to use in the search",
      converter = PrimitiveTypeConverter.class)
     private List<FunctionalPrimitive<Double, Double>> primitives;
 
     @Getter
-    @Parameter(names = {"--listPrimitives"}, description = "List all of the primitives that can be used in the search")
+    @Parameter(names = {"--listPrimitives"}, help = true, description = "List all of the primitives that can be used in the search")
     private boolean listPrimitives;
 }
