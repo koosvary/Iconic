@@ -10,44 +10,49 @@
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Overview](#overview)
-  1. [Conventions](#conventions)
-  2. [Cautions & Warnings](#cautions-warnings)
+    1. [Conventions](#conventions)
+    2. [Cautions & Warnings](#cautions-warnings)
 3. [Getting Started](#getting-started)
-  1. [Set-up Considerations](#set-up-considerations)
-  2. [User Access Considerations](#user-access-considerations)
-  3. [Accessing the System](#accessing-the-system)
-  4. [System Organization & Navigation](#system-organization-navigation)
-  5. [Exiting the System](#exiting-the-system)
+    1. [Set-up Considerations](#set-up-considerations)
+    2. [User Access Considerations](#user-access-considerations)
+    3. [Accessing the System](#accessing-the-system)
+    4. [System Organization & Navigation](#system-organization-navigation)
+    5. [Exiting the System](#exiting-the-system)
 4. [Using the System](#using-the-system)
-  1. [Load, View, & Edit a Dataset](#load-view-edit-a-dataset)
-  2. [Pre-Process Data](#pre-process-data)
-  3. [Define Search](#define-search)
-  4. [Start Search](#start-search)
-  5. [Results](#results)
-  6. [<Given Function/Feature>](#given-function-feature)
-  7. [<Given Sub-Function/Sub-Feature>](#given-sub-function-sub-feature)
+    1. [Load, View, & Edit a Dataset](#load-view-edit-a-dataset)
+    2. [Pre-Process Data](#pre-process-data)
+    3. [Define Search](#define-search)
+    4. [Start Search](#start-search)
+    5. [Results](#results)
+    6. [<Given Function/Feature>](#given-function-feature)
+    7. [<Given Sub-Function/Sub-Feature>](#given-sub-function-sub-feature)
 5. [Using the Command-Line](#using-the-command-line)
-  1. [Available Options](#available-options)
-  1. [Cartesian Genetic Programming](#cartesian-genetic-programming)
-  2. [Gene Expression Programming](#gene-expression-programming)
-  2. [Loading a Dataset](#loading-a-dataset)
-  3. [Pre-Processing a Dataset](#pre-processing-a-dataset)
-  4. [Preparing a Chromosome Supplier](#preparing-a-chromosome-supplier)
-  5. [Preparing an Evolutionary Algorithm](#preparing-an-evolutionary-algorithm)
-  6. [Starting a Search](#starting-a-search)
-  7. [Gathering the Results](#gathering-the-results)
+    1. [Choosing the Input File](#choosing-the-input-file)
+    2. [Number of Outputs](#number-of-outputs)
+    3. [Number of Generations](#number-of-generations)
+    4. [Size of Population](#size-of-population)
+    5. [Primitives to Use](#primitives-to-use)
+    6. [Crossover Probability](#crossover-probability)
+    7. [Mutation Probability](#mutation-probability)
+    8. [Number of Repetitions](#type-of-algorithm)
+    9. [Graphing the Results](#graphing-the-results)
+    10. [Exporting the Results as CSV](#exporting-the-results-as-csv)
+    11. [Cartesian-Specific Parameters](#cartesian-specific-parameters)
+        1. [Number of Columns](#number-of-columns)
+        2. [Number of Rows](#number-of-rows)
+        3. [Number of Levels Back](#number-of-levels-back)
 6. [Troubleshooting & Support](#troubleshooting-support)
-  1. [Error Messages](#error-messages)
-  2. [Special Considerations](#special-considerations)
-  3. [Support](#support)
+    1. [Error Messages](#error-messages)
+    2. [Special Considerations](#special-considerations)
+    3. [Support](#support)
 7. [Appendix](#appendix)
-  1. A: Record of Changes
-    2. B: Acronyms
-    3. C: Glossary
-    4. D: Referenced Documents
-    5. E: Approvals
-    6. F: Additional Appendices
-    7. G: Notes / Instructions
+    1. A: Record of Changes
+      2. B: Acronyms
+      3. C: Glossary
+      4. D: Referenced Documents
+      5. E: Approvals
+      6. F: Additional Appendices
+      7. G: Notes / Instructions
 
 ## Introduction
 *Instructions: Provide full identifying information for the automated system, application, or situation for which the User Manual applies, including as applicable, identifications number(s), title(s)/name(s), abbreviation(s)/acronym(s), part number(s), version number(s), and release number(s). Summarize the purpose of the document, the scope of activities that resulted in its development, the intended audience for the document, and expected evolution of the document. Also describe any security or privacy considerations associated with use of the User Manual.*
@@ -318,6 +323,7 @@ Projects provide logical groupings for multiple datasets and searches.
 2. Give your project a name and click "OK"
 
 Alternatively, if no project exists, you will be prompted to create one when importing or creating a dataset
+
 ### Import or Create a Dataset
 You may either import an existing dataset in CSV format, or create one from scratch and enter or paste in values.
 #### Import a Dataset
@@ -413,240 +419,205 @@ You may offset each data point in the feature by a specified positive or negativ
 2. Click the "Offset values of ..." checkbox
 3. Enter a value and press enter to apply
 
-### Load, View, & Edit a Dataset
-
-The "Input Data" screen is where the user can import, view, edit and save datasets to be used in the search.
-
-1. Ensure a project is selected in the left hand menu
-
-![alt-text](images/load_edit_view/lev_1.png)
-
-  1. If there is no project, a prompt will be shown to create one when the “Load Dataset” button is pressed 2. If a project exists but is not selected when the “Load Dataset” button is pressed, the user will be prompted to select a project2. Either right click the project and click “Import Dataset…”
-
-![alt-text](images/load_edit_view/lev_2.png)
-
-or click the “Import Dataset” button on the “Input Data” screen
-
-![alt-text](images/load_edit_view/lev_3.png)
-
-3. Navigate to and select your dataset.
-
-![alt-text](images/load_edit_view/sds_1.png)
-
-4. Select the dataset in the left hand menu
-
-![alt-text](images/load_edit_view/lev_4.png)
-
-5. Double click on a cell to edit it. Press enter or click away to save changes to local memory (*the original dataset will not be altered*)
-
-![alt-text](images/load_edit_view/lev_5.png)
-
-  1. If entered value is invalid, the original/previous value will be retained6. Click “Export Dataset” and enter a filename and extension to save edited dataset to disk
-
-![alt-text](images\load_edit_view\ed_1.png)
-
-7.  If you load a dataset with headers, you will be able to edit those headers in the spreadsheet view
-
-![alt-text](images\load_edit_view\lev_6.png)
-
-  1. You may also edit the description of the feature in the "info" row
-8.  You can add extra rows to the dataset by scrolling down
-
-![alt-text](images\load_edit_view\lev_7.png)
-
-![alt-text](images\load_edit_view\lev_7b.png)
-
-  1. These rows will be zeroed out and will not persist unless a value is entered into a cell
-9. You may also create a dataset from scratch by clicking the "Create Dataset" button
-
-![alt-text](images\load_edit_view\lev_8.png)
-
-![alt-text](images\load_edit_view\lev_9.png)
-
-![alt-text](images\load_edit_view\lev_10.png)
-
-  1. This currently defaults to 26 features. Ability to choose to be implemented in an upcoming release
-### Pre-Process Data
-
-On the "Process Data" screen, the user can apply transformations and manipulate the data before a search begins.
-Supported transormations are:
- * Smooth data
- * Handle missing values
- * Remove outliers
- * Normalise scale
- * Offset data
-
-1. With a dataset loaded, select it on the left hand side and click the “Process Data” tab
-
-![alt-text](images\preprocess\pp_1.png)
-
-![alt-text](images\preprocess\pp_2.png)
-
-2. View the data of a feature by clicking on the feature name
-
-![alt-text](images\preprocess\pp_3.png)
-
-3. A graph will show below, plotting the data
-
-![alt-text](images\preprocess\pp_4.png)
-
-![alt-text](images\preprocess\pp_5.png)
-
-4. The feature names are represented by the headers in the dataset
-
-![alt-text](images\preprocess\pp_6.png)
-
-#### Smoothing
-
-This will automatically smooth the data. It uses a "Moving Average Filter", which smooths data by replacing each data point with the average of the neighboring data points defined within the span. By default, it uses a window of 5, which is the two data points before and after the current, and the current data point.
-*NOTE: The ability to choose the window size will be implemented in a future release*
-
-1. Select a feature
-
-2. Check the "Smooth data points of (x)" checkbox to automatically apply the smoothing function
-
-![alt-text](images\preprocess\smoothing.png)
-
-![alt-text](images\preprocess\smoothing_1.png)
-
-#### Handle Missing Values *NOTE: Not currently implemented*
-
-This can be used to determine the outcome if a row is missing a data point for a feature. This will be implemented in a future release.
-
-1. Select a feature
-
-2. Check the "Handle missing values of (x)" checkbox
-
-3. Select a method to handle missing values
-
-![alt-text](images\preprocess\missing_values_1.png)
-
-#### Remove Outliers *NOTE: Not currently implemented*
-
-This can be used to remove outliers from the dataset. This will be implemented in a future release.
-
-1. Select a feature
-
-2. Check the "Remove outliers of (x)" checkbox
-
-![alt-text](images\preprocess\remove_outliers_1.png)
-
-#### Normalise
-
-This can be used to normalise/scale the dataset between two values. If Max is greater than Min, the last applied normalisation values will be used.
-
-1. Select a feature
-
-2. Check the “Normalise scale of (x)” checkbox
-
-3. The graph will update and normalise the data between the default, 0 and 1
-
-![alt-text](images\preprocess\normalise_1.png)
-
-4. Change the minimum to 0.5 and maximum to 2, press enter
-
-![alt-text](images\preprocess\normalise_2.png)
-
-5. Change the minimum to 3 and maximum to 1, press enter
-
-![alt-text](images\preprocess\normalise_3.png)
-
-*NOTE: Data will not be normalised as max is less than min. Previous normalisation values are used instead*
-
-#### Offset
-
-This will increase/decrease each data point in the dataset by the offset amount.
-
-1. Select a feature
-
-2. Check the "Offset values of (x)" checkbox
-
-3. Enter a value to offset the data by
-
-![alt-text](images\preprocess\offset_1.png)
-
-![alt-text](images\preprocess\offset_2.png)
-
-#### Multiple Transformations
-
-Multiple transformations can be applied at once. They will run in the order they are applied by the user.
-
-![alt-text](images\preprocess\multi_1.png)
-
-![alt-text](images\preprocess\multi_2.png)
-
-![alt-text](images\preprocess\multi_3.png)
-
-### Define Search
-
-On the "Define Search" screen, the user can specify a target expression, and thereby which features to use in the search (not currently implemented). The user can also select the building blocks to be used in the search, and the error function to use (not currently implemented)
-
-1. Click the “Define Search” tab
-2. Select a dataset and observe the target expression
-
-  **(Y) = f((A),(B),(C),(D),(E),...,(V),(W),(X))**
-
-![alt-text](images\define\ds_1.png)
+### Define Search Parameters
+You may define the parameters to use when searching. Availability and display of some parameters are restricted to certain search types. For quick reference, you may hover over a label for an explanation.
+
+#### Select a dataset
+You **MUST** select the dataset to search on
+1. Select a search in the project tree
+2. Navigate to the "Define Search" page
+3. Select a dataset to use in the search via the "Select a dataset" drop-down menu
+
+#### Target Function
+This specifies the target function to search for. It allows you to define the input features and output (classifier) feature to use for searching.
+1. Select a search in the project tree
+2. Navigate to the "Define Search" page
+3. Select a dataset to use in the search via the "Select a dataset" drop-down menu
+    a. The target function will automatically fill out in the following format: (y) = f((x), (w), (...), (z)) where y = output = the last feature in the dataset, and x,w,...,z = input = the remaining features in the dataset.
+4. You may change the target function as long as it adheres to the following rules:
+    a. Each feature name must be encapsulated within parenthesis
+    b. There may only be one feature on the left side of the equation
+    c. The list of input features must be encapsulated within parenthesis with an 'f' prepended
+    d. Each feature name must be separated by a comma, followed by a space (except the last feature)
+5. Press the enter key
+
+![Syntax of target expression](images/TargetExpressionSyntax.png)
 
 #### Building Blocks
+These are the functional primitives to be included in the search. Each building block can be enabled or disabled individually, have their complexities set and will display a description when clicked.
+1. Select a search in the project tree
+2. Navigate to the "Define Search" page
+3. Click the name of a building block to display its description on the right
+4. Double click the name, or click the checkbox next to it, to toggle the building block enabled or disabled
+5. Double click the complexity, enter a new value and press the enter key to change the complexity
+6. Click the "Enable All" button to enable all building blocks
+7. Click the "Disable All" button to disable all building blocks
+    a. This button will only display is "Enable All" is pressed
+##### Building block list
+Below is a list of all currently implemented building blocks in alphabetical order
 
-A building block is a mathematical function which can be used in the search. These can be toggled on and off, and each have their own complexity. Complexities are used in determining solution size on the results page.
+        ABS (a):
+        Returns the positive value of a.
 
-1. Click the checkbox next to a building block to enable/disable it
+        ADD (a, b):
+        Returns a + b.
 
-![alt-text](images\define\ds_3.png)
+        AND (a, b):
+        Returns 1 if both a and b are greater than 0, 0 otherwise.
 
-2. Double click the complexity to edit it. Press enter to save the change
+        ACOS (a):
+        Returns the inverse cosine function of a.
 
-![alt-text](images\define\ds_4.png)
+        ASIN (a):
+        Returns the inverse sine function of a.
 
-#### Error Function *Note: Not currently implemented*
+        ATAN (a):
+        Returns the inverse single argument tangent function of a.
 
-This is a list of pre-defined error functions the user can select from for the search to use. The error function is used to determine fitness.
+        CEIL (a):
+        Returns the integer of a rounded up.
 
-1. Click and select an error function to use
+        COS (a):
+        Returns the cosine of a.
 
-![alt-text](images\define\ds_5.png)
+        DIV (a, b):
+        Returns the division of a / b.
 
-### Start Search
+        EQUAL (a, b):
+        Returns 1 if a is equal to b, 0 otherwise.
 
-This is where the user can start a search and get live feedback about the best found solution and the fitness over time of the found solutions.
+        EXP (a):
+        Returns e^a.
 
-1. Ensure a dataset is selected and click the "Start Search" tab
+        FLOOR (a):
+        Returns the integer of a rounded down.
 
-3. Click "Start Search" to start the search
+        GAUSS (a):
+        Returns exp(-x^2), providing a normal distribution.
 
-![alt-text](images\search\ss_1.png)
+        GREATER (a, b):
+        Returns 1 if a > b, 0 otherwise.
 
-4. Observe the console view below, printing out the solution with the best fitness each time one is discovered
+        GREATER_EQUAL (a, b):
+        Returns 1 if a >= b, 0 otherwise.
 
-![alt-text](images\search\ss_2.png)
+        IF (a, b, c):
+        Returns returns b if a > 0, c otherwise.
 
-5. Click “Stop Search”. A progress over time graph will display. *Note: This will change to live updates in a future release*
+        LESS (a, b):
+        Returns 1 if a < b, 0 otherwise.
 
-![alt-text](images\search\ss_3.png)
+        LESSEQUAL (a, b):
+        Returns 1 if a <= b, 0 otherwise.
 
-### Results
+        LOGISTIC (a):
+        Returns (1 / 1 + exp(-a)).
+        This is a common sigmoid squashing function.
 
-This is where results and information gathered from the search will be displayed and updated live. *Note: This screen is currently in an early version and most functionality is not implemented yet*
+        MAX (a, b):
+        Returns the maximum value of a and b.
 
-1. Ensure a dataset is selected and click on the "Results" tab
+        MIN (a, b):
+        Returns the minimum value of a and b.
 
-![alt-text](images\results\rs_1.png)
+        MOD (a, b):
+        Returns the remainder of a / b.
 
-*NOTE: There are no results on this screen. This is because a search has not been executed*
+        MUL (a, b):
+        Returns a * b.
 
-2. Execute a search, allow it to find results, then click "Stop Search"
+        LN (a):
+        Returns the natural logarithm (base e) of a.
 
-3. Return to the "Results" screen and observe the results table
+        NEG (a):
+        Returns - a.
 
-![alt-text](images\results\rs_2.png)
+        NOT (a):
+        Returns 0 if a is greater than 0, 1 otherwise.
 
-4. This table can be sorted by size and fitness in ascending and descending order
+        OR (a, b):
+        Returns 1 if either a or b are greater than 0, 0 otherwise.
 
-![alt-text](images\results\rs_3.png)
+        POW (a, b):
+        Returns a^b.
 
-![alt-text](images\results\rs_4.png)
+        ROOT (a, b):
+        Returns the b-th root of a if a is greater than 0, NaN otherwise.
+
+        SGN (a):
+        Returns -1 if a is negative, 1 if a is positive, 0 otherwise.
+
+        SIN (a):
+        Returns the sine of a.
+
+        SQRT (a):
+        Returns the square root of a.
+
+        STEP (a):
+        Returns 1 if x is positive, 0 otherwise.
+
+        SUB (a, b):
+        Returns a - b.
+
+        TAN (a):
+        Returns the tangent of a.
+
+        TANH (a):
+        Returns the hyperbolic tangent of a.
+        This is a common squashing function returning a value between -1 and 1.
+
+        ATAN2 (a, b):
+        Returns the two argument inverse tangent function.
+
+        XOR (a, b):
+        Returns 1 if (a <= 0 and b > 0) or (a > 0 and b <= 0), 0 otherwise.
+
+
+#### General Parameters
+Below are the parameters which apply to both Gene Expression Programming and Cartesian Genetic Programming searches
+
+##### Error Metric
+This is the algorithm to use for determining result error. Currently, only Mean Squared Error is available
+
+##### Population Size
+This is the number of "children" to be generated each generation
+
+##### Generations
+This is the number of generations to run the search for. A value of 0 will run the search indefinitely
+
+##### Mutation
+This is the algorithm to use for mutation of chromosomes. Currently, only Single Active Gene Mutation is available. Mutation is a small random change in a chromosome
+
+##### Mutation Rate
+This is the chance of mutation as a percentage. The higher the mutation rate, the more chance a mutation will occur
+
+#### Gene Expression Programming Specific Parameters
+Below are the parameters which only apply to Gene Expression Programming searches
+
+##### Head Length
+
+##### Crossover
+This is the algorithm to use for crossover of chromosomes. Currently, only Simple Expression Crossover is available. Crossover is the act of replacing part of the child's genes with those of a parents within the population
+
+##### Crossover Rate
+This is the chance of crossover as a percentage. The higher the crossover rate, the more chance a crossover will occur
+
+#### Cartesian Genetic Programming Specific Parameters
+Below are the parameters which only apply to Cartesian Genetic Programming searches
+
+##### Number of Outputs
+The number of outputs that the CGP chromosome can have, effectively splitting a solution into multiple parts
+
+##### Number of Columns
+The number of columns in the CGP chromosomes dimensions
+
+##### Number of Rows
+The number of rows in the CGP chromosomes dimensions. It is recommended to set this value to 1 as default.
+
+##### Number of Levels Back
+The number of levels back that any node in the CGP chromosome can reach to connect to another node.
+
+### Start a Search
 
 ### <Given Function/Feature>
 *Instructions: Describe the specific system function or feature in detail and depict graphically by including screen prints and descriptive narrative as appropriate. Ensure each screen print is captioned and has an associated tag providing appropriate alternative text. Describe, in detail, active links on any screen print illustrated so that the user knows what options are available. Provide information on menus and functionalities that the user must master, expected output/results, and any special instructions. Identify any caveats and exceptions that the user may encounter specific to the system function.*
