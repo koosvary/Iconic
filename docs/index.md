@@ -168,7 +168,7 @@ To optimize utilisation of the **Iconic Workbench**:
 ### Screens
 #### Input Data
 
-![Input Data screen with a project selected](gettingStarted/InputDataView1.png)
+![Input Data screen with a project selected](images/gettingStarted/InputDataView1.png)
 
 1. Project tree
 2. Searches in the project
@@ -178,7 +178,7 @@ To optimize utilisation of the **Iconic Workbench**:
 6. Import Dataset button
 7. Create New Search button
 
-![Input Data screen with a dataset selected](gettingStarted/InputDataView2.png)
+![Input Data screen with a dataset selected](images/gettingStarted/InputDataView2.png)
 
 8. Information/Description row of the spreadsheet view
 9. Feature name/Header row
@@ -187,7 +187,7 @@ To optimize utilisation of the **Iconic Workbench**:
 
 #### Process Data
 
-![Process Data screen](gettingStarted/ProcessData1.png)
+![Process Data screen](images/gettingStarted/ProcessData1.png)
 
 1. Process Data tab
 2. List of dataset features
@@ -198,7 +198,7 @@ To optimize utilisation of the **Iconic Workbench**:
 7. Offset values
 8. Plot of data points
 
-![Process Data screen with preprocessors applied](gettingStarted/ProcessData2.png)
+![Process Data screen with preprocessors applied](images/gettingStarted/ProcessData2.png)
 
   9. Smoothing window input
  10. Missing values method dropdown
@@ -209,7 +209,7 @@ To optimize utilisation of the **Iconic Workbench**:
 
 #### Define Search
 
-![Define Search screen for CGP search](gettingStarted/DefineSearchCGP.png)
+![Define Search screen for CGP search](images/gettingStarted/DefineSearchCGP.png)
 
 1. Define Search tab
 2. Target expression input
@@ -229,7 +229,7 @@ To optimize utilisation of the **Iconic Workbench**:
 16. Building block complexity
 17. Building block description
 
-![Define Search screen for GEP search](gettingStarted/DefineSearchGep.png)
+![Define Search screen for GEP search](images/gettingStarted/DefineSearchGep.png)
 
 18. Head length input
 19. Crossover algorithm dropdown
@@ -237,7 +237,7 @@ To optimize utilisation of the **Iconic Workbench**:
 
 #### Start Search
 
-![Start search screen with a search started](gettingStarted/StartSearch.png)
+![Start search screen with a search started](images/gettingStarted/StartSearch.png)
 
 1. Start Search tab
 2. Start search button
@@ -249,7 +249,7 @@ To optimize utilisation of the **Iconic Workbench**:
 
 #### Results
 
-![Results screen with a result selected](gettingStarted/Results.png)
+![Results screen with a result selected](images/gettingStarted/Results.png)
 
 1. Results tab
 2. Results table
@@ -260,15 +260,15 @@ To optimize utilisation of the **Iconic Workbench**:
 
 #### Dialogs
 
-![Add new project dialog](gettingStarted/NewProjectDialog.png)
+![Add new project dialog](images/gettingStarted/NewProjectDialog.png)
 
 1. Project name input
 
-![Add new dataset dialog](gettingStarted/NewDatasetDialog.png)
+![Add new dataset dialog](images/gettingStarted/NewDatasetDialog.png)
 
 2. Dataset name input
 
-![Add new search dialog](gettingStarted/AddSearchDialog.png)
+![Add new search dialog](images/gettingStarted/AddSearchDialog.png)
 
 3. Search name input
 4. Search type selection dropdown
@@ -279,62 +279,62 @@ Below is a simple start to finish guide to running a search.
 1. Start the Iconic Workbench
 2. Click the "Import Dataset" button
 
-![Clicking "Import Dataset" button](gettingStarted/runSearch/1ImportDataset.png)
+![Clicking "Import Dataset" button](images/gettingStarted/runSearch/1ImportDataset.png)
 
 3. Navigate to and select a dataset, click "Open"
 
-![Selecting a dataset from the system explorer](gettingStarted/runSearch/2ImportDatasetDialog.png)
+![Selecting a dataset from the system explorer](images/gettingStarted/runSearch/2ImportDatasetDialog.png)
 
 4. Enter a name for your project and click "OK"
 
-![Create a Project dialog](gettingStarted/runSearch/3NewProjectDialog.png)
+![Create a Project dialog](images/gettingStarted/runSearch/3NewProjectDialog.png)
 
 5. Enter a search name, select a search and click "OK"
 *Note: This guide uses the "Gene Expression Programming" search type*
 
-![Adding a Gene Expression Programming search](gettingStarted/runSearch/3bAddSearchDialog.png)
+![Adding a Gene Expression Programming search](images/gettingStarted/runSearch/3bAddSearchDialog.png)
 
 6. Select the dataset in the project tree to view the data
 *Note: You may edit the data by double-clicking a cell, entering a new value and pressing enter*
 
-![Dataset shown in spreadsheet view](gettingStarted/runSearch/4SelectDatasetInProject.png)
+![Dataset shown in spreadsheet view](images/gettingStarted/runSearch/4SelectDatasetInProject.png)
 
 7. With the dataset selected, click the "Process Data" tab to view and process each feature individually
 *Note: You may click individual features to plot them and apply preprocessing transformations on this screen*
 
-![Process Data screen with a feature selected](gettingStarted/runSearch/5ProcessData.png)
+![Process Data screen with a feature selected](images/gettingStarted/runSearch/5ProcessData.png)
 
 8. Select the search in the project tree, then select the "Define Search" tab
 *Note: You may define search parameters on this screen. Besides selecting the dataset to use, modifying search parameters is optional*
 
-![Define Search screen with a search selected](gettingStarted/runSearch/6SelectSearchAndDefineSearch.png)
+![Define Search screen with a search selected](images/gettingStarted/runSearch/6SelectSearchAndDefineSearch.png)
 
 9. Select a dataset from the dropdown menu
 *Note: Selecting a dataset with missing values will give a warning. If your dataset has missing values, select the dataset in the project tree, navigate to the "Process Data" screen and enable "Handle missing values" for each feature with missing values*
 
-![Selecting a dataset to use in the search](gettingStarted/runSearch/7DefineSearchSelectDataset.png)
+![Selecting a dataset to use in the search](images/gettingStarted/runSearch/7DefineSearchSelectDataset.png)
 
 10. OPTIONAL: Increase mutation and crossover rates
 
-![Increasing the mutation and crossover rated to 50% each](gettingStarted/runSearch/8DefineSearchChangeMutationAndCrossover.png)
+![Increasing the mutation and crossover rated to 50% each](images/gettingStarted/runSearch/8DefineSearchChangeMutationAndCrossover.png)
 
 11. OPTIONAL: Enable and disable building blocks as necessary
 *Note: For optimal results, you must choose building blocks which make sense for your dataset. In this example, SIN and COS are not appropriate for the dataset used. EXP and POW are more relevant, and have been enabled*
 
-![Selecing appropriate building blocks](gettingStarted/runSearch/9SelectBuildingBlocks.png)
+![Selecing appropriate building blocks](images/gettingStarted/runSearch/9SelectBuildingBlocks.png)
 
 12. Click the "Start Search" tab and then start the search by clicking the "Start Search" button
 
-![Starting the search from the Start Search view](gettingStarted/runSearch/10StartSearchAndStartSearch.png)
+![Starting the search from the Start Search view](images/gettingStarted/runSearch/10StartSearchAndStartSearch.png)
 
 13. The search will be started and you can immediately observe search progress
 
-![Displaying search progress from the Start Search view](gettingStarted/runSearch/11StartSearchSearchProgress.png)
+![Displaying search progress from the Start Search view](images/gettingStarted/runSearch/11StartSearchSearchProgress.png)
 
 14. Click the "Results" tab and then select a result from the table to plot it
 *Note: You may right click a result and select "Copy" to copy the expression to the clipboard
 
-![Plotting results on the Solution Fit Plot](gettingStarted/runSearch/12ResultsAndSolutionChart.png)
+![Plotting results on the Solution Fit Plot](images/gettingStarted/runSearch/12ResultsAndSolutionChart.png)
 
 ### Exiting the System
 
@@ -342,7 +342,7 @@ Before exiting the system, it is recommended to stop all running searches.
 
 1. For each search in the project tree, select the search, navigate to the "Start Search" view and click the "Stop Search" button
 
-![Stopping a search](gettingStarted/runSearch/13StopSearch.png)
+![Stopping a search](images/gettingStarted/runSearch/13StopSearch.png)
 
 2. Click the exit button on the window, or navigate to the "File" menu located at the top left of the window and click "Exit"
 
@@ -872,15 +872,15 @@ non-dominated set, and a solution-fit plot of the overall Pareto-optimal set.
 
 Non-dominated solutions from every generation
 
-![A chart of all non-dominated solutions from every generation](images\cli\results-all.png)
+![A chart of all non-dominated solutions from every generation](images/cli/results-all.png)
 
 Non-dominated solutions from the last generation
 
-![A chart of all non-dominated solutions from the last generation](images\cli\results-final.png)
+![A chart of all non-dominated solutions from the last generation](images/cli/results-final.png)
 
 Overall Pareto-optimal set's solution fit
 
-![A chart of the overall Pareto-optimal set's solution-fit](images\cli\solution-fit.png)
+![A chart of the overall Pareto-optimal set's solution-fit](images/cli/solution-fit.png)
  
 ### Exporting the Results as CSV
 
