@@ -555,13 +555,84 @@ This is where results and information gathered from the search will be displayed
 #### <Given Sub-Function/Sub-Feature>
 *Instructions: Include additional sub-sections as necessary for system sub-functions or sub-features, if they exist.*
 
-## Using the Command-Line Interface
+## Using the Command-Line
+
+### Synopsis
+
+```bash
+$ java -jar iconic-cli.jar -i <file> --population <number> --generations <number> --outputs <number> --primitives <symbol,...> [--graph] [--csv]
+```
+
+### Description
+
+`iconic-cli` is a simple command-line tool designed to expedite the generation of models without relying
+on a graphical user interface. The current version `0.7.0` uses `GSEMO` with cartesian chromosomes on
+two pre-defined objectives that minimise the:
+ 1. mean squared error, and,
+ 2. genome's size
+
+
+`iconic-cli` takes a single input file, a population size and a number of generations.
+*Versions `0.8.0` and above also requires a list of primitives identified by their symbol.*
+
+While running it prints the current progress as a percentage of generations elapsed versus total generations,
+the current least error and smallest size, and the total amount of time elapsed.
+
+![An example of running the CLI with the minimum number of parameters](images\cli\example_run_basic.png)
 
 ### Available Options
 
-#### Cartesian Genetic Programming
+#### Input File
 
-#### Gene Expression Programming
+`(-i | --input) <string>`
+
+The input file is a comma delimited list of values where each line is a new sample. 
+The current version `0.7.0` doesn't support input files with column headers.
+
+```csv
+0, 1, 0.25
+1, 1, 0.5
+0, 0, 1
+```
+
+#### Number of Outputs
+
+`--outputs <integer>`
+
+The number of outputs is used to specify how many outputs a chromosome can have.
+Even though it's required if the chromosome doesn't support multiple outputs this parameter will be ignored.
+
+In the current version `0.7.0` chromosomes with multiple outputs have each output summed
+together to produce a single output.
+
+#### Number of Generations
+
+`(-g|--generations) <integer>`
+
+The number of generations is used to specify how many generations to let the population evolve.
+Unlike the `Iconic Workbench` the number of generations must be greater than zero.
+
+#### Size of Population
+
+`(-p|--population) <integer>`
+
+The population size is used to specify the size of the initial starting population.
+This is less meaningful with `GSEMO` as the population grows dynamically with only Pareto-optimal solutions 
+being kept for the next generation. Setting an initial population size greater than one can still be
+used to increase the genetic diversity of the initial population.
+
+#### Primitives to Use
+
+`--primitives <symbol>,...`
+
+*Unavailable in `0.7.0` - ADD,SUB,MUL,ROOT,DIV,POW,EXP,SIN,COS are used by default.*
+
+The primitive set used by the algorithm must be specified as a list of comma-delimited symbols
+
+`--primitives ADD,MUL,DIV,SUB,LOG,SIN`
+
+A full list of available primitives can be seen with `--listPrimitives`.
+
 
 ## Troubleshooting & Support
 *Instructions: Describe all recovery and error correction procedures, including error conditions that may be generated and corrective actions that may need to be taken. Organize the information in sub-sections as appropriate. The following are common sub-sections that may be included as appropriate.*
