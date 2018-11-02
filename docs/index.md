@@ -3,10 +3,10 @@
 # Iconic
 ## User Manual
 - Version 1.5
-- 29/10/2018
+- 02/11/2018
 - Document Number: 1.0
+- [Source Code](https://github.com/koosvary/Iconic)
 
- 
 ## Table of Contents
 * [Introduction](#introduction)
 * [Overview](#overview)
@@ -88,24 +88,18 @@
     - [Number of Columns](#number-of-columns-1)
     - [Number of Rows](#number-of-rows-1)
     - [Number of Levels Back](#number-of-levels-back-1)
-* [Troubleshooting & Support](#troubleshooting---support)
-  + [Error Messages](#error-messages)
-  + [Special Considerations](#special-considerations)
-  + [Support](#support)
+* [Support & Contact](#support---contact)
 
 ## Introduction
-*Instructions: Provide full identifying information for the automated system, application, or situation for which the User Manual applies, including as applicable, identifications number(s), title(s)/name(s), abbreviation(s)/acronym(s), part number(s), version number(s), and release number(s). Summarize the purpose of the document, the scope of activities that resulted in its development, the intended audience for the document, and expected evolution of the document. Also describe any security or privacy considerations associated with use of the User Manual.*
 
-This User Manual (UM) provides the information necessary for users to effectively use the **Iconic Workbench**.  It is up-to-date as of Iconic v0.6.0 released 26/10/2018.
+Iconic is an open source evolutionary algorithm framework developed by a group of 10 students at the University of Newcastle (UoN) in collaboration with Dr. Markus Wagner from the University of Adelaide (UoA) and Prof. Pablo Moscato from the University of Newcastle. It was developed as part of their Final Year Project for the Bachelor of Engineering (Software)(Honours) program.
+The Iconic Software Ecosystem has 3 main components: The **Iconic CLI** - a command line interface that allows users to run the Iconic System in a bare-bones, lightweight manner, the **Iconic Workbench** - a graphical user interface that gives users an accessible and easy way to operate the system, and the Iconic API - the underlying logic that both interfaces use to perform calculations and analysis.
+
+This User Manual (UM) provides the information necessary for users to effectively use the **Iconic Workbench** and the **Iconic CLI**.  It is up-to-date as of Iconic v0.7.0 released 02/11/2018. This document provides an overview of all screens in the **Iconic Workbench**, a guide on how to get started, and a list of each feature provided by the workbench. It also provides information and examples on how to use the **Iconic CLI**.
 
 ## Overview
-*Instructions: Briefly describe in general terms the system/application and the purpose for which it is intended, written in non-technical terminology. Consider including a high-level, business context diagram(s) for the system. The description should include, but is not limited to, the following:*
-- *Key features or major functions performed by the system/application*
-- *Architecture of the system in non-technical terms (e.g., client server, Web-based, etc.)*
-- *User access mode (e.g., graphical user interface)*
-- *System environment or special conditions*
 
-The **Iconic Workbench** provides a graphical user interface over the Iconic API. It allows users to easily import and modify datasets, preprocess data and start evolutionary searches to find an expression which represents the data. The Iconic Workbench aims to provide users an easy way to generate predictive models for their data.
+The **Iconic Workbench** provides a standalone graphical user interface over the Iconic API. It allows users to easily import and modify datasets, preprocess data and start evolutionary searches to find an expression which represents the data. The Iconic Workbench aims to provide users an easy way to generate predictive models for their data.
 
 The key features it provides are:
 * Two evolutionary algorithms
@@ -116,20 +110,22 @@ The key features it provides are:
 * Preprocess data with a variety of functions such as normalise and smooth
 * Plot found solution results against dataset
 
+The **Iconic CLI** is a simple, light-weight command-line tool designed to give more advanced users the ability to expedite the generation of models without relying on a graphical user interface. The current version uses the Global Simple Evolutionary algorithm for Multiple Objectives (GSEMO) to minimise mean squared error and genome size. It takes a single input file, a population size and a number of generations.
+
+Below is a high-level diagram of how both the **Iconic Workbench** and **Iconic CLI** integrate with the Iconic API to provide their functionality.
+
+![Iconic high-level architecture diagram](images/highLevelArchitectureDiagram.png)
+
 ### Conventions
-*Instructions: If applicable, describe any stylistic and command syntax conventions used within the User Manual. The following text is provided as an example only.*
 
-This document provides screen prints and corresponding narrative to describe how to use the **Iconic Workbench**. It will describe general usage of the application in the Getting Started section.
-
-The term ‘user’ is used throughout this document to refer to a person who requires and/or has acquired access to the **Iconic Workbench**.
-
+The term ‘user’ is used throughout this document to refer to a person who requires and/or has acquired access to the **Iconic Workbench** or **Iconic CLI**.
 
 ### Cautions & Warnings
-*Instructions: If applicable, identify any cautions or warnings that the user should know about before using the system (e.g., noted prohibitions, penalties for unauthorized access, etc.). If waiver use or copy permissions need to be obtained, describe the process.*
 
 Below is a list of known bugs with the Iconic Workbench. For an optimal experience, please refrain from replicating the following scenarios:
 
 #### General
+
 1. Most buttons in the menu bar do not work. Please be aware that using these buttons may not have the desired effect
 
 #### Input Data
@@ -154,18 +150,18 @@ Below is a list of known bugs with the Iconic Workbench. For an optimal experien
 
 
 ## Getting Started
-*Instructions: Provide a general walkthrough of the system from initiation through exit. The logical arrangement of the information should enable the user to understand the sequence and flow of the system. Use screen prints to depict examples of text under each heading.*
-Below is an overview of each of the screens in the Iconic Workbench, followed by a short guide on how to run your first search.
+
+Below is an overview of each of the screens in the **Iconic Workbench**, followed by a short guide on how to run your first search.
 
 ### Set-up Considerations
 
-Java Runtime Environment version 8 or higher must be installed to use the Iconic Workbench. It can be downloaded [here](https://www.java.com/en/download/)
+Java Runtime Environment version 8 or higher must be installed to use the **Iconic Workbench**. It can be downloaded [here](https://www.java.com/en/download/)
 
 To optimize utilisation of the **Iconic Workbench**:
-1. Use Java version 8.0 or higher.
-2. Screens are designed to be viewed at a screen resolution of 1920 x 1080.
+1. Screens are designed to be viewed at a screen resolution of 1920 x 1080.
 
 ### Screens
+
 #### Input Data
 
 ![Input Data screen with a project selected](images/gettingStarted/InputDataView1.png)
@@ -227,13 +223,14 @@ To optimize utilisation of the **Iconic Workbench**:
 14. Enable building block checkbox
 15. Building block symbol
 16. Building block complexity
-17. Building block description
+17. Building block enable/disable all button
+18. Building block description area
 
 ![Define Search screen for GEP search](images/gettingStarted/DefineSearchGep.png)
 
-18. Head length input
-19. Crossover algorithm dropdown
-20. Crossover rate slider
+19. Head length input
+20. Crossover algorithm dropdown
+21. Crossover rate slider
 
 #### Start Search
 
@@ -347,12 +344,6 @@ Before exiting the system, it is recommended to stop all running searches.
 2. Click the exit button on the window, or navigate to the "File" menu located at the top left of the window and click "Exit"
 
 ## Using the System
-*Instructions: Provide a detailed description of each user function and/or feature, explaining in detail the characteristics of the required input and system-produced output. Each function/feature should be described under a separate sub-section header, 4.1-4.x, and should correspond sequentially to the system functions (e.g., menu items) and/or features listed in certain sub-sections found in this document. Include screen prints as needed to depict examples. This section of the User Manual may also be tailored or customized based on defined user roles, if appropriate.*
-
-*If applicable, include sub-sections that describe the pre-programmed and/or ad hoc query and retrieval capabilities of the system and associated user procedures (e.g., sequenced control instructions to extract query requests from the database). Include the query name or code the user would invoke to execute the query and any query parameters.*
-
-*If applicable, include sub-sections to describe and depict all standard and/or ad hoc report capabilities available to the end user and any associated user procedures. Include formats for each available report and the meaning of each field shown on the report. Also describe any special formats associated with ad hoc reports that the user may be able to create. Provide detailed instructions for executing and printing the different reports that are available.*
-*Include descriptions of output procedures, identifying output formats and specifying the output’s purpose, frequency, options, media, and location.*
 
 The following sub-sections provide detailed, step-by-step instructions on how to use the various functions or features of the **Iconic Workbench**.
 
@@ -719,6 +710,14 @@ Currently, Iconic only supports copy & paste of solutions from the results table
 3. Right-click a result in the table
 4. Click "Copy"
 
+### Other
+
+#### Changing Workbench Theme
+The Iconic Workbench supports different colour schemes. These are: Default, Dark, Bootstrap 2, Bootstrap 3
+
+1. Click "View" in the menu bar
+2. Select a theme
+
 ## Using the Command-Line
 
 ### Synopsis
@@ -830,7 +829,7 @@ A full list of available primitives can be seen by using `--listPrimitives`.
 
 `(-cP | --crossoverProbability) <percentage in range [0.0, 1.0]>`
 
-The probability of crossover being used on an offspring during each instance of the 
+The probability of crossover being used on an offspring during each instance of the
 evolutionary cycle. 
 A crossover probability of `1.0` will cause crossover to always occur in each cycle,
 whereas a probability of `0.0` will prevent crossover from ever occurring.
@@ -933,96 +932,17 @@ the chromosome means that any node in the graph can connect to any other node pr
 Reducing the maximum number of levels back will force the chromosome to produce larger
 models.
 
-## Troubleshooting & Support
-*Instructions: Describe all recovery and error correction procedures, including error conditions that may be generated and corrective actions that may need to be taken. Organize the information in sub-sections as appropriate. The following are common sub-sections that may be included as appropriate.*
+# Support & Contact
 
-### Error Messages
-*Instructions: Identify the error messages that a user may receive and the likely cause(s) and/or possible corrective actions for the error. If the list is extensive, this information may be best provided in an appendix to the document that is referenced here.*
-
-### Special Considerations
-*Instructions: If applicable, describe any special circumstances, actions, caveats, exceptions, etc., that should be considered for troubleshooting.*
-
-### Support
-*Instructions: Provide information on how the user can get emergency assistance and system support (e.g., help desk support, production support, etc.). Include the names of the responsible personnel and organization(s), telephone numbers, and email addresses of the staff who serve as points of contact for system support. The following table is provided as an example and may be modified as needed. Also provide instructions for how identified problems with the system are to be reported. Include instructions for security incident handling, as appropriate.*
+The Iconic team has stopped official implementation of the Iconic project on 02/11/2018. The Iconic team is not obligated in any way to maintain the system or provide support for end users. Contact information is provided below as a courtesy. Feel free to contact
 
 ##### Table 1 - Support Points of Contact
-|Contact - Org|Phone|Email|Role|Responsibility|
+|Contact - Org|Email|Role|Responsibility|
 |:---:|---|---|---|---|
-|Jayden Urch - Iconic|N/A|jayden.urch@uon.edu.au|Project Manager|Project management|
-|Tim Pitts - Iconic|N/A|timothy.pitts@uon.edu.au|Client Communications|External resourcing and communications|
-|Dr Shamus Smith - UoN|(02)49216175|shamus.smith@newcastle.edu.au|Course Co-ordinator|Course Co-ordination|
-|Dr Pablo Moscato - UoN|(02)49216056|pablo.moscato@newcastle.edu.au|Course Manager|Subject matter expert|
+|Jayden Urch - Iconic|jayden.urch@uon.edu.au|Project Manager|Project management|
+|Tim Pitts - Iconic|timothy.pitts@uon.edu.au|Client Communications|External resourcing and communications|
+|Jasbir Shah - Iconic|jasbir.shah@uon.edu.au|Developer|Search algorithm and CLI expert|
+|Lachlan Meyer - Iconic|lachlan.meyer@uon.edu.au|Developer|Repository Owner|
+|Dr Pablo Moscato - UoN|pablo.moscato@newcastle.edu.au|Course Manager|Subject matter expert|
 |Dr Markus Wagner - UoA|N/A|markus.wagner@adelaide.edu.au|Primary Client|Project direction and features|
 |Contact Name & Organization|Phone|Email|Role|Responsibility|
-
-## Appendix
-  ### Appendix A: Record of Changes
-*Instructions: Provide information on how the development and distribution of the User Manual will be controlled and tracked. Use the table below to provide the version number, the date of the version, the author/owner of the version, and a brief description of the reason for creating the revised version.*
-
-##### Table 2 - Record of Changes
-|Version Number|Date|Author/Owner|Description of Change|
-|---|---|---|---|
-|X.X|DD/MM/YYYY|Author/Owner|Description of Change|
-|X.X|DD/MM/YYYY|Author/Owner|Description of Change|
-|X.X|DD/MM/YYYY|Author/Owner|Description of Change|
-
-### Appendix B: Acronyms
-*Instructions: Provide a list of acronyms and associated literal translations used within the document. List the acronyms in alphabetical order using a tabular format as depicted below.*
-
-##### Table 3 - Acronyms
-|Acronym|Literal Translation|
-|---|---|
-|Acronym|Literal Translation|
-|Acronym|Literal Translation|
-|Acronym|Literal Translation|
-
-### Appendix C: Glossary
-*Instructions: Provide clear and concise definitions for terms used in this document that may be unfamiliar to readers of the document. Terms are to be listed in alphabetical order.*
-
-##### Table 4 - Glossary
-|Term|Acronym|Definition|
-|---|---|---|
-|Term|Acronym|Definition|
-|Term|Acronym|Definition|
-|Term|Acronym|Definition|
-
-### Appendix D: Referenced Documents
-*Instructions: Summarize the relationship of this document to other relevant documents. Provide identifying information for all documents used to arrive at and/or referenced within this document (e.g., related and/or companion documents, prerequisite documents, relevant technical documentation, etc.).*
-
-##### Table 5 - Referenced Documents
-|Document Name|Document Location and/or URL    Issuance|Date|
-|---|---|---|
-|Document Name|Document Location and/or URL|DD/MM/YYYY|
-|Document Name|Document Location and/or URL|DD/MM/YYYY|
-|Document Name|Document Location and/or URL|DD/MM/YYYY|
-
-### Appendix E: Approvals
-The undersigned acknowledge that they have reviewed the User Manual and agree with the information presented within this document. Changes to this User Manual will be coordinated with, and approved by, the undersigned, or their designated representatives.
-
-*Instructions: List the individuals whose signatures are desired. Examples of such individuals are Business Owner, Project Manager (if identified), and any appropriate stakeholders. Add additional lines for signature as necessary.*
-
-##### Table 6 - Approvals
-|Document Approved By|Date Approved|
-|---|---|
-|Name: _Name_, _Job Title_ - _Company_|DD/MM/YYYY|
-|Name: _Name_, _Job Title_ - _Company_|DD/MM/YYYY|
-|Name: _Name_, _Job Title_ - _Company_|DD/MM/YYYY|
-|Name: _Name_, _Job Title_ - _Company_|DD/MM/YYYY|
-
-### Appendix F: Additional Appendices
-*Instructions: Utilize additional appendices to facilitate ease of use and maintenance of the document.*
-
-### Appendix G: Notes / Instructions
-This document is a template for creating a User Manual for a given investment or project. The final document should be delivered in an electronically searchable format. The User Manual should stand on its own with all elements explained and acronyms spelled out for reader/reviewers, including reviewers outside CMS who may not be familiar with CMS projects and investments.
-
-This template includes instructions, boilerplate text, and fields. The developer should note that:
-- Each section provides instructions or describes the intent, assumptions, and context for content included in that section. Instructional text appears in italicized font throughout this template.
-- When finished, instructional text in each section should be replaced with information specific to the particular investment.
-- Some text and tables are provided as boilerplate examples of wording and formats that may be used or modified as appropriate.
-
-When using this template, follow these steps:
-1. Table captions and descriptions are to be placed left-aligned, above the table.
-2. Modify any boilerplate text, as appropriate, to your specific investment.
-3. Do not delete any headings. If the heading is not applicable to the investment, enter “Not Applicable” under the heading.
-4. Figure captions and descriptions are to be placed left-aligned, below the figure. All figures must have an associated tag providing appropriate alternative text for Section 508 compliance.
-5. Delete this “Notes / Instructions” page and all instructions to the programmer before finalizing the initial draft of the document.
