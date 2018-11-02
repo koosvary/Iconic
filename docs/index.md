@@ -10,38 +10,38 @@
 ## Table of Contents
 1. [Introduction](#introduction)
 2. [Overview](#overview)
-    1. [Conventions](#conventions)
-    2. [Cautions & Warnings](#cautions-warnings)
+  1. [Conventions](#conventions)
+  2. [Cautions & Warnings](#cautions-warnings)
 3. [Getting Started](#getting-started)
-    1. [Set-up Considerations](#set-up-considerations)
-    2. [User Access Considerations](#user-access-considerations)
-    3. [Accessing the System](#accessing-the-system)
-    4. [System Organization & Navigation](#system-organization-navigation)
-    5. [Exiting the System](#exiting-the-system)
+  1. [Set-up Considerations](#set-up-considerations)
+  2. [User Access Considerations](#user-access-considerations)
+  3. [Accessing the System](#accessing-the-system)
+  4. [System Organization & Navigation](#system-organization-navigation)
+  5. [Exiting the System](#exiting-the-system)
 4. [Using the System](#using-the-system)
-    1. [Load, View, & Edit a Dataset](#load-view-edit-a-dataset)
-    2. [Pre-Process Data](#pre-process-data)
-    3. [Define Search](#define-search)
-    4. [Start Search](#start-search)
-    5. [Results](#results)
-    6. [<Given Function/Feature>](#given-function-feature)
-    7. [<Given Sub-Function/Sub-Feature>](#given-sub-function-sub-feature)
+  1. [Load, View, & Edit a Dataset](#load-view-edit-a-dataset)
+  2. [Pre-Process Data](#pre-process-data)
+  3. [Define Search](#define-search)
+  4. [Start Search](#start-search)
+  5. [Results](#results)
+  6. [<Given Function/Feature>](#given-function-feature)
+  7. [<Given Sub-Function/Sub-Feature>](#given-sub-function-sub-feature)
 5. [Using the Command-Line](#using-the-command-line)
-    1. [Available Options](#available-options)
-        1. [Cartesian Genetic Programming](#cartesian-genetic-programming)
-        2. [Gene Expression Programming](#gene-expression-programming)
-    2. [Loading a Dataset](#loading-a-dataset)
-    3. [Pre-Processing a Dataset](#pre-processing-a-dataset)
-    4. [Preparing a Chromosome Supplier](#preparing-a-chromosome-supplier)
-    5. [Preparing an Evolutionary Algorithm](#preparing-an-evolutionary-algorithm)
-    6. [Starting a Search](#starting-a-search)
-    7. [Gathering the Results](#gathering-the-results)
+  1. [Available Options](#available-options)
+  1. [Cartesian Genetic Programming](#cartesian-genetic-programming)
+  2. [Gene Expression Programming](#gene-expression-programming)
+  2. [Loading a Dataset](#loading-a-dataset)
+  3. [Pre-Processing a Dataset](#pre-processing-a-dataset)
+  4. [Preparing a Chromosome Supplier](#preparing-a-chromosome-supplier)
+  5. [Preparing an Evolutionary Algorithm](#preparing-an-evolutionary-algorithm)
+  6. [Starting a Search](#starting-a-search)
+  7. [Gathering the Results](#gathering-the-results)
 6. [Troubleshooting & Support](#troubleshooting-support)
-    1. [Error Messages](#error-messages)
-    2. [Special Considerations](#special-considerations)
-    3. [Support](#support)
+  1. [Error Messages](#error-messages)
+  2. [Special Considerations](#special-considerations)
+  3. [Support](#support)
 7. [Appendix](#appendix)
-    1. A: Record of Changes
+  1. A: Record of Changes
     2. B: Acronyms
     3. C: Glossary
     4. D: Referenced Documents
@@ -156,7 +156,7 @@ To optimize utilisation of the **Iconic Workbench**:
 
 ![Process Data screen with preprocessors applied](gettingStarted/ProcessData2.png)
 
- 9. Smoothing window input
+  9. Smoothing window input
  10. Missing values method dropdown
  11. Min and Max scale input
  12. Outlier Threshold input
@@ -312,6 +312,107 @@ Before exiting the system, it is recommended to stop all running searches.
 
 The following sub-sections provide detailed, step-by-step instructions on how to use the various functions or features of the **Iconic Workbench**.
 
+### Create a New Project
+Projects provide logical groupings for multiple datasets and searches.
+1. Click "File" in the menu bar then click "New Project..." OR press Ctrl+N
+2. Give your project a name and click "OK"
+
+Alternatively, if no project exists, you will be prompted to create one when importing or creating a dataset
+### Import or Create a Dataset
+You may either import an existing dataset in CSV format, or create one from scratch and enter or paste in values.
+#### Import a Dataset
+1. Create a project and select it in the project tree
+2. Click the "Import Dataset" button on the "Input Data" screen
+3. Navigate to the desired dataset using your systems file explorer
+4. Select the dataset and click "Open"
+
+#### Create a Dataset
+1. Create a project and select it in the project tree
+2. Click the "Create Dataset" button on the "Input Data" screen
+3. Give the dataset a name and click "OK"
+
+*NOTE: If a project does not exist, you will be asked to create one when importing or creating a dataset
+
+### Add a Search
+You may add multiple searches to a dataset. There are two types of searches to choose from : Gene Expression Programming or Cartesian Genetic Programming.
+
+1. Create a project and select it in the project tree
+2. Click the "New Search" button on the "Input Data" screen
+3. Give the search a name
+4. Select a search type
+5. Click "OK"
+
+### View & Edit a Dataset
+You may view an edit the dataset in a spreadsheet view. This supports copy and paste both to and from Microsoft Excel
+1. Import or create a dataset and select it in the project tree
+2. Navigate to the "Input Data" screen
+    a. Here you can view the dataset in a spreadsheet fashion
+3. Double-click a cell to edit it, enter a new value and press the enter key or click out of the cell to save
+4. Select a cell and press the delete key to remove the value
+5. You may select multiple cells by clicking and dragging the mouse
+6. You may copy data via right-click -> Copy OR Edit -> Copy in the menu bar OR by pressing Ctrl+C
+7. You may paste data via selecting a cell, right-click -> Paste OR Edit -> Paste or by pressing Ctrl+V
+8. You may edit the "name" row to change or give a name to the feature
+
+### Export a Dataset
+You may save a dataset from the Iconic Workbench to your system
+1. Select a dataset in the project tree
+2. Navigate to the "Input Data" screen
+3. Click the "Export Dataset" button
+4. Select a location, give the dataset a name (and file extension) and click "Save"
+
+This will save the dataset in a CSV format
+
+### Viewing Feature Data
+You may view a plot of the data for each individual feature in the dataset
+1. Select a dataset in the project tree
+2. Navigate to the "Process Data" screen
+3. Select a feature in the table
+
+This will plot the data from that feature below. Additionally, a label "(missing values)" will appear next to the feature in the table if the feature is missing values.
+
+### Preprocess Data
+You may apply a number of transformations to each feature in the dataset. These can be enabled in a user specified order. This ordering will appear on the right hand side of the screen. Features with preprocessors applied will be labelled with "(modified)". This will not affect the dataset in the "Input Data" screen, nor will modified values be exported when exporting the dataset.
+
+#### Smooth Data
+You may smooth feature data using a sliding window approach. By default, the window is 2. This means that for every data point, we take the average or the two before, two after and the point itself. This becomes the new value for this data point. This is calculated in advanced before making any changes to the dataset. If there is no values immediately before or after the data point, the window will wrap around to the nearest point.
+1. Select a feature in the feature table
+2. Click the "Smooth data points of ..." checkbox
+3. Adjust the window size as necessary, pressing enter to submit the new window size
+
+#### Handle Missing Values
+If the dataset is missing values, you **MUST** apply this preprocessor before any others can be applied. This is also true if the "Remove Outliers" (see below) preprocessor is applied and removes values from the dataset.
+There are 5 methods for removing outliers:
+* Copy values from previous row
+* Set to the mean value
+* Set to the median value
+* Set to 0
+* Set to 1
+1. Select a feature in the feature table
+2. Click the "Handle missing values of ..." checkbox
+3. Choose a method from the drop-down menu
+
+#### Normalise Scale
+You may normalise the scale of the data points between two user defined values. For example, if your data range is 0 to 100, you can use this preprocessor to scale it between 0 and 1.
+1. Select a feature in the feature table
+2. Click the "Normalise scale of ..." checkbox
+3. Set the minimum value and press the enter key
+4. Set the maximum value and press the enter key
+
+#### Remove Outliers
+You may use this preprocessor to remove outlying data points from the feature. You may specify a threshold. A data point is considered an outlier if the distance between the data point and the mean value is greater than the threshold multiplied by IQR (interquartile range).
+If outliers are removed, you must handle missing values before continuing.
+1. Select a feature in the feature table
+2. Click the "Remove outliers of ..." checkbox
+3. Specify the threshold by entering a value into the box and pressing the enter key or by using the arrows
+4. Apply the "Handle Missing Values" operation
+
+#### Offset Values
+You may offset each data point in the feature by a specified positive or negative amount.
+1. Select a feature in the feature table
+2. Click the "Offset values of ..." checkbox
+3. Enter a value and press enter to apply
+
 ### Load, View, & Edit a Dataset
 
 The "Input Data" screen is where the user can import, view, edit and save datasets to be used in the search.
@@ -320,7 +421,7 @@ The "Input Data" screen is where the user can import, view, edit and save datase
 
 ![alt-text](images/load_edit_view/lev_1.png)
 
- 1. If there is no project, a prompt will be shown to create one when the “Load Dataset” button is pressed 2. If a project exists but is not selected when the “Load Dataset” button is pressed, the user will be prompted to select a project2. Either right click the project and click “Import Dataset…”
+  1. If there is no project, a prompt will be shown to create one when the “Load Dataset” button is pressed 2. If a project exists but is not selected when the “Load Dataset” button is pressed, the user will be prompted to select a project2. Either right click the project and click “Import Dataset…”
 
 ![alt-text](images/load_edit_view/lev_2.png)
 
@@ -340,7 +441,7 @@ or click the “Import Dataset” button on the “Input Data” screen
 
 ![alt-text](images/load_edit_view/lev_5.png)
 
- 1. If entered value is invalid, the original/previous value will be retained6. Click “Export Dataset” and enter a filename and extension to save edited dataset to disk
+  1. If entered value is invalid, the original/previous value will be retained6. Click “Export Dataset” and enter a filename and extension to save edited dataset to disk
 
 ![alt-text](images\load_edit_view\ed_1.png)
 
@@ -348,14 +449,14 @@ or click the “Import Dataset” button on the “Input Data” screen
 
 ![alt-text](images\load_edit_view\lev_6.png)
 
- 1. You may also edit the description of the feature in the "info" row
+  1. You may also edit the description of the feature in the "info" row
 8.  You can add extra rows to the dataset by scrolling down
 
 ![alt-text](images\load_edit_view\lev_7.png)
 
 ![alt-text](images\load_edit_view\lev_7b.png)
 
- 1. These rows will be zeroed out and will not persist unless a value is entered into a cell
+  1. These rows will be zeroed out and will not persist unless a value is entered into a cell
 9. You may also create a dataset from scratch by clicking the "Create Dataset" button
 
 ![alt-text](images\load_edit_view\lev_8.png)
@@ -364,7 +465,7 @@ or click the “Import Dataset” button on the “Input Data” screen
 
 ![alt-text](images\load_edit_view\lev_10.png)
 
- 1. This currently defaults to 26 features. Ability to choose to be implemented in an upcoming release
+  1. This currently defaults to 26 features. Ability to choose to be implemented in an upcoming release
 ### Pre-Process Data
 
 On the "Process Data" screen, the user can apply transformations and manipulate the data before a search begins.
