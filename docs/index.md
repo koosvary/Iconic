@@ -27,15 +27,20 @@
   6. [<Given Function/Feature>](#given-function-feature)
   7. [<Given Sub-Function/Sub-Feature>](#given-sub-function-sub-feature)
 5. [Using the Command-Line](#using-the-command-line)
-  1. [Available Options](#available-options)
-  1. [Cartesian Genetic Programming](#cartesian-genetic-programming)
-  2. [Gene Expression Programming](#gene-expression-programming)
-  2. [Loading a Dataset](#loading-a-dataset)
-  3. [Pre-Processing a Dataset](#pre-processing-a-dataset)
-  4. [Preparing a Chromosome Supplier](#preparing-a-chromosome-supplier)
-  5. [Preparing an Evolutionary Algorithm](#preparing-an-evolutionary-algorithm)
-  6. [Starting a Search](#starting-a-search)
-  7. [Gathering the Results](#gathering-the-results)
+    1. [Choosing the Input File](#choosing-the-input-file)
+    2. [Number of Outputs](#number-of-outputs)
+    3. [Number of Generations](#number-of-generations)
+    4. [Size of Population](#size-of-population)
+    5. [Primitives to Use](#primitives-to-use)
+    6. [Crossover Probability](#crossover-probability)
+    7. [Mutation Probability](#mutation-probability)
+    8. [Number of Repetitions](#type-of-algorithm)
+    9. [Graphing the Results](#graphing-the-results)
+    10. [Exporting the Results as CSV](#exporting-the-results-as-csv)
+    11. [Cartesian-Specific Parameters](#cartesian-specific-parameters)
+        1. [Number of Columns](#number-of-columns)
+        2. [Number of Rows](#number-of-rows)
+        3. [Number of Levels Back](#number-of-levels-back)
 6. [Troubleshooting & Support](#troubleshooting-support)
   1. [Error Messages](#error-messages)
   2. [Special Considerations](#special-considerations)
@@ -702,9 +707,7 @@ d-----       31/10/2018  11:46 AM                inputFile          # Output dir
 -a----       16/10/2018   9:29 AM                iconic-cli.jar
 ```
 
-### Available Options
-
-#### Type of Algorithm
+### Type of Algorithm
 
 `(-a | --algorithm) <GENE_EXPRESSION_PROGRAMMING | CARTESIAN_GENETIC_PROGRAMMING>`
 
@@ -712,7 +715,7 @@ The type of algorithm determines which algorithm should be used to perform the s
 As of version `0.7.0` this parameter is ignored as only `GSEMO` with cartesian chromosomes
 is used.
 
-#### Input File
+### Choosing the Input File
 
 `(-i | --input) <string>`
 
@@ -725,7 +728,7 @@ The current version `0.7.0` doesn't support input files with column headers.
 0, 0, 1
 ```
 
-#### Number of Outputs
+### Number of Outputs
 
 `--outputs <integer>`
 
@@ -735,14 +738,14 @@ If the chromosome doesn't support multiple outputs this parameter will be ignore
 In the current version `0.7.0` chromosomes with multiple outputs have each output summed
 together to produce a single output.
 
-#### Number of Generations
+### Number of Generations
 
 `(-g | --generations) <integer>`
 
 The number of generations is used to specify how many generations to let the population evolve.
 Unlike the `Iconic Workbench` the number of generations must be greater than zero.
 
-#### Size of Population
+### Size of Population
 
 `(-p | --population) <integer>`
 
@@ -751,7 +754,7 @@ This is less meaningful with `GSEMO` as the population grows dynamically with on
 being kept for the next generation. Setting an initial population size greater than one can still be
 used to increase the genetic diversity of the initial population.
 
-#### Primitives to Use
+### Primitives to Use
 
 `--primitives <symbol>,...`
 
@@ -762,7 +765,7 @@ If no primitives are specified all available primitives will be used by default.
 
 A full list of available primitives can be seen by using `--listPrimitives`.
 
-#### Crossover Probability
+### Crossover Probability
 
 `(-cP | --crossoverProbability) <percentage in range [0.0, 1.0]>`
 
@@ -774,7 +777,7 @@ whereas a probability of `0.0` will prevent crossover from ever occurring.
 *The crossover probability will only take effect if the algorithm uses a crossover operator.
 In version `0.7.0` no crossover is included by default with no way to change it.*
 
-#### Mutation Probability
+### Mutation Probability
 
 `(-mP | --mutationProbability) <percentage in range [0.0, 1.0]>`
 
@@ -786,7 +789,7 @@ whereas a probability of `0.0` will prevent mutation from ever occurring.
 *The mutation probability will only take effect if the algorithm uses a mutator.
 In version `0.7.0` a mutator is included by default with no way to change it.*
 
-#### Number of Repetitions
+### Number of Repetitions
 
 `(-r | --repeat) <integer>`
 
@@ -796,7 +799,7 @@ same parameters as specified.
 If the `--graph` or `--csv` flags are enabled then the
 results from each trial will be included within the same output file(s).
 
-#### Graphing the Results
+### Graphing the Results
 
 `--graph`
 
@@ -810,7 +813,7 @@ non-dominated set, and a solution-fit plot of the overall Pareto-optimal set.
 ![A chart of all non-dominated solutions from the last generation](images\cli\results-final.png)
 ![A chart of the overall Pareto-optimal set's solution-fit](images\cli\solution-fit.png)
  
-#### Exporting the Results as CSV
+### Exporting the Results as CSV
 
 `--csv`
 
@@ -821,7 +824,7 @@ The CSV files generated include a list of chromosomes from every generation's no
 and the chromosomes from the last generation's non-dominated set.
 Chromosomes are formatted as a 3-tuple of (mean squared error, size, model).
 
-#### Cartesian-Specific Parameters
+### Cartesian-Specific Parameters
 
 These parameters are exclusive to cartesian chromosomes. If any other type of chromosome
 is used any option specified here will be ignored.
@@ -829,14 +832,14 @@ is used any option specified here will be ignored.
 *Version `0.7.0` doesn't support the use of other chromosomal types so these parameters will
 never be ignored.*
 
-##### Number of Columns
+#### Number of Columns
 
 `(--columns) <integer>`
 
 The number of columns that the chromosome should use. A cartesian chromosome stores
 its genotype as a graph, this parameter specifies the columnar dimensions of that graph.
 
-##### Number of Rows
+#### Number of Rows
 
 `(--rows) <integer>`
 
@@ -847,7 +850,7 @@ In general there is no reason to use a number of rows other than one as there's
 always a functionally equivalent one-dimensional graph. If in doubt set this 
 parameter to one.
 
-##### Number of Levels Back
+#### Number of Levels Back
 
 `(--levelsBack) <integer>`
 
