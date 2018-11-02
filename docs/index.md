@@ -444,6 +444,7 @@ This specifies the target function to search for. It allows you to define the in
 ![Syntax of target expression](images/TargetExpressionSyntax.png)
 
 #### Building Blocks
+
 These are the functional primitives to be included in the search. Each building block can be enabled or disabled individually, have their complexities set and will display a description when clicked.
 1. Select a search in the project tree
 2. Navigate to the "Define Search" page
@@ -452,7 +453,8 @@ These are the functional primitives to be included in the search. Each building 
 5. Double click the complexity, enter a new value and press the enter key to change the complexity
 6. Click the "Enable All" button to enable all building blocks
 7. Click the "Disable All" button to disable all building blocks
-    a. This button will only display is "Enable All" is pressed
+    a. This button will only display if "Enable All" is pressed
+    
 ##### Building block list
 Below is a list of all currently implemented building blocks in alphabetical order
 
