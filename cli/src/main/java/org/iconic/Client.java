@@ -35,6 +35,7 @@ import org.iconic.ea.operator.primitive.*;
 import org.iconic.ea.strategies.MultiObjectiveEvolutionaryAlgorithm;
 import org.iconic.ea.strategies.gsemo.GSEMO;
 import org.iconic.io.cli.ArgsConverterFactory;
+import org.iconic.io.cli.PrimitiveTypeConverter;
 import org.iconic.utils.GraphWriter;
 import org.iconic.utils.SeriesWriter;
 import org.iconic.utils.XYGraphWriter;
@@ -72,6 +73,21 @@ public class Client {
         // Check if the user passed in the help flag
         if (client.getArgs().isHelp()) {
             client.usage();
+            return;
+        }
+
+        // Check if the user wants to see all of the available primitives
+        if (client.getArgs().isListPrimitives()) {
+            // Print each primitive and its description on its own line
+            log.info(
+                    "Primitives:\n\t{}",
+                    String.join("\n\n\t", new PrimitiveTypeConverter().getPrimitives().values()
+                        .stream()
+                            .map(v -> String.format("%s", v.getDescription().replace("\n", "\n\t")))
+                            .collect(Collectors.toList())
+                        )
+            );
+            return;
         }
 
         // Check if the user passed in an input file
@@ -93,9 +109,11 @@ public class Client {
             int columns = client.getArgs().getColumns();
             int rows = client.getArgs().getRows();
             int levelsBack = client.getArgs().getLevelsBack();
+            List<FunctionalPrimitive<Double, Double>> blocks = client.getArgs().getPrimitives();
 
             log.info("Feature Size: {}", () -> featureSize - 1);
             log.info("Sample Size: {}", () -> sampleSize);
+            log.info("Primitives: {}", () -> blocks);
 
             // Create a supplier for Gene Cartesian Programming chromosomes
             List<String> inputs = new ArrayList<>(featureSize - 1);
@@ -112,10 +130,7 @@ public class Client {
             );
 
             // Add all of the functions the chromosomes can use
-            supplier.addFunction(Arrays.asList(
-                    new Addition(), new Subtraction(), new Multiplication(), new Root(),
-                    new Division(), new Power(), new Exponential(), new Sin(), new Cos()
-            ));
+            supplier.addFunction(blocks);
 
             final int numConstants = 100;
             final int min = -100;
