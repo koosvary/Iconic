@@ -132,19 +132,6 @@ public class Client {
             // Add all of the functions the chromosomes can use
             supplier.addFunction(blocks);
 
-            final int numConstants = 100;
-            final int min = -100;
-            final int max = 100;
-            final List<FunctionalPrimitive<Double, Double>> constants = new ArrayList<>(numConstants);
-
-            while (constants.size() < numConstants) {
-                constants.add(new Constant<>(ThreadLocalRandom.current().nextDouble(
-                        min, max
-                )));
-            }
-
-            supplier.addFunction(constants);
-
             final int generations = client.getArgs().getGenerations();
             final Set<Chromosome<Double>> nonDominatedFinal = new LinkedHashSet<>();
             final List<Set<Chromosome<Double>>> nonDominatedAll = new ArrayList<>(generations);
