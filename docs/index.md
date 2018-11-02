@@ -672,7 +672,6 @@ two pre-defined objectives that minimise the:
 
 
 `iconic-cli` takes a single input file, a population size and a number of generations.
-*Versions `0.8.0` and above also requires a list of primitives identified by their symbol.*
 
 While running it prints the current progress as a percentage of generations elapsed versus total generations,
 the current least error and smallest size, and the total amount of time elapsed.
