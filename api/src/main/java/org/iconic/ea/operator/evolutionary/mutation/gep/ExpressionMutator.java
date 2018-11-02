@@ -85,7 +85,7 @@ public class ExpressionMutator<R> implements Mutator<ExpressionChromosome<R>, R>
             final int index = ThreadLocalRandom.current().nextInt(numFeatures);
             return new InputNode<>(index, featureLabels);
         } else {
-            final double constant = ThreadLocalRandom.current().nextInt(10000) / 100.0;
+            final double constant = ThreadLocalRandom.current().nextInt(20000) / 100.0 - 100.0;
             return new FunctionNode<>((Constant<R>) new Constant<>(constant));
         }
     }
