@@ -938,11 +938,10 @@ The Iconic team has stopped official implementation of the Iconic project on 02/
 
 ##### Table 1 - Support Points of Contact
 |Contact - Org|Email|Role|Responsibility|
-|:---:|---|---|---|---|
+|:---:|---|---|---|
 |Jayden Urch - Iconic|jayden.urch@uon.edu.au|Project Manager|Project management|
 |Tim Pitts - Iconic|timothy.pitts@uon.edu.au|Client Communications|External resourcing and communications|
 |Jasbir Shah - Iconic|jasbir.shah@uon.edu.au|Developer|Search algorithm and CLI expert|
 |Lachlan Meyer - Iconic|lachlan.meyer@uon.edu.au|Developer|Repository Owner|
 |Dr Pablo Moscato - UoN|pablo.moscato@newcastle.edu.au|Course Manager|Subject matter expert|
-|Dr Markus Wagner - UoA|N/A|markus.wagner@adelaide.edu.au|Primary Client|Project direction and features|
-|Contact Name & Organization|Phone|Email|Role|Responsibility|
+|Dr Markus Wagner - UoA|markus.wagner@adelaide.edu.au|Primary Client|Project direction and features|
