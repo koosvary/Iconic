@@ -114,7 +114,7 @@ The **Iconic CLI** is a simple, light-weight command-line tool designed to give 
 
 Below is a high-level diagram of how both the **Iconic Workbench** and **Iconic CLI** integrate with the Iconic API to provide their functionality.
 
-![Iconic high-level architecture diagram](images/highLevelArchitectureDiagram.png)
+![Iconic high-level architecture diagram](images/HighLevelArchitectureDiagram.png)
 
 ### Conventions
 
