@@ -70,11 +70,11 @@ public class GSEMO<R extends Chromosome<T>, T extends Comparable<T>>
         // Exactly one parent is required
         final R parent = getSelector(0).apply(newPopulation);
 
-        // Create a single offspring by performing mutation on the parent
+        // Create a single offspring by performing crossover and mutation on the parent
         R offspring = mutate((R) parent.clone());
 
-        // Continue mutating the offspring based on its parent's length
-        // reducing the probability of mutation with each attempt
+        // Continue evolving the offspring based on its parent's length
+        // reducing the probability of evolution with each attempt
         for (int j = 2; j <= parent.getSize(); ++j) {
             if ((1. / (double) j) >= ThreadLocalRandom.current().nextDouble()) {
                 offspring = mutate(offspring);
