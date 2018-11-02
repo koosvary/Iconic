@@ -4,6 +4,29 @@
 
 ## What's New
 
+### Release Notes - 0.7.0 - November 2nd, 2018
+
+#### CLI
+* Graph output changed from PDF to PNG, bringing speed improvements
+* Logarithmic scaling of axes in the solution fit plot has been disabled
+
+#### General
+* Added link to repository to the “About Iconic Workbench” dialog in the Help section of the menu bar
+* Updated range of constants in GEP search from 0 – 100 to -100 – 100.
+
+#### Input Data
+* Bugs around copying from Iconic into Excel and vice versa have been fixed
+* Deleting values from cells now working correctly
+* Can copy, paste and delete using the Edit section of the menu bar
+
+#### Define Search
+* Implemented Enable All / Disable All button for building blocks
+* Added additional checks and a warning dialog to starting a search with no primitives
+* Changed default complexities back to 1
+
+#### Results
+* Fixed a bug where results from a CGP search would not plot correctly
+
 ### Release Notes - 0.6.0 - October 25th, 2018
 
 #### General
