@@ -85,9 +85,12 @@ The term ‘user’ is used throughout this document to refer to a person who re
 
 Below is a list of known bugs with the Iconic Workbench. For an optimal experience, please refrain from replicating the following scenarios:
 
+#### General
+1. Most buttons in the menu bar do not work. Please be aware that using these buttons may not have the desired effect
+
 #### Input Data
 
-1. CSV data may contain a small amount of CSV header information at the start of the file. This will cause the Iconic Workbench to display "ï»¿" prepended to the first row of the dataset.
+1. CSV data may contain a small amount of CSV header information at the start of the file. This will cause the Iconic Workbench to display "ï»¿" prepended to the first row of the dataset
     * This will not affect performance if the CSV contains a feature header row
     * If the CSV does not contain a feature header row, the CSV header information will cause the first row in the dataset to be taken as a feature header row
 2. Iconic Workbench does not support importing, saving or exporting the "info" row in a dataset
