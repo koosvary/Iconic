@@ -1,5 +1,9 @@
 # Iconic Project
 
+## User Manual
+
+The user manual for Iconic can be found [here](https://koosvary.github.io/Iconic/docs/index.md).
+
 ## Build Status
 
 ## What's New
@@ -9,6 +13,7 @@
 #### CLI
 * Graph output changed from PDF to PNG, bringing speed improvements
 * Logarithmic scaling of axes in the solution fit plot has been disabled
+* The ability to choose building blocks (primitives) has been implemented
 
 #### General
 * Added link to repository to the “About Iconic Workbench” dialog in the Help section of the menu bar

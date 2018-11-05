@@ -23,6 +23,7 @@ allprojects {
         options.compilerArgs << "-Xlint:all" << "-Xlint:-processing"
     }
     dependencies {
+        compile group: 'io.github.classgraph', name: 'classgraph', version: '4.4.12'
         compile group: 'org.projectlombok', name: 'lombok', version: '1.16.16'
         compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.0'
         compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.0'
