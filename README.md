@@ -2,7 +2,7 @@
 
 ## User Manual
 
-The user manual for Iconic can be found [here](https://koosvary.github.io/Iconic/docs/index.md).
+The user manual for Iconic can be found [here](https://koosvary.github.io/Iconic/docs/index).
 
 ## Build Status
 

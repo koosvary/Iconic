@@ -205,7 +205,7 @@ To optimize utilisation of the **Iconic Workbench**:
 
 #### Define Search
 
-![Define Search screen for CGP search](images/gettingStarted/DefineSearchCGP.png)
+![Define Search screen for CGP search](images/gettingStarted/DefineSearchCgp.png)
 
 1. Define Search tab
 2. Target expression input
